@@ -3,7 +3,7 @@
 import { moduleMetadata } from "@storybook/angular";
 import { Story, Meta } from "@storybook/angular/types-6-0";
 import { DocumentationModule } from "../documentation-component/documentation.module";
-import { AccordionModule, Accordion } from "./";
+import { AccordionModule, Accordion, AccordionItem } from "./";
 
 export default {
 	title: "Components/Accordion",
@@ -11,10 +11,12 @@ export default {
 		moduleMetadata({
 			imports: [AccordionModule, DocumentationModule]
 		})
-	]
+	],
+	component: Accordion,
+	subcomponents: { AccordionItem }
 } as Meta;
 
-const Template: Story<Accordion> = (args) => ({
+const Template: Story = (args) => ({
 	props: args,
 	template: `
 		<ibm-accordion [align]="align">

@@ -43,7 +43,7 @@ export class Accordion implements AfterContentInit {
 	protected _skeleton = false;
 
 	@Input()
-	set skeleton(value: any) {
+	set skeleton(value: boolean) {
 		this._skeleton = value;
 		this.updateChildren();
 	}
