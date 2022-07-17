@@ -45,7 +45,16 @@ export const Basic = Template.bind({});
 Basic.argTypes = {
 	align: {
 		options: ["start", "end"],
-		control: { type: "radio" }
+		control: { type: "radio" },
+		description: "Some test",
+		defaultValue: "start",
+		table: {
+			type: {
+				detail: "Something really really long",
+				summary: "Something really short"
+			},
+			defaultValue: {summary: "start"},
+		}
 	},
 	selected: { action: "Selected" }
 };
