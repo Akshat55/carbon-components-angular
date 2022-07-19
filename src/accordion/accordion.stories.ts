@@ -53,7 +53,7 @@ Basic.argTypes = {
 				detail: "Something really really long",
 				summary: "Something really short"
 			},
-			defaultValue: {summary: "start"},
+			defaultValue: {summary: "start"}
 		}
 	},
 	selected: { action: "Selected" }

@@ -7,6 +7,21 @@ import { breakpoints } from '@carbon/layout';
 // import docJson from "../documentation.json";
 // // setCompodocJson(docJson);
 
+// import { configure, getStorybook } from '@storybook/angular';
+
+// // basic setup for storybook, depends on your project structure
+// const req = require.context('../src', true, /\.stories\.ts$/);
+
+// function loadStories() {
+// 	req.keys().forEach((filename) => req(filename));
+// }
+
+// configure(loadStories, module);
+// // this will return an object with all stories inside
+// const stories = getStorybook();
+
+// console.log('all stories are', stories);
+
 // Set carbon viewports options
 export const parameters = {
 	viewport: {
@@ -52,3 +67,12 @@ export const parameters = {
 		expanded: true
 	},
 };
+
+export const decorators = [
+	(Story, context) => {
+		// context.originalStoryFn() returns template
+		// Use values to get data from `documentation` json & populate argTypes
+		console.log('data', Story, context);
+		return Story();
+	}
+]
