@@ -17,11 +17,20 @@ export default {
 const Template: Story<LayerDirective> = (args) => ({
 	props: args,
 	template: `
-		<div class="example-layer">Layer 1</div>
+		<div class="example-layer">Layer 0</div>
 		<div ibmLayer>
-			<div class="example-layer">Layer 2</div>
+			<div class="example-layer">Layer 1</div>
 			<div ibmLayer>
-				<div class="example-layer">Layer 3</div>
+				<div class="example-layer">Layer 2</div>
+				<div [ibmLayer]="0">
+					<div class="example-layer">Layer 0</div>
+					<div [ibmLayer]="1">
+						<div class="example-layer">Layer 1</div>
+						<div ibmLayer>
+							<div class="example-layer">Layer 2</div>
+						</div>
+					</div>
+				</div>
 			</div>
 		</div>
 	`,
