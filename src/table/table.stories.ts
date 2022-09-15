@@ -76,6 +76,18 @@ function getModelWithDisabledRows() {
 	return disabledModel;
 }
 
+function getModelWithDisabledRows() {
+	const disabledModel = new TableModel();
+	const row1 = new TableRow(new TableItem({ data: "Name 1" }), new TableItem({ data: "Disabled 1" }));
+	row1.disabled = true;
+	const row2 = new TableRow(new TableItem({ data: "Name 3" }), new TableItem({ data: "Disabled 2" }));
+	row2.disabled = true;
+	const row3 = new TableRow(new TableItem({ data: "Name 2" }), new TableItem({ data: "Enabled 1" }));
+	const row4 = new TableRow(new TableItem({ data: "Name 4" }), new TableItem({ data: "Enabled 2" }));
+	disabledModel.data = [row1, row2, row3, row4];
+	return disabledModel;
+}
+
 // Story starts here
 export default {
 	title: "Components/Table",
@@ -396,7 +408,7 @@ const WithoutActionTemplate: Story = (args) => ({
 		<div>
 	`
 });
-export const WithToolbarWithoutToolbarAction = WithoutActionTemplate.bind({});
+export const WithToolbarWithoutToolbarAction = WithActionTemplate.bind({});
 WithToolbarWithoutToolbarAction.args = {
 	...getProps({
 		description: "With toolbar",
