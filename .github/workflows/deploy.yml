@@ -43,7 +43,7 @@ jobs:
           echo "Base_Ref: $GITHUB_BASE_REF"
           ls -al
       - name: Condition
-        if: ${GITHUB_BASE_REF} == "master"
+        if: ${{GITHUB_BASE_REF == "master"}}
         run: |
           echo "Now, we run deployment script to push to GH pages"
       # Push to gh-pages branch
