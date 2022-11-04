@@ -32,12 +32,12 @@ jobs:
         with:
           node-version: "14"
       # Run build.sh script
-      - name: Run build
-        run: |
-          cd ${GITHUB_WORKSPACE}
-          ls
-          chmod +x ./scripts/build.sh
-        shell: bash
+      # - name: Run build
+      #   run: |
+      #     cd ${GITHUB_WORKSPACE}
+      #     ls
+      #     chmod +x ./scripts/build.sh
+      #   shell: bash
       - name: Console
         run : |
           echo "Default working directory: $GITHUB_WORKSPACE"
@@ -45,7 +45,7 @@ jobs:
           echo "Head_Ref: $GITHUB_HEAD_REF"
           echo "Base_Ref: $GITHUB_BASE_REF"
           echo "Github Ref $GITHUB_REF"
-          ls -al
+          ls
       - name: Condition
         if: ${{ github.ref == 'refs/heads/master' }}
         run: |
