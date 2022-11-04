@@ -33,7 +33,8 @@ jobs:
           node-version: "14"
       # Run build.sh script
       - name: Run build
-        run: ${GITHUB_WORKSPACE}/scripts/build.sh
+        run: |
+          chmod +x ${GITHUB_WORKSPACE}/scripts/build.sh
         shell: bash
       - name: Console
         run : |
