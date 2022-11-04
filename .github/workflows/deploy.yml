@@ -1,0 +1,46 @@
+name: Deploy Storybook
+
+on:
+  # Runs on pushes targeting the default branch
+  pull_request:
+    branches: ["master", "next", "v3", "v9"]
+
+  # Allows you to run this workflow manually from the Actions tab
+  workflow_dispatch:
+
+# Sets permissions of the GITHUB_TOKEN to allow deployment to GitHub Pages
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# Allow one concurrent deployment
+concurrency:
+  group: "pages"
+  cancel-in-progress: true
+
+jobs:
+  # Single deploy job since we're just deploying
+  deploy:
+    environment:
+      name: Deploy
+    runs-on: ubuntu-latest
+    steps:
+      # Set up node to use v14
+      - name: Setup Node
+        uses: actions/setup-node@v3
+        with:
+          node-version: "14"
+      # Run build.sh script
+      - name: Run build
+        run: ./scripts/build.sh
+        shell: bash
+      - name: Condition 1
+        run : |
+          echo "Ref: $env:GITHUB_REF_NAME"
+          echo "Head_Ref: $env:GITHUB_HEAD_REF"
+          echo "Base_Ref: $env: GITHUB_BASE_REF"
+      # Push to gh-pages branch
+      # - name: Run deploy
+      #   run: ./scripts/deploy-gh-pages.sh
+      #   shell: bash
