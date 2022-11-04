@@ -26,18 +26,18 @@ jobs:
       name: Deploy
     runs-on: ubuntu-latest
     steps:
+      # Checkout to branch
+      - name: Checkout
+        uses: actions/checkout@v3
       # Set up node to use v14
       - name: Setup Node
         uses: actions/setup-node@v3
         with:
           node-version: "14"
       # Run build.sh script
-      # - name: Run build
-      #   run: |
-      #     cd ${GITHUB_WORKSPACE}
-      #     ls
-      #     chmod +x ./scripts/build.sh
-      #   shell: bash
+      - name: Run build
+        run: ./scripts/build.sh
+        shell: bash
       - name: Console
         run : |
           echo "Default working directory: $GITHUB_WORKSPACE"
