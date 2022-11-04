@@ -34,9 +34,9 @@ jobs:
       # Run build.sh script
       - name: Run build
         run: |
+          chmod +x ./scripts/build.sh
           cd ${GITHUB_WORKSPACE}
           ls
-          chmod +x ${GITHUB_WORKSPACE}/scripts/build.sh
         shell: bash
       - name: Console
         run : |
