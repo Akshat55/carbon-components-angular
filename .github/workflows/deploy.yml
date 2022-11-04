@@ -42,11 +42,15 @@ jobs:
           echo "Head_Ref: $GITHUB_HEAD_REF"
           echo "Base_Ref: $GITHUB_BASE_REF"
           echo "Github Ref: $GITHUB_REF"
+          echo "$github.base.ref"
           ls
       - name: Condition
         if: ${{ github.base.ref == 'master' }}
         run: |
           echo "Now, we run deployment script to push to GH pages"
+      - name: Dry run
+        run: ./scripts/publish.sh
+        shell: bash
       - name: Run build
         run: ./scripts/build.sh
         shell: bash
