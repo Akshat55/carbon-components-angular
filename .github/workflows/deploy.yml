@@ -44,7 +44,7 @@ jobs:
           echo "Github Ref: $GITHUB_REF"
           ls
       - name: Condition
-        if: ${{ github.base.ref == 'refs/heads/master' }}
+        if: ${{ github.base.ref == 'master' }}
         run: |
           echo "Now, we run deployment script to push to GH pages"
       - name: Run build
