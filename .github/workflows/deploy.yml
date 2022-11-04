@@ -35,21 +35,21 @@ jobs:
         with:
           node-version: "14"
       # Run build.sh script
-      - name: Run build
-        run: ./scripts/build.sh
-        shell: bash
       - name: Console
         run : |
           echo "Default working directory: $GITHUB_WORKSPACE"
           echo "Ref: $GITHUB_REF_NAME"
           echo "Head_Ref: $GITHUB_HEAD_REF"
           echo "Base_Ref: $GITHUB_BASE_REF"
-          echo "Github Ref $GITHUB_REF"
+          echo "Github Ref: $GITHUB_REF"
           ls
       - name: Condition
-        if: ${{ github.ref == 'refs/heads/master' }}
+        if: ${{ github.base.ref == 'refs/heads/master' }}
         run: |
           echo "Now, we run deployment script to push to GH pages"
+      - name: Run build
+        run: ./scripts/build.sh
+        shell: bash
       # Push to gh-pages branch
       # - name: Run deploy
       #   run: ./scripts/deploy-gh-pages.sh
