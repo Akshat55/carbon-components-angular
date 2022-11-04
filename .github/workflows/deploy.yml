@@ -32,14 +32,16 @@ jobs:
         with:
           node-version: "14"
       # Run build.sh script
-      - name: Run build
-        run: ./scripts/build.sh
-        shell: bash
+      # - name: Run build
+      #   run: ./scripts/build.sh
+      #   shell: bash
       - name: Condition 1
         run : |
+          echo "Default working directory: $env:GITHUB_WORKSPACE"
           echo "Ref: $env:GITHUB_REF_NAME"
           echo "Head_Ref: $env:GITHUB_HEAD_REF"
           echo "Base_Ref: $env: GITHUB_BASE_REF"
+          ls -al
       # Push to gh-pages branch
       # - name: Run deploy
       #   run: ./scripts/deploy-gh-pages.sh
