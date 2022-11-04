@@ -49,7 +49,7 @@ jobs:
         run: |
           echo "Now, we run deployment script to push to GH pages"
       - name: Dry run
-        run: ./scripts/publish.sh
+        run: chmod+x ./scripts/publish.sh
         shell: bash
       - name: Run build
         run: ./scripts/build.sh
