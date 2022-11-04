@@ -41,9 +41,10 @@ jobs:
           echo "Ref: $GITHUB_REF_NAME"
           echo "Head_Ref: $GITHUB_HEAD_REF"
           echo "Base_Ref: $GITHUB_BASE_REF"
+          echo "Github Ref $GITHUB_REF"
           ls -al
       - name: Condition
-        if: ${{GITHUB_BASE_REF == "master"}}
+        if: ${{ github.ref == 'refs/heads/master' }}
         run: |
           echo "Now, we run deployment script to push to GH pages"
       # Push to gh-pages branch
