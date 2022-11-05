@@ -5,7 +5,7 @@ set -e # exit with nonzero exit code if anything fails
 # run the build
 npm run build
 #deploy with semantic-release
-npm run semantic-release
+npm run semantic-release -- --dry-run --repositoryUrl "$(git remote get-url origin | tr -d '\n')"
 
 # deploy to gh pages
 	mkdir -p pages
