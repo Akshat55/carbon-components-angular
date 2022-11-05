@@ -16,7 +16,11 @@ npm run semantic-release -- --dry-run --repositoryUrl "$(git remote get-url orig
 	git config user.name "carbon-bot"
 	git config user.email "carbon@us.ibm.com"
 
+	echo "Git has been configured to use carbon-bot"
+
 	git pull "https://git:${GH_TOKEN}@github.com/akshat55/carbon-components-angular.git" gh-pages
+
+	echo "carbon-components-angular gh-pages pull successful"
 
 	# clean up old build files in the root
 	rm -f *.js
@@ -32,6 +36,7 @@ npm run semantic-release -- --dry-run --repositoryUrl "$(git remote get-url orig
 	mkdir -p $version/documentation
 	cp -R ../dist/docs/documentation/* $version/documentation
 	cp -R ../dist/docs/storybook/* $version
+	echo "Version of new package is: $version"
 
 	echo "angular.carbondesignsystem.com" > CNAME
 
@@ -41,11 +46,15 @@ npm run semantic-release -- --dry-run --repositoryUrl "$(git remote get-url orig
 	git add .
 	git commit -m "Deploy to GitHub Pages"
 
+	echo "Deploy to github pages is good to go"
+
 	# Force push to gh-pages if there was something to commit
 	if [ $? -eq 0 ]; then
 	echo "In here"
 		# git push --force "https://git:${GH_TOKEN}@github.com/akshat55/carbon-components-angular.git" master:gh-pages > /dev/null 2>&1
 	fi
+
+	echo "Exit"
 
 # just to be sure we exit cleanly
 exit 0;
