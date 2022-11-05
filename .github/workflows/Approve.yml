@@ -1,0 +1,43 @@
+name: Deploy Storybook
+
+on:
+  # Runs on pushes targeting the default branch
+  pull_request:
+    branches: ["master2", "next", "v3", "v9"]
+
+  # Allows you to run this workflow manually from the Actions tab
+  workflow_dispatch:
+
+jobs:
+
+  # Single deploy job since we're just deploying
+  build:
+    environment:
+      name: Deploy
+    runs-on: ubuntu-latest
+    steps:
+      # Checkout to branch
+      - name: Checkout
+        uses: actions/checkout@v3
+      # Set up node to use v14
+      - name: Setup Node
+        uses: actions/setup-node@v3
+        with:
+          node-version: "14"
+      # Run build.sh script
+      - name: Console
+        run : |
+          echo "Default working directory: $GITHUB_WORKSPACE"
+          echo "Ref: $GITHUB_REF_NAME"
+          echo "Head_Ref: $GITHUB_HEAD_REF"
+          echo "Base_Ref: $GITHUB_BASE_REF"
+          echo "Github Ref: $GITHUB_REF"
+          echo "$github.base.ref"
+          ls
+      - name: Run build
+        run: ./scripts/deploy.sh
+        shell: bash
+      # Push to gh-pages branch
+      # - name: Run deploy
+      #   run: ./scripts/deploy-gh-pages.sh
+      #   shell: bash

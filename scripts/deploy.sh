@@ -2,18 +2,12 @@
 
 set -e # exit with nonzero exit code if anything fails
 
-# exit with an error if the build fails
-if [[ ${TRAVIS_TEST_RESULT=0} == 1 ]]; then
-  exit 1;
-fi
-
 # run the build
 npm run build
 #deploy with semantic-release
-npm run semantic-release
+npm run semantic-release -- --dryRun --no-ci
 
 # deploy to gh pages
-if [[ $TRAVIS_BRANCH == "master" ]]; then
 	mkdir -p pages
 	cd pages
 
@@ -22,7 +16,7 @@ if [[ $TRAVIS_BRANCH == "master" ]]; then
 	git config user.name "carbon-bot"
 	git config user.email "carbon@us.ibm.com"
 
-	git pull "https://git:${GH_TOKEN}@github.com/IBM/carbon-components-angular.git" gh-pages
+	git pull "https://git:${GH_TOKEN}@github.com/akshat55/carbon-components-angular.git" gh-pages
 
 	# clean up old build files in the root
 	rm -f *.js
@@ -36,6 +30,7 @@ if [[ $TRAVIS_BRANCH == "master" ]]; then
 	version=$(node -e 'const package = require("./../dist/package.json"); console.log(package.version);')
 	mkdir -p $version
 	mkdir -p $version/documentation
+	echo "The new version is $version"
 	cp -R ../dist/docs/documentation/* $version/documentation
 	cp -R ../dist/docs/storybook/* $version
 
@@ -49,8 +44,8 @@ if [[ $TRAVIS_BRANCH == "master" ]]; then
 
 	# Force push to gh-pages if there was something to commit
 	if [ $? -eq 0 ]; then
-		git push --force "https://git:${GH_TOKEN}@github.com/IBM/carbon-components-angular.git" master:gh-pages > /dev/null 2>&1
+		echo "It is pushing to gh-pages repo"
+		git push --force "https://git:${GH_TOKEN}@github.com/akshat55/carbon-components-angular.git" master:gh-pages > /dev/null 2>&1
 	fi
-fi
 # just to be sure we exit cleanly
 exit 0;
