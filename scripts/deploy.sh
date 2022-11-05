@@ -7,6 +7,9 @@ npm run build
 #deploy with semantic-release
 npm run semantic-release -- --dry-run --repositoryUrl "$(git remote get-url origin | tr -d '\n')"
 
+echo "== Remote git url"
+echo "$(git remote get-url origin | tr -d '\n')"
+
 # deploy to gh pages
 	mkdir -p pages
 	cd pages
