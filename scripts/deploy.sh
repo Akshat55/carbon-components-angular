@@ -16,7 +16,7 @@ npm run semantic-release -- --dryRun --no-ci
 	git config user.name "Akshat Patel"
 	git config user.email "akshat@live.ca"
 
-	git pull "https://git:${GH_TOKEN}@github.com/akshat55/carbon-components-angular.git" gh-pages
+	git pull "https://git:${GH_TOKEN}@github.com/carbon-design-system/carbon-components-angular.git" gh-pages
 
 	# clean up old build files in the root
 	rm -f *.js
