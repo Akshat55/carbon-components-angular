@@ -13,8 +13,8 @@ npm run semantic-release -- --dryRun --no-ci
 
 	git init
 
-	git config user.name "carbon-bot"
-	git config user.email "carbon@us.ibm.com"
+	git config user.name "Akshat Patel"
+	git config user.email "akshat@live.ca"
 
 	git pull "https://git:${GH_TOKEN}@github.com/akshat55/carbon-components-angular.git" gh-pages
 
