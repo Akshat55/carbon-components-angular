@@ -13,10 +13,10 @@ npm run semantic-release -- --dryRun --no-ci
 
 	git init
 
-	git config user.name "Akshat Patel"
-	git config user.email "akshat@live.ca"
+	git config user.name "carbon-bot"
+	git config user.email "carbon@us.ibm.com"
 
-	git pull "https://git:${GH_TOKEN}@github.com/carbon-design-system/carbon-components-angular.git" gh-pages
+	git pull origin gh-pages
 
 	# clean up old build files in the root
 	rm -f *.js
@@ -30,7 +30,6 @@ npm run semantic-release -- --dryRun --no-ci
 	version=$(node -e 'const package = require("./../dist/package.json"); console.log(package.version);')
 	mkdir -p $version
 	mkdir -p $version/documentation
-	echo "The new version is $version"
 	cp -R ../dist/docs/documentation/* $version/documentation
 	cp -R ../dist/docs/storybook/* $version
 
@@ -44,8 +43,9 @@ npm run semantic-release -- --dryRun --no-ci
 
 	# Force push to gh-pages if there was something to commit
 	if [ $? -eq 0 ]; then
-		echo "It is pushing to gh-pages repo"
-		git push --force "https://git:${GH_TOKEN}@github.com/akshat55/carbon-components-angular.git" master:gh-pages > /dev/null 2>&1
+		echo "Pushing to gh-pages branch"
+		# git push --force "https://git:${GH_TOKEN}@github.com/IBM/carbon-components-angular.git" master:gh-pages > /dev/null 2>&1
 	fi
+
 # just to be sure we exit cleanly
 exit 0;
