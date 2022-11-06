@@ -63,6 +63,8 @@ jobs:
       - name: Install packages
         run: npm i
       - name: Run build
+        env:
+          GH_TOKEN: ${{ secrets.GH_TOKEN }}
         run: ./scripts/deploy.sh
         shell: bash
       # Push to gh-pages branch
