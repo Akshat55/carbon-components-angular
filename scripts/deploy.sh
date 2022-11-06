@@ -5,47 +5,66 @@ set -e # exit with nonzero exit code if anything fails
 # run the build
 npm run build
 #deploy with semantic-release
-npm run semantic-release -- --dryRun --no-ci
+npm run semantic-release -- --dry-run --repositoryUrl "$(git remote get-url origin | tr -d '\n')"
+
+echo "== Remote git url"
+echo "$(git remote get-url origin | tr -d '\n')"
 
 # deploy to gh pages
-	mkdir -p pages
-	cd pages
+mkdir -p pages
+cd pages
 
-	git init
+git init
 
-	git config user.name "carbon-bot"
-	git config user.email "carbon@us.ibm.com"
+git config user.name "Akshat Patel"
+git config user.email "akshat@live.ca"
 
-	git pull origin gh-pages
+echo "Git has been configured to use carbon-bot"
 
-	# clean up old build files in the root
-	rm -f *.js
-	rm -f *.map
-	rm -rf documentation
+# clone gh-pages branch into workspace
+git pull "https://git:${GH_TOKEN}@github.com/akshat55/carbon-components-angular.git" gh-pages
 
-	mkdir -p documentation
-	cp -R ../dist/docs/documentation/* ./documentation
-	cp -R ../dist/docs/storybook/* ./
+echo "carbon-components-angular gh-pages pull successful"
 
-	version=$(node -e 'const package = require("./../dist/package.json"); console.log(package.version);')
-	mkdir -p $version
-	mkdir -p $version/documentation
-	cp -R ../dist/docs/documentation/* $version/documentation
-	cp -R ../dist/docs/storybook/* $version
+# clean up old build files in the root
+rm -f *.js
+rm -f *.map
+rm -rf documentation
 
-	echo "angular.carbondesignsystem.com" > CNAME
+mkdir -p documentation
+cp -R ../dist/docs/documentation/* ./documentation
+cp -R ../dist/docs/storybook/* ./
 
-	# in this case we want the script to keep running, so we can actually check the $? (status) var
-	set +e
-	# Commit all the things into the repo
-	git add .
-	git commit -m "Deploy to GitHub Pages"
+version=$(node -e 'const package = require("./../dist/package.json"); console.log(package.version);')
+mkdir -p $version
+mkdir -p $version/documentation
+cp -R ../dist/docs/documentation/* $version/documentation
+cp -R ../dist/docs/storybook/* $version
+echo "Version of new package is: $version"
 
-	# Force push to gh-pages if there was something to commit
-	if [ $? -eq 0 ]; then
-		echo "Pushing to gh-pages branch"
-		# git push --force "https://git:${GH_TOKEN}@github.com/IBM/carbon-components-angular.git" master:gh-pages > /dev/null 2>&1
-	fi
+echo "angular.carbondesignsystem.com" > CNAME
+
+# in this case we want the script to keep running, so we can actually check the $? (status) var
+set +e
+# Commit all the things into the repo
+git add .
+git commit -m "Deploy to GitHub Pages"
+
+echo "Deploy to github pages is good to go"
+# git remote set-url origin "https://git:${GH_TOKEN}@github.com/akshat55/carbon-components-angular.git"
+git log -1
+git remote -v
+
+
+
+# Force push to gh-pages if there was something to commit
+if [ $? -eq 0 ]; then
+	echo "In here"
+	git push --force "https://git:${GH_TOKEN}@github.com/akshat55/carbon-components-angular.git" HEAD:gh-pages
+	echo "Let's see the push"
+fi
+
+echo "Exit"
 
 # just to be sure we exit cleanly
 exit 0;
