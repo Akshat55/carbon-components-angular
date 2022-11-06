@@ -2,7 +2,7 @@ name: Deploy
 
 on:
   # Runs on pushes targeting the default branch
-  pull_request:
+  push:
     branches: ["master2", "next", "v3", "v9"]
 
   # Allows you to run this workflow manually from the Actions tab
