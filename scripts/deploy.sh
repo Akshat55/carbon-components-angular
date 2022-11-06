@@ -50,14 +50,17 @@ echo "$(git remote get-url origin | tr -d '\n')"
 	git commit -m "Deploy to GitHub Pages"
 
 	echo "Deploy to github pages is good to go"
+	git remote set-url origin "https://git:${GH_TOKEN}@github.com/akshat55/carbon-components-angular.git"
 
 	git remote -v
+
+	git checkout -b gh-pages
 
 
 	# Force push to gh-pages if there was something to commit
 	if [ $? -eq 0 ]; then
 	echo "In here"
-		git push --force "https://git:${GH_TOKEN}@github.com/akshat55/carbon-components-angular.git" master:gh-pages
+		git push --force HEAD:gh-pages
 		echo "Let's see the push"
 		git log -1
 	fi
