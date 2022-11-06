@@ -2,7 +2,7 @@ name: Deploy
 
 on:
   # Runs on pushes targeting the default branch
-  pull_request:
+  push:
     branches: ["master2", "next", "v3", "v9"]
 
   # Allows you to run this workflow manually from the Actions tab
@@ -48,7 +48,7 @@ jobs:
       - if: ${{ steps.cache-npm.outputs.cache-hit != 'true' }}
         name: List the state of node modules
         continue-on-error: true
-        run: npm list
+        run: npm i
 
       # Run build.sh script
       - name: Console
@@ -60,8 +60,8 @@ jobs:
           echo "Github Ref: $GITHUB_REF"
           echo "$github.base.ref"
           ls
-      - name: Install packages
-        run: npm i
+      # - name: Install packages
+      #   run: npm i
       - name: Run build
         run: ./scripts/deploy.sh
         shell: bash
