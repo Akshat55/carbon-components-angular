@@ -16,8 +16,8 @@ echo "$(git remote get-url origin | tr -d '\n')"
 
 	git init
 
-	git config user.name "carbon-bot"
-	git config user.email "carbon@us.ibm.com"
+	git config user.name "Akshat Patel"
+	git config user.email "akshat@live.ca"
 
 	echo "Git has been configured to use carbon-bot"
 
