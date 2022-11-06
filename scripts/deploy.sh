@@ -22,7 +22,7 @@ git config user.email "akshat@live.ca"
 echo "Git has been configured to use carbon-bot"
 
 # clone gh-pages branch into workspace
-git pull "https://git:${GH_TOKEN}@github.com/akshat55/carbon-components-angular.git" gh-pages
+git pull "https://git:${{ secrets.GH_TOKEN }}@github.com/akshat55/carbon-components-angular.git" gh-pages
 
 echo "carbon-components-angular gh-pages pull successful"
 
@@ -60,7 +60,7 @@ git remote -v
 # Force push to gh-pages if there was something to commit
 if [ $? -eq 0 ]; then
 	echo "In here"
-	git push --force "https://git:${GH_TOKEN}@github.com/akshat55/carbon-components-angular.git" HEAD:gh-pages
+	git push --force https://git:${{ secrets.GH_TOKEN }}@github.com/akshat55/carbon-components-angular.git HEAD:gh-pages
 	echo "Let's see the push"
 fi
 
