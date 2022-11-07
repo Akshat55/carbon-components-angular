@@ -45,11 +45,11 @@ jobs:
       - name: Build package
         run: npm run build
 
-      - name: Publish package
-        env:
-          GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
-          # NPM_TOKEN: ${{ secrets.GH_TOKEN }}
-        run: npm run semantic-release -- --dry-run
+      # - name: Publish package
+      #   env:
+      #     GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
+      #     # NPM_TOKEN: ${{ secrets.GH_TOKEN }}
+      #   run: npm run semantic-release -- --dry-run
 
       # Push to gh-pages branch if pushed to `master` branch
       - name: Serve storybook
