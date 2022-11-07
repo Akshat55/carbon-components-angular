@@ -2,7 +2,7 @@ name: Deploy
 
 on:
   # Runs on pushes targeting the default branch
-  push:
+  pull_request:
     branches: ["master2", "next", "v3", "v9"]
 
   # Allows you to run this workflow manually from the Actions tab
@@ -19,30 +19,14 @@ jobs:
       # Checkout to branch
       - name: Checkout
         uses: actions/checkout@v3
+
       # Set up node to use v14
       - name: Setup Node
         uses: actions/setup-node@v3
         with:
           node-version: "14"
-
-      - name: Cache node modules
-        id: cache-npm
-        uses: actions/cache@v3
-        env:
-          cache-name: cache-node-modules
-        with:
-          # npm cache files are stored in `~/.npm` on Linux/macOS
-          path: ~/.npm
-          key: ${{ runner.os }}-build-${{ env.cache-name }}-${{ hashFiles('**/package-lock.json') }}
-          restore-keys: |
-            ${{ runner.os }}-build-${{ env.cache-name }}-
-            ${{ runner.os }}-build-
-            ${{ runner.os }}-
-
-      - if: ${{ steps.cache-npm.outputs.cache-hit != 'true' }}
-        name: List the state of node modules
-        continue-on-error: true
-        run: npm list
+          cache: "npm"
+          cache-dependency-path: "package-lock.json"
 
       # Run build.sh script
       - name: Console
@@ -53,10 +37,21 @@ jobs:
           echo "Base_Ref: $GITHUB_BASE_REF"
           echo "Github Ref: $GITHUB_REF"
           echo "$github.base.ref"
+          echo "$github.ref.name"
           ls
       - name: Install packages
         run: npm i
-      - name: Run build
+
+      - name: Publish package
+        env:
+          GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
+          # NPM_TOKEN: ${{ secrets.GH_TOKEN }}
+        run: |
+          npm run build
+          npm run semantic-release -- --dry-run --repositoryUrl "$(git remote get-url origin | tr -d '\n')"
+
+      - name: Serve storybook
+        if: ${{ github.ref.name == "master" }}
         env:
           GH_TOKEN: ${{ secrets.GH_TOKEN }}
         run: ./scripts/deploy.sh
