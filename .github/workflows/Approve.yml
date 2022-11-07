@@ -51,7 +51,7 @@ jobs:
           npm run semantic-release -- --dry-run --repositoryUrl "$(git remote get-url origin | tr -d '\n')"
 
       - name: Serve storybook
-        if: github.ref.name == "master2"
+        if: github.ref == "refs/heads/master2"
         env:
           GH_TOKEN: ${{ secrets.GH_TOKEN }}
         run: ./scripts/deploy.sh
