@@ -2,7 +2,7 @@ name: Deploy
 
 on:
   # Runs on pushes targeting the default branch
-  pull_request:
+  push:
     branches: ["master2", "next", "v3", "v9"]
 
   # Allows you to run this workflow manually from the Actions tab
@@ -42,21 +42,19 @@ jobs:
       - name: Install packages
         run: npm i
 
+      - name: Build package
+        run: npm run build
+
       - name: Publish package
         env:
           GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
           # NPM_TOKEN: ${{ secrets.GH_TOKEN }}
-        run: |
-          npm run build
-          npm run semantic-release -- --dry-run --repositoryUrl "$(git remote get-url origin | tr -d '\n')"
+        run: npm run semantic-release -- --dry-run
 
+      # Push to gh-pages branch if pushed to `master` branch
       - name: Serve storybook
         if: github.ref_name == 'master2'
         env:
           GH_TOKEN: ${{ secrets.GH_TOKEN }}
         run: ./scripts/deploy.sh
         shell: bash
-      # Push to gh-pages branch
-      # - name: Run deploy
-      #   run: ./scripts/deploy-gh-pages.sh
-      #   shell: bash
