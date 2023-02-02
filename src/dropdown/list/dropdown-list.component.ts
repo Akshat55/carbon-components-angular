@@ -9,7 +9,8 @@ import {
 	ViewChild,
 	ElementRef,
 	ViewChildren,
-	QueryList
+	QueryList,
+	ApplicationRef
 } from "@angular/core";
 import { Observable, isObservable, Subscription, of } from "rxjs";
 import { first } from "rxjs/operators";
@@ -120,7 +121,7 @@ export class DropdownList implements AbstractDropdownView, AfterViewInit, OnDest
 	/**
 	 * The list items belonging to the `DropdownList`.
 	 */
-	@Input() set items (value: Array<ListItem> | Observable<Array<ListItem>>) {
+	@Input() set items(value: Array<ListItem> | Observable<Array<ListItem>>) {
 		if (isObservable(value)) {
 			if (this._itemsSubscription) {
 				this._itemsSubscription.unsubscribe();
@@ -226,7 +227,7 @@ export class DropdownList implements AbstractDropdownView, AfterViewInit, OnDest
 	/**
 	 * Creates an instance of `DropdownList`.
 	 */
-	constructor(public elementRef: ElementRef, protected i18n: I18n) {}
+	constructor(public elementRef: ElementRef, protected i18n: I18n, protected appRef: ApplicationRef) {}
 
 	/**
 	 * Retrieves array of list items and index of the selected item after view has rendered.
@@ -276,9 +277,7 @@ export class DropdownList implements AbstractDropdownView, AfterViewInit, OnDest
 		this.displayItems = this._items;
 		this.updateIndex();
 		this.setupFocusObservable();
-		setTimeout(() => {
-			this.doEmitSelect();
-		});
+		this.doEmitSelect();
 	}
 
 	/**
@@ -498,12 +497,12 @@ export class DropdownList implements AbstractDropdownView, AfterViewInit, OnDest
 	doKeyDown(event: KeyboardEvent, item: ListItem) {
 		// "Spacebar", "Down", and "Up" are IE specific values
 		if (event.key === "Enter" || event.key === " " || event.key === "Spacebar") {
-				if (this.listElementList.some(option => option.nativeElement === event.target)) {
-					event.preventDefault();
-				}
-				if (event.key === "Enter") {
-					this.doClick(event, item);
-				}
+			if (this.listElementList.some(option => option.nativeElement === event.target)) {
+				event.preventDefault();
+			}
+			if (event.key === "Enter") {
+				this.doClick(event, item);
+			}
 		} else if (event.key === "ArrowDown" || event.key === "ArrowUp" || event.key === "Down" || event.key === "Up") {
 			event.preventDefault();
 			if (event.key === "ArrowDown" || event.key === "Down") {
@@ -576,6 +575,7 @@ export class DropdownList implements AbstractDropdownView, AfterViewInit, OnDest
 			this.index = this.displayItems.indexOf(item);
 			this.highlightedItem = this.getItemId(this.index);
 			this.doEmitSelect(false);
+			this.appRef.tick();
 		}
 	}
 

@@ -415,8 +415,6 @@ export class Dropdown implements OnInit, AfterContentInit, AfterViewInit, OnDest
 				this.checkForReorder();
 				this.selected.emit(event);
 			}
-			// manually tick the app so the view picks up any changes
-			this.appRef.tick();
 		});
 	}
 
