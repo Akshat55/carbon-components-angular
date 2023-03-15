@@ -156,6 +156,7 @@ const nodes = [
 const Template: Story<TreeViewComponent> = (args) => ({
 	props: args,
 	template: `
+
 	<!--
 		<cds-tree-view label="Tree view" style="width: 18rem; display: block;">
 			<cds-tree-node label="Artificial Intelligence" [expanded]="true">
@@ -167,18 +168,10 @@ const Template: Story<TreeViewComponent> = (args) => ({
 			<cds-tree-node label="Cloud computing"></cds-tree-node>
 		</cds-tree-view>
 	-->
-
-		<ng-template #treeview let-tree>
-			<cds-tree-node
-				*ngFor="let node of tree"
-				[label]="node.label"
-				[id]="node.id"
-				[expanded]="true">
-					<ng-container *ngTemplateOutlet="treeview; context:{ $implicit: node.children }"></ng-container>
-			</cds-tree-node>
-		</ng-template>
-		<cds-tree-view label="Tree view" style="width: 18rem; display: block;">
-			<ng-container *ngTemplateOutlet="treeview; context:{ $implicit: tree }"></ng-container>
+		<cds-tree-view
+			label="Tree view"
+			style="width: 18rem; display: block;"
+			[tree]="tree">
 		</cds-tree-view>
 	`
 });
