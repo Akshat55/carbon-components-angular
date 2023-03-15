@@ -11,7 +11,8 @@ import {
 	OnChanges,
 	HostBinding,
 	SimpleChanges,
-	ComponentRef
+	ComponentRef,
+	HostListener
 } from "@angular/core";
 import { DialogService } from "./dialog.service";
 import { CloseMeta, CloseReasons, DialogConfig } from "./dialog-config.interface";
@@ -35,6 +36,14 @@ import { Dialog } from "./dialog.component";
 	]
 })
 export class DialogDirective implements OnInit, OnDestroy, OnChanges {
+
+	@HostListener("click", ['$event']) click(event) {
+		this.toggle({
+			reason: CloseReasons.interaction,
+			target: event.target
+		});
+	}
+
 	static dialogCounter = 0;
 	/**
 	 * Title for the dialog
@@ -132,9 +141,10 @@ export class DialogDirective implements OnInit, OnDestroy, OnChanges {
 		protected viewContainerRef: ViewContainerRef,
 		protected dialogService: DialogService,
 		protected eventService: EventService
-	) {}
+	) { }
 
 	ngOnChanges(changes: SimpleChanges) {
+		console.log('dialog directive on changes');
 		// set the config object (this can [and should!] be added to in child classes depending on what they need)
 		this.dialogConfig = {
 			title: this.title,
@@ -177,47 +187,48 @@ export class DialogDirective implements OnInit, OnDestroy, OnChanges {
 
 		const element = this.elementRef.nativeElement;
 
-		this.eventService.on(element, "keydown", (event: KeyboardEvent) => {
-			if (event.target === this.dialogConfig.parentRef.nativeElement &&
-				(event.key === "Tab" || event.key === "Tab" && event.shiftKey) ||
-				event.key === "Escape") {
-				this.close({
-					reason: CloseReasons.interaction,
-					target: event.target
-				});
-			}
-		});
+		// this.eventService.on(element, "keydown", (event: KeyboardEvent) => {
+		// 	if (event.target === this.dialogConfig.parentRef.nativeElement &&
+		// 		(event.key === "Tab" || event.key === "Tab" && event.shiftKey) ||
+		// 		event.key === "Escape") {
+		// 		this.close({
+		// 			reason: CloseReasons.interaction,
+		// 			target: event.target
+		// 		});
+		// 	}
+		// });
 
 		// bind events for hovering or clicking the host
 		if (this.trigger === "hover" || this.trigger === "mouseenter") {
-			this.eventService.on(element, "mouseenter", this.open.bind(this));
-			this.eventService.on(element, this.closeTrigger, (event) => {
-				this.close({
-					reason: CloseReasons.interaction,
-					target: event.target
-				});
-			});
-			this.eventService.on(element, "focus", this.open.bind(this));
-			this.eventService.on(element, "blur", (event) => {
-				this.close({
-					reason: CloseReasons.interaction,
-					target: event.target
-				});
-			});
+			// this.eventService.on(element, "mouseenter", this.open.bind(this));
+			// this.eventService.on(element, this.closeTrigger, (event) => {
+			// 	this.close({
+			// 		reason: CloseReasons.interaction,
+			// 		target: event.target
+			// 	});
+			// });
+			// this.eventService.on(element, "focus", this.open.bind(this));
+			// this.eventService.on(element, "blur", (event) => {
+			// 	this.close({
+			// 		reason: CloseReasons.interaction,
+			// 		target: event.target
+			// 	});
+			// });
 		} else {
-			this.eventService.on(element, "click", (event) => {
-				this.toggle({
-					reason: CloseReasons.interaction,
-					target: event.target
-				});
-			});
-			this.eventService.on(element, "keydown", (event: KeyboardEvent) => {
-				if (event.key === "Enter" || event.key === " ") {
-					setTimeout(() => {
-						this.open();
-					});
-				}
-			});
+			// this.eventService.on(element, "click", (event) => {
+			// 	console.log('click');
+			// 	this.toggle({
+			// 		reason: CloseReasons.interaction,
+			// 		target: event.target
+			// 	});
+			// });
+			// this.eventService.on(element, "keydown", (event: KeyboardEvent) => {
+			// 	if (event.key === "Enter" || event.key === " ") {
+			// 		setTimeout(() => {
+			// 			this.open();
+			// 		});
+			// 	}
+			// });
 		}
 
 		DialogDirective.dialogCounter++;
@@ -255,6 +266,7 @@ export class DialogDirective implements OnInit, OnDestroy, OnChanges {
 		// Handles emitting all the close events to clean everything up
 		// Also enforce accessibility on close by updating an aria attr on the nativeElement.
 		this.dialogRef.instance.close.subscribe((meta: CloseMeta) => {
+			console.log('subscribe');
 			if (!this.dialogRef) { return; }
 			if (this.dialogConfig.shouldClose && this.dialogConfig.shouldClose(meta)) {
 				// close the dialog, emit events, and clear out the open states
@@ -295,13 +307,13 @@ export class DialogDirective implements OnInit, OnDestroy, OnChanges {
 	 * Empty method for child classes to override and specify additional init steps.
 	 * Run after DialogDirective completes it's ngOnInit.
 	 */
-	protected onDialogInit() {}
+	protected onDialogInit() { }
 
 	/**
 	 * Empty method for child to override and specify additional on changes steps.
 	 * run after DialogDirective completes it's ngOnChanges.
 	 */
-	protected onDialogChanges(_changes: SimpleChanges) {}
+	protected onDialogChanges(_changes: SimpleChanges) { }
 
-	protected updateConfig() {}
+	protected updateConfig() { }
 }

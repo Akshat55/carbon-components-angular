@@ -75,7 +75,7 @@ import { TableHeaderItem } from "../table-header-item.class";
 		</div>
 	`
 })
-export class TableHeadCell implements OnChanges {
+export class TableHeadCell {
 	@Input() column: TableHeaderItem;
 
 	@Input() skeleton = false;
@@ -122,11 +122,12 @@ export class TableHeadCell implements OnChanges {
 
 	constructor(protected i18n: I18n) { }
 
-	ngOnChanges() {
-		// Since it's not an input, and it touches the view, we're using `ngOnChanges`
-		// `get`ters have caused issues in the past with the view updating outside of change detection
-		this.theadAction = !!this.column.filterTemplate || this.sort.observers.length > 0;
-	}
+	// ngOnChanges() {
+	// 	console.log('table-head-cell -filter');
+	// 	// Since it's not an input, and it touches the view, we're using `ngOnChanges`
+	// 	// `get`ters have caused issues in the past with the view updating outside of change detection
+	// 	this.theadAction = !!this.column.filterTemplate || this.sort.observers.length > 0;
+	// }
 
 	getSortDescendingLabel(): Observable<string> {
 		return this._sortDescendingLabel.subject.pipe(this.sortLabelMap());

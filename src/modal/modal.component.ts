@@ -166,6 +166,7 @@ export class Modal implements AfterViewInit, OnChanges, OnDestroy {
 
 	ngOnChanges({ open }: SimpleChanges) {
 		if (open) {
+			console.log('called');
 			if (open.currentValue) {
 				// `100` is just enough time to allow the modal
 				// to become visible, so that we can set focus

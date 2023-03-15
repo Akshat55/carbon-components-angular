@@ -120,25 +120,28 @@ export class Dialog implements OnInit, AfterViewInit, OnDestroy {
 
 		const parentElement = this.dialogConfig.parentRef.nativeElement;
 
-		if (this.animationFrameService) {
-			this.animationFrameSubscription = this.animationFrameService.tick.subscribe(() => {
-				this.placeDialog();
-			});
-		}
+		// if (this.animationFrameService) {
+		// 	console.log('inside animation frame');
+		// 	this.animationFrameSubscription = this.animationFrameService.tick.subscribe(() => {
+		// 		console.log('FUCK!', this.placement)
+		// 		this.placeDialog();
+		// 	});
+		// }
 
-		if (this.dialogConfig.closeWhenHidden) {
-			this.visibilitySubscription = this.elementService
-				.visibility(parentElement, parentElement)
-				.subscribe(value => {
-					this.placeDialog();
-					if (!value.visible) {
-						this.doClose({
-							reason: CloseReasons.hidden
-						});
-					}
-				}
-			);
-		}
+		// if (this.dialogConfig.closeWhenHidden) {
+		// 	this.visibilitySubscription = this.elementService
+		// 		.visibility(parentElement, parentElement)
+		// 		.subscribe(value => {
+		// 			console.log('Visibility service');
+		// 			this.placeDialog();
+		// 			if (!value.visible) {
+		// 				this.doClose({
+		// 					reason: CloseReasons.hidden
+		// 				});
+		// 			}
+		// 		}
+		// 	);
+		// }
 
 		this.placeDialog();
 		// run afterDialogViewInit on the next tick

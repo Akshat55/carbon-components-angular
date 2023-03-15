@@ -181,7 +181,7 @@ import { TableRowSize } from "./table.types";
 		[skeleton]="skeleton"
 		[attr.aria-labelledby]="ariaLabelledby"
 		[attr.aria-describedby]="ariaDescribedby">
-		<thead
+		<!-- <thead
 			ibmTableHead
 			[sortable]="sortable"
 			(deselectAll)="onDeselectAll()"
@@ -199,7 +199,7 @@ import { TableRowSize } from "./table.types";
 			[sortAscendingLabel]="sortAscendingLabel"
 			[sortDescendingLabel]="sortDescendingLabel"
 			[stickyHeader]="stickyHeader">
-		</thead>
+		</thead> -->
 		<tbody
 			ibmTableBody
 			(deselectRow)="onSelectRow($event)"
@@ -322,31 +322,31 @@ export class Table implements AfterViewInit, OnDestroy {
 
 		this._model = m;
 
-		const rowsChange = this._model.rowsSelectedChange.subscribe(() => this.updateSelectAllCheckbox());
-		const dataChange = this._model.dataChange.subscribe(() => {
-			if (this.isDataGrid) {
-				this.resetTabIndex();
-			}
-			this.updateSelectAllCheckbox();
-		});
+		// const rowsChange = this._model.rowsSelectedChange.subscribe(() => this.updateSelectAllCheckbox());
+		// const dataChange = this._model.dataChange.subscribe(() => {
+			// if (this.isDataGrid) {
+				// this.resetTabIndex();
+			// }
+			// this.updateSelectAllCheckbox();
+		// });
+//
+		// this.subscriptions.add(rowsChange);
+		// this.subscriptions.add(dataChange);
 
-		this.subscriptions.add(rowsChange);
-		this.subscriptions.add(dataChange);
-
-		if (this.isDataGrid) {
-			const expandedChange = this._model.rowsExpandedChange.subscribe(() => {
-				// Allows the expanded row to have a focus state when it exists in the DOM
-				setTimeout(() => {
-					const expandedRows = this.elementRef.nativeElement.querySelectorAll(".cds--expandable-row:not(.cds--parent-row)");
-					Array.from<any>(expandedRows).forEach(row => {
-						if (row.firstElementChild.tabIndex === undefined || row.firstElementChild.tabIndex !== -1) {
-							row.firstElementChild.tabIndex = -1;
-						}
-					});
-				});
-			});
-			this.subscriptions.add(expandedChange);
-		}
+		// if (this.isDataGrid) {
+		// 	const expandedChange = this._model.rowsExpandedChange.subscribe(() => {
+		// 		// Allows the expanded row to have a focus state when it exists in the DOM
+		// 		setTimeout(() => {
+		// 			const expandedRows = this.elementRef.nativeElement.querySelectorAll(".cds--expandable-row:not(.cds--parent-row)");
+		// 			Array.from<any>(expandedRows).forEach(row => {
+		// 				if (row.firstElementChild.tabIndex === undefined || row.firstElementChild.tabIndex !== -1) {
+		// 					row.firstElementChild.tabIndex = -1;
+		// 				}
+		// 			});
+		// 		});
+		// 	});
+		// 	this.subscriptions.add(expandedChange);
+		// }
 	}
 
 	get model(): TableModel {
@@ -769,12 +769,12 @@ export class Table implements AfterViewInit, OnDestroy {
 		this.columnResizeMouseX = event.clientX;
 		event.preventDefault();
 
-		this.mouseMoveSubscription = fromEvent(document.body, "mousemove").subscribe(event => {
-			this.columnResizeProgress(event, column);
-		});
-		this.mouseUpSubscription = fromEvent(document.body, "mouseup").subscribe(event => {
-			this.columnResizeEnd(event, column);
-		});
+		// this.mouseMoveSubscription = fromEvent(document.body, "mousemove").subscribe(event => {
+		// 	this.columnResizeProgress(event, column);
+		// });
+		// this.mouseUpSubscription = fromEvent(document.body, "mouseup").subscribe(event => {
+		// 	this.columnResizeEnd(event, column);
+		// });
 	}
 
 	columnResizeProgress(event, column) {

@@ -100,6 +100,7 @@ export class OverflowMenu {
 	constructor(protected elementRef: ElementRef, protected i18n: I18n) {}
 
 	handleOpenChange(event: boolean) {
+		console.log(event, this.overflowMenuDirective);
 		this.open = event;
 		this.openChange.emit(event);
 	}

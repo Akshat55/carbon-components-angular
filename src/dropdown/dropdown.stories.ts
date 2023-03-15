@@ -6,18 +6,25 @@ import { Story, Meta } from "@storybook/angular/types-6-0";
 import { DropdownModule, Dropdown } from "./";
 import { PlaceholderModule } from "../placeholder";
 
-import { ReactiveFormsStory } from "./stories";
+import { ModalModule } from "../modal";
+import { TableModule } from "../table";
+import { DialogModule } from "../dialog";
+
+import { ReactiveFormsStory, SampleComponent, AppComponent } from "./stories";
 
 export default {
 	title: "Components/Dropdown",
 	decorators: [
 		moduleMetadata({
-			declarations: [ReactiveFormsStory],
+			declarations: [ReactiveFormsStory, SampleComponent, AppComponent],
 			imports: [
 				FormsModule,
 				ReactiveFormsModule,
 				DropdownModule,
-				PlaceholderModule
+				PlaceholderModule,
+				ModalModule,
+				TableModule,
+				DialogModule
 			]
 		})
 	],
@@ -167,3 +174,10 @@ const NgTemplate: Story<Dropdown> = (args) => ({
 	`
 });
 export const WithTemplate = NgTemplate.bind({});
+
+export const userTemplate: Story<Dropdown> = (args) => ({
+	props: args,
+	template: `
+		<app-root></app-root>
+	`
+});

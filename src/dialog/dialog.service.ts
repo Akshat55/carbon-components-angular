@@ -138,9 +138,10 @@ export class DialogService {
 	 * and changes to it won't be considered a breaking change. Use at your own risk.
 	 */
 	singletonClickListen() {
-		if (!DialogService.listeningForBodyClicks) {
-			document.body.firstElementChild.addEventListener("click", () => null, true);
-			DialogService.listeningForBodyClicks = true;
-		}
+		console.log('singleClickListen');
+		// if (!DialogService.listeningForBodyClicks) {
+		// 	document.body.firstElementChild.addEventListener("click", () => null, true);
+		// 	DialogService.listeningForBodyClicks = true;
+		// }
 	}
 }

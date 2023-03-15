@@ -27,6 +27,7 @@ export class BaseModalService {
 	 * `inputs` is an optional parameter of `data` that can be passed to the `Modal` component.
 	 */
 	create<T>(data: {component: any, inputs?: any}): ComponentRef<any> {
+		console.log('create called');
 		let defaults = {inputs: {}};
 		data = Object.assign({}, defaults, data);
 
