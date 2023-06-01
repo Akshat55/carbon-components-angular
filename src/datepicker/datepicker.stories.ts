@@ -155,7 +155,7 @@ const RangeTemplate: Story<DatePicker> = (args) => ({
 });
 export const Range = RangeTemplate.bind({});
 Range.args = {
-	dateFormat: "m/d/y",
+	dateFormat: "m/d/Y",
 	value: ["09/19/2019", "10/19/2019"]
 };
 Range.argTypes = {
