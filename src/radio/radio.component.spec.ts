@@ -1,9 +1,9 @@
-import { ComponentFixture, fakeAsync, TestBed, waitForAsync } from "@angular/core/testing";
+import { ComponentFixture, TestBed, waitForAsync } from "@angular/core/testing";
 import { By } from "@angular/platform-browser";
-import { FormsModule } from "@angular/forms";
-import { DebugElement, Component } from "@angular/core";
-import { advancedFakeAsync } from "../test-helpers/change-detection";
+import { FormControl, FormsModule, ReactiveFormsModule } from "@angular/forms";
+import { Component } from "@angular/core";
 
+import { settle, shadow } from "../test-helpers/web-components";
 import { Radio } from "./radio.component";
 import { RadioGroup } from "./radio-group.component";
 
@@ -27,6 +27,10 @@ class RadioTest {
 	name = "test-group";
 }
 
+/** The web component radio buttons (and their shadow `<input>`s). */
+const radioButtons = (fixture: ComponentFixture<any>): any[] => Array.from(fixture.nativeElement.querySelectorAll("cds-radio-button"));
+const radioInputs = (fixture: ComponentFixture<any>) => radioButtons(fixture).map(button => shadow<HTMLInputElement>(button, "input"));
+
 describe("RadioGroup", () => {
 	beforeEach(waitForAsync(() => {
 		TestBed.configureTestingModule({
@@ -40,76 +44,136 @@ describe("RadioGroup", () => {
 
 		const directiveEl = fixture.debugElement.query(By.directive(RadioGroup));
 		expect(directiveEl).not.toBeNull();
+		expect(fixture.nativeElement.querySelector("cds-radio-button-group") instanceof customElements.get("cds-radio-button-group"))
+			.toBe(true);
 	});
 
-	it("should select one", () => {
+	it("should select one", async () => {
 		const fixture = TestBed.createComponent(RadioTest);
-		fixture.detectChanges();
+		await settle(fixture);
 
-		const radioOne = fixture.debugElement.query(By.directive(Radio));
-		radioOne.triggerEventHandler("click", null);
-		radioOne.nativeElement.querySelector("input").click();
-		fixture.detectChanges();
+		radioButtons(fixture)[0].click();
+		await settle(fixture);
 
 		expect(fixture.componentInstance.radio).toBe("one");
 	});
 
-	it("should disable every radio when the group is disabled", fakeAsync(() => {
+	it("should check the radio matching ngModel", async () => {
+		const fixture = TestBed.createComponent(RadioTest);
+		fixture.componentInstance.radio = "three";
+		await settle(fixture);
+
+		expect(radioButtons(fixture).map(button => button.checked)).toEqual([false, false, true, false, false, false]);
+		expect(radioInputs(fixture)[2].checked).toBe(true);
+	});
+
+	it("should disable every radio when the group is disabled", async () => {
 		const fixture = TestBed.createComponent(RadioTest);
 		fixture.componentInstance.disabled = true;
-		fixture.detectChanges();
-		advancedFakeAsync(fixture);
+		await settle(fixture);
 
-		const inputs = fixture.nativeElement.querySelectorAll("input[type=radio]");
+		const inputs = radioInputs(fixture);
 		expect(inputs.length).toBe(6);
-		Array.from<HTMLInputElement>(inputs).forEach(input => expect(input.disabled).toBe(true));
-	}));
+		inputs.forEach(input => expect(input.disabled).toBe(true));
+	});
 
-	it("should re-enable every radio when the group is enabled", fakeAsync(() => {
+	it("should re-enable every radio when the group is enabled", async () => {
 		const fixture = TestBed.createComponent(RadioTest);
 		fixture.componentInstance.disabled = true;
-		fixture.detectChanges();
-		advancedFakeAsync(fixture);
+		await settle(fixture);
 
 		fixture.componentInstance.disabled = false;
-		fixture.detectChanges();
-		advancedFakeAsync(fixture);
+		await settle(fixture);
 
-		const inputs = fixture.nativeElement.querySelectorAll("input[type=radio]");
-		Array.from<HTMLInputElement>(inputs).forEach(input => expect(input.disabled).toBe(false));
-	}));
+		radioInputs(fixture).forEach(input => expect(input.disabled).toBe(false));
+	});
 
-	it("should give every radio the group name", fakeAsync(() => {
+	it("should give every radio the group name", async () => {
 		const fixture = TestBed.createComponent(RadioTest);
-		fixture.detectChanges();
-		advancedFakeAsync(fixture);
+		await settle(fixture);
 
-		const inputs = fixture.nativeElement.querySelectorAll("input[type=radio]");
-		Array.from<HTMLInputElement>(inputs).forEach(input => expect(input.name).toBe("test-group"));
-	}));
+		radioInputs(fixture).forEach(input => expect(input.name).toBe("test-group"));
+	});
 
-	it("should configure radios added after the group is created", fakeAsync(() => {
+	it("should configure radios added after the group is created", async () => {
 		const fixture = TestBed.createComponent(RadioTest);
 		fixture.componentInstance.disabled = true;
-		fixture.detectChanges();
-		advancedFakeAsync(fixture);
+		await settle(fixture);
 
 		fixture.componentInstance.manyRadios = [...fixture.componentInstance.manyRadios, "seven"];
-		fixture.detectChanges();
-		advancedFakeAsync(fixture);
+		await settle(fixture);
 
-		const inputs = fixture.nativeElement.querySelectorAll("input[type=radio]");
+		const inputs = radioInputs(fixture);
 		expect(inputs.length).toBe(7);
 		expect(inputs[6].disabled).toBe(true);
 		expect(inputs[6].name).toBe("test-group");
-	}));
+	});
+
+	it("should keep the selection when the radios change", async () => {
+		const fixture = TestBed.createComponent(RadioTest);
+		fixture.componentInstance.radio = "two";
+		await settle(fixture);
+
+		fixture.componentInstance.manyRadios = ["zero", ...fixture.componentInstance.manyRadios];
+		await settle(fixture);
+
+		const checked = radioButtons(fixture).filter(button => button.checked);
+		expect(checked.length).toBe(1);
+		expect(checked[0].value).toBe("two");
+	});
+});
+
+@Component({
+	template: `
+		<cds-radio-group legend="Size" [formControl]="control" (change)="onChange($event)">
+			<cds-radio [value]="1">Small</cds-radio>
+			<cds-radio [value]="2">Large</cds-radio>
+		</cds-radio-group>
+	`,
+	imports: [Radio, RadioGroup, ReactiveFormsModule]
+})
+class ReactiveRadioTest {
+	control = new FormControl(2);
+	onChange(_: any) {}
+}
+
+describe("RadioGroup with reactive forms", () => {
+	let fixture: ComponentFixture<ReactiveRadioTest>;
+
+	beforeEach(async () => {
+		fixture = TestBed.createComponent(ReactiveRadioTest);
+		await settle(fixture);
+	});
+
+	it("should check the radio matching the form value (non-string values)", () => {
+		expect(radioButtons(fixture).map(button => button.checked)).toEqual([false, true]);
+	});
+
+	it("should update the form value with the radio's original value and emit change", async () => {
+		spyOn(fixture.componentInstance, "onChange");
+		radioButtons(fixture)[0].click();
+		await settle(fixture);
+
+		expect(fixture.componentInstance.control.value).toBe(1);
+		expect(fixture.componentInstance.onChange).toHaveBeenCalledWith(jasmine.objectContaining({ value: 1 }));
+	});
+
+	it("should disable the radios with the form control", async () => {
+		fixture.componentInstance.control.disable();
+		await settle(fixture);
+		radioInputs(fixture).forEach(input => expect(input.disabled).toBe(true));
+	});
+
+	it("should write form values to the radios", async () => {
+		fixture.componentInstance.control.setValue(1);
+		await settle(fixture);
+		expect(radioButtons(fixture).map(button => button.checked)).toEqual([true, false]);
+	});
 });
 
 describe("RadioComponent", () => {
 	let component: Radio;
 	let fixture: ComponentFixture<Radio>;
-	let de: DebugElement;
-	let el: HTMLElement;
 
 	beforeEach(waitForAsync(() => {
 		TestBed.configureTestingModule({
@@ -120,11 +184,11 @@ describe("RadioComponent", () => {
 	beforeEach(() => {
 		fixture = TestBed.createComponent(Radio);
 		component = fixture.componentInstance;
-		de = fixture.debugElement.query(By.css("label"));
-		el = de.nativeElement;
 	});
 
 	it("should work", () => {
 		expect(component instanceof Radio).toBe(true);
+		fixture.detectChanges();
+		expect(fixture.nativeElement.querySelector("cds-radio-button") instanceof customElements.get("cds-radio-button")).toBe(true);
 	});
 });

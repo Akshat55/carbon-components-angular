@@ -1,69 +1,37 @@
 import {
-	Component,
-	HostBinding,
-	Input,
 	ChangeDetectionStrategy,
+	Component,
+	CUSTOM_ELEMENTS_SCHEMA,
+	Input,
 	TemplateRef
 } from "@angular/core";
-import { NgTemplateOutlet } from "@angular/common";
+import "@carbon/web-components/es/components/tile/index.js";
+import { TemplateSlot } from "carbon-components-angular/utils";
 
 /**
- * Build application's tiles using this component. Get started with importing the component:
- *
- * ```typescript
- * import { Tile } from 'carbon-components-angular';
- * ```
- *
- * ```html
- * <cds-tile>
- * 		tile content
- * </cds-tile>
- * ```
+ * Wraps the `<cds-tile>` web component.
  *
  * [See demo](../../?path=/story/components-tiles--basic)
  */
 @Component({
-	selector: "cds-tile, ibm-tile",
+	selector: "cds-tile",
 	template: `
 		<ng-content />
-		@if (decorator) {
-			<div class="cds--tile--inner-decorator">
-				<ng-template [ngTemplateOutlet]="decorator"></ng-template>
-			</div>
-		}
+		<ng-container cdsSlot="decorator" [cdsSlotTemplate]="decorator" />
 	`,
+	host: {
+		"[colorScheme]": "theme === 'light' ? 'light' : ''",
+		"[hasRoundedCorners]": "hasRoundedCorners"
+	},
 	changeDetection: ChangeDetectionStrategy.OnPush,
-	imports: [NgTemplateOutlet],
-	standalone: true
+	imports: [TemplateSlot],
+	schemas: [CUSTOM_ELEMENTS_SCHEMA]
 })
 export class Tile {
-	@HostBinding("class.cds--tile") tileClass = true;
-
-	@HostBinding("class.cds--tile--light") get lightThemeEnabled() {
-		return this.theme === "light";
-	}
-
-	@HostBinding("class.cds--tile--decorator") get hasDecorator() {
-		return !!this.decorator;
-	}
-
-	@HostBinding("class.cds--tile--decorator-rounded") get decoratorRounded() {
-		return !!this.decorator && this.hasRoundedCorners;
-	}
-
 	/**
-	 * **Experimental**: Optional decorator (e.g. AI label).
+	 * Optional `TemplateRef` (e.g. AI label) rendered in the decorator slot.
 	 */
 	@Input() decorator: TemplateRef<any>;
-
-	/**
-	 * When `true` with a `decorator`, applies rounded-corner styling.
-	 */
 	@Input() hasRoundedCorners = false;
-
-	/**
-	 * @deprecated since v5 - Use `cdsLayer` directive instead
-	 * Set to `"light"` to apply the light style
-	 */
 	@Input() theme: "light" | "dark" = "dark";
 }

@@ -1,60 +1,41 @@
 import {
 	ChangeDetectionStrategy,
 	Component,
-	Input,
-	OnChanges
+	CUSTOM_ELEMENTS_SCHEMA,
+	Input
 } from "@angular/core";
-import { NgClass } from "@angular/common";
+import "@carbon/web-components/es/components/skeleton-text/index.js";
 
+/**
+ * Wraps the `<cds-skeleton-text>` web component.
+ *
+ * [See demo](../../?path=/story/components-skeleton--basic)
+ */
 @Component({
-	selector: "cds-skeleton-text, ibm-skeleton-text",
-	template: `
-		@for (width of lineWidths; track width) {
-			<p
-				class="cds--skeleton__text"
-				[ngClass]="{
-					'cds--skeleton__heading': heading,
-					'cds--skeleton__text--ai': ai
-				}"
-				[style.width]="width">
-			</p>
-		}
-	`,
-	standalone: true,
+	selector: "cds-skeleton-text",
+	template: "",
+	host: {
+		"[paragraph]": "lines > 1",
+		"[lineCount]": "lines",
+		"[heading]": "heading",
+		"[width]": "maxLineWidth + 'px'"
+	},
 	changeDetection: ChangeDetectionStrategy.OnPush,
-	imports: [NgClass]
+	schemas: [CUSTOM_ELEMENTS_SCHEMA]
 })
-export class SkeletonText implements OnChanges {
+export class SkeletonText {
 	@Input() lines = 5;
-
-	@Input() minLineWidth = 100;
-
-	@Input() maxLineWidth = 300;
-
 	/**
-	 * Render a heading-styled skeleton instead of body text.
+	 * @deprecated the web component uses one width for every line; see `maxLineWidth`.
 	 */
-	@Input() heading = false;
-
+	@Input() minLineWidth = 100;
 	/**
-	 * When `true`, applies the AI skeleton styling
+	 * Line width in pixels.
+	 */
+	@Input() maxLineWidth = 300;
+	@Input() heading = false;
+	/**
+	 * @deprecated not supported by the web component.
 	 */
 	@Input() ai = false;
-
-	lineWidths: Array<string>;
-
-	/**
-	 * Returns a random width in pixels based off a min width, and a max width.
-	 */
-	getRandomInt(min, max) {
-		return `${Math.floor(Math.random() * (max - min + 1) + min) + "px"}`;
-	}
-
-	ngOnChanges() {
-		// Creates an array of length defined by input lines with content from
-		// 0 to lines - 1, maps each value to a random width in pixels.
-		this.lineWidths =
-			Array.from(Array(this.lines).keys())
-				.map(num => this.getRandomInt(this.minLineWidth, this.maxLineWidth));
-	}
 }

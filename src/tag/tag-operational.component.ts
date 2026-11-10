@@ -1,40 +1,33 @@
 import {
 	ChangeDetectionStrategy,
 	Component,
-	HostBinding,
+	CUSTOM_ELEMENTS_SCHEMA,
 	Input
 } from "@angular/core";
-import { Tag } from "./tag.component";
+import "@carbon/web-components/es/components/tag/index.js";
+import { TagType } from "./tag.component";
 
+/**
+ * Wraps the `<cds-operational-tag>` web component.
+ *
+ * [See demo](../../?path=/story/components-tag--operational)
+ */
 @Component({
-	selector: "cds-tag-operational, ibm-tag-operational",
+	selector: "cds-tag-operational",
 	template: `
-		@if (!skeleton) {
-			<ng-content select="[cdsTagIcon],[ibmTagIcon]" />
-			<span class="cds--tag__label">
+		<cds-operational-tag [type]="type" [size]="size" [disabled]="disabled">
+			@if (!skeleton) {
 				<ng-content />
-			</span>
-		}
+			}
+		</cds-operational-tag>
 	`,
+	styles: [":host { display: contents; }"],
 	changeDetection: ChangeDetectionStrategy.OnPush,
-	standalone: true
+	schemas: [CUSTOM_ELEMENTS_SCHEMA]
 })
-export class TagOperationalComponent extends Tag {
-	@HostBinding("attr.role") role = "button";
-	@HostBinding("attr.type") buttonType = "button";
-	@HostBinding("attr.tabindex") tabIndex = 0;
-
+export class TagOperationalComponent {
+	@Input() type: TagType = "gray";
+	@Input() size: "sm" | "md" | "lg" = "md";
+	@Input() skeleton = false;
 	@Input() disabled = false;
-
-	/**
-	 * @todo
-	 * Remove `cds--tag--${this.size}` in Carbon v12
-	 */
-	@HostBinding("attr.class") get attrClass() {
-		const disabledClass = this.disabled ? "cds--tag--disabled" : "";
-		const sizeClass = `cds--tag--${this.size} cds--layout--size-${this.size}`;
-		const skeletonClass = this.skeleton ? "cds--skeleton" : "";
-
-		return `cds--tag cds--tag--operational cds--tag--${this.type} ${disabledClass} ${sizeClass} ${skeletonClass} ${this.class}`;
-	}
 }

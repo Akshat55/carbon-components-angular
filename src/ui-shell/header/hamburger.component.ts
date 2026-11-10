@@ -1,69 +1,45 @@
 import {
+	ChangeDetectionStrategy,
 	Component,
-	Output,
+	CUSTOM_ELEMENTS_SCHEMA,
 	EventEmitter,
 	Input,
+	Output,
 	inject
 } from "@angular/core";
+import "@carbon/web-components/es/components/ui-shell/index.js";
 import { I18n } from "carbon-components-angular/i18n";
-import { NgClass } from "@angular/common";
-import { IconDirective } from "carbon-components-angular/icon";
 
 /**
- * A toggle for the side navigation
+ * The header menu button. Renders the `<cds-header-menu-button>` web component.
  */
 @Component({
-	selector: "cds-hamburger, ibm-hamburger",
+	selector: "cds-hamburger",
 	template: `
-		<button
-			type="button"
-			(click)="doClick()"
-			[ngClass]="{'cds--header__action--active': active}"
-			class="cds--header__menu-trigger cds--header__action cds--header__menu-toggle"
-			[attr.aria-label]="active ? activeTitle : inactiveTitle"
-			[attr.title]="active ? activeTitle : inactiveTitle">
-			@if (active) {
-				<svg cdsIcon="close" size="20"></svg>
-			} @else {
-				<svg cdsIcon="menu" size="20"></svg>
-			}
-		</button>
+		<cds-header-menu-button
+			[active]="active"
+			[buttonLabelActive]="activeTitle"
+			[buttonLabelInactive]="inactiveTitle"
+			(cds-header-menu-button-toggled)="onToggled($event)" />
 	`,
-	imports: [NgClass, IconDirective]
+	styles: [":host { display: contents; }"],
+	changeDetection: ChangeDetectionStrategy.OnPush,
+	schemas: [CUSTOM_ELEMENTS_SCHEMA]
 })
 export class Hamburger {
-	i18n = inject(I18n);
+	public i18n = inject(I18n);
 
-	/**
-	 * Controls the active/selected state for the `Hamburger` menu.
-	 */
 	@Input() active = false;
-
-	/**
-	 * Set the title text when the hamburger is active
-	 */
 	@Input() activeTitle = this.i18n.get().UI_SHELL.HEADER.CLOSE_MENU;
-
-	/**
-	 * Set the title text when the hamburger is inactive
-	 */
 	@Input() inactiveTitle = this.i18n.get().UI_SHELL.HEADER.OPEN_MENU;
 
 	/**
-	 * `EventEmitter` to notify parent components of menu click events.
+	 * Emits the click event when the button is toggled.
 	 */
-	@Output() selected: EventEmitter<Object> = new EventEmitter<Object>();
+	@Output() selected = new EventEmitter<Object>();
 
-	/** Inserted by Angular inject() migration for backwards compatibility */
-	// eslint-disable-next-line @angular-eslint/prefer-inject -- backwards-compatible DI overload until next major
-	constructor(...args: unknown[]);
-
-	constructor() {}
-
-	/**
-	 * Emit the Hamburger click event upwards.
-	 */
-	public doClick() {
-		this.selected.emit(this.active);
+	onToggled(event: Event) {
+		this.active = (event as CustomEvent<{ active: boolean }>).detail.active;
+		this.selected.emit(event);
 	}
 }

@@ -1,4 +1,5 @@
-export { Dropdown } from "./dropdown.component";
+export { BaseDropdown, Dropdown, MultiSelect } from "./dropdown.component";
+export { ListSelection } from "./list-selection.class";
 export { DropdownList } from "./list/dropdown-list.component";
 
 export { ScrollableList } from "./scrollable-list.directive";

@@ -1,162 +1,56 @@
 import {
+	ChangeDetectionStrategy,
 	Component,
+	CUSTOM_ELEMENTS_SCHEMA,
+	EventEmitter,
 	Input,
 	Output,
-	EventEmitter,
-	OnChanges,
-	HostBinding,
-	SimpleChanges,
 	inject
 } from "@angular/core";
-import { DomSanitizer } from "@angular/platform-browser";
-import { Router, RouterLinkActive, RouterLink } from "@angular/router";
-import { RouterLinkExtendedDirective } from "./routerlink-extended.directive";
-import { NgTemplateOutlet, NgClass } from "@angular/common";
+import { NgTemplateOutlet } from "@angular/common";
+import "@carbon/web-components/es/components/ui-shell/index.js";
+import { ShellLink } from "../shell-link.class";
+import { SIDE_NAV_MENU } from "./sidenav-menu.token";
 
 /**
- * `SideNavItem` can either be a child of `SideNav` or `SideNavMenu`
+ * A side navigation link. Renders `<cds-side-nav-link>`, or `<cds-side-nav-menu-item>` inside
+ * a `cds-sidenav-menu`. Project an `svg` (or `[icon]`) for the icon.
  */
 @Component({
-	selector: "cds-sidenav-item, ibm-sidenav-item",
+	selector: "cds-sidenav-item",
 	template: `
-		@if (useRouter) {
-			<a
-				[attr.title]="title ? title : null"
-				[routerLink]="route"
-				[routeExtras]="routeExtras"
-				routerLinkActive="cds--side-nav__item--active"
-				ariaCurrentWhenActive="page"
-				class="cds--side-nav__link">
-				<ng-template [ngTemplateOutlet]="sidenavItemContentTpl" />
-			</a>
+		<ng-template #icon><ng-content select="svg, [icon]" /></ng-template>
+		<ng-template #content><ng-content /></ng-template>
+		@if (inMenu || isSubMenu) {
+			<cds-side-nav-menu-item [href]="href ?? ''" [active]="active || routerActive" [title]="title ?? ''" (click)="onClick($event)">
+				<ng-container *ngTemplateOutlet="content" />
+			</cds-side-nav-menu-item>
 		} @else {
-			<a
-				class="cds--side-nav__link"
-				[ngClass]="{
-					'cds--side-nav__item--active': active
-				}"
-				[href]="href"
-				[attr.aria-current]="(active ? 'page' : null)"
-				[attr.title]="title ? title : null"
-				(click)="navigate($event)">
-				<ng-template [ngTemplateOutlet]="sidenavItemContentTpl" />
-			</a>
+			<cds-side-nav-link [href]="href ?? ''" [active]="active || routerActive" [title]="title ?? ''" (click)="onClick($event)">
+				<span slot="title-icon"><ng-container *ngTemplateOutlet="icon" /></span>
+				<ng-container *ngTemplateOutlet="content" />
+			</cds-side-nav-link>
 		}
-
-		<ng-template #sidenavItemContentTpl>
-			@if (!isSubMenu) {
-				<div class="cds--side-nav__icon">
-					<ng-content select="svg, [icon]" />
-				</div>
-			}
-			<span class="cds--side-nav__link-text">
-				<ng-content />
-			</span>
-		</ng-template>
 	`,
-	styles: [`
-		:host {
-			display: list-item;
-		}
-	`],
-	imports: [
-		NgTemplateOutlet,
-		NgClass,
-		RouterLinkActive,
-		RouterLink,
-		RouterLinkExtendedDirective
-	]
+	styles: [":host { display: contents; }"],
+	changeDetection: ChangeDetectionStrategy.OnPush,
+	imports: [NgTemplateOutlet],
+	schemas: [CUSTOM_ELEMENTS_SCHEMA]
 })
-export class SideNavItem implements OnChanges {
-	/**
-	 * Link for the item. NOTE: *do not* pass unsafe or untrusted values, this has the potential to open you up to XSS attacks
-	 */
-	@Input() set href(v: string) {
-		// Needed when component is created dynamically with a model.
-		if (v === undefined) {
-			return;
-		}
-		this._href = v;
-	}
-
-	get href() {
-		return this.domSanitizer.bypassSecurityTrustUrl(this._href) as string;
-	}
-
-	/**
-	 * Use the routerLink attribute on <a> tag for navigation instead of using event handlers
-	 */
-	@Input() useRouter = false;
-
-	@HostBinding("class.cds--side-nav__item") get sideNav() {
-		return !this.isSubMenu;
-	}
-
-	@HostBinding("class.cds--side-nav__menu-item") get menuItem() {
-		return this.isSubMenu;
-	}
-
-	/**
-	 * Toggles the active (current page) state for the link.
-	 */
+export class SideNavItem extends ShellLink {
 	@Input() active = false;
-
-	/**
-	 * Array of commands to send to the router when the link is activated
-	 * See: https://angular.io/api/router/Router#navigate
-	 */
-	@Input() route: any[];
-
 	@Input() isSubMenu = false;
-
-	/**
-	 * Router options. Used in conjunction with `route`
-	 * See: https://angular.io/api/router/Router#navigate
-	 */
-	@Input() routeExtras: any;
-
-	/**
-	 * Title attribute of the anchor element.
-	 */
 	@Input() title: string;
 
 	/**
-	 * Emits the navigation status promise when the link is activated
-	 */
-	@Output() navigation = new EventEmitter<Promise<boolean>>();
-
-	/**
-	 * Emits when `active` input is changed. This is mainly used to indicate to any parent menu items that a
-	 * child sidenav item is active or not active.
+	 * Emits `true` when the item is clicked.
 	 */
 	@Output() selected = new EventEmitter<boolean>();
 
-	@HostBinding("attr.role") role = "listitem";
+	protected inMenu = !!inject(SIDE_NAV_MENU, { optional: true });
 
-	protected _href = "#";
-
-	protected domSanitizer = inject(DomSanitizer);
-	protected router = inject(Router, { optional: true })!;
-
-	/** Inserted by Angular inject() migration for backwards compatibility */
-	// eslint-disable-next-line @angular-eslint/prefer-inject -- backwards-compatible DI overload until next major
-	constructor(...args: unknown[]);
-
-	constructor() {}
-
-	ngOnChanges(changes: SimpleChanges) {
-		if (changes.active) {
-			this.selected.emit(this.active);
-		}
-	}
-
-	navigate(event: MouseEvent) {
-		if (this.router && this.route) {
-			event.preventDefault();
-			const status = this.router.navigate(this.route, this.routeExtras);
-			this.navigation.emit(status);
-		} else if (this._href === "#") {
-			event.preventDefault();
-		}
+	onClick(event: Event) {
+		this.selected.emit(true);
+		this.navigate(event);
 	}
 }

@@ -45,7 +45,9 @@ describe("Password", () => {
 		expect(passwordEl.nativeElement.querySelector("input[type='password']")).not.toBeNull();
 	});
 
-	it("should set input type to 'text' when toggle button is clicked", () => {
+	it("should set input type to 'text' when toggle button is clicked", async () => {
+		// The toggle sits inside the cds-tooltip web component; wait for its first render.
+		await passwordEl.nativeElement.querySelector("cds-tooltip").updateComplete;
 		const visibilityToggleButton = passwordEl.nativeElement.querySelector("button.cds--text-input--password__visibility__toggle");
 		visibilityToggleButton.click();
 		fixture.detectChanges();

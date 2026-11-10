@@ -1,68 +1,44 @@
 import {
 	ChangeDetectionStrategy,
 	Component,
-	HostBinding,
+	CUSTOM_ELEMENTS_SCHEMA,
 	Input,
 	inject
 } from "@angular/core";
+import "@carbon/web-components/es/components/loading/index.js";
 import { I18n } from "carbon-components-angular/i18n";
-import { NgClass } from "@angular/common";
 
 /**
- * Get started with importing the component:
- *
- * ```typescript
- * import { Loading } from 'carbon-components-angular';
- * ```
+ * Wraps the `<cds-loading>` web component.
  *
  * [See demo](../../?path=/story/components-loading--basic)
  */
 @Component({
-	selector: "cds-loading, ibm-loading",
-	template: `
-		<div
-			[ngClass]="{
-				'cds--loading--small': size === 'sm',
-				'cds--loading--stop': !isActive && !overlay,
-				'cds--loading-overlay--stop': !isActive && overlay
-			}"
-			class="cds--loading">
-			<svg class="cds--loading__svg" viewBox="0 0 100 100">
-				<title>{{title}}</title>
-				<circle class="cds--loading__stroke" cx="50%" cy="50%" r="44" />
-			</svg>
-		</div>
-	`,
+	selector: "cds-loading",
+	template: "",
+	host: {
+		"[description]": "title",
+		"[active]": "isActive",
+		"[small]": "size === 'sm'",
+		"[overlay]": "overlay"
+	},
 	changeDetection: ChangeDetectionStrategy.OnPush,
-	imports: [NgClass]
+	schemas: [CUSTOM_ELEMENTS_SCHEMA]
 })
 export class Loading {
 	public i18n = inject(I18n);
 
 	/**
-	 * Accessible title for the loading circle.
-	 * Defaults to the `LOADING.TITLE` value from the i18n service.
+	 * Accessible description. Defaults to the `LOADING.TITLE` i18n value.
 	 */
 	@Input() title = this.i18n.get().LOADING.TITLE;
-
 	/**
-	 * set to `false` to stop the loading animation
+	 * Set to `false` to stop the animation.
 	 */
 	@Input() isActive = true;
-
-	/**
-	 * Specify the size of the button
-	 */
 	@Input() size: "normal" | "sm" = "normal";
-
 	/**
-	 * Set to `true` to make loader with an overlay.
+	 * Shows the loading indicator over the whole page.
 	 */
-	@Input() @HostBinding("class.cds--loading-overlay") overlay = false;
-
-	/** Inserted by Angular inject() migration for backwards compatibility */
-	// eslint-disable-next-line @angular-eslint/prefer-inject -- backwards-compatible DI overload until next major
-	constructor(...args: unknown[]);
-
-	constructor() {}
+	@Input() overlay = false;
 }

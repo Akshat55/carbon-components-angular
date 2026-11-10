@@ -1,97 +1,48 @@
 import {
 	ChangeDetectionStrategy,
-	ChangeDetectorRef,
 	Component,
+	CUSTOM_ELEMENTS_SCHEMA,
+	EventEmitter,
 	Input,
 	Output,
-	EventEmitter,
-	HostBinding,
-	TemplateRef,
-	HostListener,
-	inject
+	TemplateRef
 } from "@angular/core";
-import { NG_VALUE_ACCESSOR, ControlValueAccessor } from "@angular/forms";
-import { NgClass, NgTemplateOutlet } from "@angular/common";
+import "@carbon/web-components/es/components/time-picker/index.js";
+import { provideValueAccessor, TemplateContent, TemplateSlot, WebComponentValueAccessor } from "carbon-components-angular/utils";
 
 /**
- * Get started with importing the component:
+ * Renders the `<cds-time-picker>` web component. Project `cds-timepicker-select`s for AM/PM etc.
+ * Works with `ngModel` / reactive forms.
  *
- * ```typescript
- * import { TimePicker } from 'carbon-components-angular';
- * ```
- *
- * [See demo](../../?path=/story/components-time-picker--simple)
+ * [See demo](../../?path=/story/components-time-picker--basic)
  */
 @Component({
-	selector: "cds-timepicker, ibm-timepicker",
+	selector: "cds-timepicker",
 	template: `
-		@if (!skeleton && label) {
-			<label
-				[for]="id"
-				class="cds--label"
-				[ngClass]="{
-					'cds--label--disabled': disabled,
-					'cds--visually-hidden': hideLabel
-				}">
-				@if (isTemplate(label)) {
-					<ng-template [ngTemplateOutlet]="label" />
-				} @else {
-					{{label}}
-				}
-			</label>
-		}
-		<div
-			class="cds--time-picker"
-			[ngClass]="{
-				'cds--time-picker--invalid' : invalid,
-				'cds--time-picker--sm': size === 'sm',
-				'cds--time-picker--md': size === 'md',
-				'cds--time-picker--lg': size === 'lg',
-				'cds--time-picker--light': theme === 'light'
-			}">
-			<div class="cds--time-picker__input">
-				<input
-					[ngClass]="{
-						'cds--text-input--light': theme === 'light',
-						'cds--skeleton': skeleton
-					}"
-					[value]="value"
-					[placeholder]="placeholder"
-					[attr.data-invalid]="invalid ? true : undefined"
-					[pattern]="pattern"
-					[attr.id]="id"
-					[disabled]="disabled"
-					[attr.maxlength]="maxLength"
-					(change)="onChange($event)"
-					type="text"
-					class="cds--time-picker__input-field cds--text-input">
-			</div>
+		<cds-time-picker
+			[id]="id"
+			[value]="value ?? ''"
+			[labelText]="isTemplate(label) ? '' : label"
+			[hideLabel]="hideLabel"
+			[placeholder]="placeholder"
+			[pattern]="pattern"
+			[maxLength]="maxLength"
+			[size]="size"
+			[disabled]="disabled"
+			[invalid]="invalid"
+			[invalidText]="content.render('invalidText', invalidText)"
+			(input)="onInput($event)">
+			<ng-container cdsSlot="label-text" [cdsSlotTemplate]="isTemplate(label) ? label : null" />
 			<ng-content />
-		</div>
-		@if (invalid) {
-			<div class="cds--form-requirement">
-				@if (isTemplate(invalidText)) {
-					<ng-template [ngTemplateOutlet]="invalidText" />
-				} @else {
-					{{invalidText}}
-				}
-			</div>
-		}
+		</cds-time-picker>
 	`,
-	providers: [
-		{
-			provide: NG_VALUE_ACCESSOR,
-			useExisting: TimePicker,
-			multi: true
-		}
-	],
+	styles: [":host { display: block; }"],
+	providers: [provideValueAccessor(() => TimePicker)],
 	changeDetection: ChangeDetectionStrategy.OnPush,
-	imports: [NgClass, NgTemplateOutlet]
+	imports: [TemplateSlot],
+	schemas: [CUSTOM_ELEMENTS_SCHEMA]
 })
-export class TimePicker implements ControlValueAccessor {
-	/**
-	 * Tracks the total number of selects instantiated. Used to generate unique IDs
-	 */
+export class TimePicker extends WebComponentValueAccessor<string> {
 	static timePickerCount = 0;
 
 	@Input() invalid = false;
@@ -101,66 +52,34 @@ export class TimePicker implements ControlValueAccessor {
 	@Input() placeholder = "hh:mm";
 	@Input() pattern = "(1[012]|[0-9]):[0-5][0-9]";
 	@Input() id = `timepicker-${TimePicker.timePickerCount++}`;
-	@Input() disabled = false;
 	@Input() value: string;
 	@Input() maxLength = 5;
-
+	@Input() size: "sm" | "md" | "lg" = "md";
 	/**
-	 * Set to true for a loading select.
+	 * @deprecated use `<cds-time-picker-skeleton>` instead.
 	 */
 	@Input() skeleton = false;
-
 	/**
-	 * @deprecated since v5 - Use `cdsLayer` directive instead
+	 * @deprecated the web component follows the surrounding theme / layer.
 	 */
 	@Input() theme: "light" | "dark" = "dark";
 
-	/**
-	 * `sm`, `md` (default), or `lg` select size
-	 */
-	@Input() size: "sm" | "md" | "lg" = "md";
-
 	@Output() valueChange: EventEmitter<string> = new EventEmitter();
 
-	/**
-	 * Ensures component is properly styled when used standalone.
-	 */
-	@HostBinding("class.cds--form-item") timepickerClass = true;
-
-	protected changeDetectorRef = inject(ChangeDetectorRef);
+	protected content = new TemplateContent();
 
 	writeValue(value: string) {
 		this.value = value;
 		this.changeDetectorRef.markForCheck();
 	}
 
-	registerOnChange(callback: any) {
-		this.onChangeHandler = callback;
+	onInput(event: Event) {
+		this.value = (event.target as HTMLInputElement).value;
+		this.onChange(this.value);
+		this.valueChange.emit(this.value);
 	}
 
-	registerOnTouched(callback: any) {
-		this.onTouchedHandler = callback;
-	}
-
-	setDisabledState(isDisabled: boolean) {
-		this.disabled = isDisabled;
-		this.changeDetectorRef.markForCheck();
-	}
-
-	onChange(event) {
-		this.onChangeHandler(event.target.value);
-		this.valueChange.emit(event.target.value);
-	}
-
-	@HostListener("focusout")
-	focusOut() {
-		this.onTouchedHandler();
-	}
-
-	public isTemplate(value) {
+	isTemplate(value: unknown): value is TemplateRef<any> {
 		return value instanceof TemplateRef;
 	}
-
-	protected onChangeHandler = (_: any) => {};
-	protected onTouchedHandler = () => {};
 }

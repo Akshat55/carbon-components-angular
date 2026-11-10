@@ -1,197 +1,74 @@
 import {
-	Component,
-	Input,
-	ContentChildren,
-	QueryList,
-	Output,
-	EventEmitter,
-	AfterViewInit,
-	HostListener,
-	ElementRef,
+	AfterContentInit,
 	ChangeDetectionStrategy,
-	ChangeDetectorRef,
-	OnChanges,
-	SimpleChanges,
-	inject
+	Component,
+	ContentChildren,
+	CUSTOM_ELEMENTS_SCHEMA,
+	EventEmitter,
+	Input,
+	Output,
+	QueryList
 } from "@angular/core";
+import "@carbon/web-components/es/components/content-switcher/index.js";
 import { ContentSwitcherOption } from "./content-switcher-option.directive";
-import { isFocusInLastItem, isFocusInFirstItem } from "carbon-components-angular/common";
-import { NgClass } from "@angular/common";
 
 /**
- * The content switcher can be used for toggling between distinct options.
- * Similar to tabs, but without an associated content panel.
- *
- * Get started with importing the components and directives:
- *
- * ```typescript
- * import { ContentSwitcher, ContentSwitcherOption } from 'carbon-components-angular';
- * ```
+ * Wraps the `<cds-content-switcher>` web component. Project `cds-content-switcher-item`s.
  *
  * ```html
- * <cds-content-switcher (selected)="selected($event)">
- *		<button cdsContentOption>First section</button>
- *		<button cdsContentOption>Second section</button>
- *		<button cdsContentOption>Third section</button>
+ * <cds-content-switcher (selected)="onSelected($event)">
+ * 	<cds-content-switcher-item name="first">First</cds-content-switcher-item>
+ * 	<cds-content-switcher-item name="second">Second</cds-content-switcher-item>
  * </cds-content-switcher>
  * ```
+ *
+ * v6 `<button cdsContentOption>` options must become `<cds-content-switcher-item>`.
  *
  * [See demo](../../?path=/story/components-content-switcher--basic)
  */
 @Component({
-	selector: "cds-content-switcher, ibm-content-switcher",
-	template: `
-		<div
-			[attr.aria-label]="ariaLabel"
-			class="cds--content-switcher"
-			[ngClass]="{
-				'cds--content-switcher--sm': size === 'sm',
-				'cds--content-switcher--md': size === 'md',
-				'cds--content-switcher--lg': size === 'lg',
-				'cds--content-switcher--low-contrast': lowContrast
-			}"
-			role="tablist">
-			<ng-content />
-		</div>
-	`,
+	selector: "cds-content-switcher",
+	template: "<ng-content />",
+	host: {
+		"[size]": "size",
+		"[lowContrast]": "lowContrast",
+		"[selectionMode]": "selectionMode",
+		"[selectedIndex]": "selectedIndex ?? 0",
+		"[attr.aria-label]": "ariaLabel",
+		"(cds-content-switcher-selected)": "onSelected($event)"
+	},
 	changeDetection: ChangeDetectionStrategy.OnPush,
-	imports: [NgClass]
+	schemas: [CUSTOM_ELEMENTS_SCHEMA]
 })
-export class ContentSwitcher implements AfterViewInit, OnChanges {
+export class ContentSwitcher implements AfterContentInit {
 	@Input() ariaLabel = "content switcher";
-
-	/**
-	 * Set content switcher size
-	 */
 	@Input() size: "sm" | "md" | "lg" = "md";
-
-	/**
-	 * Specify whether the ContentSwitcher should be the low contrast variant.
-	 */
 	@Input() lowContrast = false;
-
-	/**
-	 * When `automatic`, the focused switcher will be selected by default. For `manual`,
-	 * user will have to manually select via Enter/space (which fire the native click handler).
-	 *
-	 * Passes selected mode to all content switcher children
-	 */
 	@Input() selectionMode: "automatic" | "manual" = "automatic";
-
 	/**
-	 * Index of the currently selected option (zero-based). When set, the
-	 * matching `cdsContentOption` is activated and any other option becomes
-	 * inactive.
+	 * Index of the selected option.
 	 */
 	@Input() selectedIndex: number | undefined;
 
 	/**
-	 * Emits the activated `ContentSwitcherOption`
+	 * Emits the selected option.
 	 */
 	@Output() selected = new EventEmitter<ContentSwitcherOption>();
 
 	@ContentChildren(ContentSwitcherOption) options: QueryList<ContentSwitcherOption>;
 
-	protected elementRef = inject(ElementRef);
-	protected changeDetectorRef = inject(ChangeDetectorRef);
-
-	/** Inserted by Angular inject() migration for backwards compatibility */
-	// eslint-disable-next-line @angular-eslint/prefer-inject -- backwards-compatible DI overload until next major
-	constructor(...args: unknown[]);
-
-	constructor() {}
-
-	ngOnChanges(changes: SimpleChanges) {
-		if (this.options) {
-			if (changes.selectedIndex) {
-				this.applySelectedIndex();
-			}
-			if (changes.selectionMode) {
-				this.options.forEach(option => option.selectionMode = this.selectionMode);
-			}
-		}
+	ngAfterContentInit() {
+		const index = this.selectedIndex ?? this.options.toArray().findIndex(option => option.active);
+		this.options.forEach((option, i) => option.active = i === Math.max(index, 0));
 	}
 
-	ngAfterViewInit() {
-		if (this.selectedIndex !== undefined) {
-			this.applySelectedIndex();
-		} else {
-			const firstActive = this.options.find(option => option.active);
-			// delay setting active until the DOM has settled
-			if (!firstActive) {
-				setTimeout(() => {
-					this.options.first.active = true;
-					this.changeDetectorRef.markForCheck();
-				});
-			}
+	onSelected(event: Event) {
+		const element = (event as CustomEvent<{ item: Element }>).detail.item;
+		const option = this.options.find(o => o.element === element);
+		if (option) {
+			this.options.forEach(o => o.active = o === option);
+			option.selected.emit(true);
+			this.selected.emit(option);
 		}
-		// propagate selectionMode so each option can honor 'manual' selection
-		this.options.forEach(option => option.selectionMode = this.selectionMode);
-		// subscribe to each item, emit when one is selected, and reset the active states
-		this.options.forEach(option => {
-			option.selected.subscribe((_: boolean) => {
-				const active = option;
-				this.options.forEach(option => {
-					if (option !== active) {
-						option.active = false;
-					}
-				});
-				this.selected.emit(active);
-			});
-		});
-	}
-
-	@HostListener("keydown", ["$event"])
-	hostkeys(event: KeyboardEvent) {
-		const buttonList = Array.from<any>(this.elementRef.nativeElement.querySelectorAll("[cdsContentOption], [ibmContentOption]"));
-
-		switch (event.key) {
-			case "ArrowRight":
-				event.preventDefault();
-				if (!isFocusInLastItem(event, buttonList))  {
-					const index = buttonList.findIndex(item => item === event.target);
-					buttonList[index + 1].focus();
-				} else {
-					buttonList[0].focus();
-				}
-				break;
-
-			case "ArrowLeft":
-				event.preventDefault();
-				if (!isFocusInFirstItem(event, buttonList))  {
-					const index = buttonList.findIndex(item => item === event.target);
-					buttonList[index - 1].focus();
-				} else {
-					buttonList[buttonList.length - 1].focus();
-				}
-				break;
-
-			case "Home":
-				event.preventDefault();
-				buttonList[0].focus();
-				break;
-
-			case "End":
-				event.preventDefault();
-				buttonList[buttonList.length - 1].focus();
-				break;
-		}
-	}
-
-	private applySelectedIndex() {
-		if (this.selectedIndex === undefined) {
-			return;
-		}
-		const list = this.options.toArray();
-		if (!list.length) {
-			return;
-		}
-		const target = list[this.selectedIndex];
-		if (!target) {
-			return;
-		}
-		list.forEach(option => {
-			option.active = option === target;
-		});
 	}
 }

@@ -1,128 +1,66 @@
 import {
+	ChangeDetectionStrategy,
 	Component,
-	HostBinding,
+	CUSTOM_ELEMENTS_SCHEMA,
 	Input,
-	ViewEncapsulation,
 	inject
 } from "@angular/core";
+import "@carbon/web-components/es/components/ui-shell/index.js";
 import { I18n } from "carbon-components-angular/i18n";
 import { NavigationItem } from "../header/header-navigation-items.interface";
 import { SideNavItem } from "./sidenav-item.component";
 import { SideNavMenu } from "./sidenav-menu.component";
-import { AsyncPipe } from "@angular/common";
 
 /**
- * `Sidenav` is a fixed left navigation that may contain `SideNavItem`s or `SideNavMenu`s
+ * The side navigation. Renders the `<cds-side-nav>` web component; project items or pass `navigationItems`.
  *
  * [See demo](../../?path=/story/components-ui-shell--side-navigation)
  */
 @Component({
-	selector: "cds-sidenav, ibm-sidenav",
+	selector: "cds-sidenav",
 	template: `
-		<nav class="cds--side-nav__items" [attr.aria-label]="ariaLabel">
-			<ng-content select="cds-sidenav-header,ibm-sidenav-header" />
-			<div role="list">
-				<div class="cds--side-nav__header-navigation cds--side-nav__header-divider">
-					@for (navigationItem of navigationItems; track navigationItem) {
-						@if (navigationItem.type === 'item') {
-							<cds-sidenav-item
-								[href]="navigationItem.href"
-								[route]="navigationItem.route"
-								[routeExtras]="navigationItem.routeExtras"
-								[useRouter]="useRouter"
-								[title]="navigationItem.title">
-								{{ navigationItem.content }}
-							</cds-sidenav-item>
-						}
-						@if (navigationItem.type === 'menu') {
-							<cds-sidenav-menu
-								[title]="navigationItem.title"
-								[useRouter]="useRouter"
-								[menuItems]="navigationItem.menuItems" />
-						}
+		<cds-side-nav
+			[expanded]="expanded"
+			[collapseMode]="rail ? 'rail' : allowExpansion ? 'responsive' : 'fixed'"
+			[hidden]="hidden"
+			[attr.aria-label]="ariaLabel">
+			<cds-side-nav-items>
+				@for (item of navigationItems; track item) {
+					@if (item.type === "menu") {
+						<cds-sidenav-menu [title]="item.title" [useRouter]="useRouter" [menuItems]="item.menuItems" />
+					} @else {
+						<cds-sidenav-item
+							[href]="item.href"
+							[route]="item.route"
+							[routeExtras]="item.routeExtras"
+							[useRouter]="useRouter"
+							[title]="item.title">
+							{{ item.content }}
+						</cds-sidenav-item>
 					}
-				</div>
-				<ng-content />
-			</div>
-			<footer class="cds--side-nav__footer">
-				@if (allowExpansion) {
-					<button
-						class="cds--side-nav__toggle"
-						type="button"
-						[title]="(expanded ? i18n.get('UI_SHELL.SIDE_NAV.TOGGLE_CLOSE') : i18n.get('UI_SHELL.SIDE_NAV.TOGGLE_OPEN')) | async"
-						(click)="toggle()">
-						<div class="cds--side-nav__icon">
-							@if (expanded) {
-								<svg
-									focusable="false"
-									preserveAspectRatio="xMidYMid meet"
-									style="will-change: transform;"
-									xmlns="http://www.w3.org/2000/svg"
-									width="20"
-									height="20"
-									viewBox="0 0 32 32"
-									aria-hidden="true">
-									<path d="M24 9.4L22.6 8 16 14.6 9.4 8 8 9.4l6.6 6.6L8 22.6 9.4 24l6.6-6.6 6.6 6.6 1.4-1.4-6.6-6.6L24 9.4z"></path>
-								</svg>
-							} @else {
-								<svg
-									focusable="false"
-									preserveAspectRatio="xMidYMid meet"
-									style="will-change: transform;"
-									xmlns="http://www.w3.org/2000/svg"
-									width="20"
-									height="20"
-									viewBox="0 0 32 32"
-									aria-hidden="true">
-									<path d="M22 16L12 26l-1.4-1.4 8.6-8.6-8.6-8.6L12 6z"></path>
-								</svg>
-							}
-						</div>
-						<span class="cds--assistive-text">
-							{{(expanded ? i18n.get('UI_SHELL.SIDE_NAV.TOGGLE_CLOSE') : i18n.get('UI_SHELL.SIDE_NAV.TOGGLE_OPEN')) | async}}
-						</span>
-					</button>
 				}
-			</footer>
-		</nav>
+				<ng-content />
+			</cds-side-nav-items>
+		</cds-side-nav>
 	`,
-	encapsulation: ViewEncapsulation.None,
-	imports: [SideNavItem, SideNavMenu, AsyncPipe]
+	styles: [":host { display: contents; }"],
+	changeDetection: ChangeDetectionStrategy.OnPush,
+	imports: [SideNavItem, SideNavMenu],
+	schemas: [CUSTOM_ELEMENTS_SCHEMA]
 })
 export class SideNav {
 	i18n = inject(I18n);
 
-	@HostBinding("class.cds--side-nav") hostClass = true;
 	@Input() ariaLabel = "Side navigation";
+	@Input() expanded = true;
+	@Input() hidden = false;
 	/**
-	 * Controls the expanded (`true`) or collapsed (`false`) state when on a small screen.
+	 * Collapses to a rail of icons.
 	 */
-	@HostBinding("class.cds--side-nav--expanded") @Input() expanded = true;
-	/**
-	 * Controls the hidden (`true`) or visible (`false`) state
-	 */
-	@HostBinding("class.cds--side-nav--hidden") @Input() hidden = false;
-	@HostBinding("class.cds--side-nav--rail") @Input() rail = false;
-	@HostBinding("class.cds--side-nav__navigation") ux = true;
+	@Input() rail = false;
 	@Input() allowExpansion = false;
-
-	/**
-	 * NavigationItems from the header navigation component which are displayed on the sidenav when the window
-	 * innerWidth is small enough. Sidenav items and menus are created using the model used to create header
-	 * navigation items.
-	 */
 	@Input() navigationItems: NavigationItem[];
-
-	/**
-	 * Use the routerLink attribute on <a> tag for navigation instead of using event handlers
-	 */
 	@Input() useRouter = false;
-
-	/** Inserted by Angular inject() migration for backwards compatibility */
-	// eslint-disable-next-line @angular-eslint/prefer-inject -- backwards-compatible DI overload until next major
-	constructor(...args: unknown[]);
-
-	constructor() {}
 
 	toggle() {
 		this.expanded = !this.expanded;

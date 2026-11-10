@@ -26,7 +26,9 @@
 					"options": {
 						"main": "src/test.ts",
 						"karmaConfig": "./karma.conf.js",
-						"tsConfig": "./tsconfig.spec.json"
+						"tsConfig": "./tsconfig.spec.json",
+						"builderMode": "application",
+						"polyfills": ["zone.js", "zone.js/testing"]
 					}
 				},
 				"storybook": {

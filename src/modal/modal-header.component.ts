@@ -1,100 +1,47 @@
-import { NgTemplateOutlet } from "@angular/common";
 import {
+	ChangeDetectionStrategy,
 	Component,
-	Output,
+	CUSTOM_ELEMENTS_SCHEMA,
 	EventEmitter,
 	Input,
+	Output,
 	TemplateRef,
 	inject
 } from "@angular/core";
+import "@carbon/web-components/es/components/modal/index.js";
 import { I18n } from "carbon-components-angular/i18n";
-import { IconButton } from "carbon-components-angular/button";
-import { IconDirective } from "carbon-components-angular/icon";
+import { TemplateSlot } from "carbon-components-angular/utils";
 
 /**
- * ***Inputs***
- * ```html
- * <cds-modal-header>Header text</cds-modal-header>
- * ```
- *
- * ***Outputs***
- * ```html
- * <cds-modal-header (closeSelect)="closeModal()">Header text</cds-modal-header>
- * ```
+ * Wraps the `<cds-modal-header>` web component. `closeSelect` emits when the close button is clicked.
  */
 @Component({
-	selector: "cds-modal-header, ibm-modal-header",
+	selector: "cds-modal-header",
 	template: `
-		<header class="cds--modal-header {{theme}}">
-			<ng-content></ng-content>
-			@if (decorator) {
-				<div class="cds--modal--inner__decorator">
-					<ng-template [ngTemplateOutlet]="decorator"></ng-template>
-				</div>
-			}
-			<div class="cds--modal-close-button">
-				@if (showCloseButton) {
-					<cds-icon-button
-						type="button"
-						[buttonNgClass]="buttonNgClass"
-						[buttonAttributes]="buttonAttributes"
-						align="left"
-						[description]="closeLabel"
-						(click)="onClose()">
-						<svg cdsIcon="close" size="20" class="cds--modal-close__icon"></svg>
-					</cds-icon-button>
-				}
-			</div>
-		</header>
+		@if (showCloseButton) {
+			<cds-modal-close-button [closeButtonLabel]="closeLabel" (click)="onClose()" />
+		}
+		<ng-content />
+		<ng-container cdsSlot="ai-label" [cdsSlotTemplate]="decorator" />
 	`,
-	imports: [NgTemplateOutlet, IconButton, IconDirective]
+	changeDetection: ChangeDetectionStrategy.OnPush,
+	imports: [TemplateSlot],
+	schemas: [CUSTOM_ELEMENTS_SCHEMA]
 })
 export class ModalHeader {
 	public i18n = inject(I18n);
 
 	/**
-	 * @deprecated since v5
-	 * Sets the style on the modal heading based on its category.
+	 * @deprecated set `theme` on `cds-modal`.
 	 */
 	@Input() theme = "default";
-	/**
-	 * Accessible label for the header close button.
-	 * Defaults to the `MODAL.CLOSE` value from the i18n service.
-	 */
 	@Input() closeLabel = this.i18n.get().MODAL.CLOSE;
-	/**
-	 * Set to `false` to hide the close button.
-	 */
 	@Input() showCloseButton = true;
-
-	/**
-	 * **Experimental**: Optional decorator (e.g. AI label).
-	 */
 	@Input() decorator: TemplateRef<any>;
 
-	/**
-	 * To emit the event of clicking on the close icon within the modal.
-	 */
 	@Output() closeSelect = new EventEmitter();
 
-	buttonNgClass = {
-		"cds--modal-close": true
-	};
-
-	buttonAttributes = {
-		"aria-label": this.i18n.get().MODAL.CLOSE
-	};
-
-	/** Inserted by Angular inject() migration for backwards compatibility */
-	// eslint-disable-next-line @angular-eslint/prefer-inject -- backwards-compatible DI overload until next major
-	constructor(...args: unknown[]);
-
-	constructor() {}
-
-	/**
-	 * Handles click for the close icon button within the `Modal`.
-	 */
-	public onClose() {
+	onClose() {
 		this.closeSelect.emit();
 	}
 }

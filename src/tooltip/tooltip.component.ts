@@ -1,191 +1,74 @@
 import {
-	AfterContentChecked,
 	ChangeDetectionStrategy,
-	ChangeDetectorRef,
 	Component,
-	ElementRef,
-	HostBinding,
-	HostListener,
+	CUSTOM_ELEMENTS_SCHEMA,
 	Input,
-	NgZone,
-	OnChanges,
-	Renderer2,
-	SimpleChanges,
-	TemplateRef,
-	ViewChild,
-	inject
+	TemplateRef
 } from "@angular/core";
-import { PopoverContainer } from "carbon-components-angular/popover";
 import { NgTemplateOutlet } from "@angular/common";
+import "@carbon/web-components/es/components/tooltip/index.js";
+import { PopoverBase } from "carbon-components-angular/popover";
 
 /**
- * Get started with importing the component:
+ * Wraps the `<cds-tooltip>` web component. The trigger goes in the default slot.
  *
- * ```typescript
- * import { Tooltip } from 'carbon-components-angular';
+ * ```html
+ * <cds-tooltip description="Copy to clipboard" align="top">
+ * 	<button>Copy</button>
+ * </cds-tooltip>
  * ```
  *
  * [See demo](../../?path=/story/components-tooltip--basic)
  */
 @Component({
-	selector: "cds-tooltip, ibm-tooltip",
-	changeDetection: ChangeDetectionStrategy.OnPush,
+	selector: "cds-tooltip",
 	template: `
-		<span #contentWrapper>
-			<ng-content />
-		</span>
-		@if (description) {
-			<span
-				class="cds--popover"
-				[id]="id"
-				[attr.aria-hidden]="!isOpen"
-				role="tooltip">
-				@if (!disabled) {
-					<span class="cds--popover-content cds--tooltip-content">
-						@if (isTemplate(description)) {
-							<ng-template [ngTemplateOutlet]="description" [ngTemplateOutletContext]="{ $implicit: templateContext }" />
-						} @else {
-							{{description}}
-						}
-						@if (autoAlign) {
-							<span class="cds--popover-caret cds--popover--auto-align"></span>
-						}
-					</span>
-					@if (!autoAlign) {
-						<span class="cds--popover-caret"></span>
-					}
+		<ng-content />
+		@if (description && !disabled) {
+			<cds-tooltip-content [id]="id">
+				@if (isTemplate(description)) {
+					<ng-template [ngTemplateOutlet]="description" [ngTemplateOutletContext]="{ $implicit: templateContext }" />
+				} @else {
+					{{ description }}
 				}
-			</span>
+			</cds-tooltip-content>
 		}
 	`,
-	imports: [NgTemplateOutlet]
+	host: {
+		"[enterDelayMs]": "enterDelayMs",
+		"[leaveDelayMs]": "leaveDelayMs",
+		"[caret]": "caret",
+		"[dropShadow]": "dropShadow",
+		"[highContrast]": "highContrast"
+	},
+	changeDetection: ChangeDetectionStrategy.OnPush,
+	imports: [NgTemplateOutlet],
+	schemas: [CUSTOM_ELEMENTS_SCHEMA]
 })
-export class Tooltip extends PopoverContainer implements OnChanges, AfterContentChecked {
+export class Tooltip extends PopoverBase {
 	static tooltipCount = 0;
 
-	@HostBinding("class.cds--tooltip") tooltipClass = true;
-
 	@Input() id = `tooltip-${Tooltip.tooltipCount++}`;
-	/**
-	 * Set delay before tooltip is shown
-	 */
 	@Input() enterDelayMs = 100;
-	/**
-	 * Set delay when tooltip disappears
-	 */
 	@Input() leaveDelayMs = 300;
 	/**
-	 * Prevent tooltip from showing, used by icon button
+	 * Hides the tooltip.
 	 */
 	@Input() disabled = false;
-	/**
-	 * The string or template content to be exposed by the tooltip.
-	 */
 	@Input() description: string | TemplateRef<any>;
 	/**
-	 * Optional data for templates passed as implicit context
+	 * Context (`$implicit`) for a template `description`.
 	 */
 	@Input() templateContext: any;
+	@Input() caret = true;
+	@Input() dropShadow = false;
+	@Input() highContrast = true;
+	/**
+	 * Placement; tooltips default to `top`.
+	 */
+	@Input() align = "top";
 
-	@ViewChild("contentWrapper") wrapper: ElementRef<HTMLSpanElement>;
-
-	private timeoutId: any;
-
-	/** Inserted by Angular inject() migration for backwards compatibility */
-	// eslint-disable-next-line @angular-eslint/prefer-inject -- backwards-compatible DI overload until next major
-	constructor(...args: unknown[]); // it should be number, but setTimeout below is matching the NodeJs type instead of the JS type
-
-	constructor() {
-		super();
-		this.highContrast = true;
-		this.dropShadow = false;
-	}
-
-	@HostListener("mouseenter", ["$event"])
-	mouseenter(event) {
-		// If a mouseleave is triggered before the tooltip is displayed (before setTimeout of mouseenter completes)
-		// we trigger the mouseleave only avoiding having to unecessary show the tooltip
-		clearTimeout(this.timeoutId);
-		this.timeoutId = setTimeout(() => {
-			this.handleChange(true, event);
-		}, this.enterDelayMs);
-	}
-
-	@HostListener("mouseleave", ["$event"])
-	mouseleave(event) {
-		// If a mouseleave is triggered before the tooltip is displayed (before setTimeout of mouseenter completes)
-		// we trigger the mouseleave only avoiding having to unecessary show the tooltip
-		clearTimeout(this.timeoutId);
-		this.timeoutId = setTimeout(() => {
-			this.handleChange(false, event);
-		}, this.leaveDelayMs);
-	}
-
-	@HostListener("keyup", ["$event"])
-	hostkeys(event: KeyboardEvent) {
-		if (open && event.key === "Escape") {
-			event.stopPropagation();
-			this.handleChange(false, event);
-		}
-	}
-
-	// We are not focusing on entire popover, only the trigger
-	@HostListener("focusin", ["$event"])
-	handleFocus(event: Event) {
-		this.handleChange(true, event);
-	}
-
-	@HostListener("focusout", ["$event"])
-	handleFocusOut(event: Event) {
-		this.handleChange(false, event);
-	}
-
-	isTemplate(value) {
+	isTemplate(value: unknown): value is TemplateRef<any> {
 		return value instanceof TemplateRef;
-	}
-
-	/**
-	 * Close the popover and reopen it with updated values without emitting an event
-	 * @param changes
-	 */
-	ngOnChanges(changes: SimpleChanges): void {
-		// Close and reopen the popover, handle alignment/programmatic open/close
-		const originalState = this.isOpen;
-		this.handleChange(false);
-
-		// Ignore first change since content is not initialized
-		if (
-			(changes.autoAlign && !changes.autoAlign.firstChange)
-			|| (changes.disabled && !changes.disabled.firstChange && !changes.disabled.currentValue)
-			// If description is set to empty string when open & autoAlign is true then set to a new value
-			// positioning of popover is broken because popover content ref/caret no longer exists
-			|| changes.description
-		) {
-			/**
-			 * When `disabled` is `true`, popover content node is removed. So when re-enabling `disabled`,
-			 * we manually update view so querySelector can detect the popover content node.
-			 * Otherwise, the position of the popover will be incorrect when autoAlign is enabled.
-			 */
-			this.changeDetectorRef.detectChanges();
-
-			// Reset the inline styles
-			this.popoverContentRef = this.elementRef.nativeElement.querySelector(".cds--popover-content");
-			this.popoverContentRef?.setAttribute("style", "");
-			this.caretRef = this.elementRef.nativeElement.querySelector("span.cds--popover-caret");
-		}
-
-		this.handleChange(originalState);
-	}
-
-	/**
-	 * Check for any changes in the projected content & apply accessibility attribute if needed
-	 */
-	ngAfterContentChecked() {
-		if (this.wrapper) {
-			const buttonElement = this.wrapper.nativeElement.querySelector("button");
-			if (buttonElement && !buttonElement.getAttribute("aria-labelledby")) {
-				buttonElement.setAttribute("aria-labelledby", this.id);
-			}
-		}
 	}
 }

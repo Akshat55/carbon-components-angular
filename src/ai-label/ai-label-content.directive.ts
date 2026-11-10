@@ -1,22 +1,12 @@
-import { Directive } from "@angular/core";
+import { Directive, HostBinding } from "@angular/core";
 
 /**
- * Optional marker for the main body region inside `<cds-ai-label>`. Implementing this for semantics only.
- * The structure also matches that of toggletip, in future we may need this.
- *
- * ```html
- * <cds-ai-label size="md">
- *   <div cdsAILabelContent>
- *     <p>AI Explained</p>
- *   </div>
- *   <div cdsAILabelActions>
- *     <button cdsButton="ghost" size="sm">View details</button>
- *   </div>
- * </cds-ai-label>
- * ```
+ * The AI label explanation; placed in the web component's `body-text` slot.
  */
 @Directive({
 	selector: "[cdsAILabelContent], [ibmAILabelContent]",
 	standalone: true
 })
-export class AILabelContent {}
+export class AILabelContent {
+	@HostBinding("attr.slot") slot = "body-text";
+}

@@ -36,3 +36,4 @@ export { EventService } from "./event.service";
 export { getEventObservable } from "./event-observable";
 export { EventHandler } from "./types";
 export { DocumentService } from "./document.service";
+export { TemplateContent, TemplateSlot, WebComponentValueAccessor, provideValueAccessor } from "./web-components";

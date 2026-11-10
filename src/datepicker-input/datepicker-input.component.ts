@@ -1,251 +1,96 @@
 import {
+	ChangeDetectionStrategy,
 	Component,
+	CUSTOM_ELEMENTS_SCHEMA,
+	EventEmitter,
 	Input,
 	Output,
-	EventEmitter,
-	ElementRef,
-	TemplateRef,
-	ViewChild,
-	ChangeDetectionStrategy,
-	ChangeDetectorRef,
-	HostBinding,
-	inject
+	TemplateRef
 } from "@angular/core";
-import { NG_VALUE_ACCESSOR } from "@angular/forms";
-import { NgClass, NgTemplateOutlet } from "@angular/common";
-import { IconDirective } from "carbon-components-angular/icon";
+import "@carbon/web-components/es/components/date-picker/index.js";
+import { provideValueAccessor, TemplateContent, TemplateSlot, WebComponentValueAccessor } from "carbon-components-angular/utils";
 
+/**
+ * Wraps the `<cds-date-picker-input>` web component. On its own (`type="simple"`) it is a
+ * date text input without a calendar; `cds-date-picker` renders its own inputs.
+ * Works with `ngModel` / reactive forms (the value is the typed text).
+ *
+ * [See demo](../../?path=/story/components-date-picker--simple)
+ */
 @Component({
-	selector: "cds-date-picker-input, ibm-date-picker-input",
+	selector: "cds-date-picker-input",
 	template: `
-		<div class="cds--date-picker"
-			[ngClass]="{
-				'cds--date-picker--simple' : type === 'simple',
-				'cds--date-picker--single' : type === 'single',
-				'cds--date-picker--range' : type === 'range',
-				'cds--date-picker--light' : theme === 'light',
-				'cds--skeleton' : skeleton
-			}">
-			<div class="cds--date-picker-container">
-				<!-- Skeleton structure -->
-				@if (skeleton) {
-					<span class="cds--label cds--skeleton"></span>
-					<div class="cds--date-picker__input cds--skeleton"></div>
-				}
-				@if (label && !skeleton) {
-					<label
-						[for]="id"
-						class="cds--label"
-						[ngClass]="{'cds--label--disabled': disabled}">
-						@if (!isTemplate(label)) {
-							{{label}}
-						}
-						@if (isTemplate(label)) {
-							<ng-template [ngTemplateOutlet]="label"></ng-template>
-						}
-					</label>
-				}
-				@if (!skeleton) {
-					<div class="cds--date-picker-input__wrapper"
-						[ngClass]="{
-							'cds--date-picker-input__wrapper--invalid': invalid,
-							'cds--date-picker-input__wrapper--warn': warn,
-							'cds--date-picker-input__wrapper--decorator': !!decorator
-						}">
-						<span>
-							<input
-								#input
-								autocomplete="off"
-								type="text"
-								class="cds--date-picker__input"
-								[ngClass]="{
-									'cds--date-picker__input--sm': size === 'sm',
-									'cds--date-picker__input--md': size === 'md',
-									'cds--date-picker__input--lg': size === 'lg'
-								}"
-								[attr.data-invalid]="invalid ? true : undefined"
-								[value]="value"
-								[pattern]="pattern"
-								[placeholder]="placeholder"
-								[id]="id"
-								[disabled]="disabled"
-								[readonly]="readonly"
-								(change)="onChange($event)"/>
-							@if (decorator) {
-								<div class="cds--date-picker-input-inner-wrapper--decorator">
-									<ng-template [ngTemplateOutlet]="decorator"></ng-template>
-								</div>
-							}
-							@if (type !== 'simple' && !warn && !invalid) {
-								<svg
-									cdsIcon="calendar"
-									size="16"
-									class="cds--date-picker__icon">
-								</svg>
-							}
-							@if (invalid) {
-								<svg
-									class="cds--date-picker__icon cds--date-picker__icon--invalid"
-									cdsIcon="warning--filled"
-									size="16">
-								</svg>
-							}
-							@if (!invalid && warn) {
-								<svg
-									cdsIcon="warning--alt--filled"
-									size="16"
-									class="cds--date-picker__icon cds--date-picker__icon--warn">
-								</svg>
-							}
-						</span>
-					</div>
-				}
-				@if (helperText && !invalid && !warn) {
-					<div
-						class="cds--form__helper-text"
-						[ngClass]="{'cds--form__helper-text--disabled': disabled}">
-						@if (!isTemplate(helperText)) {
-							{{helperText}}
-						}
-						@if (isTemplate(helperText)) {
-							<ng-template [ngTemplateOutlet]="helperText"></ng-template>
-						}
-					</div>
-				}
-				@if (invalid) {
-					<div class="cds--form-requirement">
-						@if (!isTemplate(invalidText)) {
-							{{invalidText}}
-						}
-						@if (isTemplate(invalidText)) {
-							<ng-template [ngTemplateOutlet]="invalidText"></ng-template>
-						}
-					</div>
-				}
-				@if (!invalid && warn) {
-					<div class="cds--form-requirement">
-						@if (!isTemplate(warnText)) {
-							{{warnText}}
-						}
-						@if (isTemplate(warnText)) {
-							<ng-template [ngTemplateOutlet]="warnText"></ng-template>
-						}
-					</div>
-				}
-			</div>
-		</div>
+		<ng-container cdsSlot="label-text" [cdsSlotTemplate]="isTemplate(label) ? label : null" />
+		<ng-container cdsSlot="ai-label" [cdsSlotTemplate]="decorator" />
 	`,
-	providers: [
-		{
-			provide: NG_VALUE_ACCESSOR,
-			useExisting: DatePickerInput,
-			multi: true
-		}
-	],
+	host: {
+		"[id]": "id",
+		"[kind]": "type === 'range' ? 'from' : type",
+		"[labelText]": "isTemplate(label) ? '' : label",
+		"[placeholder]": "placeholder",
+		"[pattern]": "pattern",
+		"[value]": "value",
+		"[size]": "size",
+		"[disabled]": "disabled",
+		"[readonly]": "readonly",
+		"[invalid]": "invalid",
+		"[invalidText]": "content.render('invalidText', invalidText)",
+		"[warn]": "warn",
+		"[warnText]": "content.render('warnText', warnText)",
+		"[helperText]": "content.render('helperText', helperText)",
+		"(input)": "onInput($event)"
+	},
+	providers: [provideValueAccessor(() => DatePickerInput)],
 	changeDetection: ChangeDetectionStrategy.OnPush,
-	imports: [NgClass, NgTemplateOutlet, IconDirective]
+	imports: [TemplateSlot],
+	schemas: [CUSTOM_ELEMENTS_SCHEMA]
 })
-export class DatePickerInput {
-	private static datePickerCount = 0;
+export class DatePickerInput extends WebComponentValueAccessor<string> {
+	static datePickerCount = 0;
 
-	@HostBinding("class.cds--form-item") readonly hostFormItemClass = true;
-
-	/**
-	 * Select a calendar type for the `model`.
-	 * Internal purposes only.
-	 */
 	@Input() type: "simple" | "single" | "range" = "simple";
-
 	@Input() id = `datepicker-${DatePickerInput.datePickerCount++}`;
-
-	@Input() hasIcon = false;
-
 	@Input() label: string | TemplateRef<any>;
-
 	@Input() placeholder = "mm/dd/yyyy";
-
 	@Input() pattern = "^\\d{1,2}/\\d{1,2}/\\d{4}$";
+	@Input() readonly = false;
+	@Input() invalid = false;
+	@Input() invalidText: string | TemplateRef<any>;
+	@Input() warn = false;
+	@Input() warnText: string | TemplateRef<any>;
+	@Input() helperText: string | TemplateRef<any>;
+	@Input() decorator: TemplateRef<any>;
+	@Input() value = "";
+	@Input() size: "sm" | "md" | "lg" = "md";
+	/**
+	 * @deprecated the web component shows the calendar icon for `single` / `range`.
+	 */
+	@Input() hasIcon = false;
+	/**
+	 * @deprecated the web component follows the surrounding theme / layer.
+	 */
+	@Input() theme: "light" | "dark" = "dark";
+	/**
+	 * @deprecated use `<cds-date-picker-input-skeleton>` instead.
+	 */
+	@Input() skeleton = false;
 
 	@Output() valueChange: EventEmitter<string> = new EventEmitter();
 
-	/**
-	 * @deprecated since v5 - Use `cdsLayer` directive instead
-	 * Set to `"light"` to apply the light style
-	 */
-	@Input() theme: "light" | "dark" = "dark";
+	protected content = new TemplateContent();
 
-	@Input() disabled = false;
-
-	@Input() readonly = false;
-	/**
-	 * Set to `true` for invalid state.
-	 */
-	@Input() invalid = false;
-	/**
-	 * Value displayed if dropdown is in invalid state.
-	 */
-	@Input() invalidText: string | TemplateRef<any>;
-	/**
-	  * Set to `true` to show a warning (contents set by warnText)
-	  */
-	@Input() warn = false;
-	/**
-	 * Sets the warning text
-	 */
-	@Input() warnText: string | TemplateRef<any>;
-
-	/**
-	 * Sets the optional helper text.
-	 */
-	@Input() helperText: string | TemplateRef<any>;
-
-	/**
-	 * **Experimental**: Optional decorator (e.g. AI label).
-	 */
-	@Input() decorator: TemplateRef<any>;
-
-	@Input() skeleton = false;
-
-	@Input() value = "";
-
-	@Input() size: "sm" | "md" | "lg" = "md";
-
-	@ViewChild("input") input: ElementRef;
-
-	protected elementRef = inject(ElementRef);
-	protected changeDetectorRef = inject(ChangeDetectorRef);
-
-	/** Inserted by Angular inject() migration for backwards compatibility */
-	// eslint-disable-next-line @angular-eslint/prefer-inject -- backwards-compatible DI overload until next major
-	constructor(...args: unknown[]);
-
-	constructor() {}
-
-	onChange(event) {
-		this.value = event.target.value;
-		this.valueChange.emit(this.value);
-		this.propagateChange(this.value);
-		this.onTouched();
-	}
-
-	public writeValue(value: any) {
-		this.value = value;
+	writeValue(value: string) {
+		this.value = value ?? "";
 		this.changeDetectorRef.markForCheck();
 	}
 
-	public registerOnChange(fn: any) {
-		this.propagateChange = fn;
+	onInput(event: Event) {
+		this.value = (event.target as HTMLInputElement).value;
+		this.onChange(this.value);
+		this.valueChange.emit(this.value);
 	}
 
-	public registerOnTouched(fn: any) {
-		this.onTouched = fn;
-	}
-
-	onTouched: () => any = () => {};
-
-	propagateChange = (_: any) => {};
-
-	public isTemplate(value) {
+	isTemplate(value: unknown): value is TemplateRef<any> {
 		return value instanceof TemplateRef;
 	}
 }

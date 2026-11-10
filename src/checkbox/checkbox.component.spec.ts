@@ -1,105 +1,147 @@
-import { FormsModule } from "@angular/forms";
+import { Component, TemplateRef, ViewChild } from "@angular/core";
+import { FormControl, FormsModule, ReactiveFormsModule } from "@angular/forms";
 import { TestBed } from "@angular/core/testing";
 import { By } from "@angular/platform-browser";
-import { Component } from "@angular/core";
 
 import { Checkbox } from "./checkbox.component";
-import BDDTestParser from "exported-tests/src/parsers/BDD";
-import CheckboxExportedTest from "./checkbox-exported-tests";
+
+/** Waits for the Lit web component to finish rendering. */
+const rendered = (element: any) => element.updateComplete as Promise<boolean>;
+const shadowInput = (element: HTMLElement) => element.shadowRoot.querySelector("input");
 
 @Component({
 	template: `
-	<cds-checkbox [hideLabel]="hideLabel"
-		(checkedChange)="onChange()"
-		(indeterminateChange)="onIndeterminateChange()"
-		[indeterminate]="indeterminate"
-		[(ngModel)]="model" />
+		<cds-checkbox
+			[hideLabel]="hideLabel"
+			[(indeterminate)]="indeterminate"
+			(checkedChange)="onChange($event)"
+			[helperText]="helperText"
+			[(ngModel)]="model">
+			Label
+		</cds-checkbox>
+		<ng-template #helper><b class="helper">Template helper</b></ng-template>
 	`,
 	imports: [Checkbox, FormsModule]
 })
 class CheckboxTest {
+	@ViewChild("helper") helperTemplate: TemplateRef<any>;
 	model = false;
-	hidelabel = true;
+	hideLabel = false;
 	indeterminate = false;
-	onChange() {}
-	onIndeterminateChange() {}
+	helperText: string | TemplateRef<any> = "";
+	onChange(_: boolean) {}
 }
 
-const testingSetup = (checkboxComponent) => {
-	// Due to TestBed being used outside the test suite, it'll need to be reset
-	TestBed.resetTestingModule();
-	// configureTestingModule normally happens in `beforeEach`, but needed here because
-	// Exported Tests need access to the compiled component into the `fixture` variable
-	TestBed.configureTestingModule({
-		imports: [
-			CheckboxTest
-		]
-	});
+@Component({
+	template: `<cds-checkbox [formControl]="control">Label</cds-checkbox>`,
+	imports: [Checkbox, ReactiveFormsModule]
+})
+class ReactiveCheckboxTest {
+	control = new FormControl(true);
+}
 
-	return TestBed.createComponent(checkboxComponent);
-};
-
-const setupFixture = testingSetup(CheckboxTest);
 
 describe("Checkbox", () => {
-	let fixture, wrapper, element;
-	beforeEach(() => {
-		fixture = testingSetup(CheckboxTest);
+	it("should register the cds-checkbox web component", () => {
+		expect(customElements.get("cds-checkbox")).toBeDefined();
 	});
 
-	it("should work", () => {
-		fixture = TestBed.createComponent(Checkbox);
-		expect(fixture.componentInstance instanceof Checkbox).toBe(true);
-	});
-
-	it("should set checked to false", () => {
-		fixture = TestBed.createComponent(CheckboxTest);
-		wrapper = fixture.componentInstance;
+	it("should render the web component as the host element and project the label", async () => {
+		const fixture = TestBed.createComponent(CheckboxTest);
 		fixture.detectChanges();
-		element = fixture.debugElement.query(By.css("cds-checkbox"));
-		expect(element.componentInstance.checked).toBe(false);
+		const element = fixture.nativeElement.querySelector("cds-checkbox");
+		await rendered(element);
+
+		expect(element instanceof customElements.get("cds-checkbox")).toBe(true);
+		expect(element.textContent.trim()).toBe("Label");
+		expect(shadowInput(element).checked).toBe(false);
 	});
 
-	it("should emit a checkedChange event on click and propagate the change back to the form", () => {
-		fixture = TestBed.createComponent(CheckboxTest);
-		wrapper = fixture.componentInstance;
+	it("should update ngModel and emit checkedChange when clicked", async () => {
+		const fixture = TestBed.createComponent(CheckboxTest);
+		const wrapper = fixture.componentInstance;
 		spyOn(wrapper, "onChange");
 		fixture.detectChanges();
-		element = fixture.debugElement.query(By.css(".cds--checkbox-label"));
-		element.nativeElement.click();
-		element.nativeElement.dispatchEvent(new Event("change"));
+		const element = fixture.nativeElement.querySelector("cds-checkbox");
+		await rendered(element);
+
+		shadowInput(element).click();
 		fixture.detectChanges();
-		expect(wrapper.onChange).toHaveBeenCalled();
+		await fixture.whenStable();
+
+		expect(wrapper.onChange).toHaveBeenCalledWith(true);
 		expect(wrapper.model).toBe(true);
-		expect(element.componentInstance.checked).toBe(true);
+		expect(fixture.debugElement.query(By.directive(Checkbox)).componentInstance.checked).toBe(true);
 	});
 
-	it("should set cds--visually-hidden class when hideLabel is true", () => {
-		fixture = TestBed.createComponent(CheckboxTest);
-		wrapper = fixture.componentInstance;
-		wrapper.hideLabel = true;
+	it("should write ngModel values to the web component", async () => {
+		const fixture = TestBed.createComponent(CheckboxTest);
 		fixture.detectChanges();
-		element = fixture.debugElement.query(By.css("cds-checkbox"));
-		expect(element.nativeElement.querySelector(".cds--visually-hidden")).toBeTruthy();
+		fixture.componentInstance.model = true;
+		fixture.detectChanges();
+		await fixture.whenStable();
+		fixture.detectChanges();
+		const element = fixture.nativeElement.querySelector("cds-checkbox");
+		await rendered(element);
+
+		expect(element.checked).toBe(true);
+		expect(shadowInput(element).checked).toBe(true);
 	});
 
-	it("should emit an indeterminateChange event when there is a change on an indeterminate checkbox", () => {
-		fixture = TestBed.createComponent(CheckboxTest);
-		wrapper = fixture.componentInstance;
-		spyOn(wrapper, "onIndeterminateChange");
-		wrapper.indeterminate = true;
+	it("should pass inputs through to the web component", async () => {
+		const fixture = TestBed.createComponent(CheckboxTest);
+		fixture.componentInstance.hideLabel = true;
+		fixture.componentInstance.indeterminate = true;
 		fixture.detectChanges();
-		element = fixture.debugElement.query(By.css(".cds--checkbox"));
-		element.nativeElement.click();
-		fixture.detectChanges();
-		expect(wrapper.onIndeterminateChange).toHaveBeenCalled();
+		const element = fixture.nativeElement.querySelector("cds-checkbox");
+		await rendered(element);
+
+		expect(element.hideLabel).toBe(true);
+		expect(element.shadowRoot.querySelector(".cds--visually-hidden")).toBeTruthy();
+		expect(shadowInput(element).indeterminate).toBe(true);
 	});
 
-	xdescribe("PAL exported tests", () => {
-		// Get checkbox from the fixture
-		element = setupFixture.debugElement.query(By.css("cds-checkbox"));
-		setupFixture.detectChanges();
-		const instance = new CheckboxExportedTest({});
-		new BDDTestParser((instance as any).tests, setupFixture.debugElement.nativeElement);
+	it("should reset indeterminate (two-way) when clicked", async () => {
+		const fixture = TestBed.createComponent(CheckboxTest);
+		fixture.componentInstance.indeterminate = true;
+		fixture.detectChanges();
+		const element = fixture.nativeElement.querySelector("cds-checkbox");
+		await rendered(element);
+
+		shadowInput(element).click();
+		fixture.detectChanges();
+
+		expect(fixture.componentInstance.indeterminate).toBe(false);
 	});
+
+	it("should render TemplateRef helper text inside the web component", async () => {
+		const fixture = TestBed.createComponent(CheckboxTest);
+		fixture.detectChanges();
+		fixture.componentInstance.helperText = fixture.componentInstance.helperTemplate;
+		fixture.detectChanges();
+		const element = fixture.nativeElement.querySelector("cds-checkbox");
+		await rendered(element);
+
+		expect(element.shadowRoot.querySelector(".cds--form__helper-text .helper").textContent).toBe("Template helper");
+	});
+
+	it("should support reactive forms, including disabling", async () => {
+		const fixture = TestBed.createComponent(ReactiveCheckboxTest);
+		fixture.detectChanges();
+		const element = fixture.nativeElement.querySelector("cds-checkbox");
+		await rendered(element);
+		expect(element.checked).toBe(true);
+
+		fixture.componentInstance.control.disable();
+		fixture.detectChanges();
+		await rendered(element);
+		expect(shadowInput(element).disabled).toBe(true);
+
+		fixture.componentInstance.control.enable();
+		fixture.detectChanges();
+		await rendered(element);
+		shadowInput(element).click();
+		expect(fixture.componentInstance.control.value).toBe(false);
+	});
+
 });

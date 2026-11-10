@@ -1,987 +1,261 @@
 import {
+	ChangeDetectionStrategy,
 	Component,
+	CUSTOM_ELEMENTS_SCHEMA,
+	Directive,
+	ElementRef,
+	EventEmitter,
 	Input,
 	Output,
-	EventEmitter,
-	ElementRef,
-	ContentChild,
-	OnInit,
-	OnChanges,
-	ViewChild,
-	AfterContentInit,
-	HostListener,
-	OnDestroy,
-	HostBinding,
 	TemplateRef,
-	AfterViewInit,
-	ChangeDetectionStrategy,
-	ChangeDetectorRef,
 	inject
 } from "@angular/core";
-import { NG_VALUE_ACCESSOR, ControlValueAccessor } from "@angular/forms";
-
-// Observable import is required here so typescript can compile correctly
-import {
-	Observable,
-	of,
-	Subscription
-} from "rxjs";
-import { isNull, isUndefined } from "lodash-es";
-
-import { AbstractDropdownView } from "./abstract-dropdown-view.class";
+import { NgTemplateOutlet } from "@angular/common";
+import "@carbon/web-components/es/components/dropdown/index.js";
+import "@carbon/web-components/es/components/multi-select/index.js";
 import { I18n } from "carbon-components-angular/i18n";
-import { DropdownService } from "./dropdown.service";
-import {
-	AnimationFrameService,
-	ElementService,
-	EventService,
-	getScrollableParents
-} from "carbon-components-angular/utils";
-import { hasScrollableParents } from "carbon-components-angular/utils";
-import { NgClass, NgTemplateOutlet, AsyncPipe } from "@angular/common";
-import { IconDirective } from "carbon-components-angular/icon";
-import { PLACEHOLDER_SERVICE_PROVIDER } from "carbon-components-angular/placeholder";
+import { provideValueAccessor, TemplateContent, TemplateSlot } from "carbon-components-angular/utils";
+import { ListSelection } from "./list-selection.class";
 
 /**
- * Drop-down lists enable users to select one or more items from a list.
- *
- * #### Opening behavior/List DOM placement
- * By default the dropdown will try to figure out the best placement for the dropdown list.
- *
- * If it's not contained within any scrolling elements, it will open inline, if it _is_
- * contained within a scrolling container it will try to open in the body, or an `cds-placeholder`.
- *
- * To control this behavior you can use the `appendInline` input:
- * - `[appendInline]="null"` is the default (auto detection)
- * - `[appendInline]="false"` will always append to the body/`cds-placeholder`
- * - `[appendInline]="true"` will always append inline (next to the dropdown button)
- *
- * Get started with importing the components:
- *
- * ```typescript
- * import { Dropdown, DropdownList } from 'carbon-components-angular';
- * ```
- *
- * [See demo](../../?path=/story/components-dropdown--basic)
+ * Inputs and host bindings shared by `Dropdown` and `MultiSelect`.
  */
-@Component({
-	selector: "cds-dropdown, ibm-dropdown",
-	template: `
-		@if (label && !skeleton) {
-			<label
-				[for]="id"
-				class="cds--label"
-				[ngClass]="{
-					'cds--label--disabled': disabled,
-					'cds--visually-hidden': hideLabel
-				}">
-				@if (!isTemplate(label)) {
-					{{label}}
-				}
-				@if (isTemplate(label)) {
-					<ng-template [ngTemplateOutlet]="label"></ng-template>
-				}
-			</label>
-		}
-		<div
-			class="cds--list-box"
-			[ngClass]="{
-				'cds--dropdown': type !== 'multi' && !(skeleton && fluid),
-				'cds--multiselect': type === 'multi',
-				'cds--multi-select--selected': type === 'multi' && getSelectedCount() > 0,
-				'cds--dropdown--light': theme === 'light',
-				'cds--list-box--light': theme === 'light',
-				'cds--list-box--inline': inline,
-				'cds--skeleton': skeleton,
-				'cds--dropdown--disabled cds--list-box--disabled': disabled,
-				'cds--dropdown--readonly': readonly,
-				'cds--dropdown--invalid': invalid,
-				'cds--dropdown--warning cds--list-box--warning': warn,
-				'cds--dropdown--sm cds--list-box--sm': size === 'sm',
-				'cds--layout--size-sm': !fluid && size === 'sm',
-				'cds--dropdown--md cds--list-box--md': size === 'md',
-				'cds--layout--size-md': !fluid && size === 'md',
-				'cds--dropdown--lg cds--list-box--lg': size === 'lg',
-				'cds--layout--size-lg': !fluid && size === 'lg',
-				'cds--list-box--expanded': isOpen,
-				'cds--list-box--invalid': invalid
-			}"
-			[attr.data-invalid]="invalid ? true : null">
-			@if (skeleton && fluid) {
-				<div class="cds--list-box__label"></div>
-			}
-			<button
-				#dropdownButton
-				[id]="id"
-				type="button"
-				class="cds--list-box__field"
-				[ngClass]="{'a': isOpen}"
-				[attr.aria-expanded]="isOpen"
-				[attr.aria-disabled]="disabled"
-				aria-haspopup="listbox"
-				(click)="disabled || readonly ? $event.stopPropagation() : toggleMenu()"
-				(focus)="fluid ? handleFocus($event) : null"
-				(blur)="fluid ? handleFocus($event) : onBlur()"
-				[attr.disabled]="disabled ? true : null">
-				@if (type === 'multi' && getSelectedCount() > 0) {
-					<div
-						(click)="clearSelected()"
-						(keydown.enter)="clearSelected()"
-						class="cds--list-box__selection cds--tag--filter cds--list-box__selection--multi"
-						tabindex="0"
-						[title]="clearText">
-						{{getSelectedCount()}}
-						<svg
-							focusable="false"
-							preserveAspectRatio="xMidYMid meet"
-							style="will-change: transform;"
-							role="img"
-							xmlns="http://www.w3.org/2000/svg"
-							width="16"
-							height="16"
-							viewBox="0 0 16 16"
-							aria-hidden="true">
-							<path d="M12 4.7l-.7-.7L8 7.3 4.7 4l-.7.7L7.3 8 4 11.3l.7.7L8 8.7l3.3 3.3.7-.7L8.7 8z"></path>
-						</svg>
-					</div>
-				}
-				@if (isRenderString()) {
-					<span class="cds--list-box__label">{{getDisplayStringValue() | async}}</span>
-				}
-				@if (!isRenderString()) {
-					<ng-template
-						[ngTemplateOutletContext]="getRenderTemplateContext()"
-						[ngTemplateOutlet]="displayValue">
-					</ng-template>
-				}
-				<span class="cds--list-box__menu-icon">
-					@if (!skeleton) {
-						<svg
-							cdsIcon="chevron--down"
-							size="16"
-							[attr.aria-label]="menuButtonLabel"
-							[ngClass]="{'cds--list-box__menu-icon--open': isOpen }">
-						</svg>
-					}
-				</span>
-			</button>
-			@if (decorator) {
-				<div class="cds--list-box__inner-wrapper--decorator">
-					<ng-template [ngTemplateOutlet]="decorator"></ng-template>
-				</div>
-			}
-			@if (invalid) {
-				<svg
-					class="cds--list-box__invalid-icon"
-					cdsIcon="warning--filled"
-					size="16">
-				</svg>
-			}
-			@if (!invalid && warn) {
-				<svg
-					cdsIcon="warning--alt--filled"
-					size="16"
-					class="cds--list-box__invalid-icon cds--list-box__invalid-icon--warning">
-				</svg>
-			}
-			<div
-				#dropdownMenu
-				[ngClass]="{
-					'cds--list-box--up': this.dropUp !== null && this.dropUp !== undefined ? dropUp : _dropUp
-				}">
-				@if (isOpen) {
-					<ng-content></ng-content>
-				}
-			</div>
-		</div>
-		@if (fluid) {
-			<hr class="cds--list-box__divider" />
-		}
-		@if (helperText && !invalid && !warn && !skeleton && !fluid) {
-			<div
-				class="cds--form__helper-text"
-				[ngClass]="{
-					'cds--form__helper-text--disabled': disabled
-				}">
-				@if (!isTemplate(helperText)) {
-					{{helperText}}
-				}
-				@if (isTemplate(helperText)) {
-					<ng-template [ngTemplateOutlet]="helperText"></ng-template>
-				}
-			</div>
-		}
-		@if (invalid) {
-			<div class="cds--form-requirement">
-				@if (!isTemplate(invalidText)) {
-					{{ invalidText }}
-				}
-				@if (isTemplate(invalidText)) {
-					<ng-template [ngTemplateOutlet]="invalidText"></ng-template>
-				}
-			</div>
-		}
-		@if (!invalid && warn) {
-			<div class="cds--form-requirement">
-				@if (!isTemplate(warnText)) {
-					{{warnText}}
-				}
-				@if (isTemplate(warnText)) {
-					<ng-template [ngTemplateOutlet]="warnText"></ng-template>
-				}
-			</div>
-		}
-	`,
-	providers: [
-		{
-			provide: NG_VALUE_ACCESSOR,
-			useExisting: Dropdown,
-			multi: true
-		},
-		PLACEHOLDER_SERVICE_PROVIDER,
-		AnimationFrameService,
-		DropdownService,
-		ElementService,
-		EventService
-	],
-	changeDetection: ChangeDetectionStrategy.OnPush,
-	imports: [
-		NgClass,
-		NgTemplateOutlet,
-		IconDirective,
-		AsyncPipe
-	]
+@Directive({
+	host: {
+		"[id]": "id",
+		"[titleText]": "isTemplate(label) ? '' : label",
+		"[label]": "placeholder",
+		"[hideLabel]": "hideLabel",
+		"[helperText]": "isTemplate(helperText) ? '' : helperText",
+		"[size]": "size",
+		"[disabled]": "disabled",
+		"[readOnly]": "readonly",
+		"[type]": "inline ? 'inline' : ''",
+		"[direction]": "dropUp ? 'top' : 'bottom'",
+		"[open]": "isOpen",
+		"[invalid]": "invalid",
+		"[invalidText]": "content.render('invalidText', invalidText)",
+		"[warn]": "warn",
+		"[warnText]": "content.render('warnText', warnText)",
+		"[toggleLabelClosed]": "menuButtonLabel",
+		"[isFluid]": "fluid"
+	}
 })
-export class Dropdown implements OnInit, OnChanges, AfterContentInit, AfterViewInit, OnDestroy, ControlValueAccessor {
+export abstract class BaseDropdown extends ListSelection {
 	static dropdownCount = 0;
 
 	public i18n = inject(I18n);
 
-	@HostBinding("class.cds--list-box__wrapper--fluid--invalid") get fluidInvalidClass() {
-		return this.invalid && this.fluid;
-	}
-
-	@HostBinding("class.cds--list-box__wrapper--fluid--focus") get fluidFocusClass() {
-		return this.fluid && this._isFocused && !this.isOpen;
-	}
-
-	@HostBinding("class.cds--list-box__wrapper--decorator") get hasDecorator() {
-		return !!this.decorator;
-	}
-
-	@Input() id = `dropdown-${Dropdown.dropdownCount++}`;
-	/**
-	 * Label for the dropdown.
-	 */
+	@Input() id = `dropdown-${BaseDropdown.dropdownCount++}`;
 	@Input() label: string | TemplateRef<any>;
-	/**
-	 * Hide label while keeping it accessible for screen readers
-	 */
 	@Input() hideLabel = false;
-	/**
-	 * Sets the optional helper text.
-	 */
 	@Input() helperText: string | TemplateRef<any>;
-	/**
-	 * **Experimental**: Optional decorator (e.g. AI label).
-	 */
 	@Input() decorator: TemplateRef<any>;
 	/**
-	 * Value displayed if no item is selected.
+	 * Text shown in the trigger when nothing is selected.
 	 */
 	@Input() placeholder = "";
+	@Input() size: "sm" | "md" | "lg" = "md";
+	@Input() readonly = false;
+	@Input() inline = false;
+	@Input() fluid = false;
+	@Input() invalid = false;
+	@Input() invalidText: string | TemplateRef<any>;
+	@Input() warn = false;
+	@Input() warnText: string | TemplateRef<any>;
 	/**
-	 * The selected value from the `Dropdown`. Can be a string or template.
+	 * Opens the menu upwards.
+	 */
+	@Input() dropUp: boolean;
+	@Input() isOpen = false;
+	@Input() menuButtonLabel = this.i18n.get().DROPDOWN.OPEN;
+	@Input() clearText: string = this.i18n.get().DROPDOWN.CLEAR;
+	@Input() selectedLabel = this.i18n.get().DROPDOWN.SELECTED;
+	/**
+	 * @deprecated the web component shows the selected item's content.
 	 */
 	@Input() displayValue: string | TemplateRef<any> = "";
 	/**
-	 * Sets the optional clear button tooltip text.
-	 */
-	@Input() clearText: string = this.i18n.get().DROPDOWN.CLEAR;
-	/**
-	 * Size to render the dropdown field.
-	 */
-	@Input() size: "sm" | "md" | "lg" = "md";
-	/**
-	 * Defines whether or not the `Dropdown` supports selecting multiple items as opposed to single
-	 * item selection.
-	 */
-	@Input() type: "single" | "multi" = "single";
-	/**
-	 * @deprecated since v5 - Use `cdsLayer` directive instead
-	 * `light` or `dark` dropdown theme
+	 * @deprecated the web component follows the surrounding theme / layer.
 	 */
 	@Input() theme: "light" | "dark" = "dark";
 	/**
-	 * Set to `true` to disable the dropdown.
-	 */
-	@Input() set disabled(value: boolean) {
-		this._disabled = value;
-		if (value) {
-			this.closeMenu();
-		}
-	}
-
-	get disabled(): boolean {
-		return this._disabled;
-	}
-	/**
-	 * Set to `true` for a readonly state.
-	 */
-	@Input() readonly = false;
-	/**
-	 * Set to `true` for a loading dropdown.
+	 * @deprecated use `<cds-dropdown-skeleton>` instead.
 	 */
 	@Input() skeleton = false;
 	/**
-	 * Set to `true` for an inline dropdown.
-	 */
-	@Input() inline = false;
-	/**
-	 * Set to `true` for a dropdown without arrow key activation.
-	 */
-	@Input() disableArrowKeys = false;
-	/**
-	 * Set to `true` for invalid state.
-	 */
-	@Input() invalid = false;
-	/**
-	 * Value displayed if dropdown is in invalid state.
-	 */
-	@Input() invalidText: string | TemplateRef<any>;
-	/**
-	* Set to `true` to show a warning (contents set by warningText)
-	*/
-	@Input() warn = false;
-	/**
-	 * Sets the warning text
-	 */
-	@Input() warnText: string | TemplateRef<any>;
-	/**
-	 * set to `true` to place the dropdown view inline with the component
+	 * @deprecated the web component positions its own menu.
 	 */
 	@Input() appendInline: boolean = null;
 	/**
-	 * Query string for the element that contains the `Dropdown`.
-	 * Used to trigger closing the dropdown if it scrolls outside of the viewport of the `scrollableContainer`.
+	 * @deprecated the web component positions its own menu.
 	 */
 	@Input() scrollableContainer: string;
 	/**
-	 * Specifies the property to be used as the return value to `ngModel`
+	 * @deprecated the web component handles keyboard navigation.
 	 */
-	@Input() itemValueKey: string;
-	/**
-	 * Specify feedback (mode) of the selection.
-	 * `top`: selected item jumps to top
-	 * `fixed`: selected item stays at it's position
-	 * `top-after-reopen`: selected item jump to top after reopen dropdown
-	 */
-	@Input() selectionFeedback: "top" | "fixed" | "top-after-reopen" = "top-after-reopen";
-	/**
-	 * Accessible label for the button that opens the dropdown list.
-	 * Defaults to the `DROPDOWN.OPEN` value from the i18n service.
-	 */
-	@Input() menuButtonLabel = this.i18n.get().DROPDOWN.OPEN;
-	/**
-	 * Provides the label for the "# selected" text.
-	 * Defaults to the `DROPDOWN.SELECTED` value from the i18n service.
-	 */
-	@Input() selectedLabel = this.i18n.get().DROPDOWN.SELECTED;
-	/**
-	 * Overrides the automatic dropUp.
-	 */
-	@Input() dropUp: boolean;
-	/**
-	 * Set to `true` to allow null values in the dropdown ListItems.
-	 */
-	@Input() allowNullValues = false;
-	/**
-	 * Emits selection events.
-	 */
-	@Output() selected: EventEmitter<Object> = new EventEmitter<Object>();
-	/**
-	 * Emits event notifying to other classes that the `Dropdown` has been closed (collapsed).
-	 */
-	@Output() onClose: EventEmitter<any> = new EventEmitter<any>();
-	/**
-	 * Emits event notifying to other classes that the `Dropdown` has been closed (collapsed).
-	 */
-	@Output() close: EventEmitter<any> = new EventEmitter<any>();
+	@Input() disableArrowKeys = false;
+
+	// eslint-disable-next-line @angular-eslint/no-output-on-prefix -- existing output name
+	@Output() onClose = new EventEmitter<any>();
+	@Output() close = new EventEmitter<any>();
+
+	protected element = inject(ElementRef).nativeElement;
+	protected content = new TemplateContent();
 
 	/**
-	 * Maintains a reference to the `AbstractDropdownView` object within the content DOM.
+	 * A disabled dropdown closes its menu (and keeps its selection).
 	 */
-	@ContentChild(AbstractDropdownView, { static: true }) view: AbstractDropdownView;
-	/**
-	 * Maintains a reference to the view DOM element of the `Dropdown` button.
-	 */
-	@ViewChild("dropdownButton", { static: true }) dropdownButton;
-	/**
-	 * ViewChid of the dropdown view.
-	 */
-	@ViewChild("dropdownMenu", { static: true }) dropdownMenu;
-
-	@HostBinding("class.cds--dropdown__wrapper") hostClass = true;
-
-	@HostBinding("class.cds--list-box__wrapper") hostWrapperClass = true;
-
-	/**
-	 * Experimental: enable fluid state
-	 */
-	@HostBinding("class.cds--list-box__wrapper--fluid") @Input() fluid = false;
-
-	/**
-	 * Set to `true` if the dropdown is closed (not expanded).
-	 */
-	@Input() isOpen = false;
-
-	/** Deprecated as of v6 - Will be removed in v7 - Use `isOpen` instead */
-	get menuIsClosed(): boolean {
-		return !this.isOpen;
-	}
-
-	/** Deprecated as of v6 - Will be removed in v7 - Use `isOpen` instead */
-	set menuIsClosed(isClosed: boolean) {
-		this.isOpen = !isClosed;
-		this.changeDetectorRef.markForCheck();
-	}
-
-	/**
-	 * controls whether the `drop-up` class is applied
-	 */
-	_dropUp = false;
-
-	// .bind creates a new function, so we declare the methods below
-	// but .bind them up here
-	noop = this._noop.bind(this);
-	outsideClick = this._outsideClick.bind(this);
-	outsideKey = this._outsideKey.bind(this);
-	keyboardNav = this._keyboardNav.bind(this);
-
-	protected elementRef = inject(ElementRef);
-	protected dropdownService = inject(DropdownService);
-	protected elementService = inject(ElementService);
-	protected changeDetectorRef = inject(ChangeDetectorRef);
-
-	protected get writtenValue() {
-		return this._writtenValue;
-	}
-
-	protected set writtenValue(val: any[]) {
-		if (val && val.length === 0) {
-			this.clearSelected();
-		}
-		this._writtenValue = val;
-	}
-
-	protected visibilitySubscription = new Subscription();
-
-	protected onTouchedCallback: () => void = this._noop;
-
-	protected _isFocused = false;
-
-	protected _disabled = false;
-
-	// primarily used to capture and propagate input to `writeValue` before the content is available
-	private _writtenValue: any = [];
-
-	private _isUsingNgControl = false;
-
-	private selectionSubscription: Subscription;
-
-	/** Inserted by Angular inject() migration for backwards compatibility */
-	// eslint-disable-next-line @angular-eslint/prefer-inject -- backwards-compatible DI overload until next major
-	constructor(...args: unknown[]);
-
-	/**
-	 * Creates an instance of Dropdown.
-	 */
-	constructor() {}
-
-	/**
-	 * Updates the menu sizing context, including when it is mounted outside the control.
-	 */
-	ngOnChanges(changes) {
-		if (this.view && (changes.size || changes.fluid)) {
-			this.view.size = this.size;
-			this.view.fluid = this.fluid;
+	protected onDisabledChange() {
+		if (this.disabled) {
+			this.isOpen = false;
 		}
 	}
 
-	/**
-	 * Updates the `type` property in the `@ContentChild`.
-	 * The `type` property specifies whether the `Dropdown` allows single selection or multi selection.
-	 */
-	ngOnInit() {
-		if (this.view) {
-			this.view.type = this.type;
-		}
-	}
-
-	/**
-	 * Initializes classes and subscribes to events for single or multi selection.
-	 */
-	ngAfterContentInit() {
-		if (!this.view) {
-			return;
-		}
-
-		this.view.type = this.type;
-		this.view.size = this.size;
-		this.view.fluid = this.fluid;
-
-		// function to check if the event is organic (isUpdate === false) or programmatic
-		const isUpdate = event => event && event.isUpdate;
-
-		this.selectionSubscription = this.view.select.subscribe(event => {
-			if (this.type === "single" && !isUpdate(event) && !Array.isArray(event)) {
-				this.closeMenu();
-				if (event.item && event.item.selected) {
-					if (this.itemValueKey) {
-						this._propagateChange(event.item[this.itemValueKey]);
-					} else {
-						this._propagateChange(event.item);
-					}
-				} else {
-					this._propagateChange(null);
-				}
-			}
-
-			if (this.type === "multi" && !isUpdate(event)) {
-				// if we have a `value` selector and selected items map them appropriately
-				if (this.itemValueKey && this.view.getSelected()) {
-					const values = this.view.getSelected().map(item => item[this.itemValueKey]);
-					this._propagateChange(values);
-					// otherwise just pass up the values from `getSelected`
-				} else {
-					this._propagateChange(this.view.getSelected());
-				}
-			}
-			// only emit selected for "organic" selections
-			if (!isUpdate(event)) {
-				this.checkForReorder();
-				this.selected.emit(event);
-			} else if (this._isUsingNgControl) {
-				this.writeValue(this.writtenValue);
-			}
-			this.changeDetectorRef.markForCheck();
-		});
-	}
-
-	ngAfterViewInit() {
-		// if appendInline is default valued (null) we should:
-		// 1. if there are scrollable parents (not including body) don't append inline
-		//    this should also cover the case where the dropdown is in a modal
-		//    (where we _do_ want to append to the placeholder)
-		if (this.appendInline === null && hasScrollableParents(this.elementRef.nativeElement)) {
-			this.appendInline = false;
-			// 2. otherwise we should append inline
-		} else if (this.appendInline === null) {
-			this.appendInline = true;
-		}
-		this.checkForReorder();
-	}
-
-	/**
-	 * Removing the `Dropdown` from the body if it is appended to the body.
-	 */
-	ngOnDestroy() {
-		if (!this.appendInline) {
-			this._appendToDropdown();
-		}
-
-		this.visibilitySubscription?.unsubscribe();
-		this.selectionSubscription?.unsubscribe();
-	}
-
-	/**
-	 * Propagates the injected `value`.
-	 */
-	writeValue(value: any) {
-		// cache the written value so we can use it in `AfterContentInit`
-		this.writtenValue = value;
-		this.view.onItemsReady(() => {
-			// propagate null/undefined as an array (deselect everything) unless `allowNullValues` is true
-			if (isUndefined(value) || (isNull(value) && !this.allowNullValues)) {
-				this.view.propagateSelected([value]);
-			} else if (this.type === "single") {
-				if (this.itemValueKey) {
-					// clone the specified item and update its state
-					const newValue = Object.assign({}, this.view.getListItems().find(item => item[this.itemValueKey] === value));
-					newValue.selected = true;
-					this.view.propagateSelected([newValue]);
-				} else {
-					// pass the singular value as an array of ListItem
-					this.view.propagateSelected([value]);
-				}
-			} else {
-				if (this.itemValueKey) {
-					// clone the items and update their state based on the received value array
-					// this way we don't lose any additional metadata that may be passed in via the `items` Input
-					let newValues = [];
-					for (const v of value) {
-						for (const item of this.view.getListItems()) {
-							if (item[this.itemValueKey] === v) {
-								newValues.push(Object.assign({}, item, { selected: true }));
-							}
-						}
-					}
-					this.view.propagateSelected(newValues);
-				} else {
-					// we can safely assume we're passing an array of `ListItem`s
-					this.view.propagateSelected(value || [value]);
-				}
-			}
-			this.checkForReorder();
-			this.changeDetectorRef.markForCheck();
-		});
-	}
-
-	onBlur() {
-		this.onTouchedCallback();
-	}
-
-	registerOnChange(fn: any) {
-		this._isUsingNgControl = true;
-		this.propagateChange = fn;
-	}
-
-	/**
-	 * Registering the function injected to control the touch use of the `Dropdown`.
-	 */
-	registerOnTouched(fn: any) {
-		this.onTouchedCallback = fn;
-	}
-
-	/**
-	 * function passed in by `registerOnChange`
-	 */
-	propagateChange = (_: any) => {};
-
-	/**
-	 * `ControlValueAccessor` method to programmatically disable the dropdown.
-	 *
-	 * ex: `this.formGroup.get("myDropdown").disable();`
-	 *
-	 * @param isDisabled `true` to disable the input
-	 */
-	setDisabledState(isDisabled: boolean) {
-		this.disabled = isDisabled;
-		this.changeDetectorRef.markForCheck();
-	}
-
-	/**
-	 * Adds keyboard functionality for navigation, selection and closing of the `Dropdown`.
-	 */
-	@HostListener("keydown", ["$event"])
-	onKeyDown(event: KeyboardEvent) {
-		if (this.readonly) {
-			return;
-		}
-
-		if ((event.key === "Escape") && this.isOpen) {
-			event.stopImmediatePropagation();  // don't unintentionally close other widgets that listen for Escape
-		}
-		if (event.key === "Escape") {
-			event.preventDefault();
-			this.closeMenu();
-			this.dropdownButton.nativeElement.focus();
-		} else if (!this.isOpen && (event.key === " " || event.key === "ArrowDown" || event.key === "ArrowUp")) {
-			if (this.disableArrowKeys && (event.key === "ArrowDown" || event.key === "ArrowUp")) {
-				return;
-			}
-			event.preventDefault();
-			this.openMenu();
-		}
-
-		if (this.isOpen && event.key === "Tab" && this.dropdownMenu.nativeElement.contains(event.target as Node)) {
-			this.closeMenu();
-		}
-
-		if (this.isOpen && event.key === "Tab" && event.shiftKey) {
-			this.closeMenu();
-		}
-
-		if (this.type === "multi") { return; }
-
+	onToggled(event: Event) {
+		this.isOpen = (event as CustomEvent<{ open: boolean }>).detail.open;
 		if (!this.isOpen) {
-			this.closedDropdownNavigation(event);
+			this.onClose.emit();
+			this.close.emit();
 		}
 	}
 
-	closedDropdownNavigation(event) {
-		if (event.key === "ArrowDown") {
-			event.preventDefault();
-			this.view.getCurrentItem().selected = false;
-			let item = this.view.getNextItem();
-			if (item) { item.selected = true; }
-			this.view.markForCheck?.();
-		} else if (event.key === "ArrowUp") {
-			event.preventDefault();
-			this.view.getCurrentItem().selected = false;
-			let item = this.view.getPrevItem();
-			if (item) { item.selected = true; }
-			this.view.markForCheck?.();
-		}
-	}
-
-	/**
-	 * Returns the display value if there is a selection and displayValue is set,
-	 * if there is just a selection the ListItem content property will be returned,
-	 * otherwise the placeholder will be returned.
-	 */
-	getDisplayStringValue(): Observable<string> {
-		if (!this.view || this.skeleton) {
-			return;
-		}
-		let selected = this.view.getSelected();
-		if (selected.length && (!this.displayValue || !this.isRenderString())) {
-			if (this.type === "multi") {
-				return of(this.placeholder);
-			} else {
-				return of(selected[0].content);
-			}
-		} else if (selected.length && this.isRenderString()) {
-			return of(this.displayValue as string);
-		}
-		return of(this.placeholder);
-	}
-
-	isRenderString(): boolean {
-		return typeof this.displayValue === "string";
-	}
-
-	getRenderTemplateContext() {
-		if (!this.view) {
-			return;
-		}
-		let selected = this.view.getSelected();
-		if (this.type === "multi") {
-			return { items: selected };
-		} else if (selected && selected.length > 0) {
-			return { item: selected[0] }; // this is to be compatible with the dropdown-list template
-		} else {
-			return {};
-		}
-	}
-
-	getSelectedCount(): number {
-		if (this.view.getSelected()) {
-			return this.view.getSelected().length;
-		}
-	}
-
-	clearSelected() {
-		if (this.disabled || this.getSelectedCount() === 0) {
-			return;
-		}
-		for (const item of this.view.getListItems()) {
-			item.selected = false;
-		}
-		this.view.markForCheck?.();
-		this.selected.emit([]);
-		this._propagateChange([]);
-	}
-
-	/**
-	 * Returns `true` if there is a value selected.
-	 */
-	valueSelected(): boolean {
-		if (this.view.getSelected()) { return true; }
-		return false;
-	}
-
-	_noop() {}
-	/**
-	 * Handles clicks outside of the `Dropdown`.
-	 */
-	_outsideClick(event) {
-		if (!this.elementRef.nativeElement.contains(event.target) &&
-			// if we're appendToBody the list isn't within the _elementRef,
-			// so we've got to check if our target is possibly in there too.
-			!this.dropdownMenu.nativeElement.contains(event.target)) {
-			this.closeMenu();
-		}
-	}
-	_outsideKey(event) {
-		if (this.isOpen && event.key === "Tab" && this.dropdownMenu.nativeElement.contains(event.target as Node)) {
-			this.closeMenu();
-		}
-	}
-	/**
-	 * Handles keyboard events so users are controlling the `Dropdown` instead of unintentionally controlling outside elements.
-	 */
-	_keyboardNav(event: KeyboardEvent) {
-		if (event.key === "Escape" && this.isOpen) {
-			event.stopImmediatePropagation();  // don't unintentionally close modal if inside of it
-		}
-		if (event.key === "Escape") {
-			event.preventDefault();
-			this.closeMenu();
-			this.dropdownButton.nativeElement.focus();
-		} else if (this.isOpen && event.key === "Tab") {
-			// this way focus will start on the next focusable item from the dropdown
-			// not the top of the body!
-			this.dropdownButton.nativeElement.focus();
-			this.dropdownButton.nativeElement.dispatchEvent(new KeyboardEvent("keydown", { bubbles: true, cancelable: true, key: "Tab" }));
-			this.closeMenu();
-		}
-	}
-
-	/**
-	 * Creates the `Dropdown` list appending it to the dropdown parent object instead of the body.
-	 */
-	_appendToDropdown() {
-		this.dropdownService.appendToDropdown(this.elementRef.nativeElement);
-		this.dropdownMenu.nativeElement.removeEventListener("keydown", this.keyboardNav, true);
-	}
-
-	/**
-	 * Creates the `Dropdown` list as an element that is appended to the DOM body.
-	 */
-	_appendToBody() {
-		const lightClass = this.theme === "light" ? " cds--list-box--light" : "";
-		const expandedClass = this.isOpen ? " cds--list-box--expanded" : "";
-		this.dropdownService.appendToBody(
-			this.dropdownButton.nativeElement,
-			this.dropdownMenu.nativeElement,
-			`${this.elementRef.nativeElement.className}${lightClass}${expandedClass}`);
-		this.dropdownMenu.nativeElement.addEventListener("keydown", this.keyboardNav, true);
-	}
-
-	/**
-	 * Detects whether or not the `Dropdown` list is visible within all scrollable parents.
-	 * This can be overridden by passing in a value to the `dropUp` input.
-	 */
-	_shouldDropUp() {
-		// check if dropdownMenu exists first.
-		const menu = this.dropdownMenu && this.dropdownMenu.nativeElement.querySelector(".cds--list-box__menu");
-		// check if menu exists first.
-		const menuRect = menu && menu.getBoundingClientRect();
-		if (menu && menuRect) {
-			const scrollableParents = getScrollableParents(menu);
-			return scrollableParents.reduce((shouldDropUp: boolean, parent: HTMLElement) => {
-				const parentRect = parent.getBoundingClientRect();
-				const isBelowParent = !(menuRect.bottom <= parentRect.bottom);
-				return shouldDropUp || isBelowParent;
-			}, false);
-		}
-
-		return false;
-	}
-
-	/**
-	 * Expands the dropdown menu in the view.
-	 */
-	openMenu() {
-		// prevents the dropdown from opening when list of items is empty
-		if (this.view.getListItems().length === 0) {
-			return;
-		}
-
-		this._dropUp = false;
-		this.isOpen = true;
-		this.changeDetectorRef.markForCheck();
-
-		// move the dropdown list to the body if we're not appending inline
-		// and position it relative to the dropdown wrapper
-		if (!this.appendInline) {
-			const target = this.dropdownButton.nativeElement;
-			const parent = this.elementRef.nativeElement;
-			this.visibilitySubscription = this.elementService
-				.visibility(target, parent)
-				.subscribe(value => {
-					if (!value.visible) {
-						this.closeMenu();
-					}
-				});
-			this._appendToBody();
-		}
-
-		// set the dropdown menu to drop up if it's near the bottom of the screen
-		// setTimeout lets us measure after it's visible in the DOM
-		setTimeout(() => {
-			if (this.dropUp === null || this.dropUp === undefined) {
-				this._dropUp = this._shouldDropUp();
-				this.changeDetectorRef.markForCheck();
-			}
-		}, 0);
-
-		// we bind noop to document.body.firstElementChild to allow safari to fire events
-		// from document. Then we unbind everything later to keep things light.
-		document.body.firstElementChild.addEventListener("click", this.noop, true);
-		document.body.firstElementChild.addEventListener("keydown", this.noop, true);
-		document.addEventListener("click", this.outsideClick, true);
-		document.addEventListener("keydown", this.outsideKey, true);
-		setTimeout(() => this.view.initFocus(), 0);
-	}
-
-	/**
-	 * Collapsing the dropdown menu and removing unnecessary `EventListeners`.
-	 */
-	closeMenu() {
-		// return early if the menu is already closed
-		if (!this.isOpen) { return; }
-		this.isOpen = false;
-		this.changeDetectorRef.markForCheck();
-		this.checkForReorder();
-		this.onClose.emit();
-		this.close.emit();
-
-		// focus the trigger button when we close ...
-		this.dropdownButton.nativeElement.focus();
-
-		// remove the conditional once this api is settled and part of abstract-dropdown-view.class
-		if (this.view["disableScroll"]) {
-			this.view["disableScroll"]();
-		}
-
-		// move the list back in the component on close
-		if (!this.appendInline) {
-			this.visibilitySubscription.unsubscribe();
-			this._appendToDropdown();
-		}
-		document.body.firstElementChild.removeEventListener("click", this.noop, true);
-		document.body.firstElementChild.removeEventListener("keydown", this.noop, true);
-		document.removeEventListener("click", this.outsideClick, true);
-		document.removeEventListener("keydown", this.outsideKey, true);
-	}
-
-	/**
-	 * Controls toggling menu states between open/expanded and closed/collapsed.
-	 */
-	toggleMenu() {
-		if (!this.isOpen) {
-			this.openMenu();
-		} else {
-			this.closeMenu();
-		}
-	}
-
-	public isTemplate(value) {
+	isTemplate(value: unknown): value is TemplateRef<any> {
 		return value instanceof TemplateRef;
 	}
+}
 
-	handleFocus(event: FocusEvent) {
-		this._isFocused = event.type === "focus";
-		if (event.type === "blur") {
-			this.onBlur();
+const SLOTS = `
+	<ng-container cdsSlot="title-text" [cdsSlotTemplate]="isTemplate(label) ? label : null" />
+	<ng-container cdsSlot="helper-text" [cdsSlotTemplate]="isTemplate(helperText) ? helperText : null" />
+	<ng-container cdsSlot="ai-label" [cdsSlotTemplate]="decorator" />
+`;
+
+const ITEM_CONTENT = `
+	@if (listTpl) {
+		<ng-template [ngTemplateOutlet]="listTpl" [ngTemplateOutletContext]="{ item: item }" />
+	} @else {
+		{{ item.content }}
+	}
+`;
+
+/**
+ * Wraps the `<cds-dropdown>` web component (single selection). Works with `ngModel` / reactive forms.
+ *
+ * ```html
+ * <cds-dropdown label="Pick one" [(ngModel)]="value" itemValueKey="id">
+ * 	<cds-dropdown-list [items]="items" />
+ * </cds-dropdown>
+ * ```
+ *
+ * For multiple selection use `<cds-multi-select>`: a `cds-dropdown` element is always
+ * the single-select web component.
+ *
+ * [See demo](../../?path=/story/components-dropdown--basic)
+ */
+@Component({
+	selector: "cds-dropdown",
+	template: `
+		${SLOTS}
+		@for (item of items; track $index) {
+			<cds-dropdown-item [value]="'' + $index" [disabled]="!!item.disabled" [selected]="!!item.selected">
+				${ITEM_CONTENT}
+			</cds-dropdown-item>
 		}
+	`,
+	host: {
+		"[value]": "selectedIndex",
+		"(cds-dropdown-selected)": "onSelected($event)",
+		"(cds-dropdown-toggled)": "onToggled($event)"
+	},
+	providers: [provideValueAccessor(() => Dropdown)],
+	changeDetection: ChangeDetectionStrategy.OnPush,
+	imports: [NgTemplateOutlet, TemplateSlot],
+	schemas: [CUSTOM_ELEMENTS_SCHEMA]
+})
+export class Dropdown extends BaseDropdown {
+	/**
+	 * @deprecated use `<cds-multi-select>` for multiple selection.
+	 */
+	@Input() type: "single" | "multi" = "single";
+	/**
+	 * @deprecated only applies to `<cds-multi-select>`.
+	 */
+	@Input() selectionFeedback: "top" | "fixed" | "top-after-reopen" = "top-after-reopen";
+
+	get multiple() {
+		return false;
+	}
+
+	get selectedIndex() {
+		const index = this._items.findIndex(item => item.selected);
+		return index < 0 ? "" : String(index);
+	}
+
+	onSelected(event: Event) {
+		const value = (event as CustomEvent<{ item: { value: string } }>).detail.item.value;
+		this.select([Number(value)]);
+	}
+}
+
+/**
+ * Wraps the `<cds-multi-select>` web component. Works with `ngModel` / reactive forms;
+ * the value is an array. Set `filterable` for a multi-select combo box.
+ *
+ * ```html
+ * <cds-multi-select label="Pick some" [(ngModel)]="values">
+ * 	<cds-dropdown-list [items]="items" />
+ * </cds-multi-select>
+ * ```
+ *
+ * [See demo](../../?path=/story/components-dropdown--multi-select)
+ */
+@Component({
+	selector: "cds-multi-select",
+	template: `
+		${SLOTS}
+		@for (item of items; track $index) {
+			<cds-multi-select-item [value]="'' + $index" [disabled]="!!item.disabled" [selected]="!!item.selected">
+				${ITEM_CONTENT}
+			</cds-multi-select-item>
+		}
+	`,
+	host: {
+		"[value]": "selectedValues",
+		"[filterable]": "filterable",
+		"[selectionFeedback]": "selectionFeedback",
+		"[clearSelectionLabel]": "clearText",
+		"(cds-multi-select-selected)": "onSelected()",
+		"(cds-multi-select-toggled)": "onToggled($event)"
+	},
+	providers: [provideValueAccessor(() => MultiSelect)],
+	changeDetection: ChangeDetectionStrategy.OnPush,
+	imports: [NgTemplateOutlet, TemplateSlot],
+	schemas: [CUSTOM_ELEMENTS_SCHEMA]
+})
+export class MultiSelect extends BaseDropdown {
+	/**
+	 * Lets the user type to filter the items.
+	 */
+	@Input() filterable = false;
+	/**
+	 * Where selected items appear in the list.
+	 */
+	@Input() selectionFeedback: "top" | "fixed" | "top-after-reopen" = "top-after-reopen";
+
+	get multiple() {
+		return true;
 	}
 
 	/**
-	 * Controls when it's needed to apply the selection feedback
+	 * The web component's value: selected item values joined with commas.
 	 */
-	protected checkForReorder() {
-		const topAfterReopen = !this.isOpen && this.selectionFeedback === "top-after-reopen";
-		if ((this.type === "multi") && (topAfterReopen || this.selectionFeedback === "top")) {
-			this.view.reorderSelected();
-		}
+	get selectedValues() {
+		return this._items.map((item, index) => item.selected ? String(index) : null).filter(Boolean).join(",");
 	}
 
-	// used only to update writtenValue
-	private _propagateChange(value: any) {
-		this.writtenValue = value;
-		this.propagateChange(value);
+	onSelected() {
+		const elements = Array.from<any>(this.element.querySelectorAll("cds-multi-select-item"));
+		this.select(elements.filter(item => item.selected).map(item => Number(item.value)));
 	}
 }

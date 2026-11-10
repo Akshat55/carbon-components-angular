@@ -1,8 +1,8 @@
 import {
 	ChangeDetectionStrategy,
 	Component,
+	CUSTOM_ELEMENTS_SCHEMA,
 	EventEmitter,
-	HostBinding,
 	Input,
 	OnChanges,
 	OnDestroy,
@@ -12,44 +12,37 @@ import {
 	inject
 } from "@angular/core";
 import { Subscription } from "rxjs";
+import "@carbon/web-components/es/components/menu/index.js";
 import { ContextMenuSelectionService } from "./context-menu-selection.service";
 
+/**
+ * A group of menu items. Renders the `<cds-menu-item-group>` web component. With `type`,
+ * its `checkbox` / `radio` items share one selection (`value` / `valueChange`).
+ */
 @Component({
-	selector: "cds-menu-group, cds-context-menu-group, ibm-context-menu-group",
+	selector: "cds-menu-group",
 	template: `
-		<ul role="group" [attr.aria-label]="label">
+		<cds-menu-item-group [label]="label">
 			<ng-content />
-		</ul>
+		</cds-menu-item-group>
 	`,
+	styles: [":host { display: contents; }"],
 	providers: [ContextMenuSelectionService],
 	changeDetection: ChangeDetectionStrategy.OnPush,
-	standalone: true
+	schemas: [CUSTOM_ELEMENTS_SCHEMA]
 })
 export class ContextMenuGroupComponent implements OnInit, OnChanges, OnDestroy {
-	@HostBinding("class.cds--menu-item-radio-group") get radioGroup() {  return this.type === "radio"; }
-	@HostBinding("class.cds--menu-item-group") get group() { return this.type === "checkbox"; }
-
 	@Input() label = null;
 	@Input() value: any[] = [];
 	@Input() type: null | "radio" | "checkbox" = null;
+
 	@Output() valueChange = new EventEmitter<any[]>();
 
 	protected contextMenuSelectionService = inject(ContextMenuSelectionService);
-
 	private subscription = new Subscription();
 
-	/** Inserted by Angular inject() migration for backwards compatibility */
-	// eslint-disable-next-line @angular-eslint/prefer-inject -- backwards-compatible DI overload until next major
-	constructor(...args: unknown[]);
-
-	constructor() {}
-
 	ngOnInit() {
-		const { selectionObservable } = this.contextMenuSelectionService;
-		const subscription = selectionObservable.subscribe(value => {
-			this.valueChange.emit(value);
-		});
-		this.subscription.add(subscription);
+		this.subscription.add(this.contextMenuSelectionService.selectionObservable.subscribe(value => this.valueChange.emit(value)));
 	}
 
 	ngOnChanges(changes: SimpleChanges) {
@@ -57,7 +50,6 @@ export class ContextMenuGroupComponent implements OnInit, OnChanges, OnDestroy {
 			if (this.type === "radio") {
 				this.contextMenuSelectionService.selectRadio(changes.value.currentValue);
 			}
-
 			if (this.type === "checkbox") {
 				this.contextMenuSelectionService.selectCheckboxes(changes.value.currentValue);
 			}

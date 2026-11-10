@@ -1,22 +1,23 @@
 import {
-	AfterViewInit,
 	ChangeDetectionStrategy,
-	ChangeDetectorRef,
+	CUSTOM_ELEMENTS_SCHEMA,
 	Component,
 	ElementRef,
 	EventEmitter,
 	Input,
 	Output,
 	TemplateRef,
-	ViewChild,
-	HostListener,
 	inject
 } from "@angular/core";
-import { NG_VALUE_ACCESSOR, ControlValueAccessor } from "@angular/forms";
+import "@carbon/web-components/es/components/checkbox/index.js";
+import {
+	TemplateContent,
+	TemplateSlot,
+	WebComponentValueAccessor,
+	provideValueAccessor
+} from "carbon-components-angular/utils";
 import { CheckboxValue } from "./checkbox.types";
-import { NgClass, NgTemplateOutlet } from "@angular/common";
-import { IconDirective } from "carbon-components-angular/icon";
-import { CHECKBOX_GROUP_HOST, CheckboxGroupHost } from "./checkbox-group-host";
+import { CHECKBOX_GROUP_HOST } from "./checkbox-group-host";
 
 /**
  * Defines the set of states for a checkbox component.
@@ -29,7 +30,7 @@ export enum CheckboxState {
 }
 
 /**
- * Get started with importing the component:
+ * Wraps the `<cds-checkbox>` web component. Importing it registers the web component.
  *
  * ```typescript
  * import { Checkbox } from 'carbon-components-angular';
@@ -38,457 +39,158 @@ export enum CheckboxState {
  * [See demo](../../?path=/story/components-checkbox--basic)
  */
 @Component({
-	selector: "cds-checkbox, ibm-checkbox",
+	selector: "cds-checkbox",
 	template: `
-		<div class="cds--form-item cds--checkbox-wrapper"
-			[ngClass]="{
-				'cds--checkbox-wrapper--invalid': !effectiveReadOnly && effectiveInvalid,
-				'cds--checkbox-wrapper--warning': !effectiveReadOnly && !effectiveInvalid && effectiveWarn,
-				'cds--checkbox-wrapper--readonly': effectiveReadOnly,
-				'cds--checkbox-wrapper--decorator': !!decorator
-			}">
-			<input
-				#inputCheckbox
-				class="cds--checkbox"
-				type="checkbox"
-				[id]="id + '_input'"
-				[value]="value"
-				[name]="name"
-				[required]="required"
-				[checked]="checked"
-				[disabled]="disabled"
-				[attr.data-invalid]="(!effectiveReadOnly && effectiveInvalid) ? true : null"
-				[attr.aria-readonly]="effectiveReadOnly ? true : null"
-				[attr.aria-labelledby]="ariaLabelledby"
-				[attr.aria-describedby]="(helperText && !effectiveInvalid && !effectiveWarn) ? helperId : null"
-				(change)="onChange($event)"
-				(click)="onClick($event)">
-			<label
-				[for]="id + '_input'"
-				[attr.aria-label]="ariaLabel"
-				[attr.title]="title || null"
-				class="cds--checkbox-label"
-				[ngClass]="{
-					'cds--skeleton' : skeleton
-				}">
-				<span [ngClass]="{'cds--visually-hidden' : hideLabel}" class="cds--checkbox-label-text">
-					<ng-content></ng-content>
-					@if (decorator) {
-						<div class="cds--checkbox-wrapper-inner--decorator">
-							<ng-template [ngTemplateOutlet]="decorator"></ng-template>
-						</div>
-					}
-				</span>
-			</label>
-			<div class="cds--checkbox__validation-msg">
-				@if (!effectiveReadOnly && effectiveInvalid) {
-					<svg
-						cdsIcon="warning--filled"
-						size="16"
-						class="cds--checkbox__invalid-icon">
-					</svg>
-					<div class="cds--form-requirement">
-						@if (!isTemplate(invalidText)) {
-							{{invalidText}}
-						}
-						@if (isTemplate(invalidText)) {
-							<ng-template [ngTemplateOutlet]="$any(invalidText)"></ng-template>
-						}
-					</div>
-				}
-				@if (!effectiveReadOnly && !effectiveInvalid && effectiveWarn) {
-					<svg
-						cdsIcon="warning--alt--filled"
-						size="16"
-						class="cds--checkbox__invalid-icon cds--checkbox__invalid-icon--warning">
-					</svg>
-					<div class="cds--form-requirement">
-						@if (!isTemplate(warnText)) {
-							{{warnText}}
-						}
-						@if (isTemplate(warnText)) {
-							<ng-template [ngTemplateOutlet]="$any(warnText)"></ng-template>
-						}
-					</div>
-				}
-			</div>
-			@if (helperText && !effectiveInvalid && !effectiveWarn) {
-				<div
-					class="cds--form__helper-text"
-					[id]="helperId">
-					@if (!isTemplate(helperText)) {
-						{{helperText}}
-					}
-					@if (isTemplate(helperText)) {
-						<ng-template [ngTemplateOutlet]="$any(helperText)"></ng-template>
-					}
-				</div>
-			}
-		</div>
+		<ng-content />
+		<ng-container cdsSlot="decorator" [cdsSlotTemplate]="decorator" />
 	`,
-	providers: [
-		{
-			provide: NG_VALUE_ACCESSOR,
-			useExisting: Checkbox,
-			multi: true
-		}
-	],
+	host: {
+		"[id]": "id",
+		"[name]": "name",
+		"[value]": "value",
+		"[title]": "title",
+		"[checked]": "checked",
+		"[indeterminate]": "indeterminate",
+		"[disabled]": "disabled",
+		"[hideLabel]": "hideLabel",
+		"[attr.readonly]": "effectiveReadOnly ? '' : null",
+		"[invalid]": "effectiveInvalid",
+		"[warn]": "effectiveWarn",
+		"[helperText]": "content.render('helperText', helperText)",
+		"[invalidText]": "content.render('invalidText', invalidText)",
+		"[warnText]": "content.render('warnText', warnText)",
+		"[attr.required]": "required ? '' : null",
+		"[attr.aria-label]": "ariaLabel || null",
+		"[attr.aria-labelledby]": "ariaLabelledby || null",
+		"(cds-checkbox-changed)": "onCheckboxChanged($event)"
+	},
+	providers: [provideValueAccessor(() => Checkbox)],
 	changeDetection: ChangeDetectionStrategy.OnPush,
-	imports: [NgClass, NgTemplateOutlet, IconDirective]
+	imports: [TemplateSlot],
+	schemas: [CUSTOM_ELEMENTS_SCHEMA]
 })
-export class Checkbox implements ControlValueAccessor, AfterViewInit {
-	/**
-	 * Variable used for creating unique ids for checkbox components.
-	 */
+export class Checkbox extends WebComponentValueAccessor<boolean> {
 	static checkboxCount = 0;
-	private static helperIdCounter = 0;
 
 	/**
-	 * Set to `true` for a disabled checkbox.
-	 */
-	@Input() disabled = false;
-	/**
-	 * Set to `true` for a loading checkbox.
+	 * @deprecated the web component has no skeleton state. Use `<cds-checkbox-skeleton>` instead.
 	 */
 	@Input() skeleton = false;
 	/**
-	 * Set to `true` to hide the checkbox labels.
+	 * Set to `true` to hide the checkbox label.
 	 */
 	@Input() hideLabel = false;
-	/**
-	 * Sets the name attribute on the `input` element.
-	 */
 	@Input() name: string;
-	/**
-	 * The unique id for the checkbox component.
-	 */
-	@Input() id = `checkbox-${Checkbox.checkboxCount}`;
-	/**
-	 * Reflects the required attribute of the `input` element.
-	 */
+	@Input() id = `checkbox-${Checkbox.checkboxCount++}`;
 	@Input() required: boolean;
-	/**
-	 * Sets the value attribute on the `input` element.
-	 */
 	@Input() value: CheckboxValue;
 	@Input() ariaLabel: string;
 	@Input() ariaLabelledby: string;
-
-	/**
-	 * Optional title for the `<label>` element.
-	 */
 	@Input() title = "";
-
 	/**
-	 * Optional helper text displayed below the checkbox label.
-	 * Not shown when `invalid` or `warn` is `true`.
+	 * Helper text below the label. Hidden while `invalid` or `warn` is `true`.
 	 */
 	@Input() helperText: string | TemplateRef<any>;
-
 	/**
-	 * Set to `true` to show the checkbox in an invalid/error state.
-	 * When omitted inside a `cds-checkbox-group`, the group's `invalid` value applies.
+	 * Inherits the parent `cds-checkbox-group` value when not set.
 	 */
 	@Input() invalid?: boolean;
-
-	/**
-	 * The error message displayed when `invalid` is `true`.
-	 */
 	@Input() invalidText: string | TemplateRef<any>;
-
 	/**
-	 * Set to `true` to show the checkbox in a warning state.
-	 * When omitted inside a `cds-checkbox-group`, the group's `warn` value applies.
+	 * Inherits the parent `cds-checkbox-group` value when not set.
 	 */
 	@Input() warn?: boolean;
-
-	/**
-	 * The warning message displayed when `warn` is `true` and `invalid` is `false`.
-	 */
 	@Input() warnText: string | TemplateRef<any>;
-
 	/**
-	 * When `true`, the checkbox cannot be toggled (matches `readonly` attribute semantics for form controls).
-	 * When omitted inside a `cds-checkbox-group`, the group's `readOnly` value applies.
+	 * Inherits the parent `cds-checkbox-group` value when not set.
 	 */
 	@Input() readOnly?: boolean;
-
 	/**
-	 * Optional `TemplateRef` (e.g. AI label) rendered next to the label text.
+	 * Optional `TemplateRef` (e.g. AI label) rendered next to the label.
 	 */
 	@Input() decorator: TemplateRef<any>;
-
 	/**
-	 * Set the checkbox's indeterminate state to match the parameter and transition the view to reflect the change.
-	 *
-	 * Allows double binding with the `indeterminateChange` Output.
+	 * Supports two-way binding with `indeterminateChange`.
 	 */
-	@Input() set indeterminate(indeterminate: boolean) {
-		if (indeterminate === this._indeterminate) {
-			return;
-		}
-
-		this._indeterminate = indeterminate;
-
-		if (this._indeterminate) {
-			this.transitionCheckboxState(CheckboxState.Indeterminate);
-		} else {
-			this.transitionCheckboxState(this.checked ? CheckboxState.Checked : CheckboxState.Unchecked);
-		}
-
-		if (this.inputCheckbox && this.inputCheckbox.nativeElement) {
-			this.inputCheckbox.nativeElement.indeterminate = indeterminate;
-		}
-		this.changeDetectorRef.markForCheck();
-		this.indeterminateChange.emit(this._indeterminate);
-	}
-
+	@Input() indeterminate = false;
 	/**
-	 * Reflects whether the checkbox state is indeterminate.
+	 * Supports two-way binding with `checkedChange`.
 	 */
-	get indeterminate() {
-		return this._indeterminate;
-	}
+	@Input() checked = false;
 
 	/**
-	 * Sets the `checked` state. `true` for checked, `false` for unchecked
-	 *
-	 * Allows double binding with the `checkedChange` Output.
-	 */
-	@Input() set checked (checked: boolean) {
-		this.setChecked(checked, false);
-	}
-
-	/**
-	 * Returns value `true` if state is selected for the checkbox.
-	 */
-	get checked() {
-		return this._checked;
-	}
-
-	/**
-	 * Emits click event.
+	 * When observed, clicks no longer toggle the checkbox so the parent can control
+	 * `checked`/`indeterminate` itself.
 	 */
 	// eslint-disable-next-line @angular-eslint/no-output-native
 	@Output() click = new EventEmitter<void>();
-
-	/**
-	 * Emits an event when the value of the checkbox changes.
-	 *
-	 * Allows double biding with the `checked` Input.
-	 */
 	@Output() checkedChange = new EventEmitter<boolean>();
-
-	/**
-	 * Emits event notifying other classes when a change in state occurs specifically
-	 * on an indeterminate checkbox.
-	 */
 	@Output() indeterminateChange = new EventEmitter<boolean>();
 
-	/**
-	 * Set to `true` if the input checkbox is selected (or checked).
-	 */
-	_checked = false;
-	/**
-	 * Set to `true` if the input checkbox is in state indeterminate.
-	 */
-	_indeterminate = false;
+	protected content = new TemplateContent();
+	private hostGroup = inject(CHECKBOX_GROUP_HOST, { optional: true });
 
-	/**
-	 * Keeps a reference to the checkboxes current state, as defined in `CheckboxState`.
-	 */
-	currentCheckboxState = CheckboxState.Init;
+	private element = inject(ElementRef).nativeElement;
 
-	/**
-	 * Maintains a reference to the view DOM element of the `Checkbox`.
-	 */
-	@ViewChild("inputCheckbox") inputCheckbox: ElementRef;
-
-	readonly helperId = `checkbox-helper-${Checkbox.helperIdCounter++}`;
-
-	protected changeDetectorRef = inject(ChangeDetectorRef);
-	private hostGroup = inject<CheckboxGroupHost | null>(CHECKBOX_GROUP_HOST, { optional: true });
-
-	/** Inserted by Angular inject() migration for backwards compatibility */
-	// eslint-disable-next-line @angular-eslint/prefer-inject -- backwards-compatible DI overload until next major
-	constructor(...args: unknown[]);
-
-	/**
-	 * Creates an instance of `Checkbox`.
-	 */
 	constructor() {
-		Checkbox.checkboxCount++;
+		super();
+		// A host `(click)` listener would also subscribe to the `click` output,
+		// so listen to the native event directly.
+		this.element.addEventListener("click", (event: MouseEvent) => this.onClick(event));
 	}
 
-	get effectiveReadOnly(): boolean {
-		const own = this.readOnly;
-		const group = this.hostGroup?.readOnly ?? false;
-		return !!(own !== undefined ? own : group);
+	get effectiveReadOnly() {
+		return !!(this.readOnly ?? this.hostGroup?.readOnly);
 	}
 
-	get effectiveInvalid(): boolean {
-		const own = this.invalid;
-		const group = this.hostGroup?.invalid ?? false;
-		return !!(own !== undefined ? own : group);
+	get effectiveInvalid() {
+		return !!(this.invalid ?? this.hostGroup?.invalid);
 	}
 
-	get effectiveWarn(): boolean {
-		const own = this.warn;
-		const group = this.hostGroup?.warn ?? false;
-		return !!(own !== undefined ? own : group);
+	get effectiveWarn() {
+		return !!(this.warn ?? this.hostGroup?.warn);
 	}
 
 	/**
-	 * Toggle the selected state of the checkbox.
+	 * Flips the checked state and resets `indeterminate`.
 	 */
-	public toggle() {
-		if (this.effectiveReadOnly) {
-			return;
+	toggle() {
+		if (!this.effectiveReadOnly) {
+			this.setChecked(!this.checked);
 		}
-		// Flip checked and reset indeterminate
-		this.setChecked(!this.checked, true);
 	}
 
-	/**
-	 * Writes a value from `ngModel` to the component.
-	 *
-	 * In this case the value is the `checked` property.
-	 *
-	 * @param value boolean, corresponds to the `checked` property.
-	 */
-	public writeValue(value: any) {
-		// Set checked and reset indeterminate
-		this.setChecked(!!value, true);
+	writeValue(value: boolean) {
+		this.setChecked(!!value);
 	}
 
-	/**
-	 * Sets a method in order to propagate changes back to the form.
-	 */
-	public registerOnChange(fn: any) {
-		this.propagateChange = fn;
-	}
-
-	/**
-	 * Registers a callback to be triggered when the control has been touched.
-	 * @param fn Callback to be triggered when the checkbox is touched.
-	 */
-	public registerOnTouched(fn: any) {
-		this.onTouched = fn;
-	}
-
-	/**
-	 * `ControlValueAccessor` method to programmatically disable the checkbox.
-	 *
-	 * ex: `this.formGroup.get("myCheckbox").disable();`
-	 *
-	 * @param isDisabled `true` to disable the checkbox
-	 */
-	setDisabledState(isDisabled: boolean) {
-		this.disabled = isDisabled;
+	markForCheckFromGroup() {
+		// The web component group copies its `readonly` onto every child, so re-apply our own.
+		this.element.readonly = this.effectiveReadOnly;
 		this.changeDetectorRef.markForCheck();
 	}
 
-	/**
-	 * Invoked by `CheckboxGroup` when group `readOnly`, `invalid`, `warn` change so `OnPush`
-	 * checkboxes still refresh inherited state from `CHECKBOX_GROUP_HOST`.
-	 */
-	markForCheckFromGroup(): void {
-		this.changeDetectorRef.markForCheck();
+	onCheckboxChanged(event: Event) {
+		this.setChecked((event as CustomEvent<{ checked: boolean }>).detail.checked);
+		this.checkedChange.emit(this.checked);
+		this.onChange(this.checked);
 	}
 
-	@HostListener("focusout")
-	focusOut() {
-		this.onTouched();
-	}
-
-	/**
-	 * Executes on the event of a change within `Checkbox` to block propagation.
-	 */
-	onChange(event: Event) {
-		event.stopPropagation();
-	}
-
-	/**
-	 * Handles click events on the `Checkbox` and emits changes to other classes.
-	 */
-	onClick(event: Event) {
-		if (this.effectiveReadOnly) {
-			event.preventDefault();
-			if (this.click.observers.length) {
-				this.click.emit();
-			}
-			return;
-		}
-		if (this.click.observers.length) {
-			// Disable default checkbox activation behavior which flips checked and resets indeterminate.
-			// This allows the parent component to control the checked/indeterminate properties.
+	onClick(event: MouseEvent) {
+		if (this.click.observed) {
 			event.preventDefault();
 			this.click.emit();
+		}
+	}
+
+	private setChecked(checked: boolean) {
+		if (checked === this.checked) {
 			return;
 		}
-		if (!this.disabled) {
-			this.toggle();
-			this.transitionCheckboxState(this._checked ? CheckboxState.Checked : CheckboxState.Unchecked);
-			this.emitChangeEvent();
-		}
-	}
-
-
-	/**
-	 * Called when checkbox is blurred. Needed to properly implement `ControlValueAccessor`.
-	 */
-	onTouched: () => any = () => {};
-
-	/**
-	 * Handles changes between checkbox states.
-	 */
-	transitionCheckboxState(newState: CheckboxState) {
-		this.currentCheckboxState = newState;
-	}
-
-	/**
-	 * Creates instance of `CheckboxChange` used to propagate the change event.
-	 */
-	emitChangeEvent() {
-		this.checkedChange.emit(this.checked);
-		this.propagateChange(this.checked);
-	}
-
-	/**
-	 * Updates the checkbox if it is in the indeterminate state.
-	 */
-	ngAfterViewInit() {
-		if (this.indeterminate && this.inputCheckbox && this.inputCheckbox.nativeElement) {
-			this.inputCheckbox.nativeElement.indeterminate = true;
-		}
-	}
-
-	/**
-	 * Method set in `registerOnChange` to propagate changes back to the form.
-	 */
-	propagateChange = (_: any) => {};
-
-	/**
-	 * Returns `true` when the provided value is a `TemplateRef`.
-	 */
-	isTemplate(value: any): boolean {
-		return value instanceof TemplateRef;
-	}
-
-	/**
-	 * Sets checked state and optionally resets indeterminate state.
-	 */
-	private setChecked(checked: boolean, resetIndeterminate: boolean) {
-		if (checked === this._checked) {
-			return;
-		}
-		this._checked = checked;
-		// Reset indeterminate if requested
-		if (resetIndeterminate && this._indeterminate) {
-			this._indeterminate = false;
-			Promise.resolve().then(() => {
-				this.indeterminateChange.emit(this._indeterminate);
-			});
+		this.checked = checked;
+		if (this.indeterminate) {
+			this.indeterminate = false;
+			this.indeterminateChange.emit(false);
 		}
 		this.changeDetectorRef.markForCheck();
 	}

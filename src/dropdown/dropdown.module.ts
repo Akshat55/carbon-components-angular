@@ -2,7 +2,7 @@ import { NgModule } from "@angular/core";
 import { CommonModule } from "@angular/common";
 import { FormsModule } from "@angular/forms";
 
-import { Dropdown } from "./dropdown.component";
+import { Dropdown, MultiSelect } from "./dropdown.component";
 import { DropdownList } from "./list/dropdown-list.component";
 import { AbstractDropdownView } from "./abstract-dropdown-view.class";
 
@@ -16,6 +16,7 @@ import { IconModule } from "carbon-components-angular/icon";
 @NgModule({
 	exports: [
 		Dropdown,
+		MultiSelect,
 		DropdownList,
 		ScrollableList,
 		AbstractDropdownView
@@ -28,6 +29,7 @@ import { IconModule } from "carbon-components-angular/icon";
 		UtilsModule,
 		IconModule,
 		Dropdown,
+		MultiSelect,
 		DropdownList,
 		ScrollableList,
 		AbstractDropdownView

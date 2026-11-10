@@ -1,15 +1,13 @@
 import {
-	Component,
-	Input,
-	HostBinding,
 	ChangeDetectionStrategy,
+	Component,
+	CUSTOM_ELEMENTS_SCHEMA,
+	Input,
 	TemplateRef
 } from "@angular/core";
-import { NgTemplateOutlet } from "@angular/common";
+import "@carbon/web-components/es/components/tag/index.js";
+import { TemplateSlot } from "carbon-components-angular/utils";
 
-/**
- * Supported tag types for carbon v10
- */
 export type TagType = "red" |
 	"magenta" |
 	"purple" |
@@ -24,61 +22,35 @@ export type TagType = "red" |
 	"outline";
 
 /**
- * Component that represents a tag for labelling/categorizing using keywords. Get started with importing the component:
- *
- * ```typescript
- * import { Tag } from 'carbon-components-angular';
- * ```
+ * Wraps the `<cds-tag>` web component. Icons marked with `cdsTagIcon` go in the icon slot.
  *
  * [See demo](../../?path=/story/components-tag--basic)
  */
 @Component({
-	selector: "cds-tag, ibm-tag",
+	selector: "cds-tag",
 	template: `
 		@if (!skeleton) {
-			<ng-content select="[cdsTagIcon],[ibmTagIcon]" />
-			<span class="cds--tag__label">
-				<ng-content></ng-content>
-			</span>
-			@if (decorator) {
-				<div class="cds--tag__decorator">
-					<ng-template [ngTemplateOutlet]="decorator"></ng-template>
-				</div>
-			}
+			<ng-content />
+			<ng-container cdsSlot="decorator" [cdsSlotTemplate]="decorator" />
 		}
 	`,
+	host: {
+		"[type]": "type",
+		"[size]": "size"
+	},
 	changeDetection: ChangeDetectionStrategy.OnPush,
-	imports: [NgTemplateOutlet],
-	standalone: true
+	imports: [TemplateSlot],
+	schemas: [CUSTOM_ELEMENTS_SCHEMA]
 })
 export class Tag {
-	/**
-	 * Type of the tag determines the styling
-	 */
 	@Input() type: TagType = "gray";
-
-	/**
-	 * Tag render size
-	 */
 	@Input() size: "sm" | "md" | "lg" = "md";
-
-	@Input() class = "";
-
-	@Input() skeleton = false;
-
 	/**
-	 * **Experimental**: Optional decorator (e.g. AI label).
+	 * @deprecated hides the content only. Use `<cds-tag-skeleton>` instead.
+	 */
+	@Input() skeleton = false;
+	/**
+	 * Optional `TemplateRef` (e.g. AI label) rendered in the decorator slot.
 	 */
 	@Input() decorator: TemplateRef<any>;
-
-	/**
-	 * @todo
-	 * Remove `cds--tag--${this.size}` in in Carbon v12
-	 */
-	@HostBinding("attr.class") get attrClass() {
-		const skeletonClass = this.skeleton ? "cds--skeleton" : "";
-		const sizeClass = `cds--tag--${this.size} cds--layout--size-${this.size}`;
-
-		return `cds--tag cds--tag--${this.type} ${sizeClass} ${skeletonClass} ${this.class}`;
-	}
 }

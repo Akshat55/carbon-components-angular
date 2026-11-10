@@ -16,7 +16,8 @@ import { Directive, HostBinding, Input } from "@angular/core";
  * [See demo](../../?path=/story/components-link--basic)
  */
 @Directive({
-	selector: "[cdsLink], [ibmLink]",
+	// `<cds-link>` is handled by `CdsLink`.
+	selector: "[cdsLink]:not(cds-link), [ibmLink]:not(cds-link)",
 	standalone: true
 })
 

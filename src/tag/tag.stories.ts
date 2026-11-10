@@ -128,8 +128,7 @@ const OperationalTagTemplate = (args) => ({
 		</cds-tag-operational>
 
 
-		<div
-			cdsPopover
+		<cds-popover
 			[isOpen]="isOpen"
 			[highContrast]="true">
 			<cds-tag-operational
@@ -151,7 +150,7 @@ const OperationalTagTemplate = (args) => ({
 					<cds-tag type="green">Tag 5 name</cds-tag>
 				</div>
 			</cds-popover-content>
-		</div>
+		</cds-popover>
 	`,
 	styles: [
 		`.popover-content {

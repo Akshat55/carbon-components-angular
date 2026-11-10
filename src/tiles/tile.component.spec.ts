@@ -1,10 +1,10 @@
 /// <reference path="../../node_modules/@types/jasmine/index.d.ts" />
 
-import { ComponentFixture, fakeAsync, TestBed, waitForAsync } from "@angular/core/testing";
+import { ComponentFixture, TestBed, waitForAsync } from "@angular/core/testing";
 import { Component, ViewChild } from "@angular/core";
+import { FormsModule } from "@angular/forms";
 import { TileGroup } from "./tile-group.component";
 import { TilesModule } from "./tiles.module";
-import { advancedFakeAsync } from "../test-helpers/change-detection";
 
 import { Tile } from "./tile.component";
 
@@ -31,73 +31,64 @@ describe("Tile", () => {
 
 @Component({
 	template: `
-		<cds-tile-group [multiple]="multiple" [name]="name">
+		<cds-tile-group [multiple]="multiple" [name]="name" [(ngModel)]="value">
 			<cds-selection-tile value="one">One</cds-selection-tile>
 			<cds-selection-tile value="two">Two</cds-selection-tile>
 		</cds-tile-group>
 	`,
-	imports: [TilesModule]
+	imports: [TilesModule, FormsModule]
 })
 class TileGroupTest {
 	@ViewChild(TileGroup) group: TileGroup;
 	multiple = false;
 	name = "cd-tile-group";
+	value = "one";
 }
 
 describe("TileGroup", () => {
 	let fixture: ComponentFixture<TileGroupTest>;
 
-	beforeEach(() => {
-		TestBed.configureTestingModule({
-			imports: [TileGroupTest]
-		});
+	const render = async (multiple = false) => {
+		fixture = TestBed.createComponent(TileGroupTest);
+		fixture.componentInstance.multiple = multiple;
+		fixture.detectChanges();
+		await fixture.whenStable();
+		fixture.detectChanges();
+	};
+
+	it("should render checkbox tiles when multiple is set", async () => {
+		await render(true);
+		expect(fixture.nativeElement.querySelectorAll("cds-selectable-tile").length).toBe(2);
+		expect(fixture.nativeElement.querySelector("cds-radio-tile")).toBeNull();
 	});
 
-	it("should render selection tiles as checkboxes when multiple is set", fakeAsync(() => {
-		fixture = TestBed.createComponent(TileGroupTest);
-		fixture.componentInstance.multiple = true;
-		fixture.detectChanges();
-		advancedFakeAsync(fixture);
+	it("should render radio tiles by default, named after the group", async () => {
+		await render();
+		const tiles = fixture.nativeElement.querySelectorAll("cds-radio-tile");
+		expect(tiles.length).toBe(2);
+		Array.from<any>(tiles).forEach(tile => expect(tile.name).toBe("cd-tile-group"));
+	});
 
-		const inputs = fixture.nativeElement.querySelectorAll(".cds--tile-input");
-		expect(inputs.length).toBe(2);
-		Array.from<HTMLInputElement>(inputs).forEach(input => expect(input.type).toBe("checkbox"));
-		expect(fixture.nativeElement.querySelector(".cds--tile__checkmark--persistent")).toBeTruthy();
-	}));
+	it("should select the tile matching ngModel", async () => {
+		await render();
+		const [one, two] = fixture.nativeElement.querySelectorAll("cds-radio-tile");
+		expect(one.selected).toBe(true);
+		expect(two.selected).toBe(false);
+	});
 
-	it("should render selection tiles as radios by default", fakeAsync(() => {
-		fixture = TestBed.createComponent(TileGroupTest);
-		fixture.detectChanges();
-		advancedFakeAsync(fixture);
-
-		const inputs = fixture.nativeElement.querySelectorAll(".cds--tile-input");
-		Array.from<HTMLInputElement>(inputs).forEach(input => expect(input.type).toBe("radio"));
-		expect(fixture.nativeElement.querySelector(".cds--tile__checkmark--persistent")).toBeFalsy();
-	}));
-
-	it("should give every tile the group name", fakeAsync(() => {
-		fixture = TestBed.createComponent(TileGroupTest);
-		fixture.detectChanges();
-		advancedFakeAsync(fixture);
-
-		const inputs = fixture.nativeElement.querySelectorAll(".cds--tile-input");
-		Array.from<HTMLInputElement>(inputs).forEach(input => expect(input.name).toBe("cd-tile-group"));
-	}));
-
-	it("should emit the group selection when a tile is picked", fakeAsync(() => {
-		fixture = TestBed.createComponent(TileGroupTest);
-		fixture.detectChanges();
-		advancedFakeAsync(fixture);
-
+	it("should emit the selection, update ngModel and deselect the others when a tile is picked", async () => {
+		await render();
 		const selectedSpy = jasmine.createSpy("selected");
 		fixture.componentInstance.group.selected.subscribe(selectedSpy);
 
-		const inputs = fixture.nativeElement.querySelectorAll(".cds--tile-input");
-		inputs[1].dispatchEvent(new Event("change"));
-		advancedFakeAsync(fixture);
+		const [one, two] = fixture.nativeElement.querySelectorAll("cds-radio-tile");
+		await two.updateComplete;
+		two.shadowRoot.querySelector("input").click();
+		fixture.detectChanges();
 
-		expect(selectedSpy).toHaveBeenCalledWith(
-			jasmine.objectContaining({ value: "two", name: "cd-tile-group" })
-		);
-	}));
+		expect(selectedSpy).toHaveBeenCalledWith(jasmine.objectContaining({ value: "two", name: "cd-tile-group" }));
+		expect(fixture.componentInstance.value).toBe("two");
+		expect(one.selected).toBe(false);
+		expect(two.selected).toBe(true);
+	});
 });

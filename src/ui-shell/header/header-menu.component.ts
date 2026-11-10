@@ -1,130 +1,51 @@
 import {
+	ChangeDetectionStrategy,
 	Component,
+	CUSTOM_ELEMENTS_SCHEMA,
 	Input,
-	HostListener,
-	ElementRef,
-	TemplateRef,
-	HostBinding,
-	inject
+	TemplateRef
 } from "@angular/core";
-import { DomSanitizer } from "@angular/platform-browser";
-import { HeaderItemInterface } from "./header-navigation-items.interface";
-import { NgTemplateOutlet } from "@angular/common";
+import "@carbon/web-components/es/components/ui-shell/index.js";
 import { HeaderItem } from "./header-item.component";
+import { HeaderItemInterface } from "./header-navigation-items.interface";
+import { HEADER_MENU } from "./header-menu.token";
 
 /**
- * Dropdown menu container for navigation items.
+ * Wraps the `<cds-header-menu>` web component. Project `cds-header-item`s or pass `headerItems`.
  */
 @Component({
-	selector: "cds-header-menu, ibm-header-menu",
+	selector: "cds-header-menu",
 	template: `
-		<a
-			class="cds--header__menu-item cds--header__menu-title"
-			[href]="href"
-			tabindex="0"
-			aria-haspopup="menu"
-			[attr.aria-expanded]="expanded"
-			(click)="navigate($event)">
-			{{title}}
-			@if (icon) {
-				<ng-template [ngTemplateOutlet]="icon" />
-			} @else {
-				<svg class="cds--header__menu-arrow" width="12" height="7" aria-hidden="true">
-					<path d="M6.002 5.55L11.27 0l.726.685L6.003 7 0 .685.726 0z" />
-				</svg>
-			}
-		</a>
-		<div class="cds--header__menu" [attr.aria-label]="title">
-			<ng-content />
-			@for (headerItem of headerItems; track headerItem) {
-				<cds-header-item
-					[href]="headerItem.href"
-					[route]="headerItem.route"
-					[routeExtras]="headerItem.routeExtras">
-					{{ headerItem.content }}
-				</cds-header-item>
-			}
-		</div>
-	`,
-	styles: [`
-		:host {
-			display: list-item;
+		@for (item of headerItems; track item) {
+			<cds-header-item [href]="item.href" [route]="item.route" [routeExtras]="item.routeExtras" [useRouter]="useRouter">
+				{{ item.content }}
+			</cds-header-item>
 		}
-	`],
-	imports: [NgTemplateOutlet, HeaderItem]
+		<ng-content />
+	`,
+	host: {
+		"[triggerContent]": "title",
+		"[menuLabel]": "title"
+	},
+	providers: [{ provide: HEADER_MENU, useValue: true }],
+	changeDetection: ChangeDetectionStrategy.OnPush,
+	imports: [HeaderItem],
+	schemas: [CUSTOM_ELEMENTS_SCHEMA]
 })
 export class HeaderMenu {
-	@HostBinding("class.cds--header__submenu") subMenu = true;
-	@HostBinding("attr.role") role = "listitem";
-
 	@Input() title: string;
-	@Input() set href(v: string) {
-		// Needed when component is created dynamically with a model.
-		if (v === undefined) {
-			return;
-		}
-		this._href = v;
-	}
-
-	get href() {
-		return this.domSanitizer.bypassSecurityTrustUrl(this._href) as string;
-	}
-	@Input() trigger: "click" | "mouseover" = "click";
-
-	/**
-	 * Used to create header items through a model.
-	 */
 	@Input() headerItems: HeaderItemInterface[];
-
+	@Input() useRouter = false;
 	/**
-	 * Optional icon
+	 * @deprecated the web component opens on click.
+	 */
+	@Input() trigger: "click" | "mouseover" = "click";
+	/**
+	 * @deprecated
+	 */
+	@Input() href: string;
+	/**
+	 * @deprecated the web component renders its own chevron.
 	 */
 	@Input() icon: TemplateRef<any>;
-
-	public expanded = false;
-
-	protected _href = "#";
-
-	protected domSanitizer = inject(DomSanitizer);
-	protected elementRef = inject(ElementRef);
-
-	/** Inserted by Angular inject() migration for backwards compatibility */
-	// eslint-disable-next-line @angular-eslint/prefer-inject -- backwards-compatible DI overload until next major
-	constructor(...args: unknown[]);
-
-	constructor() {}
-
-	@HostListener("click")
-	onClick() {
-		if (this.trigger === "click") {
-			this.expanded = !this.expanded;
-		}
-	}
-
-	@HostListener("mouseover")
-	onMouseOver() {
-		if (this.trigger === "mouseover") {
-			this.expanded = true;
-		}
-	}
-
-	@HostListener("mouseout")
-	onMouseOut() {
-		if (this.trigger === "mouseover") {
-			this.expanded = false;
-		}
-	}
-
-	@HostListener("focusout", ["$event"])
-	onFocusOut(event) {
-		if (!this.elementRef.nativeElement.contains(event.relatedTarget)) {
-			this.expanded = false;
-		}
-	}
-
-	navigate(event) {
-		if (this._href === "#") {
-			event.preventDefault();
-		}
-	}
 }

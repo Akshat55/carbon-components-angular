@@ -32,13 +32,13 @@ export default {
 const InlineTemplate = (args) => ({
 	props: args,
 	template: `
-		<cds-inline-notification [notificationObj]="{
+		<cds-notification [notificationObj]="{
 			type: type,
 			title: 'Sample notification',
 			message: 'Sample error message',
 			showClose: showClose,
 			lowContrast: lowContrast}">
-		</cds-inline-notification>
+		</cds-notification>
 	`
 });
 export const InlineNotification = InlineTemplate.bind({});

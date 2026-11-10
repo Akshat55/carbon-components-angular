@@ -1,303 +1,99 @@
-import { Component } from "@angular/core";
-import { ComponentFixture, TestBed } from "@angular/core/testing";
-import { By } from "@angular/platform-browser";
-import { FormsModule } from "@angular/forms";
+import { Component, CUSTOM_ELEMENTS_SCHEMA, TemplateRef, ViewChild } from "@angular/core";
+import { TestBed } from "@angular/core/testing";
 
-import { CheckboxModule } from "./checkbox.module";
+import { Checkbox } from "./checkbox.component";
+import { CheckboxGroup } from "./checkbox-group.component";
+
+const rendered = (element: any) => element.updateComplete as Promise<boolean>;
 
 @Component({
 	template: `
 		<cds-checkbox-group
-			legend="Checkbox heading"
-			[helperText]="helperText"
-			[legendId]="legendId"
-			[invalid]="invalid"
-			[invalidText]="invalidText"
-			[warn]="warn"
-			[warnText]="warnText"
+			[legend]="legend"
+			legendId="group-legend"
+			helperText="Helper"
+			orientation="horizontal"
 			[readOnly]="readOnly"
-			[orientation]="orientation">
-			<cds-checkbox id="checkbox-label-1">Checkbox label</cds-checkbox>
-			<cds-checkbox id="checkbox-label-2">Checkbox label</cds-checkbox>
+			[invalid]="invalid"
+			invalidText="Invalid"
+			[warn]="warn"
+			[decorator]="withDecorator ? decorator : null">
+			<cds-checkbox>One</cds-checkbox>
+			<cds-checkbox [readOnly]="false" [invalid]="false" [warn]="false">Two</cds-checkbox>
 		</cds-checkbox-group>
+		<ng-template #legendTemplate><b class="legend">Template legend</b></ng-template>
+		<ng-template #decorator><cds-ai-label class="decorator" /></ng-template>
 	`,
-	imports: [CheckboxModule]
+	imports: [Checkbox, CheckboxGroup],
+	schemas: [CUSTOM_ELEMENTS_SCHEMA]
 })
-class GroupBasicHost {
-	helperText: string;
-	legendId: string;
-	invalid = false;
-	invalidText: string;
-	warn = false;
-	warnText: string;
+class CheckboxGroupTest {
+	@ViewChild("legendTemplate") legendTemplate: TemplateRef<any>;
+	legend: string | TemplateRef<any> = "Legend";
 	readOnly = false;
-	orientation: "horizontal" | "vertical" = "vertical";
-}
-
-@Component({
-	template: `
-		<cds-checkbox-group legend="Checkbox heading" [decorator]="decTpl">
-			<cds-checkbox id="c1">One</cds-checkbox>
-		</cds-checkbox-group>
-		<ng-template #decTpl><span class="decorator-stub"></span></ng-template>
-	`,
-	imports: [CheckboxModule]
-})
-class GroupDecoratorHost {}
-
-@Component({
-	template: `
-		<cds-checkbox-group
-			legend="Checkbox heading"
-			[readOnly]="groupReadOnly">
-			<cds-checkbox id="checkbox-a1">Checkbox 1</cds-checkbox>
-			<cds-checkbox id="checkbox-a2">Checkbox 2</cds-checkbox>
-		</cds-checkbox-group>
-	`,
-	imports: [CheckboxModule]
-})
-class GroupReadOnlyInheritBothHost {
-	groupReadOnly = false;
-}
-
-@Component({
-	template: `
-		<cds-checkbox-group
-			legend="Checkbox heading"
-			[readOnly]="groupReadOnly">
-			<cds-checkbox id="checkbox-1" [readOnly]="false">Checkbox 1</cds-checkbox>
-			<cds-checkbox id="checkbox-2">Checkbox 2</cds-checkbox>
-		</cds-checkbox-group>
-	`,
-	imports: [CheckboxModule]
-})
-class GroupInheritanceHost {
-	groupReadOnly = false;
-}
-
-@Component({
-	template: `
-		<cds-checkbox-group legend="Checkbox heading" [invalid]="groupInvalid">
-			<cds-checkbox id="checkbox-b1">Checkbox 1</cds-checkbox>
-			<cds-checkbox id="checkbox-b2">Checkbox 2</cds-checkbox>
-		</cds-checkbox-group>
-	`,
-	imports: [CheckboxModule]
-})
-class GroupInvalidInheritBothHost {
-	groupInvalid = false;
-}
-
-@Component({
-	template: `
-		<cds-checkbox-group legend="Checkbox heading" [invalid]="groupInvalid">
-			<cds-checkbox id="checkbox-1" [invalid]="false">Checkbox 1</cds-checkbox>
-			<cds-checkbox id="checkbox-2">Checkbox 2</cds-checkbox>
-		</cds-checkbox-group>
-	`,
-	imports: [CheckboxModule]
-})
-class GroupInheritanceInvalidHost {
-	groupInvalid = false;
+	invalid = false;
+	warn = false;
+	withDecorator = false;
 }
 
 describe("CheckboxGroup", () => {
-	beforeEach(() => {
-		TestBed.resetTestingModule();
-		TestBed.configureTestingModule({
-			imports: [
-				FormsModule,
-				GroupBasicHost,
-				GroupDecoratorHost,
-				GroupReadOnlyInheritBothHost,
-				GroupInheritanceHost,
-				GroupInvalidInheritBothHost,
-				GroupInheritanceInvalidHost
-			]
-		});
+	let fixture;
+	let group;
+	let one;
+	let two;
+
+	beforeEach(async () => {
+		fixture = TestBed.createComponent(CheckboxGroupTest);
+		fixture.detectChanges();
+		group = fixture.nativeElement.querySelector("cds-checkbox-group");
+		[one, two] = fixture.nativeElement.querySelectorAll("cds-checkbox");
+		await rendered(group);
 	});
 
-	it("should render legend text", () => {
-		const f = TestBed.createComponent(GroupBasicHost);
-		f.detectChanges();
-		expect(f.debugElement.nativeElement.textContent).toContain(
-			"Checkbox heading"
-		);
+	const update = async (changes: Partial<CheckboxGroupTest>) => {
+		Object.assign(fixture.componentInstance, changes);
+		fixture.detectChanges();
+		await fixture.whenStable();
+		fixture.detectChanges();
+		await rendered(group);
+		await rendered(one);
+	};
+
+	it("should pass inputs through to the web component", () => {
+		expect(group instanceof customElements.get("cds-checkbox-group")).toBe(true);
+		expect(group.legendText).toBe("Legend");
+		expect(group.legendId).toBe("group-legend");
+		expect(group.helperText).toBe("Helper");
+		expect(group.orientation).toBe("horizontal");
+		expect(group.shadowRoot.querySelector("legend").textContent).toContain("Legend");
 	});
 
-	it("should render helper text", () => {
-		const f = TestBed.createComponent(GroupBasicHost);
-		f.componentInstance.helperText = "Helper text";
-		f.detectChanges();
-		expect(f.debugElement.nativeElement.textContent).toContain(
-			"Helper text"
-		);
+	it("should render a TemplateRef legend", async () => {
+		await update({ legend: fixture.componentInstance.legendTemplate });
+		expect(group.shadowRoot.querySelector("legend .legend").textContent).toBe("Template legend");
 	});
 
-	it("should set data-invalid on the fieldset when invalid is true", () => {
-		const f = TestBed.createComponent(GroupBasicHost);
-		f.componentInstance.invalid = true;
-		f.detectChanges();
-		const fieldset = f.debugElement.query(
-			By.css("fieldset.cds--checkbox-group")
-		);
-		expect(fieldset.nativeElement.getAttribute("data-invalid")).toBe(
-			"true"
-		);
+	it("should project the decorator into the decorator slot", async () => {
+		await update({ withDecorator: true });
+		expect(group.querySelector(".decorator").getAttribute("slot")).toBe("decorator");
 	});
 
-	it("should display invalidText when invalid is true", () => {
-		const f = TestBed.createComponent(GroupBasicHost);
-		f.componentInstance.invalid = true;
-		f.componentInstance.invalidText = "Invalid text";
-		f.detectChanges();
-		expect(f.debugElement.nativeElement.textContent).toContain(
-			"Invalid text"
-		);
+	it("should apply group readOnly to children unless they set their own", async () => {
+		await update({ readOnly: true });
+		expect(group.readonly).toBe(true);
+		expect(one.readonly).toBe(true);
+		expect(two.readonly).toBe(false);
 	});
 
-	it("should set id on legend when legendId is set", () => {
-		const f = TestBed.createComponent(GroupBasicHost);
-		f.componentInstance.legendId = "legend-testid";
-		f.detectChanges();
-		const legend = f.debugElement.query(By.css("legend.cds--label"));
-		expect(legend.nativeElement.getAttribute("id")).toBe("legend-testid");
-	});
+	it("should apply group invalid and warn to children unless they set their own", async () => {
+		await update({ invalid: true, warn: true });
+		expect(one.invalid).toBe(true);
+		expect(one.warn).toBe(true);
+		expect(two.invalid).toBe(false);
+		expect(two.warn).toBe(false);
 
-	it("should add readonly class when readOnly is true", () => {
-		const f = TestBed.createComponent(GroupBasicHost);
-		f.componentInstance.readOnly = true;
-		f.detectChanges();
-		const fieldset = f.debugElement.query(
-			By.css("fieldset.cds--checkbox-group")
-		);
-		expect(
-			fieldset.nativeElement.classList.contains(
-				"cds--checkbox-group--readonly"
-			)
-		).toBe(true);
-	});
-
-	it("should add warning class and warning icon when warn is true", () => {
-		const f = TestBed.createComponent(GroupBasicHost);
-		f.componentInstance.warn = true;
-		f.detectChanges();
-		const fieldset = f.debugElement.query(
-			By.css("fieldset.cds--checkbox-group")
-		);
-		expect(
-			fieldset.nativeElement.classList.contains(
-				"cds--checkbox-group--warning"
-			)
-		).toBe(true);
-		expect(
-			f.debugElement.query(
-				By.css(".cds--checkbox__invalid-icon--warning")
-			)
-		).toBeTruthy();
-	});
-
-	it("should display warnText when warn is true", () => {
-		const f = TestBed.createComponent(GroupBasicHost);
-		f.componentInstance.warn = true;
-		f.componentInstance.warnText = "Warn text";
-		f.detectChanges();
-		expect(f.debugElement.nativeElement.textContent).toContain("Warn text");
-	});
-
-	it("should add horizontal class when orientation is horizontal", () => {
-		const f = TestBed.createComponent(GroupBasicHost);
-		f.componentInstance.orientation = "horizontal";
-		f.detectChanges();
-		const fieldset = f.debugElement.query(
-			By.css("fieldset.cds--checkbox-group")
-		);
-		expect(
-			fieldset.nativeElement.classList.contains(
-				"cds--checkbox-group--horizontal"
-			)
-		).toBe(true);
-	});
-
-	it("should add decorator class when decorator template is set", () => {
-		const f = TestBed.createComponent(GroupDecoratorHost);
-		f.detectChanges();
-		const fieldset = f.debugElement.query(
-			By.css("fieldset.cds--checkbox-group")
-		);
-		expect(
-			fieldset.nativeElement.classList.contains(
-				"cds--checkbox-group--decorator"
-			)
-		).toBe(true);
-	});
-
-	describe("host injection (group state to children)", () => {
-		// CheckboxGroup notifies children in a microtask, so we run CD twice to allow OnPush checkboxes to refresh
-		function detectAfterGroupNotify(fixture: ComponentFixture<unknown>) {
-			fixture.detectChanges();
-			fixture.detectChanges();
-		}
-
-		it("should apply group readOnly to child checkboxes that do not set readOnly", () => {
-			const f = TestBed.createComponent(GroupReadOnlyInheritBothHost);
-			f.componentInstance.groupReadOnly = true;
-			detectAfterGroupNotify(f);
-			const inputs = f.debugElement.queryAll(
-				By.css("input.cds--checkbox")
-			);
-			expect(inputs.length).toBe(2);
-			expect(inputs[0].nativeElement.getAttribute("aria-readonly")).toBe(
-				"true"
-			);
-			expect(inputs[1].nativeElement.getAttribute("aria-readonly")).toBe(
-				"true"
-			);
-		});
-
-		it("should let a child opt out of group readOnly with explicit readOnly false", () => {
-			const f = TestBed.createComponent(GroupInheritanceHost);
-			f.componentInstance.groupReadOnly = true;
-			detectAfterGroupNotify(f);
-			const inputs = f.debugElement.queryAll(
-				By.css("input.cds--checkbox")
-			);
-			expect(
-				inputs[0].nativeElement.getAttribute("aria-readonly")
-			).not.toBe("true");
-			expect(inputs[1].nativeElement.getAttribute("aria-readonly")).toBe(
-				"true"
-			);
-		});
-
-		it("should apply group invalid to child checkboxes that do not set invalid", () => {
-			const f = TestBed.createComponent(GroupInvalidInheritBothHost);
-			f.componentInstance.groupInvalid = true;
-			detectAfterGroupNotify(f);
-			const inputs = f.debugElement.queryAll(
-				By.css("input.cds--checkbox")
-			);
-			expect(inputs[0].nativeElement.getAttribute("data-invalid")).toBe(
-				"true"
-			);
-			expect(inputs[1].nativeElement.getAttribute("data-invalid")).toBe(
-				"true"
-			);
-		});
-
-		it("should let a child opt out of group invalid with explicit invalid false", () => {
-			const f = TestBed.createComponent(GroupInheritanceInvalidHost);
-			f.componentInstance.groupInvalid = true;
-			detectAfterGroupNotify(f);
-			const inputs = f.debugElement.queryAll(
-				By.css("input.cds--checkbox")
-			);
-			expect(
-				inputs[0].nativeElement.getAttribute("data-invalid")
-			).not.toBe("true");
-			expect(inputs[1].nativeElement.getAttribute("data-invalid")).toBe(
-				"true"
-			);
-		});
+		await update({ invalid: false, warn: false });
+		expect(one.invalid).toBe(false);
+		expect(one.warn).toBe(false);
 	});
 });

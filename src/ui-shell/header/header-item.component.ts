@@ -1,131 +1,43 @@
 import {
+	ChangeDetectionStrategy,
 	Component,
+	CUSTOM_ELEMENTS_SCHEMA,
 	Input,
-	EventEmitter,
-	Output,
-	HostBinding,
 	inject
 } from "@angular/core";
-import { DomSanitizer } from "@angular/platform-browser";
-import { Router, RouterLinkActive, RouterLink } from "@angular/router";
-import { NgClass, NgTemplateOutlet } from "@angular/common";
+import { NgTemplateOutlet } from "@angular/common";
+import "@carbon/web-components/es/components/ui-shell/index.js";
+import { ShellLink } from "../shell-link.class";
+import { HEADER_MENU } from "./header-menu.token";
 
 /**
- * Individual item in the header. May be used a direct child of `HeaderNavigation` or `HeaderMenu`
+ * A header link. Renders `<cds-header-nav-item>`, or `<cds-header-menu-item>` inside a `cds-header-menu`.
  */
 @Component({
-	selector: "cds-header-item, ibm-header-item",
+	selector: "cds-header-item",
 	template: `
-		<ng-template #content>
-			<ng-content />
-		</ng-template>
-		@if (useRouter) {
-			<a
-				class="cds--header__menu-item"
-				tabindex="0"
-				[ngClass]="{'cds--header__menu-item--current' : isCurrentPage}"
-				[routerLink]="route"
-				[routerLinkActive]="routerLinkActiveClasses">
+		<ng-template #content><ng-content /></ng-template>
+		@if (inMenu) {
+			<cds-header-menu-item [href]="href ?? ''" [isActive]="isCurrentPage || routerActive" (click)="navigate($event)">
 				<ng-container *ngTemplateOutlet="content" />
-			</a>
+			</cds-header-menu-item>
 		} @else {
-			<a
-				class="cds--header__menu-item"
-				tabindex="0"
-				[ngClass]="{'cds--header__menu-item--current' : isCurrentPage}"
-				[href]="href"
-				(click)="navigate($event)">
+			<cds-header-nav-item [href]="href ?? ''" [isActive]="isCurrentPage || routerActive" (click)="navigate($event)">
 				<ng-container *ngTemplateOutlet="content" />
-			</a>
+			</cds-header-nav-item>
 		}
 	`,
-	styles: [`
-		:host {
-			display: list-item;
-		}
-	`],
-	imports: [
-		NgClass,
-		NgTemplateOutlet,
-		RouterLinkActive,
-		RouterLink
-	]
+	styles: [":host { display: contents; }"],
+	changeDetection: ChangeDetectionStrategy.OnPush,
+	imports: [NgTemplateOutlet],
+	schemas: [CUSTOM_ELEMENTS_SCHEMA]
 })
-export class HeaderItem {
-	@HostBinding("attr.role") role = "listitem";
-	@Input() set href(v: string) {
-		// Needed when component is created dynamically with a model.
-		if (v === undefined) {
-			return;
-		}
-		this._href = v;
-	}
-
-	get href() {
-		return this.domSanitizer.bypassSecurityTrustUrl(this._href) as string;
-	}
-
-	/**
-	 * Use the routerLink attribute on <a> tag for navigation instead of using event handlers
-	 */
-	@Input() useRouter = false;
-
-	/**
-	 * String or array of string class names to apply when active
-	 */
-	@Input() set activeLinkClass(v: string | string[]) {
-		this._activeLinkClass = v;
-		// Compute once per input change
-		const extra = v === "" || v == null ? [] : Array.isArray(v) ? v : [v];
-		this.routerLinkActiveClasses = ["cds--header__menu-item--current", ...extra];
-	}
-
-	get activeLinkClass() {
-		return this._activeLinkClass;
-	}
-
-	/**
-	 * Applies selected styles to the item if a user sets this to true.
-	 */
+export class HeaderItem extends ShellLink {
 	@Input() isCurrentPage: boolean;
-
 	/**
-	 * Array of commands to send to the router when the link is activated
-	 * See: https://angular.io/api/router/Router#navigate
+	 * @deprecated the web component styles the current page.
 	 */
-	@Input() route: any[];
+	@Input() activeLinkClass: string | string[];
 
-	/**
-	 * Router options. Used in conjunction with `route`
-	 * See: https://angular.io/api/router/Router#navigate
-	 */
-	@Input() routeExtras: any;
-
-	/**
-	 * Emits the navigation status promise when the link is activated
-	 */
-	@Output() navigation = new EventEmitter<Promise<boolean>>();
-
-	protected _href = "#";
-	protected _activeLinkClass: string | string[] = "";
-	protected routerLinkActiveClasses: string[] = ["cds--header__menu-item--current"];
-
-	protected domSanitizer = inject(DomSanitizer);
-	protected router = inject(Router, { optional: true })!;
-
-	/** Inserted by Angular inject() migration for backwards compatibility */
-	// eslint-disable-next-line @angular-eslint/prefer-inject -- backwards-compatible DI overload until next major
-	constructor(...args: unknown[]);
-
-	constructor() {}
-
-	navigate(event) {
-		if (this.router && this.route) {
-			event.preventDefault();
-			const status = this.router.navigate(this.route, this.routeExtras);
-			this.navigation.emit(status);
-		} else if (this._href === "#") {
-			event.preventDefault();
-		}
-	}
+	protected inMenu = !!inject(HEADER_MENU, { optional: true });
 }

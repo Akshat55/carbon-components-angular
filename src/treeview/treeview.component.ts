@@ -1,29 +1,26 @@
-import { NgTemplateOutlet, NgClass } from "@angular/common";
 import {
 	ChangeDetectionStrategy,
 	Component,
+	CUSTOM_ELEMENTS_SCHEMA,
+	EventEmitter,
 	Input,
+	OnDestroy,
+	OnInit,
 	Output,
 	TemplateRef,
-	EventEmitter,
-	AfterViewInit,
-	ViewChild,
-	ElementRef,
-	OnInit,
-	OnDestroy,
-	DOCUMENT,
 	inject
 } from "@angular/core";
 import { Subscription } from "rxjs";
-import { EventOnNode, Node } from "./tree-node.types";
-import { TreeViewService } from "./treeview.service";
+import "@carbon/web-components/es/components/tree-view/index.js";
 import { TreeNodeComponent } from "./tree-node.component";
+import { TreeViewService } from "./treeview.service";
+import { EventOnNode, Node } from "./tree-node.types";
 
 /**
- * Get started with importing the component:
+ * Wraps the `<cds-tree-view>` web component. Pass `tree` or project `cds-tree-node`s.
  *
- * ```typescript
- * import { TreeViewComponent } from 'carbon-components-angular';
+ * ```html
+ * <cds-tree-view label="Files" [tree]="nodes" (select)="onSelect($event)" />
  * ```
  *
  * [See demo](../../?path=/story/components-tree-view--basic)
@@ -31,198 +28,72 @@ import { TreeNodeComponent } from "./tree-node.component";
 @Component({
 	selector: "cds-tree-view",
 	template: `
-		@if (label) {
-			<label
-				[id]="id"
-				class="cds--label"
-				[ngClass]="{'cds--visually-hidden': hideLabel}">
-				@if (!isTemplate(label)) {
-					{{label}}
-				}
-				@if (isTemplate(label)) {
-					<ng-template
-						[ngTemplateOutlet]="label"
-						[ngTemplateOutletContext]="{ $implicit: labelContext }">
-					</ng-template>
-				}
-			</label>
+		@for (node of tree; track node.id ?? $index) {
+			<cds-tree-node [node]="node" (nodetoggle)="onToggle($event)" />
 		}
-		<div
-			class="cds--tree"
-			[ngClass]="{
-				'cds--tree--sm': size === 'sm',
-				'cds--tree--xs': size === 'xs'
-			}"
-			[attr.aria-label]="label ? label : null"
-			[attr.aria-labelledby]="!label ? id : null"
-			[attr.aria-multiselectable]="isMultiSelect || null"
-			role="tree"
-			(keydown)="navigateTree($event)"
-			#treeWrapper>
-			@if (isProjected()) {
-				<ng-content></ng-content>
-			} @else {
-				@for (node of tree; track node) {
-					<cds-tree-node
-						[node]="node"
-						(nodetoggle)="onNodeToggle($event)">
-					</cds-tree-node>
-				}
-			}
-		</div>
+		<ng-content />
 	`,
+	host: {
+		"[id]": "id",
+		"[label]": "isTemplate(label) ? '' : label",
+		"[hideLabel]": "hideLabel",
+		"[size]": "size"
+	},
 	providers: [TreeViewService],
 	changeDetection: ChangeDetectionStrategy.OnPush,
-	imports: [NgTemplateOutlet, NgClass, TreeNodeComponent]
+	imports: [TreeNodeComponent],
+	schemas: [CUSTOM_ELEMENTS_SCHEMA]
 })
-export class TreeViewComponent implements AfterViewInit, OnInit, OnDestroy {
+export class TreeViewComponent implements OnInit, OnDestroy {
 	static treeViewCount = 0;
 
 	treeViewService = inject(TreeViewService);
 
-	/**
-	 * Pass `Node[]` array to have tree view render the nodes
-	 * Passing value will disregard projected content
-	 */
 	@Input() set tree(treeNodes: Node[]) {
-		this._tree = treeNodes.map((node) => this.copyNode(node));
+		this._tree = treeNodes;
 		this.treeViewService.contentProjected = false;
 	}
-
 	get tree() {
 		return this._tree;
 	}
-
 	@Input() id = `tree-view-${TreeViewComponent.treeViewCount++}`;
 	/**
-	 * Tree view label
+	 * Tree label. A `TemplateRef` is not supported by the web component and renders nothing.
 	 */
 	@Input() label: string | TemplateRef<any>;
-
-	/**
-	 * Set to `true` to visually hide the label while keeping it available to assistive technologies.
-	 */
 	@Input() hideLabel = false;
-	/**
-	 * Optional context for label if it's a template
-	 */
 	@Input() labelContext: any;
-	/**
-	 * Specify the size of the list items in the tree
-	 */
 	@Input() size: "xs" | "sm" = "sm";
-	/**
-	 * **Experimental** - Enable to select multiple nodes
-	 */
 	@Input() set isMultiSelect(isMulti: boolean) {
 		this.treeViewService.isMultiSelect = isMulti;
 	}
 
+	/**
+	 * Emits the selected node, or all selected nodes when `isMultiSelect`.
+	 */
 	@Output() select = new EventEmitter<Node | Node[]>();
-
 	// eslint-disable-next-line @angular-eslint/no-output-native
 	@Output() toggle = new EventEmitter<Node>();
-	@ViewChild("treeWrapper") root: ElementRef;
 
-	private treeWalker: TreeWalker;
 	private _tree: Node[] = [];
 	private subscription: Subscription;
-	private document = inject<Document>(DOCUMENT);
-	private elementRef = inject(ElementRef);
 
-	/** Inserted by Angular inject() migration for backwards compatibility */
-	// eslint-disable-next-line @angular-eslint/prefer-inject -- backwards-compatible DI overload until next major
-	constructor(...args: unknown[]);
-
-	constructor() {}
-
-	/**
-	 * Subscribe for node selection
-	 */
-	ngOnInit(): void {
+	ngOnInit() {
 		this.subscription = this.treeViewService.selectionObservable.subscribe((nodesMap: Map<string, Node>) => {
-			// Get all values from the map to emit
 			const nodes = [...nodesMap.values()];
-
 			this.select.emit(this.treeViewService.isMultiSelect ? nodes : nodes[0]);
 		});
-		this.subscription.add(this.treeViewService.focusNodeObservable.subscribe(node => this.onNodeFocusChange(node)));
 	}
 
-	ngOnDestroy(): void {
-		this.subscription.unsubscribe();
+	ngOnDestroy() {
+		this.subscription?.unsubscribe();
 	}
 
-	/**
-	 * Initialize tree walker to support keyboard navigation
-	 */
-	ngAfterViewInit(): void {
-		this.treeWalker = this.document.createTreeWalker(this.root.nativeElement, NodeFilter.SHOW_ELEMENT, {
-			acceptNode: function (node: HTMLElement) {
-				if (node.classList.contains(`cds--tree-node--disabled`)) {
-					return NodeFilter.FILTER_REJECT;
-				}
-				if (node.matches(`div.cds--tree-node`)) {
-					return NodeFilter.FILTER_ACCEPT;
-				}
-				return NodeFilter.FILTER_SKIP;
-			}
-		});
+	onToggle({ node }: EventOnNode) {
+		this.toggle.emit(node);
 	}
 
-	/**
-	 * Navigate tree using tree walker
-	 * @param event - KeyboardEvent
-	 */
-	navigateTree(event: KeyboardEvent) {
-		if (event.key === "ArrowUp") {
-			(this.treeWalker.previousNode() as HTMLElement)?.focus();
-		}
-
-		if (event.key === "ArrowDown") {
-			(this.treeWalker.nextNode() as HTMLElement)?.focus();
-		}
-	}
-
-	/**
-	 * Propagate node toggle event
-	 * @param eventOnNode - EventOnNode
-	 */
-	onNodeToggle(eventOnNode: EventOnNode) {
-		if (!eventOnNode) {
-			return;
-		}
-		this.toggle.emit(eventOnNode.node);
-	}
-
-	/**
-	 * Node focus change
-	 * @param node - Node
-	 */
-	onNodeFocusChange(node: Node) {
-		if (!node) {
-			// if for some reason the focused node is not defined we fallback on the root element of the treeview
-			this.treeWalker.currentNode = this.treeWalker.root;
-			return;
-		}
-		// Update current node based on focus change to have a better keyboard navigation experience
-		this.treeWalker.currentNode = this.elementRef.nativeElement.querySelector(`#${CSS.escape(node.id)}`);
-	}
-
-	public isTemplate(value) {
+	isTemplate(value: unknown): value is TemplateRef<any> {
 		return value instanceof TemplateRef;
-	}
-
-	public isProjected() {
-		return this.treeViewService.contentProjected;
-	}
-
-	private copyNode(node: Node): Node {
-		// making a recursive shallow copy to avoid performance issues when deeply cloning templateRefs if defined in the node
-		const copiedNode = Object.assign({}, node);
-		if (node.children) {
-			copiedNode.children = node.children.map(child => this.copyNode(child));
-		}
-		return copiedNode;
 	}
 }

@@ -1,138 +1,129 @@
+import { Component, TemplateRef, ViewChild } from "@angular/core";
 import { TestBed } from "@angular/core/testing";
-import { FormsModule } from "@angular/forms";
-import { By } from "@angular/platform-browser";
-import { Component } from "@angular/core";
-import { IconDirective } from "../icon/index";
-import { AccordionItem } from "./accordion-item.component";
+
 import { Accordion } from "./accordion.component";
+import { AccordionItem } from "./accordion-item.component";
+
+const rendered = (element: any) => element.updateComplete as Promise<boolean>;
+const heading = (item: HTMLElement) => item.shadowRoot.querySelector<HTMLButtonElement>(".cds--accordion__heading");
 
 @Component({
 	template: `
-	<cds-accordion [size]="size" [disabled]="accordionDisabled">
-		<cds-accordion-item
-		[disabled]="disabled"
-		[title]="title"
-		[skeleton]="skeleton">
-			test-content
-		</cds-accordion-item>
-	</cds-accordion>`,
+		<cds-accordion [size]="size" align="start" [disabled]="accordionDisabled" [skeleton]="skeleton">
+			<cds-accordion-item
+				[title]="title"
+				[context]="{ name: 'context' }"
+				[disabled]="disabled"
+				[(expanded)]="expanded"
+				(selected)="onSelected($event)">
+				<p class="content">test-content</p>
+			</cds-accordion-item>
+		</cds-accordion>
+		<ng-template #titleTemplate let-name="name"><b class="title">Template {{name}}</b></ng-template>
+	`,
 	imports: [Accordion, AccordionItem]
 })
 class AccordionTest {
+	@ViewChild("titleTemplate") titleTemplate: TemplateRef<any>;
+	title: string | TemplateRef<any> = "Section 1";
+	size = "md";
 	disabled = false;
 	accordionDisabled = false;
-	title = "Section 1";
-	skeleton = "false";
-	size = "md";
+	skeleton = false;
+	expanded = false;
+	onSelected(_: { id: string, expanded: boolean }) {}
 }
 
 describe("Accordion", () => {
-	let fixture, wrapper, debugElement;
-	beforeEach(() => {
-		TestBed.configureTestingModule({
-			imports: [
-				AccordionTest
-			]
-		});
-	});
+	let fixture;
+	let wrapper: AccordionTest;
+	let accordion;
+	let item;
 
-	it("should work", () => {
-		fixture = TestBed.createComponent(Accordion);
-		expect(fixture.componentInstance instanceof Accordion).toBe(true);
-	});
-
-	it("should call onClick on button click", () => {
-		fixture = TestBed.createComponent(AccordionTest);
-		let debugElement = fixture.debugElement.query(By.css(".cds--accordion__heading"));
+	const update = async (changes: Partial<AccordionTest> = {}) => {
+		Object.assign(wrapper, changes);
 		fixture.detectChanges();
-		spyOn(debugElement.componentInstance.selected, "emit");
-		debugElement.triggerEventHandler("click", null);
-		fixture.detectChanges();
-		expect(debugElement.componentInstance.selected.emit).toHaveBeenCalled();
-	});
+		await rendered(accordion);
+		await rendered(item);
+	};
 
-	it("should expand on button click", () => {
+	beforeEach(async () => {
 		fixture = TestBed.createComponent(AccordionTest);
 		wrapper = fixture.componentInstance;
-		fixture.detectChanges();
-		debugElement = fixture.debugElement.query(By.css(".cds--accordion__heading"));
-		debugElement.triggerEventHandler("click", null);
-		fixture.detectChanges();
-		expect(debugElement.nativeElement.getAttribute("aria-expanded")).toEqual("true");
+		accordion = fixture.nativeElement.querySelector("cds-accordion");
+		item = fixture.nativeElement.querySelector("cds-accordion-item");
+		await update();
 	});
 
-	it("should not expand disabled items", () => {
-		fixture = TestBed.createComponent(AccordionTest);
-		wrapper = fixture.componentInstance;
-		wrapper.disabled = true;
-		fixture.detectChanges();
-		debugElement = fixture.debugElement.query(By.css(".cds--accordion__heading"));
-		debugElement.nativeElement.click();
-		fixture.detectChanges();
-		expect(debugElement.nativeElement.getAttribute("aria-expanded")).toEqual("false");
+	it("should register and render the web components", () => {
+		expect(accordion instanceof customElements.get("cds-accordion")).toBe(true);
+		expect(item instanceof customElements.get("cds-accordion-item")).toBe(true);
+		expect(item.querySelector(".content").textContent).toBe("test-content");
 	});
 
-	it("should disable items when accordion disabled is true, overriding item disabled=false", () => {
-		fixture = TestBed.createComponent(AccordionTest);
-		wrapper = fixture.componentInstance;
-		wrapper.disabled = false;
-		wrapper.accordionDisabled = true;
-		fixture.detectChanges();
-		debugElement = fixture.debugElement.query(By.css(".cds--accordion__heading"));
-		debugElement.nativeElement.click();
-		fixture.detectChanges();
-		expect(debugElement.nativeElement.getAttribute("aria-expanded")).toEqual("false");
+	it("should pass inputs through to the web components", async () => {
+		await update({ size: "lg" });
+		expect(accordion.size).toBe("lg");
+		expect(accordion.alignment).toBe("start");
+		expect(item.title).toBe("Section 1");
+		expect(item.shadowRoot.textContent).toContain("Section 1");
 	});
 
-	it("should restore item disabled when accordion disabled becomes false", () => {
-		fixture = TestBed.createComponent(AccordionTest);
-		wrapper = fixture.componentInstance;
-		wrapper.disabled = true;
-		wrapper.accordionDisabled = true;
-		fixture.detectChanges();
-		wrapper.accordionDisabled = false;
-		fixture.detectChanges();
-		debugElement = fixture.debugElement.query(By.css(".cds--accordion__heading"));
-		debugElement.nativeElement.click();
-		fixture.detectChanges();
-		expect(debugElement.nativeElement.getAttribute("aria-expanded")).toEqual("false");
+	it("should expand on click, emit selected and update [(expanded)]", async () => {
+		spyOn(wrapper, "onSelected");
+		heading(item).click();
+		await update();
+
+		expect(item.open).toBe(true);
+		expect(wrapper.expanded).toBe(true);
+		expect(wrapper.onSelected).toHaveBeenCalledWith({ id: item.id, expanded: true });
 	});
 
-	it("should allow expand when accordion and item are not disabled", () => {
-		fixture = TestBed.createComponent(AccordionTest);
-		wrapper = fixture.componentInstance;
-		wrapper.disabled = false;
-		wrapper.accordionDisabled = true;
-		fixture.detectChanges();
-		wrapper.accordionDisabled = false;
-		fixture.detectChanges();
-		debugElement = fixture.debugElement.query(By.css(".cds--accordion__heading"));
-		debugElement.nativeElement.click();
-		fixture.detectChanges();
-		expect(debugElement.nativeElement.getAttribute("aria-expanded")).toEqual("true");
+	it("should open when expanded is set", async () => {
+		await update({ expanded: true });
+		expect(item.open).toBe(true);
 	});
 
-	it("should set test-content into accordion item", () => {
-		fixture = TestBed.createComponent(AccordionTest);
-		wrapper = fixture.componentInstance;
-		fixture.detectChanges();
-		debugElement = fixture.debugElement.query(By.css("cds-accordion .cds--accordion__content"));
-		expect(debugElement.nativeElement.textContent).toContain("test-content");
+	it("should not expand disabled items", async () => {
+		await update({ disabled: true });
+		heading(item).click();
+		await update();
+		expect(item.open).toBe(false);
 	});
 
-	it("should set cds-accordion item title to 'Section 1'", () => {
-		fixture = TestBed.createComponent(AccordionTest);
-		wrapper = fixture.componentInstance;
-		fixture.detectChanges();
-		debugElement = fixture.debugElement.query(By.css("cds-accordion .cds--accordion__title"));
-		expect(debugElement.nativeElement.textContent).toContain("Section 1");
+	it("should disable items when the accordion is disabled, then restore the item's own value", async () => {
+		await update({ accordionDisabled: true });
+		expect(item.disabled).toBe(true);
+		expect(heading(item).disabled).toBe(true);
+
+		await update({ accordionDisabled: false });
+		expect(item.disabled).toBe(false);
+
+		await update({ disabled: true, accordionDisabled: false });
+		expect(item.disabled).toBe(true);
 	});
 
-	it("should apply style for specified size (md)", () => {
-		fixture = TestBed.createComponent(AccordionTest);
-		wrapper = fixture.componentInstance;
-		fixture.detectChanges();
-		debugElement = fixture.debugElement.query(By.css("cds-accordion .cds--accordion"));
-		expect(debugElement.nativeElement.classList).toContain("cds--accordion--md");
+	it("should collapse items when the accordion is disabled", async () => {
+		await update({ expanded: true });
+		await update({ accordionDisabled: true });
+		expect(item.open).toBe(false);
+	});
+
+	it("should render a TemplateRef title with context in the title slot", async () => {
+		await update({ title: wrapper.titleTemplate });
+		const title = item.querySelector(".title");
+		expect(title.getAttribute("slot")).toBe("title");
+		expect(title.textContent).toBe("Template context");
+		expect(item.title).toBe("");
+	});
+
+	it("should show skeleton text and not toggle while skeleton", async () => {
+		await update({ skeleton: true });
+		expect(item.querySelector("cds-skeleton-text[slot='title']")).toBeTruthy();
+		expect(item.querySelector(".content")).toBeNull();
+
+		heading(item).click();
+		await update();
+		expect(item.open).toBe(false);
 	});
 });

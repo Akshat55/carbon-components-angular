@@ -1,29 +1,23 @@
-import { ChangeDetectionStrategy, Component, Input } from "@angular/core";
+import {
+	ChangeDetectionStrategy,
+	Component,
+	CUSTOM_ELEMENTS_SCHEMA,
+	Input
+} from "@angular/core";
+import "@carbon/web-components/es/components/skeleton-placeholder/index.js";
 
 /**
- * Get started with importing the component:
- *
- * ```typescript
- * import { Skeleton } from 'carbon-components-angular';
- * ```
- *
- * [See demo](../../?path=/story/components-skeleton--basic)
+ * Wraps the `<cds-skeleton-placeholder>` web component.
  */
 @Component({
-	selector: "cds-skeleton-placeholder, ibm-skeleton-placeholder",
-	template: `
-		<div
-			class="cds--skeleton__placeholder"
-			[class.cds--skeleton__placeholder--ai]="ai">
-		</div>
-	`,
-	standalone: true,
-	changeDetection: ChangeDetectionStrategy.OnPush
+	selector: "cds-skeleton-placeholder",
+	template: "",
+	changeDetection: ChangeDetectionStrategy.OnPush,
+	schemas: [CUSTOM_ELEMENTS_SCHEMA]
 })
 export class SkeletonPlaceholder {
 	/**
-	 * When `true`, applies the AI skeleton gradient treatment
+	 * @deprecated not supported by the web component.
 	 */
 	@Input() ai = false;
 }
-

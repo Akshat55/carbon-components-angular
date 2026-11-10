@@ -32,7 +32,8 @@
         "./src/*/index"
       ]
     },
-    "useDefineForClassFields": false
+    "useDefineForClassFields": false,
+    "skipLibCheck": true
   },
   "files": [
     "src/test.ts"

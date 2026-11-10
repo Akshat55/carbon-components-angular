@@ -2,53 +2,59 @@ import {
 	ChangeDetectionStrategy,
 	ChangeDetectorRef,
 	Component,
-	HostBinding,
+	CUSTOM_ELEMENTS_SCHEMA,
 	Input,
 	inject
 } from "@angular/core";
+import { NgTemplateOutlet } from "@angular/common";
+import "@carbon/web-components/es/components/structured-list/index.js";
 
 /**
- * `ListColumn` represents a single column in a `StructuredList`.
- *
- * `ListColumn`s can be used in a `ListHeader` to specify the column headers, or in `ListRow`s to specify the column data.
- *
- * Example:
- * ```html
- * <cds-list-column nowrap="true">Column 1</cds-list-column>
- * ```
+ * A structured list cell. Renders `<cds-structured-list-header-cell>` inside `cds-list-header`
+ * and `<cds-structured-list-cell>` inside `cds-list-row`.
  */
 @Component({
-	selector: "cds-list-column, ibm-list-column",
+	selector: "cds-list-column",
 	template: `
-		@if (skeleton) {
-			<span></span>
+		<ng-template #content><ng-content /></ng-template>
+		@if (isHeaderColumn) {
+			<cds-structured-list-header-cell [skeleton]="skeleton">
+				<ng-container *ngTemplateOutlet="content" />
+			</cds-structured-list-header-cell>
+		} @else {
+			<cds-structured-list-cell [class.cds--structured-list-content--nowrap]="nowrap">
+				<ng-container *ngTemplateOutlet="content" />
+			</cds-structured-list-cell>
 		}
-		<ng-content />
 	`,
-	standalone: true,
-	changeDetection: ChangeDetectionStrategy.OnPush
+	styles: [":host { display: contents; }"],
+	changeDetection: ChangeDetectionStrategy.OnPush,
+	imports: [NgTemplateOutlet],
+	schemas: [CUSTOM_ELEMENTS_SCHEMA]
 })
 export class ListColumn {
-	/**
-	 * Set by the containing `ListHeader`
-	 */
 	@Input() set skeleton(value: boolean) {
 		this._skeleton = value;
 		this.changeDetectorRef.markForCheck();
 	}
-
 	get skeleton() {
 		return this._skeleton;
 	}
 
-	@HostBinding("attr.role") role = "cell";
-	@HostBinding("class.cds--structured-list-th") isHeaderColumn = true;
-	@HostBinding("class.cds--structured-list-td") isBodyColumn = true;
+	@Input() nowrap = false;
+
 	/**
-	 * Applies `white-space: nowrap` to the content of this `ListColumn`
+	 * Set by the parent `cds-list-header` / `cds-list-row`.
 	 */
-	@HostBinding("class.cds--structured-list-content--nowrap") @Input() nowrap = false;
+	set isHeaderColumn(value: boolean) {
+		this._isHeaderColumn = value;
+		this.changeDetectorRef.markForCheck();
+	}
+	get isHeaderColumn() {
+		return this._isHeaderColumn;
+	}
 
 	protected changeDetectorRef = inject(ChangeDetectorRef);
 	protected _skeleton = false;
+	protected _isHeaderColumn = false;
 }

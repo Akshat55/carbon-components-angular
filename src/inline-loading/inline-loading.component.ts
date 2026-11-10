@@ -1,127 +1,57 @@
 import {
+	ChangeDetectionStrategy,
 	Component,
-	Input,
-	Output,
+	CUSTOM_ELEMENTS_SCHEMA,
 	EventEmitter,
-	HostBinding,
-	ChangeDetectionStrategy
+	Input,
+	Output
 } from "@angular/core";
-import { NgClass } from "@angular/common";
-import { IconDirective } from "carbon-components-angular/icon";
+import "@carbon/web-components/es/components/inline-loading/index.js";
 
 export enum InlineLoadingState {
-	/** It hides the whole component. */
+	/** Hides the component */
 	Hidden = "hidden",
-	/** It shows the `loadingText` but no loading animation. */
+	/** Shows the stopped spinner and `loadingText` */
 	Inactive = "inactive",
-	/** It shows the `loadingText` with loading animation. */
+	/** Shows the spinner and `loadingText` */
 	Active = "active",
-	/** It shows the `successText` with a success state. */
+	/** Shows the checkmark and `successText` */
 	Finished = "finished",
-	/** It shows the `errorText` with an error state. */
+	/** Shows the error icon and `errorText` */
 	Error = "error"
 }
 
 /**
- * Get started with importing the component and the enum:
- *
- * ```typescript
- * import { InlineLoading, InlineLoadingState } from 'carbon-components-angular';
- * ```
+ * Wraps the `<cds-inline-loading>` web component.
  *
  * [See demo](../../?path=/story/components-inline-loading--basic)
  */
 @Component({
-	selector: "cds-inline-loading, ibm-inline-loading",
-	template: `
-		@if (state !== InlineLoadingState.Hidden) {
-			<div class="cds--inline-loading__animation">
-				@if (state === InlineLoadingState.Inactive || state === InlineLoadingState.Active) {
-					<div
-						class="cds--loading cds--loading--small"
-						[ngClass]="{
-							'cds--loading--stop': state === InlineLoadingState.Inactive
-						}">
-						<svg class="cds--loading__svg" viewBox="0 0 100 100">
-							@if (iconDescription) {
-								<title>{{iconDescription}}</title>
-							}
-							<circle class="cds--loading__background" cx="50%" cy="50%" r="44" />
-							<circle class="cds--loading__stroke" cx="50%" cy="50%" r="44" />
-						</svg>
-					</div>
-				}
-				@if (state === InlineLoadingState.Finished) {
-					<svg
-						cdsIcon="checkmark--filled"
-						size="16"
-						class="cds--inline-loading__checkmark-container"
-						[attr.title]="iconDescription || null">
-					</svg>
-				}
-				@if (state === InlineLoadingState.Error) {
-					<svg
-						cdsIcon="error--filled"
-						size="16"
-						class="cds--inline-loading--error"
-						[attr.title]="iconDescription || null">
-					</svg>
-				}
-			</div>
-		}
-		@if (state === InlineLoadingState.Inactive || state === InlineLoadingState.Active) {
-			<p class="cds--inline-loading__text">{{loadingText}}</p>
-		}
-		@if (state === InlineLoadingState.Finished) {
-			<p class="cds--inline-loading__text">{{successText}}</p>
-		}
-		@if (state === InlineLoadingState.Error) {
-			<p class="cds--inline-loading__text">{{errorText}}</p>
-		}
-	`,
+	selector: "cds-inline-loading",
+	template: `{{ text }}`,
+	host: {
+		"[status]": "state",
+		"[iconDescription]": "iconDescription",
+		"[successDelay]": "successDelay",
+		"[hidden]": "state === 'hidden'",
+		"[attr.aria-live]": "state === 'hidden' ? null : state === 'inactive' ? 'off' : 'assertive'"
+	},
 	changeDetection: ChangeDetectionStrategy.OnPush,
-	imports: [NgClass, IconDirective]
+	schemas: [CUSTOM_ELEMENTS_SCHEMA]
 })
 export class InlineLoading {
-	InlineLoadingState = InlineLoadingState;
-
-	/**
-	 * Specify the text description for the loading state.
-	 */
 	@Input() state: InlineLoadingState | string = InlineLoadingState.Active;
-	/**
-	 * Specify the text description for the loading state.
-	 */
 	@Input() loadingText: string;
-	/**
-	 * Specify the text description for the success state.
-	 */
 	@Input() successText: string;
 	/**
-	 * Provide a delay for the `setTimeout` for success.
+	 * Milliseconds before `onSuccess` fires after the finished state.
 	 */
 	@Input() successDelay = 1500;
-	/**
-	 * Specify the text description for the error state.
-	 */
 	@Input() errorText: string;
-	/**
-	 * Accessible description applied to the loading/success/error SVG.
-	 */
 	@Input() iconDescription: string;
 
 	/**
-	 * `aria-live` value applied to the host based on `state` (`'off'` for inactive states, `'assertive'`
-	 * otherwise).
-	 */
-	@HostBinding("attr.aria-live") get hostAriaLive(): string | null {
-		if (this.state === InlineLoadingState.Hidden) {
-			return null;
-		}
-		return this.state === InlineLoadingState.Inactive ? "off" : "assertive";
-	}
-	/**
-	 * set to `false` to stop the loading animation
+	 * `false` stops the animation.
 	 */
 	@Input() get isActive() {
 		return this.state === InlineLoadingState.Active;
@@ -131,27 +61,26 @@ export class InlineLoading {
 	}
 
 	/**
-	 * Returns value `true` if the component is in the success state.
+	 * `true` shows the finished state and emits `onSuccess` after `successDelay`; `false` shows the error state.
 	 */
 	@Input() get success() {
 		return this.state === InlineLoadingState.Finished;
 	}
-	/**
-	 * Set the component's state to match the parameter and emits onSuccess if it exits.
-	 */
 	set success(success: boolean) {
 		this.state = success ? InlineLoadingState.Finished : InlineLoadingState.Error;
-		if (this.state === InlineLoadingState.Finished) {
-			setTimeout(() => {
-				this.onSuccess.emit();
-			}, this.successDelay);
+		if (success) {
+			setTimeout(() => this.onSuccess.emit(), this.successDelay);
 		}
 	}
 
-	/**
-	 * Emits event after the success state is active
-	 */
 	@Output() onSuccess: EventEmitter<any> = new EventEmitter();
 
-	@HostBinding("class.cds--inline-loading") loadingClass = true;
+	get text() {
+		switch (this.state) {
+			case InlineLoadingState.Finished: return this.successText;
+			case InlineLoadingState.Error: return this.errorText;
+			case InlineLoadingState.Hidden: return "";
+			default: return this.loadingText;
+		}
+	}
 }

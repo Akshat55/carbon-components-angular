@@ -1,18 +1,15 @@
 import {
-	HostBinding,
+	ChangeDetectionStrategy,
 	Component,
-	Input,
-	ElementRef,
-	Output,
+	CUSTOM_ELEMENTS_SCHEMA,
 	EventEmitter,
-	AfterViewInit,
-	ChangeDetectorRef,
-	inject
+	Input,
+	Output
 } from "@angular/core";
-import { NgTemplateOutlet } from "@angular/common";
+import "@carbon/web-components/es/components/overflow-menu/index.js";
 
 /**
- * Available HTML anchor targets
+ * Possible link targets for `href` options.
  */
 export enum Target {
 	self = "_self",
@@ -22,159 +19,48 @@ export enum Target {
 }
 
 /**
- * Security HTML anchor rel when target is set
- */
-const REL = "noreferrer noopener";
-
-/**
- * `OverflowMenuOption` represents a single option in an overflow menu
- *
- * Presently it has three possible states - normal, disabled, and danger:
- * ```
- * <cds-overflow-menu-option>Simple option</cds-overflow-menu-option>
- * <cds-overflow-menu-option disabled="true">Disabled</cds-overflow-menu-option>
- * <cds-overflow-menu-option type="danger">Danger option</cds-overflow-menu-option>
- * ```
- *
- * For content that expands beyond the overflow menu `OverflowMenuOption` automatically adds a title attribute.
+ * An option of `cds-overflow-menu`. Renders the `<cds-overflow-menu-item>` web component.
  */
 @Component({
-	selector: "cds-overflow-menu-option, ibm-overflow-menu-option",
+	selector: "cds-overflow-menu-option",
 	template: `
-		@if (href) {
-			<a
-				class="cds--overflow-menu-options__btn {{innerClass}}"
-				role="menuitem"
-				[tabindex]="tabIndex"
-				(focus)="onFocus()"
-				(blur)="onBlur()"
-				(click)="onClick()"
-				[attr.disabled]="disabled"
-				[href]="href"
-				[attr.target]="target"
-				[attr.rel]="rel"
-				[attr.title]="title">
-				<ng-container *ngTemplateOutlet="tempOutlet" />
-			</a>
-		} @else {
-			<button
-				class="cds--overflow-menu-options__btn {{innerClass}}"
-				role="menuitem"
-				[tabindex]="tabIndex"
-				(focus)="onFocus()"
-				(blur)="onBlur()"
-				(click)="onClick()"
-				[disabled]="disabled"
-				[attr.title]="title">
-				<ng-container *ngTemplateOutlet="tempOutlet" />
-			</button>
-		}
-
-		<ng-template #tempOutlet>
-			<div class="cds--overflow-menu-options__option-content">
-				<ng-content />
-			</div>
-		</ng-template>
+		<cds-overflow-menu-item
+			[danger]="type === 'danger'"
+			[disabled]="disabled"
+			[divider]="divider"
+			[href]="href ?? ''"
+			[attr.target]="target"
+			[class]="innerClass"
+			(click)="onClick($event)">
+			<ng-content />
+		</cds-overflow-menu-item>
 	`,
-	imports: [NgTemplateOutlet]
+	styles: [":host { display: contents; }"],
+	changeDetection: ChangeDetectionStrategy.OnPush,
+	schemas: [CUSTOM_ELEMENTS_SCHEMA]
 })
-export class OverflowMenuOption implements AfterViewInit {
-	@HostBinding("class.cds--overflow-menu-options__option") optionClass = true;
-	@HostBinding("attr.role") role = "presentation";
-
-	@HostBinding("class.cds--overflow-menu-options__option--danger")
-	public get isDanger(): Boolean {
-		return this.type === "danger";
-	}
-
-	@HostBinding("class.cds--overflow-menu-options__option--disabled")
-	public get isDisabled(): Boolean {
-		return this.disabled;
-	}
-	/**
-	 * Set to `true` to display a dividing line above this option
-	 */
-	@HostBinding("class.cds--overflow-menu--divider") @Input() divider = false;
-	/**
-	 * toggles between `normal` and `danger` states
-	 */
+export class OverflowMenuOption {
 	@Input() type: "normal" | "danger" = "normal";
-	/**
-	 * disable/enable interactions
-	 */
 	@Input() disabled = false;
 	/**
-	 * If it's an anchor, this is its location
+	 * Renders the option as a link.
 	 */
 	@Input() href: string;
+	@Input() target: Target;
 	/**
-	 * Allows to add a target to the anchor
+	 * Draws a divider above the option.
 	 */
-	@Input() set target(value: Target) {
-		if (!Object.values(Target).includes(value)) {
-			console.warn(`\`target\` must have one of the following values: ${Object.values(Target).join(", ")}.
-Please use the \`Target\` enum exported by carbon-components-angular`);
-			return;
-		}
-
-		this._target = value;
-	}
-	/**
-	 * Apply a custom class to the inner button/anchor
-	 */
+	@Input() divider = false;
 	@Input() innerClass = "";
 
-	get target() {
-		return this._target;
-	}
 	/**
-	 * rel only returns its value if target is defined
+	 * Emits when the option is chosen.
 	 */
-	get rel() {
-		return this._target ? REL : null;
-	}
-
 	@Output() selected: EventEmitter<any> = new EventEmitter();
 
-	public tabIndex = -1;
-	// note: title must be a real attribute (i.e. not a getter) as of Angular@6 due to
-	// change after checked errors
-	public title = null;
-
-	protected elementRef = inject(ElementRef);
-	protected changeDetectorRef = inject(ChangeDetectorRef);
-
-	protected _target: Target;
-
-	/** Inserted by Angular inject() migration for backwards compatibility */
-	// eslint-disable-next-line @angular-eslint/prefer-inject -- backwards-compatible DI overload until next major
-	constructor(...args: unknown[]);
-
-	constructor() {}
-
-	onClick() {
-		this.selected.emit();
-	}
-
-	onFocus() {
-		setTimeout(() => this.setTabIndex(0));
-	}
-
-	onBlur() {
-		setTimeout(() => this.setTabIndex(-1));
-	}
-
-	ngAfterViewInit() {
-		const button = this.elementRef.nativeElement.querySelector("button, a");
-		const textContainer = button.querySelector(".cds--overflow-menu-options__option-content");
-		if (textContainer.scrollWidth > textContainer.offsetWidth) {
-			this.title = button.textContent;
+	onClick(event: Event) {
+		if (!this.disabled) {
+			this.selected.emit(event);
 		}
-	}
-
-	// Called from timers, ensure rerender for zoneless apps
-	protected setTabIndex(tabIndex: number) {
-		this.tabIndex = tabIndex;
-		this.changeDetectorRef.markForCheck();
 	}
 }

@@ -1,18 +1,23 @@
-import { ChangeDetectionStrategy, Component, Input } from "@angular/core";
+import {
+	ChangeDetectionStrategy,
+	Component,
+	CUSTOM_ELEMENTS_SCHEMA,
+	Input
+} from "@angular/core";
+import "@carbon/web-components/es/components/skeleton-icon/index.js";
 
+/**
+ * Wraps the `<cds-skeleton-icon>` web component.
+ */
 @Component({
-	selector: "cds-skeleton-icon, ibm-skeleton-icon",
-	standalone: true,
+	selector: "cds-skeleton-icon",
+	template: "",
 	changeDetection: ChangeDetectionStrategy.OnPush,
-	template: `
-		<div
-			class="cds--icon--skeleton"
-			[class.cds--skeleton__icon--ai]="ai">
-		</div>`
+	schemas: [CUSTOM_ELEMENTS_SCHEMA]
 })
 export class SkeletonIcon {
 	/**
-	 * When `true`, applies the AI skeleton gradient treatment (`cds--skeleton__icon--ai`).
+	 * @deprecated not supported by the web component.
 	 */
 	@Input() ai = false;
 }

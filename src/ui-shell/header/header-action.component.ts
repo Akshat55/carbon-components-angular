@@ -1,59 +1,57 @@
 import {
+	ChangeDetectionStrategy,
 	Component,
+	CUSTOM_ELEMENTS_SCHEMA,
+	EventEmitter,
 	Input,
 	Output,
-	EventEmitter,
 	TemplateRef
 } from "@angular/core";
-import { BaseIconButton, IconButton } from "carbon-components-angular/button";
+import { NgTemplateOutlet } from "@angular/common";
+import "@carbon/web-components/es/components/ui-shell/index.js";
+import { BaseIconButton } from "carbon-components-angular/button";
 
 /**
- * Contained by `HeaderGlobal`. Generally used to trigger `Panel`s
+ * A header global action. Renders the `<cds-header-global-action>` web component; project the icon.
+ * Supports `[(active)]`.
  */
 @Component({
-	selector: "cds-header-action, ibm-header-action",
+	selector: "cds-header-action",
 	template: `
-		<cds-icon-button
-			[buttonNgClass]="{
-				'cds--header__action': true,
-				'cds--header__action--active': active
-			}"
-			(click)="onClick()"
-			[align]="align"
-			[caret]="caret"
-			[dropShadow]="dropShadow"
-			[highContrast]="highContrast"
-			[isOpen]="isOpen"
-			[enterDelayMs]="enterDelayMs"
-			[leaveDelayMs]="leaveDelayMs"
-			[description]="description"
-			[buttonAttributes]="{
-				'aria-label': ariaLabel
-			}">
+		<cds-header-global-action
+			[active]="active"
+			[attr.aria-label]="ariaLabel"
+			[buttonLabelActive]="ariaLabel"
+			[buttonLabelInactive]="ariaLabel"
+			(click)="onClick()">
 			<ng-content />
-		</cds-icon-button>
+			@if (description) {
+				<span slot="tooltip-content">
+					@if (isTemplate(description)) {
+						<ng-template [ngTemplateOutlet]="description" />
+					} @else {
+						{{ description }}
+					}
+				</span>
+			}
+		</cds-header-global-action>
 	`,
-	imports: [IconButton]
+	styles: [":host { display: contents; }"],
+	changeDetection: ChangeDetectionStrategy.OnPush,
+	imports: [NgTemplateOutlet],
+	schemas: [CUSTOM_ELEMENTS_SCHEMA]
 })
 export class HeaderAction extends BaseIconButton {
 	/**
-	 * Tooltip content to show on mouseenter
+	 * Tooltip text.
 	 */
 	@Input() description: string | TemplateRef<any>;
-	/**
-	 * Sets the aria label on the nav element.
-	 */
 	@Input() ariaLabel: string;
-	/**
-	 * Toggles the active state. May be used to toggle a `Panel`s active state.
-	 */
 	@Input() active = false;
-	/**
-	 * "Change" emitter to allow double binding to the `active` Input.
-	 */
+
 	@Output() activeChange = new EventEmitter<boolean>();
 	/**
-	 * Emits when the action has been clicked.
+	 * Emits the new `active` value on click.
 	 */
 	@Output() selected = new EventEmitter<boolean>();
 
@@ -61,5 +59,9 @@ export class HeaderAction extends BaseIconButton {
 		this.active = !this.active;
 		this.selected.emit(this.active);
 		this.activeChange.emit(this.active);
+	}
+
+	isTemplate(value: unknown): value is TemplateRef<any> {
+		return value instanceof TemplateRef;
 	}
 }

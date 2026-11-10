@@ -1,19 +1,18 @@
 import { Component, AfterViewInit } from "@angular/core";
 import { ComboBox } from "../combobox.component";
-import { DropdownList } from "carbon-components-angular/dropdown";
+import { DropdownList, MultiSelect } from "carbon-components-angular/dropdown";
 
 @Component({
 	selector: "app-dynamic-list-combobox",
 	template: `
-		<cds-combo-box
+		<cds-multi-select filterable
 			[(items)]="items"
 			itemValueKey="content"
-			type="multi"
 			(selected)="updateSelected($event)">
 			<cds-dropdown-list></cds-dropdown-list>
-		</cds-combo-box>
+		</cds-multi-select>
 	`,
-	imports: [ComboBox, DropdownList]
+	imports: [ComboBox, MultiSelect, DropdownList]
 })
 export class DynamicListComboBox implements AfterViewInit {
 	items = [

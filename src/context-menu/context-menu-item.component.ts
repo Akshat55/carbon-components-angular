@@ -1,233 +1,117 @@
 import {
-	Component,
-	HostBinding,
-	Input,
-	Output,
-	EventEmitter,
-	ElementRef,
-	HostListener,
-	ContentChild,
-	OnInit,
 	AfterContentInit,
-	OnDestroy,
 	ChangeDetectionStrategy,
 	ChangeDetectorRef,
+	Component,
+	ContentChild,
+	CUSTOM_ELEMENTS_SCHEMA,
+	EventEmitter,
+	Input,
+	OnDestroy,
+	OnInit,
+	Output,
 	inject
 } from "@angular/core";
 import { Subscription } from "rxjs";
+import "@carbon/web-components/es/components/menu/index.js";
+import { IconDirective } from "carbon-components-angular/icon";
 import { ContextMenuSelectionService } from "./context-menu-selection.service";
 import { ContextMenuComponent } from "./context-menu.component";
 import { ItemClickEvent } from "./context-menu.types";
-import { IconDirective } from "carbon-components-angular/icon";
 
+/**
+ * Wraps the `<cds-menu-item>` web component. A projected `cds-menu` becomes its submenu.
+ * `type="checkbox"` / `"radio"` items show a checkmark when `checked`.
+ */
 @Component({
-	selector: "cds-menu-item, cds-context-menu-item, ibm-context-menu-item",
+	selector: "cds-menu-item",
 	template: `
-		<div class="cds--menu-item__icon">
-			@if (selectable && checked) {
-				<svg cdsIcon="checkmark" size="16"></svg>
-			} @else if (!selectable && icon) {
-				<svg [cdsIcon]="icon" size="16"></svg>
-			}
-		</div>
-		<div class="cds--menu-item__label" [title]="label">{{label}}</div>
-		<div class="cds--menu-item__shortcut">
-			@if (info) {
-				{{info}}
-			}
-			@if (hasChildren) {
-				<svg cdsIcon="caret--right" size="16"></svg>
-			}
-		</div>
-		@if (danger && dangerDescription) {
-			<span class="cds--visually-hidden">{{dangerDescription}}</span>
+		@if (type && checked) {
+			<svg cdsIcon="checkmark" size="16" slot="render-icon"></svg>
+		} @else if (icon) {
+			<svg [cdsIcon]="icon" size="16" slot="render-icon"></svg>
 		}
 		<ng-content />
 	`,
-	styles: [`
-		:host {
-			grid-template-columns: 1rem 1fr max-content;
-		}
-	`],
+	host: {
+		"[label]": "label",
+		"[shortcut]": "info",
+		"[disabled]": "disabled",
+		"[kind]": "kind",
+		"[dangerDescription]": "dangerDescription",
+		"[attr.role]": "type === 'checkbox' ? 'menuitemcheckbox' : type === 'radio' ? 'menuitemradio' : 'menuitem'",
+		"[attr.aria-checked]": "type ? checked : null",
+		"(click)": "handleClick($event)"
+	},
 	changeDetection: ChangeDetectionStrategy.OnPush,
-	imports: [IconDirective]
+	imports: [IconDirective],
+	schemas: [CUSTOM_ELEMENTS_SCHEMA]
 })
 export class ContextMenuItemComponent implements OnInit, AfterContentInit, OnDestroy {
-	@HostBinding("class.cds--menu-item") optionClass = true;
-	@HostBinding("attr.role") role = "menuitem";
-	@HostBinding("attr.tabindex") tabindex = -1;
-	@HostBinding("attr.aria-haspopup") ariaHasPopup = null;
-	@HostBinding("attr.aria-expanded") ariaExpanded = null;
-	@HostBinding("attr.aria-checked") get ariaChecked() {
-		return this.type === "checkbox" ?
-			(this.checked ? true : false) : null;
-	}
-	@HostBinding("attr.aria-disabled") get ariaDisabled() {
-		return this.disabled;
-	}
-	@Input() @HostBinding("class.cds--menu-item--disabled") disabled = false;
-	@Input() @HostBinding("class.cds--menu-item--danger") danger = false;
 	@Input() label = "";
+	/**
+	 * Secondary text, e.g. a keyboard shortcut.
+	 */
 	@Input() info = "";
 	@Input() type: null | "checkbox" | "radio" = null;
 	@Input() checked = false;
+	/**
+	 * Icon name for `cdsIcon`.
+	 */
 	@Input() icon = "";
 	@Input() value = "";
-	/**
-	 * Provide a description of the menu item for assistive technology when
-	 * `danger` is `true`. Renders a visually-hidden description when shown.
-	 */
+	@Input() disabled = false;
+	@Input() kind: "default" | "danger" = "default";
 	@Input() dangerDescription = "";
+
 	@Output() checkedChange = new EventEmitter<boolean>();
 	@Output() itemClick = new EventEmitter<ItemClickEvent>();
 
-	hasChildren = false;
-	selectable = false;
-
 	@ContentChild(ContextMenuComponent, { static: true }) childContextMenu: ContextMenuComponent;
 
-	protected elementRef = inject(ElementRef);
-	protected contextMenuSelectionService = inject(ContextMenuSelectionService, { optional: true })!;
-
+	protected contextMenuSelectionService = inject(ContextMenuSelectionService, { optional: true });
 	private changeDetectorRef = inject(ChangeDetectorRef);
 	private subscriptions = new Subscription();
 
-	/** Inserted by Angular inject() migration for backwards compatibility */
-	// eslint-disable-next-line @angular-eslint/prefer-inject -- backwards-compatible DI overload until next major
-	constructor(...args: unknown[]);
-
-	constructor() {}
-
 	ngOnInit() {
-		switch (this.type) {
-			case "checkbox": {
-				this.role = "menuitemcheckbox";
-				this.selectable = true;
-				break;
-			}
-			case "radio": {
-				this.role = "menuitemradio";
-				this.selectable = true;
-				break;
-			}
-			default: {
-				this.role = "menuitem";
-			}
-		}
-
 		if (this.type && this.contextMenuSelectionService && this.value) {
-			const { selectionObservable } = this.contextMenuSelectionService;
-			const subscription = selectionObservable.subscribe((value) => {
-				if (this.type === "radio") {
-					this.handleSelection(value === this.value);
-				}
-
-				if (this.type === "checkbox") {
-					this.handleSelection(value.includes(this.value));
-				}
+			this.subscriptions.add(this.contextMenuSelectionService.selectionObservable.subscribe(value => {
+				this.checked = this.type === "radio" ? value === this.value : value.includes(this.value);
 				this.changeDetectorRef.markForCheck();
-			});
-			this.subscriptions.add(subscription);
+			}));
 		}
 	}
 
 	ngAfterContentInit() {
-		if (this.childContextMenu) {
-			this.hasChildren = true;
-			this.ariaHasPopup = true;
-			this.ariaExpanded = false;
-		}
+		// A projected `cds-menu` is this item's submenu.
+		this.childContextMenu?.elementRef.nativeElement.setAttribute("slot", "submenu");
 	}
 
-	@HostListener("keydown.enter", ["$event"])
-	@HostListener("keydown.space", ["$event"])
-	@HostListener("click", ["$event"])
+	ngOnDestroy() {
+		this.subscriptions.unsubscribe();
+	}
+
+	/**
+	 * The web component turns Enter / Space into a click.
+	 */
 	handleClick(event: MouseEvent & KeyboardEvent) {
-		event.stopPropagation();
-		if (this.disabled) {
+		if (this.disabled || this.childContextMenu || event.target !== event.currentTarget) {
 			return;
 		}
-		if (this.hasChildren) {
-			this.openSubMenu();
-			this.childContextMenu.focusMenu();
-		}
-
 		if (this.type) {
 			this.handleSelection(!this.checked);
 		}
-
-		if (this.contextMenuSelectionService) {
-			if (this.type === "radio") {
-				this.contextMenuSelectionService.selectRadio(this.value);
-			}
-
-			if (this.type === "checkbox") {
-				this.contextMenuSelectionService.selectCheckbox(this.value);
-			}
+		if (this.type === "radio") {
+			this.contextMenuSelectionService?.selectRadio(this.value);
 		}
-
-		if (!this.disabled) {
-			this.itemClick.emit({
-				event,
-				label: this.label,
-				info: this.info,
-				value: this.value,
-				type: this.type
-			});
+		if (this.type === "checkbox") {
+			this.contextMenuSelectionService?.selectCheckbox(this.value);
 		}
+		this.itemClick.emit({ event, label: this.label, info: this.info, value: this.value, type: this.type });
 	}
 
 	handleSelection(selected: boolean) {
 		this.checked = selected;
 		this.checkedChange.emit(this.checked);
-	}
-
-	openSubMenu() {
-		if (this.childContextMenu) {
-			this.childContextMenu.open = true;
-			this.ariaExpanded = true;
-			const dimensions = this.elementRef.nativeElement.getBoundingClientRect();
-			this.childContextMenu.position.left = dimensions.left + dimensions.width;
-			// subtract 4px to account for margins
-			this.childContextMenu.position.top = dimensions.top - 4;
-		}
-	}
-
-	closeSubMenu() {
-		if (this.childContextMenu) {
-			this.childContextMenu.open = false;
-			this.ariaExpanded = false;
-		}
-	}
-
-	@HostListener("mouseover")
-	handleMouseOver() {
-		this.openSubMenu();
-	}
-
-	@HostListener("mouseout")
-	handleMouseOut() {
-		this.closeSubMenu();
-	}
-
-	@HostListener("focus")
-	handleFocus() {
-		this.tabindex = 0;
-		if (this.hasChildren && this.ariaExpanded) {
-			this.closeSubMenu();
-		}
-	}
-
-	@HostListener("blur")
-	handleBlur() {
-		this.tabindex = -1;
-	}
-
-	focusItem() {
-		this.elementRef.nativeElement.focus();
-	}
-
-	ngOnDestroy() {
-		this.subscriptions.unsubscribe();
 	}
 }

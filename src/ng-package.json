@@ -8,6 +8,7 @@
 		"@carbon/utils-position",
 		"@carbon/icon-helpers",
 		"@carbon/icons",
+		"@carbon/web-components",
 		"@floating-ui/dom",
 		"@ibm/telemetry-js",
 		"flatpickr",

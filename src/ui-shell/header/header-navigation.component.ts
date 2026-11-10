@@ -1,49 +1,43 @@
-import { Component, HostBinding, Input } from "@angular/core";
-import { NavigationItem } from "./header-navigation-items.interface";
+import {
+	ChangeDetectionStrategy,
+	Component,
+	CUSTOM_ELEMENTS_SCHEMA,
+	Input
+} from "@angular/core";
+import "@carbon/web-components/es/components/ui-shell/index.js";
 import { HeaderItem } from "./header-item.component";
 import { HeaderMenu } from "./header-menu.component";
+import { NavigationItem } from "./header-navigation-items.interface";
+
 /**
- * Container for header navigation items
+ * The header navigation. Renders the `<cds-header-nav>` web component; project items or pass `navigationItems`.
  */
 @Component({
-	selector: "cds-header-navigation, ibm-header-navigation",
+	selector: "cds-header-navigation",
 	template: `
-		<nav class="cds--header__nav" [attr.aria-label]="ariaLabel">
-			<div class="cds--header__menu-bar" role="list">
-				<ng-content />
-				@for (navigationItem of navigationItems; track navigationItem) {
-					@if (navigationItem.type === 'item') {
-						<cds-header-item
-							[href]="navigationItem.href"
-							[route]="navigationItem.route"
-							[routeExtras]="navigationItem.routeExtras"
-							[isCurrentPage]="!!navigationItem.isCurrentPage">
-							{{ navigationItem.content }}
-						</cds-header-item>
-					}
-					@if (navigationItem.type === 'menu') {
-						<cds-header-menu
-							[href]="navigationItem.href"
-							[title]="navigationItem.title"
-							[trigger]="navigationItem.trigger ? navigationItem.trigger : 'click'"
-							[headerItems]="navigationItem.menuItems">
-						</cds-header-menu>
-					}
+		<cds-header-nav [menuBarLabel]="ariaLabel">
+			@for (item of navigationItems; track item) {
+				@if (item.type === "menu") {
+					<cds-header-menu [title]="item.title" [headerItems]="item.menuItems" />
+				} @else {
+					<cds-header-item
+						[href]="item.href"
+						[route]="item.route"
+						[routeExtras]="item.routeExtras"
+						[isCurrentPage]="!!item.isCurrentPage">
+						{{ item.content }}
+					</cds-header-item>
 				}
-			</div>
-		</nav>
+			}
+			<ng-content />
+		</cds-header-nav>
 	`,
-	imports: [HeaderItem, HeaderMenu]
+	styles: [":host { display: contents; }"],
+	changeDetection: ChangeDetectionStrategy.OnPush,
+	imports: [HeaderItem, HeaderMenu],
+	schemas: [CUSTOM_ELEMENTS_SCHEMA]
 })
 export class HeaderNavigation {
-	@HostBinding("style.height.%") height = 100;
-
 	@Input() ariaLabel: string;
-
-	/**
-	 * Creates the header navigation items and menu items through a list of navigation item objects.
-	 * In order for the navigation items to move to the side navigation when window size is less than 1056px,
-	 * navigation items need to be passed into both cds-header-navigation and cds-sidenav.
-	 */
 	@Input() navigationItems: NavigationItem[];
 }

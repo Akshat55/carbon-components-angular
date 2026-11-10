@@ -1,29 +1,25 @@
-import { Component, HostBinding } from "@angular/core";
+import {
+	ChangeDetectionStrategy,
+	Component,
+	CUSTOM_ELEMENTS_SCHEMA,
+	Input
+} from "@angular/core";
+import "@carbon/web-components/es/components/ui-shell/index.js";
 
 /**
- * Container for switcher items.
- *
- * ```html
- * <cds-switcher-list>
- * 	<cds-switcher-list-item>one</cds-switcher-list-item>
- * 	<cds-switcher-list-item [active]="true">two</cds-switcher-list-item>
- * 	<cds-switcher-list-item>three</cds-switcher-list-item>
- * </cds-switcher-list>
- * ```
+ * A product switcher. Renders the `<cds-switcher>` web component.
  */
 @Component({
-	selector: "cds-switcher-list, ibm-switcher-list",
+	selector: "cds-switcher-list",
 	template: `
+		<cds-switcher [ariaLabel]="ariaLabel">
 			<ng-content />
+		</cds-switcher>
 	`,
-	styles: [`
-		:host {
-			display: block;
-		}
-	`],
-	standalone: true
+	styles: [":host { display: contents; }"],
+	changeDetection: ChangeDetectionStrategy.OnPush,
+	schemas: [CUSTOM_ELEMENTS_SCHEMA]
 })
 export class SwitcherList {
-	@HostBinding("class.cds--switcher") switcher = true;
-	@HostBinding("attr.role") role = "list";
+	@Input() ariaLabel = "Switcher";
 }

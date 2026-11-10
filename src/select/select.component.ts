@@ -1,425 +1,110 @@
 import {
-	AfterViewInit,
 	ChangeDetectionStrategy,
-	ChangeDetectorRef,
 	Component,
-	ElementRef,
+	CUSTOM_ELEMENTS_SCHEMA,
+	EventEmitter,
 	Input,
 	Output,
-	HostListener,
-	HostBinding,
-	EventEmitter,
-	TemplateRef,
-	ViewChild,
-	inject
+	TemplateRef
 } from "@angular/core";
-import { ControlValueAccessor, NG_VALUE_ACCESSOR } from "@angular/forms";
-import { NgClass, NgTemplateOutlet } from "@angular/common";
-import { IconDirective } from "carbon-components-angular/icon";
+import "@carbon/web-components/es/components/select/index.js";
+import { provideValueAccessor, TemplateContent, TemplateSlot, WebComponentValueAccessor } from "carbon-components-angular/utils";
+
+/*
+ * The web component reads `cds-select-item(-group)` children. Let it read native
+ * `<option>` / `<optgroup>` children too, so v6 templates keep working unchanged.
+ */
+const CDSSelect = customElements.get("cds-select") as any;
+if (CDSSelect && !CDSSelect.selectorItem.includes("option")) {
+	Object.defineProperty(CDSSelect, "selectorItem", { get: () => "cds-select-item-group,cds-select-item,optgroup,option" });
+	Object.defineProperty(CDSSelect, "selectorLeafItem", { get: () => "cds-select-item,option" });
+}
 
 /**
- * `cds-select` provides a styled `select` component. Get started with importing the component:
- *
- * ```typescript
- * import { Select } from 'carbon-components-angular';
- * ```
+ * Wraps the `<cds-select>` web component. Works with `ngModel` / reactive forms.
+ * Options can be `<option>`/`<optgroup>` or `<cds-select-item>`/`<cds-select-item-group>`.
  *
  * ```html
- * <cds-select [(ngModel)]="model">
- * 	<option value="default" disabled selected hidden>Choose an option</option>
- * 	<option value="option1">Option 1</option>
- *	<option value="option2">Option 2</option>
- * 	<option value="option3">Option 3</option>
+ * <cds-select label="Pick one" [(ngModel)]="value">
+ * 	<option value="a">A</option>
  * </cds-select>
- *	```
+ * ```
  *
  * [See demo](../../?path=/story/components-select--basic)
  */
 @Component({
-	selector: "cds-select, ibm-select",
+	selector: "cds-select",
 	template: `
-			@if (skeleton && !fluid) {
-				@if (label) {
-					<div class="cds--label cds--skeleton"></div>
-				}
-				<div class="cds--select cds--skeleton"></div>
-			}
-			@if (skeleton && fluid) {
-				<div class="cds--list-box__wrapper--fluid">
-					<div class="cds--list-box cds--skeleton">
-						<div class="cds--list-box__label"></div>
-						<div class="cds--list-box__field"></div>
-					</div>
-				</div>
-			}
-			@if (!skeleton) {
-				<div
-					class="cds--select"
-					[ngClass]="{
-						'cds--select--inline': display === 'inline',
-						'cds--select--light': theme === 'light',
-						'cds--select--invalid': invalid,
-						'cds--select--warning': warn,
-						'cds--select--disabled': disabled,
-						'cds--select--readonly': readonly,
-						'cds--select--fluid--invalid': fluid && invalid,
-						'cds--select--fluid--focus': fluid && focused,
-						'cds--select--decorator': !!decorator
-					}">
-					@if (label) {
-						<label
-							[for]="id"
-							class="cds--label"
-							[ngClass]="{
-								'cds--label--disabled': disabled,
-								'cds--visually-hidden': hideLabel
-							}">
-							@if (!isTemplate(label)) {
-								{{label}}
-							}
-							@if (isTemplate(label)) {
-								<ng-template [ngTemplateOutlet]="label"></ng-template>
-							}
-						</label>
-					}
-					@if (display === 'inline') {
-						<div class="cds--select-input--inline__wrapper">
-							<ng-container *ngTemplateOutlet="noInline"></ng-container>
-						</div>
-					} @else {
-						<ng-container *ngTemplateOutlet="noInline"></ng-container>
-					}
-					@if (helperText && !invalid && !warn && !skeleton && !fluid) {
-						<div
-							class="cds--form__helper-text"
-							[ngClass]="{
-								'cds--form__helper-text--disabled': disabled
-							}">
-							@if (!isTemplate(helperText)) {
-								{{helperText}}
-							}
-							@if (isTemplate(helperText)) {
-								<ng-template [ngTemplateOutlet]="helperText"></ng-template>
-							}
-						</div>
-					}
-				</div>
-			}
-
-		<!-- select element: dynamically projected based on 'display' variant -->
-		<ng-template #noInline>
-			<div class="cds--select-input__wrapper" [attr.data-invalid]="(invalid ? true : null)">
-				<select
-					#select
-					[attr.id]="id"
-					[attr.aria-label]="ariaLabel"
-					[disabled]="disabled"
-					(change)="onChange($event)"
-					[attr.aria-invalid]="invalid ? 'true' : null"
-					[attr.aria-readonly]="readonly ? 'true' : null"
-					class="cds--select-input"
-					[ngClass]="{
-						'cds--select-input--sm': size === 'sm',
-						'cds--select-input--md': size === 'md',
-						'cds--select-input--lg': size === 'lg'
-					}"
-					(mousedown)="onMouseDown($event)"
-					(keydown)="onKeyDown($event)"
-					(focus)="fluid ? handleFocus($event) : null"
-					(blur)="fluid ? handleFocus($event) : null">
-					<ng-content></ng-content>
-				</select>
-				<svg
-					focusable="false"
-					preserveAspectRatio="xMidYMid meet"
-					style="will-change: transform;"
-					xmlns="http://www.w3.org/2000/svg"
-					class="cds--select__arrow"
-					width="16"
-					height="16"
-					viewBox="0 0 16 16"
-					aria-hidden="true">
-					<path d="M8 11L3 6 3.7 5.3 8 9.6 12.3 5.3 13 6z"></path>
-				</svg>
-				@if (invalid) {
-					<svg
-						cdsIcon="warning--filled"
-						size="16"
-						class="cds--select__invalid-icon">
-					</svg>
-				}
-				@if (!invalid && warn) {
-					<svg
-						cdsIcon="warning--alt--filled"
-						size="16"
-						class="cds--select__invalid-icon cds--select__invalid-icon--warning">
-					</svg>
-				}
-				@if (decorator) {
-					<div class="cds--select__inner-wrapper--decorator">
-						<ng-template [ngTemplateOutlet]="decorator"></ng-template>
-					</div>
-				}
-				@if (fluid) {
-					<hr class="cds--select__divider" />
-					@if (invalid && invalidText) {
-						<div
-							role="alert"
-							class="cds--form-requirement"
-							aria-live="polite">
-							@if (!isTemplate(invalidText)) {
-								{{invalidText}}
-							}
-							@if (isTemplate(invalidText)) {
-								<ng-template [ngTemplateOutlet]="invalidText"></ng-template>
-							}
-						</div>
-					}
-					@if (!invalid && warn) {
-						<div class="cds--form-requirement">
-							@if (!isTemplate(warnText)) {
-								{{warnText}}
-							}
-							@if (isTemplate(warnText)) {
-								<ng-template [ngTemplateOutlet]="warnText"></ng-template>
-							}
-						</div>
-					}
-				}
-			</div>
-			@if (!fluid) {
-				@if (invalid && invalidText) {
-					<div
-						role="alert"
-						class="cds--form-requirement"
-						aria-live="polite">
-						@if (!isTemplate(invalidText)) {
-							{{invalidText}}
-						}
-						@if (isTemplate(invalidText)) {
-							<ng-template [ngTemplateOutlet]="invalidText"></ng-template>
-						}
-					</div>
-				}
-				@if (!invalid && warn) {
-					<div class="cds--form-requirement">
-						@if (!isTemplate(warnText)) {
-							{{warnText}}
-						}
-						@if (isTemplate(warnText)) {
-							<ng-template [ngTemplateOutlet]="warnText"></ng-template>
-						}
-					</div>
-				}
-			}
-		</ng-template>
+		<ng-container cdsSlot="label-text" [cdsSlotTemplate]="isTemplate(label) ? label : null" />
+		<ng-content />
+		<ng-container cdsSlot="ai-label" [cdsSlotTemplate]="decorator" />
 	`,
-	providers: [
-		{
-			provide: NG_VALUE_ACCESSOR,
-			useExisting: Select,
-			multi: true
-		}
-	],
+	host: {
+		"[id]": "id",
+		"[value]": "value ?? ''",
+		"[labelText]": "isTemplate(label) ? '' : label",
+		"[helperText]": "content.render('helperText', helperText)",
+		"[invalid]": "invalid",
+		"[invalidText]": "content.render('invalidText', invalidText)",
+		"[warn]": "warn",
+		"[warnText]": "content.render('warnText', warnText)",
+		"[size]": "size",
+		"[disabled]": "disabled",
+		"[attr.readonly]": "readonly ? '' : null",
+		"[inline]": "display === 'inline'",
+		"[hideLabel]": "hideLabel",
+		"[isFluid]": "fluid",
+		"[attr.aria-label]": "ariaLabel || null",
+		"(cds-select-selected)": "onSelected($event)"
+	},
+	providers: [provideValueAccessor(() => Select)],
 	changeDetection: ChangeDetectionStrategy.OnPush,
-	imports: [NgClass, NgTemplateOutlet, IconDirective]
+	imports: [TemplateSlot],
+	schemas: [CUSTOM_ELEMENTS_SCHEMA]
 })
-export class Select implements ControlValueAccessor, AfterViewInit {
-	@HostBinding("class.cds--form-item") get hostFormItemClass() {
-		return !this.skeleton;
-	}
-
-	@HostBinding("class.cds--select--fluid") get hostSelectFluidClass() {
-		return this.fluid && !this.skeleton;
-	}
-
-	@Input() set value(v) {
-		this._value = v;
-		if (this.select) {
-			this.select.nativeElement.value = this._value;
-		}
-	}
-
-	get value() {
-		return this._value;
-	}
-
-	/**
-	 * Tracks the total number of selects instantiated. Used to generate unique IDs
-	 */
+export class Select extends WebComponentValueAccessor {
 	static selectCount = 0;
 
-	/**
-	 * `inline` or `default` select displays
-	 */
+	@Input() value: any;
 	@Input() display: "inline" | "default" = "default";
-	/**
-	 * Label for the select. Appears above the input.
-	 */
 	@Input() label: string | TemplateRef<any>;
-	/**
-	 * Optional helper text that appears under the label.
-	 */
 	@Input() helperText: string | TemplateRef<any>;
-	/**
-	 * Sets the invalid text.
-	 */
-	@Input() invalidText: string | TemplateRef<any>;
-	/**
-	  * Set to `true` to show a warning (contents set by warningText)
-	  */
-	@Input() warn = false;
-	/**
-	 * Sets the warning text
-	 */
-	@Input() warnText: string | TemplateRef<any>;
-	/**
-	 * Sets the unique ID. Defaults to `select-${total count of selects instantiated}`
-	 */
-	@Input() id = `select-${Select.selectCount++}`;
-	/**
-	 * Number input field render size
-	 */
-	@Input() size: "sm" | "md" | "lg" = "md";
-	/**
-	 * Set to true to disable component.
-	 */
-	@Input() disabled = false;
-	/**
-	 * Set to true for a loading select.
-	 */
-	@Input() skeleton = false;
-	/**
-	 * Set to `true` for an invalid select component.
-	 */
 	@Input() invalid = false;
-	/**
-	 * Set to `true` for readonly state.
-	 */
+	@Input() invalidText: string | TemplateRef<any>;
+	@Input() warn = false;
+	@Input() warnText: string | TemplateRef<any>;
+	@Input() id = `select-${Select.selectCount++}`;
+	@Input() size: "sm" | "md" | "lg" = "md";
 	@Input() readonly = false;
-
+	@Input() ariaLabel: string;
+	@Input() hideLabel = false;
+	@Input() fluid = false;
+	@Input() decorator: TemplateRef<any>;
 	/**
-	 * @deprecated since v5 - Use `cdsLayer` directive instead
-	 * `light` or `dark` select theme
+	 * @deprecated the web component follows the surrounding theme / layer.
 	 */
 	@Input() theme: "light" | "dark" = "dark";
-	@Input() ariaLabel: string;
-
 	/**
-	 * Specify whether the visible label should be hidden but still available
-	 * to assistive technology.
+	 * @deprecated use `<cds-select-skeleton>` instead.
 	 */
-	@Input() hideLabel = false;
-
-	/**
-	 * Experimental: enable fluid state
-	 */
-	@Input() fluid = false;
-
-	/**
-	 * **Experimental**: Optional decorator (e.g. AI label).
-	 */
-	@Input() decorator: TemplateRef<any>;
+	@Input() skeleton = false;
 
 	@Output() valueChange = new EventEmitter();
 
-	@ViewChild("select") select: ElementRef;
+	protected content = new TemplateContent();
 
-	focused = false;
-
-	protected changeDetectorRef = inject(ChangeDetectorRef);
-	protected _value;
-
-	ngAfterViewInit() {
-		if (
-			this.value !== undefined &&
-			this.value !== null &&
-			this.select &&
-			this.select.nativeElement.value !== this.value
-		) {
-			this.select.nativeElement.value = this.value;
-		}
-	}
-
-	/**
-	 * Receives a value from the model.
-	 */
-	writeValue(obj: any) {
-		this.value = obj;
-	}
-
-	/**
-	 * Registers a listener that notifies the model when the control updates
-	 */
-	registerOnChange(fn: any) {
-		this.onChangeHandler = fn;
-	}
-
-	/**
-	 * Registers a listener that notifies the model when the control is blurred
-	 */
-	registerOnTouched(fn: any) {
-		this.onTouchedHandler = fn;
-	}
-
-	/**
-	 * Sets the disabled state through the model
-	 */
-	setDisabledState(isDisabled: boolean) {
-		this.disabled = isDisabled;
+	writeValue(value: any) {
+		this.value = value;
 		this.changeDetectorRef.markForCheck();
 	}
 
-	/**
-	 * Handles the change event from the `select`.
-	 * Sends events to the change handler and emits a `selected` event.
-	 */
-	onChange(event) {
-		this.value = event.target.value;
-		this.onChangeHandler(event.target.value);
-		this.valueChange.emit(event.target.value);
+	onSelected(event: Event) {
+		this.value = (event as CustomEvent<{ value: string }>).detail.value;
+		this.onChange(this.value);
+		this.valueChange.emit(this.value);
 	}
 
-	/**
-	 * Listens for the host blurring, and notifies the model
-	 */
-	@HostListener("focusout")
-	focusOut() {
-		this.onTouchedHandler();
-	}
-
-	public isTemplate(value) {
+	isTemplate(value: unknown): value is TemplateRef<any> {
 		return value instanceof TemplateRef;
 	}
-
-	onMouseDown(event: MouseEvent) {
-		/**
-		 * This prevents the select from opening with mouse
-		 */
-		if (this.readonly) {
-			event.preventDefault();
-			(event.target as HTMLElement).focus();
-		}
-	}
-
-	onKeyDown(event: KeyboardEvent) {
-		const selectAccessKeys = ["ArrowDown", "ArrowUp", "ArrowLeft", "ArrowRight", " "];
-		/**
-		 * This prevents the select from opening for the above keys
-		 */
-		if (this.readonly && selectAccessKeys.includes(event.key)) {
-			event.preventDefault();
-		}
-	}
-
-	handleFocus(event: FocusEvent) {
-		this.focused = event.type === "focus";
-	}
-
-	/**
-	 * placeholder declarations. Replaced by the functions provided to `registerOnChange` and `registerOnTouched`
-	 */
-	protected onChangeHandler = (_: any) => {};
-	protected onTouchedHandler = () => {};
-
 }

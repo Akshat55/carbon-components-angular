@@ -1,772 +1,193 @@
 import {
+	AfterViewInit,
+	ChangeDetectionStrategy,
 	Component,
+	CUSTOM_ELEMENTS_SCHEMA,
+	ElementRef,
+	EventEmitter,
 	Input,
 	Output,
-	EventEmitter,
-	ViewEncapsulation,
-	ElementRef,
-	OnDestroy,
-	HostListener,
 	TemplateRef,
-	OnChanges,
-	SimpleChanges,
-	AfterViewChecked,
-	AfterViewInit,
-	ViewChild,
-	OnInit,
-	SimpleChange,
-	ChangeDetectionStrategy,
-	ChangeDetectorRef,
-	HostBinding,
 	inject
 } from "@angular/core";
-import rangePlugin from "flatpickr/dist/plugins/rangePlugin";
 import flatpickr from "flatpickr";
-import { NG_VALUE_ACCESSOR } from "@angular/forms";
-import { carbonFlatpickrMonthSelectPlugin } from "./carbon-flatpickr-month-select";
 import * as languages from "flatpickr/dist/l10n/index";
 import { Options } from "flatpickr/dist/types/options";
-import { I18n } from "carbon-components-angular/i18n";
-import { NgClass } from "@angular/common";
-import { DatePickerInput } from "carbon-components-angular/datepicker-input";
+import "@carbon/web-components/es/components/date-picker/index.js";
+import { provideValueAccessor, TemplateContent, TemplateSlot, WebComponentValueAccessor } from "carbon-components-angular/utils";
+
+const toISODate = (date: Date) =>
+	`${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}-${String(date.getDate()).padStart(2, "0")}`;
 
 /**
- * Due to type error, we have to use square brackets property accessor
- * There is a webpack issue when attempting to access exported languages from flatpickr l10n Angular 14+ apps
- * languages.default[locale] fails in app consuming CCA library but passes in test
- * languages.default.default[locale] fails in test but works in app consuming CCA library.
+ * Wraps the `<cds-date-picker>` web component and renders its input(s).
+ * Works with `ngModel` / reactive forms; the value is an array of `Date`s.
  *
- * To please both scenarios, we are adding a condition to prevent tests from failing
- */
-if (languages.default?.default["en"]?.weekdays) {
-	(languages.default.default["en"].weekdays.shorthand as string[]) = languages.default.default["en"].weekdays.longhand.map(day => {
-		if (day === "Thursday") {
-			return "Th";
-		}
-		return day.charAt(0);
-	});
-}
-
-/**
- * Get started with importing the components:
- *
- * ```typescript
- * import { DatePicker, DatePickerInput } from 'carbon-components-angular';
+ * ```html
+ * <cds-date-picker label="Date" [(ngModel)]="dates" />
+ * <cds-date-picker label="Start" rangeLabel="End" [range]="true" [(ngModel)]="range" />
  * ```
  *
  * [See demo](../../?path=/story/components-date-picker--single)
  */
 @Component({
-	selector: "cds-date-picker, ibm-date-picker",
+	selector: "cds-date-picker",
 	template: `
-		<div
-			class="cds--date-picker"
-			[ngClass]="{
-				'cds--date-picker--range' : range,
-				'cds--date-picker--single' : !range,
-				'cds--date-picker--light' : theme === 'light',
-				'cds--skeleton' : skeleton
-			}">
-			<div class="cds--date-picker-container">
-				<cds-date-picker-input
-					#input
-					[label]="label"
-					[placeholder]="placeholder"
-					[pattern]="inputPattern"
-					[id]="id + '-input'"
-					[size]="size"
-					[type]="(range ? 'range' : 'single')"
-					[hasIcon]="(range ? false : true)"
-					[disabled]="disabled"
-					[readonly]="readonly"
-					[invalid]="invalid"
-					[invalidText]="invalidText"
-					[warn]="warn"
-					[warnText]="warnText"
-					[skeleton]="skeleton"
-					[helperText]="helperText"
-					[decorator]="decorator"
-					(valueChange)="onValueChange($event)"
-					(click)="openCalendar(input, $event)">
-				</cds-date-picker-input>
-			</div>
-
-			@if (range) {
-				<div class="cds--date-picker-container">
-					<cds-date-picker-input
-						#rangeInput
-						[label]="rangeLabel"
-						[placeholder]="placeholder"
-						[pattern]="inputPattern"
-						[id]="id + '-rangeInput'"
-						[size]="size"
-						[type]="(range ? 'range' : 'single')"
-						[hasIcon]="(range ? true : null)"
-						[disabled]="disabled"
-						[readonly]="readonly"
-						[invalid]="rangeInvalid"
-						[invalidText]="rangeInvalidText"
-						[warn]="rangeWarn"
-						[warnText]="rangeWarnText"
-						[skeleton]="skeleton"
-						[helperText]="rangeHelperText"
-						[decorator]="rangeDecorator"
-						(valueChange)="onRangeValueChange($event)"
-						(click)="openCalendar(rangeInput, $event)">
-					</cds-date-picker-input>
-				</div>
-			}
-		</div>
-	`,
-	providers: [
-		{
-			provide: NG_VALUE_ACCESSOR,
-			useExisting: DatePicker,
-			multi: true
+		<cds-date-picker-input
+			[kind]="range ? 'from' : 'single'"
+			[id]="id"
+			[labelText]="isTemplate(label) ? '' : label"
+			[placeholder]="placeholder"
+			[pattern]="inputPattern"
+			[size]="size"
+			[disabled]="disabled"
+			[readonly]="readonly"
+			[invalid]="invalid"
+			[invalidText]="content.render('invalidText', invalidText)"
+			[warn]="warn"
+			[warnText]="content.render('warnText', warnText)"
+			[helperText]="content.render('helperText', helperText)">
+			<ng-container cdsSlot="label-text" [cdsSlotTemplate]="isTemplate(label) ? label : null" />
+			<ng-container cdsSlot="ai-label" [cdsSlotTemplate]="decorator" />
+		</cds-date-picker-input>
+		@if (range) {
+			<cds-date-picker-input
+				kind="to"
+				[id]="id + '-rangeInput'"
+				[labelText]="rangeLabel"
+				[placeholder]="placeholder"
+				[pattern]="inputPattern"
+				[size]="size"
+				[disabled]="disabled"
+				[readonly]="readonly"
+				[invalid]="rangeInvalid"
+				[invalidText]="content.render('rangeInvalidText', rangeInvalidText)"
+				[warn]="rangeWarn"
+				[warnText]="content.render('rangeWarnText', rangeWarnText)"
+				[helperText]="content.render('rangeHelperText', rangeHelperText)">
+				<ng-container cdsSlot="ai-label" [cdsSlotTemplate]="rangeDecorator" />
+			</cds-date-picker-input>
 		}
-	],
-	encapsulation: ViewEncapsulation.None,
+	`,
+	host: {
+		"[value]": "isoValue",
+		"[dateFormat]": "dateFormat",
+		"[locale]": "locale",
+		"[minDate]": "flatpickrOptions?.minDate ?? ''",
+		"[maxDate]": "flatpickrOptions?.maxDate ?? ''",
+		"[disabled]": "disabled",
+		"[attr.readonly]": "readonly ? '' : null",
+		"[attr.aria-label]": "ariaLabel",
+		"(cds-date-picker-changed)": "onDatesChanged($event)"
+	},
+	providers: [provideValueAccessor(() => DatePicker)],
 	changeDetection: ChangeDetectionStrategy.OnPush,
-	imports: [NgClass, DatePickerInput]
+	imports: [TemplateSlot],
+	schemas: [CUSTOM_ELEMENTS_SCHEMA]
 })
-export class DatePicker implements
-	OnInit,
-	OnDestroy,
-	OnChanges,
-	AfterViewChecked,
-	AfterViewInit {
-	private static datePickerCount = 0;
-
-	@HostBinding("class.cds--form-item") readonly hostFormItemClass = true;
+export class DatePicker extends WebComponentValueAccessor<Date[] | Date> implements AfterViewInit {
+	static datePickerCount = 0;
 
 	/**
-	 * Select calendar range mode
+	 * Select a range of dates (two inputs).
 	 */
 	@Input() range = false;
-
 	/**
-	 * Format of date
-	 *
-	 * For reference: https://flatpickr.js.org/formatting/
+	 * flatpickr date format, e.g. `m/d/Y`.
 	 */
 	@Input() dateFormat = "m/d/Y";
-
 	/**
-	 * Language of the flatpickr calendar.
-	 *
-	 * For reference of the possible locales:
-	 * https://github.com/flatpickr/flatpickr/blob/master/src/l10n/index.ts
+	 * flatpickr locale key, e.g. `en`, `fr`.
 	 */
 	@Input() language = "en";
-
 	@Input() label: string | TemplateRef<any>;
 	@Input() helperText: string | TemplateRef<any>;
-	/**
-	 * **Experimental**: Optional decorator (e.g. AI label).
-	 */
 	@Input() decorator: TemplateRef<any>;
-	/**
-	 * **Experimental**: Optional decorator (e.g. AI label) on the range end field when `range` is `true`.
-	 */
 	@Input() rangeDecorator: TemplateRef<any>;
 	@Input() rangeHelperText: string | TemplateRef<any>;
 	@Input() rangeLabel: string;
-
 	@Input() placeholder = "mm/dd/yyyy";
-
-	/**
-	 * Aria label added to datepicker's calendar container.
-	 */
 	@Input() ariaLabel = "calendar container";
-
-	/**
-	 * The pattern for the underlying input element
-	 */
 	@Input() inputPattern = "^\\d{1,2}/\\d{1,2}/\\d{4}$";
-
 	@Input() id = `datepicker-${DatePicker.datePickerCount++}`;
-
-	@Input() set value(v: (Date | string)[]) {
-		if (!v) {
-			v = [];
-		}
-		this._value = v;
+	/**
+	 * The selected date(s). A single `Date` / string is accepted too.
+	 */
+	@Input() set value(value: (Date | string)[] | Date | string) {
+		this._value = Array.isArray(value) ? value : value ? [value] : [];
 	}
-
-	get value() {
+	get value(): any {
 		return this._value;
 	}
-
+	@Input() readonly = false;
+	@Input() invalid = false;
+	@Input() invalidText: string | TemplateRef<any>;
+	@Input() warn = false;
+	@Input() warnText: string | TemplateRef<any>;
+	@Input() size: "sm" | "md" | "lg" = "md";
+	@Input() rangeInvalid = false;
+	@Input() rangeInvalidText: string | TemplateRef<any>;
+	@Input() rangeWarn = false;
+	@Input() rangeWarnText: string | TemplateRef<any>;
 	/**
-	 * @deprecated since v5 - Use `cdsLayer` directive instead
-	 * Set to `"light"` to apply the light style
+	 * Only `minDate` and `maxDate` are passed to the web component.
+	 */
+	@Input() flatpickrOptions: Partial<Options>;
+	/**
+	 * @deprecated the web component manages its own flatpickr plugins.
+	 */
+	@Input() plugins = [];
+	/**
+	 * @deprecated the web component follows the surrounding theme / layer.
 	 */
 	@Input() theme: "light" | "dark" = "dark";
-
-	@Input() disabled = false;
-
-	@Input() readonly = false;
 	/**
-	 * Set to `true` to display the invalid state.
+	 * @deprecated use `<cds-date-picker-input-skeleton>` instead.
 	 */
-	@Input() invalid = false;
-	/**
-	 * Value displayed if datepicker is in an invalid state.
-	 */
-	@Input() invalidText: string | TemplateRef<any>;
-	/**
-	  * Set to `true` to show a warning (contents set by warningText)
-	  */
-	@Input() warn = false;
-	/**
-	 * Sets the warning text
-	 */
-	@Input() warnText: string | TemplateRef<any>;
-
-	@Input() size: "sm" | "md" | "lg" = "md";
-	/**
-	 * Set to `true` to display the invalid state for the second datepicker input.
-	 */
-	@Input() rangeInvalid = false;
-	/**
-	 * Value displayed if the second datepicker input is in an invalid state.
-	 */
-	@Input() rangeInvalidText: string | TemplateRef<any>;
-	/**
-	  * Set to `true` to show a warning in the second datepicker input (contents set by rangeWarningText)
-	  */
-	@Input() rangeWarn = false;
-	/**
-	 * Sets the warning text for the second datepicker input
-	 */
-	@Input() rangeWarnText: string | TemplateRef<any>;
-
 	@Input() skeleton = false;
 
-	@Input() plugins = [];
-
-	@Input()
-	set flatpickrOptions(options: Partial<Options>) {
-		this._flatpickrOptions = Object.assign({}, this._flatpickrOptions, options);
-	}
-	get flatpickrOptions(): Partial<Options> {
-		const plugins = [...this.plugins, carbonFlatpickrMonthSelectPlugin];
-		if (this.range) {
-			plugins.push(rangePlugin({ input: `#${this.id}-rangeInput`, position: "left" }));
-		}
-		return Object.assign({}, this._flatpickrOptions, this.flatpickrBaseOptions, {
-			mode: this.range ? "range" : "single",
-			plugins,
-			dateFormat: this.dateFormat,
-			locale: languages.default?.default[this.language] || languages.default[this.language],
-			// Little trick force "readonly mode" on datepicker input.
-			// Docs: Whether clicking on the input should open the picker.
-			// You could disable this if you wish to open the calendar manually with.open().
-			clickOpens: !this.readonly
-		});
-	}
-
-	@ViewChild("input", { static: true }) input: DatePickerInput;
-	@ViewChild("rangeInput") rangeInput: DatePickerInput;
-
 	@Output() valueChange: EventEmitter<any> = new EventEmitter();
-
-	/**
-	 * We are overriding onClose event even if users pass it via flatpickr options
-	 * Emits an event when date picker closes
-	 */
-	// Public API name retained for backward compatibility (Angular style guide discourages `on` prefix on outputs).
-	// eslint-disable-next-line @angular-eslint/no-output-on-prefix -- existing output name; renaming would break consumers
+	// eslint-disable-next-line @angular-eslint/no-output-on-prefix -- existing output name
 	@Output() onClose: EventEmitter<any> = new EventEmitter();
 
-	protected elementRef = inject(ElementRef);
-	protected i18n = inject(I18n);
-	protected changeDetectorRef = inject(ChangeDetectorRef);
+	protected content = new TemplateContent();
+	protected _value: (Date | string)[] = [];
+	private element = inject(ElementRef).nativeElement;
 
-	protected _value = [];
-
-	protected _flatpickrOptions: Partial<Options> = {
-		allowInput: true
-	};
-
-	protected flatpickrBaseOptions = {
-		mode: "single",
-		dateFormat: "m/d/Y",
-		plugins: this.plugins,
-		onOpen: () => {
-			this.updateClassNames();
-			this.updateAttributes();
-			this.updateCalendarListeners();
-		},
-		onClose: (date) => {
-			// This makes sure that the `flatpickrInstance selectedDates` are in sync with the values of
-			// the inputs when the calendar closes.
-			if (this.range && this.flatpickrInstance) {
-				const inputValue = this.input.input.nativeElement.value;
-				const rangeInputValue = this.rangeInput.input.nativeElement.value;
-				if (inputValue || rangeInputValue) {
-					const parseDate = (date: string) => this.flatpickrInstance.parseDate(date, this.dateFormat);
-					this.setDateValues([parseDate(inputValue), parseDate(rangeInputValue || inputValue)]);
-					this.doSelect(this.flatpickrInstance.selectedDates);
-				}
-			}
-			this.onClose.emit(date);
-		},
-		onDayCreate: (_dObj, _dStr, _fp, dayElem) => {
-			dayElem.classList.add("cds--date-picker__day");
-		},
-		nextArrow: this.rightArrowHTML(),
-		prevArrow: this.leftArrowHTML(),
-		value: this.value
-	};
-
-	protected flatpickrInstance = null;
-
-	/** Inserted by Angular inject() migration for backwards compatibility */
-	// eslint-disable-next-line @angular-eslint/prefer-inject -- backwards-compatible DI overload until next major
-	constructor(...args: unknown[]);
-
-	constructor() {}
-
-	ngOnInit() {
-		// if i18n is set to anything other than en we'll want to change the language
-		// otherwise we'll just use the local setting
-		if (this.i18n.getLocale() !== "en") {
-			this.i18n.getLocaleObservable().subscribe(locale => {
-				this.language = locale;
-				this.resetFlatpickrInstance();
-			});
-		}
-	}
-
-	ngOnChanges(changes: SimpleChanges) {
-		// Reset the flatpickr instance on input changes that affect flatpickr.
-		const flatpickrChangeKeys = [
-			"range",
-			"dateFormat",
-			"language",
-			"id",
-			"value",
-			"plugins",
-			"flatpickrOptions",
-			"readonly"
-		];
-		const changeKeys = Object.keys(changes);
-		if (changeKeys.some(key => flatpickrChangeKeys.includes(key))) {
-			this.resetFlatpickrInstance(changes.value);
-		}
-	}
-
-	ngAfterViewInit() {
-		if (!this.skeleton) {
-			this.input.input.nativeElement.value = this._value[0] ?? "";
-			if (this.range) {
-				this.rangeInput.input.nativeElement.value = this._value[1] ?? "";
-			}
-		}
-		setTimeout(() => {
-			this.addInputListeners();
-		}, 0);
-	}
-
-	// because the actual view may be delayed in loading (think projection into a tab pane)
-	// and because we rely on a library that operates outside the Angular view of the world
-	// we need to keep trying to load the library, until the relevant DOM is actually live
-	ngAfterViewChecked() {
-		if (!this.isFlatpickrLoaded()) {
-			// @ts-ignore ts is unhappy with the below call to `flatpickr`
-			this.flatpickrInstance = flatpickr(`#${this.id}-input`, this.flatpickrOptions);
-			// if (and only if) the initialization succeeded, we can set the date values
-			if (this.isFlatpickrLoaded()) {
-				if (this.value.length > 0) {
-					this.setDateValues(this.value);
-				}
-			}
-		}
-	}
-
-	@HostListener("focusin")
-	onFocus() {
-		// Updates the month manually when calendar mode is range because month
-		// will not update properly without manually updating them on focus.
-		if (this.range) {
-			if (this.rangeInput.input.nativeElement === document.activeElement && this.flatpickrInstance.selectedDates[1]) {
-				const currentMonth = this.flatpickrInstance.selectedDates[1].getMonth();
-				this.flatpickrInstance.changeMonth(currentMonth, false);
-			} else if (this.input.input.nativeElement === document.activeElement && this.flatpickrInstance.selectedDates[0]) {
-				const currentMonth = this.flatpickrInstance.selectedDates[0].getMonth();
-				this.flatpickrInstance.changeMonth(currentMonth, false);
-			}
-		}
-	}
-
-	@HostListener("focusout")
-	onFocusOut() {
-		this.onTouched();
+	get locale() {
+		const all = languages as any;
+		return all.default?.default?.[this.language] || all.default?.[this.language];
 	}
 
 	/**
-	 * Writes a value from the model to the component. Expects the value to be `null` or `(Date | string)[]`
-	 * @param value value received from the model
+	 * The web component takes ISO dates joined with `/`.
 	 */
-	writeValue(value: (Date | string)[]) {
+	get isoValue() {
+		return this._value
+			.map(date => date instanceof Date ? date : flatpickr.parseDate(date, this.dateFormat))
+			.filter(Boolean)
+			.map(toISODate)
+			.join("/");
+	}
+
+	async ngAfterViewInit() {
+		await this.element.updateComplete;
+		this.element.calendar?.config.onClose.push((dates: Date[]) => this.onClose.emit(dates));
+	}
+
+	writeValue(value: Date[] | Date) {
 		this.value = value;
-		setTimeout(() => {
-			if (this.isFlatpickrLoaded() && this.flatpickrInstance.config) {
-				this.setDateValues(this.value);
-			}
-			this.changeDetectorRef.markForCheck();
-		});
-	}
-
-	/**
-	 * `ControlValueAccessor` method to programmatically disable the DatePicker.
-	 *
-	 * ex: `this.formGroup.get("myDatePicker").disable();`
-	 *
-	 * @param isDisabled `true` to disable the DatePicker
-	 */
-	setDisabledState(isDisabled: boolean) {
-		this.disabled = isDisabled;
 		this.changeDetectorRef.markForCheck();
 	}
 
-	registerOnChange(fn: any) {
-		this.propagateChange = fn;
+	onDatesChanged(event: Event) {
+		const dates = (event as CustomEvent<{ selectedDates: Date[] }>).detail.selectedDates;
+		this._value = dates;
+		this.onChange(dates);
+		this.valueChange.emit(dates);
 	}
 
-	registerOnTouched(fn: any) {
-		this.onTouched = fn;
-	}
-
-	onTouched: () => any = () => {};
-
-	propagateChange = (_: any) => {};
-
-	/**
-	 * Cleans up our flatpickr instance
-	 */
-	ngOnDestroy() {
-		if (!this.isFlatpickrLoaded()) { return; }
-		this.flatpickrInstance.destroy();
-	}
-
-	/**
-	 * Handles the `valueChange` event from the primary/single input
-	 */
-	onValueChange(event: string) {
-		if (this.isFlatpickrLoaded()) {
-			const date = this.flatpickrInstance.parseDate(event, this.dateFormat);
-			if (this.range) {
-				this.setDateValues([date, this.flatpickrInstance.selectedDates[1]]);
-			} else {
-				this.setDateValues([date]);
-			}
-			this.doSelect(this.flatpickrInstance.selectedDates);
-		}
-	}
-
-	/**
-	 * Handles the `valueChange` event from the range input
-	 */
-	onRangeValueChange(event: string) {
-		if (this.isFlatpickrLoaded() && this.flatpickrInstance.isOpen) {
-			const date = this.flatpickrInstance.parseDate(event, this.dateFormat);
-			this.setDateValues([this.flatpickrInstance.selectedDates[0], date]);
-			this.doSelect(this.flatpickrInstance.selectedDates);
-		}
-	}
-
-	/**
-	 * Opens the calendar "properly" when the calendar if it was already open.
-	 */
-	openCalendar(datepickerInput: DatePickerInput, event?: Event) {
-		if (this.readonly || this.skeleton) {
-			return;
-		}
-
-		// Skips opening when the click is on the decorator region so the AI label triggers
-		if (this.isDecoratorClick(event)) {
-			if (this.isFlatpickrLoaded() && this.flatpickrInstance.isOpen) {
-				this.flatpickrInstance.close();
-			}
-			return;
-		}
-
-		if (this.range) {
-			datepickerInput.input.nativeElement.click();
-
-			// If the first input's calendar icon is clicked when calendar is in range mode, then
-			// the month and year needs to be manually changed to the current selected month and
-			// year otherwise the calendar view will not be updated upon opening.
-			if (datepickerInput === this.input && this.flatpickrInstance.selectedDates[0]) {
-				const currentMonth = this.flatpickrInstance.selectedDates[0].getMonth();
-
-				this.flatpickrInstance.currentYear = this.flatpickrInstance.selectedDates[0].getFullYear();
-				this.flatpickrInstance.changeMonth(currentMonth, false);
-			}
-		} else {
-			// Single-mode flatpickr handles mousedown but not click, so nativeElement.click() won't
-			// work when the calendar icon is clicked. In this case we simply use flatpickr.open().
-			this.flatpickrInstance.open();
-		}
-	}
-
-	protected updateCalendarListeners() {
-		const calendarContainer = document.querySelectorAll(".flatpickr-calendar");
-		Array.from(calendarContainer).forEach(calendar => {
-			calendar.removeEventListener("click", this.preventCalendarClose);
-			calendar.addEventListener("click", this.preventCalendarClose);
-		});
-	}
-
-	/**
-	 * Handles the initialization of event listeners for the datepicker input and range input fields.
-	 */
-	protected addInputListeners() {
-		if (!this.isFlatpickrLoaded()) {
-			return;
-		}
-
-		// Allows focus transition from the datepicker input or range input field to
-		// flatpickr calendar using a keyboard.
-		const addFocusCalendarListener = (element: HTMLInputElement) => {
-			element.addEventListener("keydown", (event: KeyboardEvent) => {
-				// Listeners are added just once, so a check is needed here.
-				if (this.readonly) {
-					return;
-				}
-				if (event.key === "Escape") {
-					this.flatpickrInstance.close();
-				}
-				if (event.key === "ArrowDown") {
-					if (!this.flatpickrInstance.isOpen) {
-						this.flatpickrInstance.open();
-					}
-
-					const calendarContainer = this.flatpickrInstance.calendarContainer;
-					const dayElement = calendarContainer && calendarContainer.querySelector(".flatpickr-day[tabindex]");
-					const selectedDateElem = calendarContainer && calendarContainer.querySelector(".selected");
-					const todayDateElem = calendarContainer && calendarContainer.querySelector(".today");
-
-					if (dayElement) {
-						(todayDateElem || selectedDateElem || dayElement).focus();
-
-						// If the user manually inputs a value into the date field and presses arrow down,
-						// datepicker input onchange will be triggered when focus is removed from it and
-						// `flatpickrInstance.setDate` and `flatpickrInstance.changeMonth` will be invoked
-						// which will automatically change focus to the beginning of the document.
-						if (document.activeElement !== dayElement && this.flatpickrInstance.selectedDateElem) {
-							this.flatpickrInstance.selectedDateElem.focus();
-						}
-					}
-				}
-			});
-		};
-
-		if (this.input && this.input.input) {
-			addFocusCalendarListener(this.input.input.nativeElement);
-		}
-
-		if (this.rangeInput && this.rangeInput.input) {
-			addFocusCalendarListener(this.rangeInput.input.nativeElement);
-		}
-	}
-
-	/**
-	 * Resets the flatpickr instance while keeping the date values (or updating them if newDates is provided)
-	 *
-	 * Used to pick up input changes or locale changes.
-	 *
-	 * @param newDates An optional SimpleChange of date values
-	 */
-	protected resetFlatpickrInstance(newDates?: SimpleChange) {
-		if (this.isFlatpickrLoaded()) {
-			let dates = this.flatpickrInstance.selectedDates;
-			if (newDates && this.didDateValueChange(newDates.currentValue, newDates.previousValue)) {
-				dates = newDates.currentValue;
-			}
-			// only reset the flatpickr instance on Input changes
-			// @ts-ignore ts is unhappy with the below call to `flatpickr`
-			this.flatpickrInstance = flatpickr(`#${this.id}-input`, this.flatpickrOptions);
-			this.setDateValues(dates);
-		}
-	}
-
-	/**
-	 * Carbon uses a number of specific classnames for parts of the flatpickr - this idempotent method applies them if needed.
-	 */
-	protected updateClassNames() {
-		if (!this.elementRef) { return; }
-		// get all the possible flatpickrs in the document - we need to add classes to (potentially) all of them
-		const calendarContainer = document.querySelectorAll(".flatpickr-calendar");
-		const monthContainer = document.querySelectorAll(".flatpickr-month");
-		const weekdaysContainer = document.querySelectorAll(".flatpickr-weekdays");
-		const weekdayContainer = document.querySelectorAll(".flatpickr-weekday");
-		const daysContainer = document.querySelectorAll(".flatpickr-days");
-		const dayContainer = document.querySelectorAll(".flatpickr-day");
-
-		// add classes to lists of elements
-		const addClassIfNotExists = (classname: string, elementList: NodeListOf<Element>) => {
-			Array.from(elementList).forEach(element => {
-				if (!element.classList.contains(classname)) {
-					element.classList.add(classname);
-				}
-			});
-		};
-
-		// add classes (but only if they don't exist, small perf win)
-		addClassIfNotExists("cds--date-picker__calendar", calendarContainer);
-		addClassIfNotExists("cds--date-picker__month", monthContainer);
-		addClassIfNotExists("cds--date-picker__weekdays", weekdaysContainer);
-		addClassIfNotExists("cds--date-picker__days", daysContainer);
-
-		// add weekday classes and format the text
-		Array.from(weekdayContainer).forEach(element => {
-			element.innerHTML = element.innerHTML.replace(/\s+/g, "");
-			element.classList.add("cds--date-picker__weekday");
-		});
-
-		// add day classes and special case the "today" element based on `this.value`
-		Array.from(dayContainer).forEach(element => {
-			element.setAttribute("role", "button");
-			element.classList.add("cds--date-picker__day");
-			if (!this.value) {
-				return;
-			}
-			if (element.classList.contains("today") && this.value.length > 0) {
-				element.classList.add("no-border");
-			} else if (element.classList.contains("today") && this.value.length === 0) {
-				element.classList.remove("no-border");
-			}
-		});
-	}
-
-	protected updateAttributes() {
-		const calendarContainer = document.querySelectorAll(".flatpickr-calendar");
-		Array.from(calendarContainer).forEach(calendar => {
-			calendar.setAttribute("role", "application");
-			calendar.setAttribute("aria-label", this.ariaLabel);
-		});
-	}
-
-	/**
-	 * Applies the given date value array to both the flatpickr instance and the `input`(s)
-	 * @param dates the date values to apply
-	 */
-	protected setDateValues(dates: (Date | string)[]) {
-		if (this.isFlatpickrLoaded()) {
-			const singleInput = this.elementRef.nativeElement.querySelector(`#${this.id}-input`);
-			const rangeInput = this.elementRef.nativeElement.querySelector(`#${this.id}-rangeInput`);
-
-			// `flatpickrInstance.setDate` removes the focus on the selected date element and will
-			// automatically change focus to the beginning of the document. If a selected date is
-			// focused before `flatpickrInstance.setDate` is invoked then it should remain focused.
-			let shouldRefocusDateElement = this.flatpickrInstance.selectedDateElem === document.activeElement;
-
-			// set the date on the instance
-			this.flatpickrInstance.setDate(dates);
-
-			if (shouldRefocusDateElement) {
-				this.flatpickrInstance.selectedDateElem.focus();
-			}
-
-			// we can either set a date value or an empty string, so we start with an empty string
-			let singleDate = "";
-			// if date is a string, parse and format
-			if (typeof this.flatpickrInstance.selectedDates[0] === "string") {
-				singleDate = this.flatpickrInstance.parseDate(this.flatpickrInstance.selectedDates[0], this.dateFormat);
-				singleDate = this.flatpickrInstance.formatDate(singleDate, this.dateFormat);
-			// if date is not a string we can assume it's a Date and we should format
-			} else if (this.flatpickrInstance.selectedDates[0]) {
-				singleDate = this.flatpickrInstance.formatDate(this.flatpickrInstance.selectedDates[0], this.dateFormat);
-			}
-
-			if (rangeInput) {
-				// we can either set a date value or an empty string, so we start with an empty string
-				let rangeDate = "";
-				// if date is a string, parse and format
-				if (typeof this.flatpickrInstance.selectedDates[1] === "string") {
-					rangeDate = this.flatpickrInstance.parseDate(this.flatpickrInstance.selectedDates[1].toString(), this.dateFormat);
-					rangeDate = this.flatpickrInstance.formatDate(rangeDate, this.dateFormat);
-				// if date is not a string we can assume it's a Date and we should format
-				} else if (this.flatpickrInstance.selectedDates[1]) {
-					rangeDate = this.flatpickrInstance.formatDate(this.flatpickrInstance.selectedDates[1], this.dateFormat);
-				}
-				setTimeout(() => {
-					// apply the values
-					rangeInput.value = rangeDate;
-					singleInput.value = singleDate;
-				});
-			}
-		}
-	}
-
-	protected preventCalendarClose = event => event.stopPropagation();
-
-	protected doSelect(selectedValue: (Date | string)[]) {
-		// In range mode, if a date is selected from the first calendar that is from the previous month,
-		// the month will not be updated on the calendar until the calendar is re-opened.
-		// This will make sure the calendar is updated with the correct month.
-		if (this.range && this.flatpickrInstance.selectedDates[0]) {
-			const currentMonth = this.flatpickrInstance.selectedDates[0].getMonth();
-
-			// `flatpickrInstance.changeMonth` removes the focus on the selected date element and will
-			// automatically change focus to the beginning of the document. If a selected date is
-			// focused before `flatpickrInstance.changeMonth` is invoked then it should remain focused.
-			let shouldRefocusDateElement = this.flatpickrInstance.selectedDateElem === document.activeElement;
-
-			this.flatpickrInstance.changeMonth(currentMonth, false);
-
-			if (shouldRefocusDateElement) {
-				this.flatpickrInstance.selectedDateElem.focus();
-			}
-
-		}
-		this.valueChange.emit(selectedValue);
-		this.propagateChange(selectedValue);
-	}
-
-	protected didDateValueChange(currentValue, previousValue) {
-		return currentValue[0] !== previousValue[0] || currentValue[1] !== previousValue[1];
-	}
-
-	/**
-	 * More advanced checking of the loaded state of flatpickr
-	 */
-	protected isFlatpickrLoaded() {
-		// cast the instance to a boolean, and some method that has to exist for the library to be loaded in this case `setDate`
-		return !!this.flatpickrInstance && !!this.flatpickrInstance.setDate;
-	}
-
-	/**
-	 * Right arrow HTML passed to flatpickr
-	 */
-	protected rightArrowHTML() {
-		return `
-			<svg width="16px" height="16px" viewBox="0 0 16 16">
-				<polygon points="11,8 6,13 5.3,12.3 9.6,8 5.3,3.7 6,3 "/>
-				<rect width="16" height="16" style="fill:none" />
-			</svg>`;
-	}
-
-	/**
-	 * Left arrow HTML passed to flatpickr
-	 */
-	protected leftArrowHTML() {
-		return `
-			<svg width="16px" height="16px" viewBox="0 0 16 16">
-				<polygon points="5,8 10,3 10.7,3.7 6.4,8 10.7,12.3 10,13 "/>
-				<rect width="16" height="16" style="fill:none" />
-			</svg>`;
-	}
-
-	private isDecoratorClick(event: Event | undefined): boolean {
-		if (!event?.target) {
-			return false;
-		}
-		const t = event.target;
-		const el = t instanceof Element ? t : (t as Node).parentElement;
-		return el?.closest(".cds--date-picker-input-inner-wrapper--decorator") != null;
+	isTemplate(value: unknown): value is TemplateRef<any> {
+		return value instanceof TemplateRef;
 	}
 }

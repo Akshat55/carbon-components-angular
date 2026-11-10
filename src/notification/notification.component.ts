@@ -1,79 +1,57 @@
 import {
+	ChangeDetectionStrategy,
 	Component,
-	Input,
-	HostBinding,
-	inject
+	CUSTOM_ELEMENTS_SCHEMA,
+	Input
 } from "@angular/core";
-
-import { NotificationContent } from "./notification-content.interface";
-import { I18n } from "carbon-components-angular/i18n";
-import { NotificationDisplayService } from "./notification-display.service";
+import { AsyncPipe, NgTemplateOutlet } from "@angular/common";
 import { isObservable, of } from "rxjs";
+import "@carbon/web-components/es/components/notification/index.js";
 import { BaseNotification } from "./base-notification.component";
-import { IconDirective } from "carbon-components-angular/icon";
-import { NotificationTitle } from "./notification-title.directive";
-import { NotificationSubtitle } from "./notification-subtitle.directive";
-import { NgTemplateOutlet, AsyncPipe } from "@angular/common";
+import { NotificationDisplayService } from "./notification-display.service";
+import { NotificationContent } from "./notification-content.interface";
 
 /**
- * Notification messages are displayed toward the top of the UI and do not interrupt user’s work.
+ * Renders the `<cds-inline-notification>` web component from `notificationObj`.
+ *
+ * ```html
+ * <cds-notification [notificationObj]="{ type: 'info', title: 'Title', message: 'Message' }" />
+ * ```
+ *
+ * Use `NotificationService.showNotification()` to create one dynamically.
  *
  * [See demo](../../?path=/story/components-notification--basic)
  */
 @Component({
-	selector: "cds-notification, cds-inline-notification, ibm-notification, ibm-inline-notification",
+	selector: "cds-notification",
 	template: `
-		<div class="cds--inline-notification__details">
-			@if (notificationObj.type) {
-				<svg
-					[cdsIcon]="iconDictionary[notificationObj.type]"
-					size="20"
-					class="cds--inline-notification__icon">
-				</svg>
+		<cds-inline-notification
+			[id]="notificationID"
+			[kind]="notificationObj.type"
+			[lowContrast]="!!notificationObj.lowContrast"
+			[hideCloseButton]="!notificationObj.showClose"
+			[attr.aria-label]="notificationObj.closeLabel | async"
+			open
+			(cds-notification-beingclosed)="onBeingClosed($event)">
+			@if (notificationObj.template) {
+				<ng-container *ngTemplateOutlet="notificationObj.template; context: { $implicit: notificationObj }" />
+			} @else {
+				<span slot="title" [innerHTML]="notificationObj.title"></span>
+				<span slot="subtitle" [innerHTML]="notificationObj.message"></span>
 			}
-			<div class="cds--inline-notification__text-wrapper">
-				@if (!notificationObj.template) {
-					<div
-						cdsNotificationTitle
-						[innerHTML]="notificationObj.title"
-						[id]="notificationID">
-					</div>
-					<div cdsNotificationSubtitle>
-						<span [innerHTML]="notificationObj.message"></span>
-					</div>
-				}
-				<ng-container *ngTemplateOutlet="notificationObj.template; context: { $implicit: notificationObj}"></ng-container>
-			</div>
-		</div>
-		@if (!isCloseHidden) {
-			<button
-				(click)="onClose()"
-				class="cds--inline-notification__close-button"
-				[attr.aria-label]="notificationObj.closeLabel | async"
-				type="button">
-				<svg cdsIcon="close" size="16" class="cds--inline-notification__close-icon"></svg>
-			</button>
-		}
+		</cds-inline-notification>
 	`,
+	styles: [":host { display: contents; }"],
 	providers: [NotificationDisplayService],
-	imports: [
-		IconDirective,
-		NotificationTitle,
-		NotificationSubtitle,
-		NgTemplateOutlet,
-		AsyncPipe
-	]
+	changeDetection: ChangeDetectionStrategy.OnPush,
+	imports: [NgTemplateOutlet, AsyncPipe],
+	schemas: [CUSTOM_ELEMENTS_SCHEMA]
 })
 export class Notification extends BaseNotification {
-	private static notificationCount = 0;
+	static notificationCount = 0;
 
-	/**
-	 * Can have `type`, `title`, and `message` members.
-	 *
-	 * `type` can be one of `"error"`, `"info"`, `"info-square"`, `"warning"`, `"warning-alt"`, or `"success"`
-	 *
-	 * `message` is the message to display
-	 */
+	notificationID = `notification-${Notification.notificationCount++}`;
+
 	@Input() get notificationObj(): NotificationContent {
 		return this._notificationObj;
 	}
@@ -82,28 +60,5 @@ export class Notification extends BaseNotification {
 			obj.closeLabel = of(obj.closeLabel);
 		}
 		this._notificationObj = Object.assign({}, this.defaultNotificationObj, obj);
-	}
-
-	notificationID = `notification-${Notification.notificationCount++}`;
-	@HostBinding("attr.aria-labelledBy") notificationLabel = this.notificationID;
-	@HostBinding("class.cds--inline-notification") notificationClass = true;
-	@HostBinding("class.cds--inline-notification--error") get isError() { return this.notificationObj.type === "error"; }
-	@HostBinding("class.cds--inline-notification--info") get isInfo() { return this.notificationObj.type === "info"; }
-	@HostBinding("class.cds--inline-notification--info-square") get isInfoSquare() { return this.notificationObj.type === "info-square"; }
-	@HostBinding("class.cds--inline-notification--success") get isSuccess() { return this.notificationObj.type === "success"; }
-	@HostBinding("class.cds--inline-notification--warning") get isWarning() { return this.notificationObj.type === "warning"; }
-	@HostBinding("class.cds--inline-notification--warning-alt") get isWarningAlt() { return this.notificationObj.type === "warning-alt"; }
-	@HostBinding("class.cds--inline-notification--low-contrast") get isLowContrast() { return this.notificationObj.lowContrast; }
-	@HostBinding("class.cds--inline-notification--hide-close-button") get isCloseHidden() { return !this.notificationObj.showClose; }
-
-	protected notificationDisplayService: NotificationDisplayService;
-	protected i18n: I18n;
-
-	/** Inserted by Angular inject() migration for backwards compatibility */
-	// eslint-disable-next-line @angular-eslint/prefer-inject -- backwards-compatible DI overload until next major
-	constructor(...args: unknown[]);
-
-	constructor() {
-		super();
 	}
 }

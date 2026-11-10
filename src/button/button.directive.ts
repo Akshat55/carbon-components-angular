@@ -2,7 +2,9 @@ import { Directive, HostBinding, Input } from "@angular/core";
 import { ButtonSize, ButtonType } from "./button.types";
 
 /**
- * A convenience directive for applying styling to a button. Get started with importing the directive:
+ * Applies Carbon button styles to a native `<button>` or `<a>`. Requires the `@carbon/styles` CSS.
+ *
+ * Prefer the `<cds-button>` web component wrapper (`CdsButton`) for new code.
  *
  * ```typescript
  * import { Button } from 'carbon-components-angular';
@@ -20,7 +22,8 @@ import { ButtonSize, ButtonType } from "./button.types";
  * [See demo](../../?path=/story/components-button--basic)
  */
 @Directive({
-	selector: "[cdsButton], [ibmButton]",
+	// `<cds-button cdsButton="...">` is handled by `CdsButton`.
+	selector: "[cdsButton]:not(cds-button), [ibmButton]:not(cds-button)",
 	standalone: true
 })
 export class Button {

@@ -1,91 +1,74 @@
 import {
+	ChangeDetectionStrategy,
 	Component,
-	Output,
+	CUSTOM_ELEMENTS_SCHEMA,
 	EventEmitter,
-	HostBinding,
 	Input,
-	ChangeDetectionStrategy
+	Output,
+	TemplateRef
 } from "@angular/core";
-import { NgTemplateOutlet } from "@angular/common";
-import { Tag } from "./tag.component";
-import { IconDirective } from "carbon-components-angular/icon";
+import "@carbon/web-components/es/components/tag/index.js";
+import { TemplateSlot } from "carbon-components-angular/utils";
+import { TagType } from "./tag.component";
 
+/**
+ * A dismissible tag. Renders `<cds-tag filter>`, which keeps the label in the default slot.
+ *
+ * [See demo](../../?path=/story/components-tag--filter)
+ */
 @Component({
-	selector: "cds-tag-filter, ibm-tag-filter",
+	selector: "cds-tag-filter",
 	template: `
-		@if (!skeleton) {
-			<ng-content select="[cdsTagIcon],[ibmTagIcon]" />
-			<span
-				class="cds--tag__label"
-				[attr.title]="title ? title : null"
-				(click)="onClick($event)">
+		<cds-tag
+			filter
+			[type]="type"
+			[size]="size"
+			[disabled]="disabled"
+			[title]="title || closeButtonLabel"
+			(click)="onClick($event)"
+			(cds-tag-beingclosed)="onClose($event)">
+			@if (!skeleton) {
 				<ng-content />
-			</span>
-			@if (decorator) {
-				<div class="cds--tag__decorator">
-					<ng-template [ngTemplateOutlet]="decorator"></ng-template>
-				</div>
+				<ng-container cdsSlot="decorator" [cdsSlotTemplate]="decorator" />
 			}
-			<button
-				class="cds--tag__close-icon"
-				(click)="onClose($event)"
-				[disabled]="disabled"
-				[title]="closeButtonLabel">
-				<span class="cds--visually-hidden">{{closeButtonLabel}}</span>
-				<svg cdsIcon="close" size="16"></svg>
-			</button>
-		}
+		</cds-tag>
 	`,
+	styles: [":host { display: contents; }"],
 	changeDetection: ChangeDetectionStrategy.OnPush,
-	imports: [NgTemplateOutlet, IconDirective]
+	imports: [TemplateSlot],
+	schemas: [CUSTOM_ELEMENTS_SCHEMA]
 })
-export class TagFilter extends Tag {
+export class TagFilter {
+	@Input() type: TagType = "gray";
+	@Input() size: "sm" | "md" | "lg" = "md";
+	@Input() skeleton = false;
+	@Input() decorator: TemplateRef<any>;
 	@Input() closeButtonLabel = "Clear Filter";
 	@Input() disabled = false;
 	@Input() title: string;
 
-	/**
-	 * Function for close/delete the tag
-	 */
 	@Output() close = new EventEmitter<any>();
-
 	/**
-	 * We need to stop the immedate propagation of click on the close button
-	 * to prevent undesired effects when used within dialogs.
-	 *
-	 * We need to emit a click event on close to allow for clicks to be listened
-	 * to on the immediate close button element. `action` distinguishes between clicks on
-	 * the tag vs. clicks on the close button.
+	 * Emits `{ action: "click" }` for label clicks and `{ action: "close" }` for the close button.
 	 */
 	// eslint-disable-next-line @angular-eslint/no-output-native
 	@Output() click = new EventEmitter<{ action: "click" | "close" }>();
 
-	onClick(event: any) {
+	onClick(event: Event) {
 		event.stopImmediatePropagation();
-		if (!this.disabled) {
+		const onCloseButton = event.composedPath().some(node => (node as Element).classList?.contains("cds--tag__close-icon"));
+		if (!this.disabled && !onCloseButton) {
 			this.click.emit({ action: "click" });
 		}
 	}
 
-	onClose(event: any) {
-		event.stopImmediatePropagation();
+	/**
+	 * The web component removes itself on close; Angular owns this element, so cancel that
+	 * and let the consumer remove the tag (e.g. with `@if`), as in v6.
+	 */
+	onClose(event: Event) {
+		event.preventDefault();
 		this.click.emit({ action: "close" });
 		this.close.emit();
-	}
-
-	/**
-	 * @todo
-	 * Remove `cds--tag--${this.size}` in Carbon v12
-	 */
-	@HostBinding("attr.class") get attrClass() {
-		const disabledClass = this.disabled ? "cds--tag--disabled" : "";
-		const sizeClass = `cds--tag--${this.size} cds--layout--size-${this.size}`;
-		const skeletonClass = this.skeleton ? "cds--skeleton" : "";
-
-		return `cds--tag cds--tag--filter cds--tag--${this.type} ${disabledClass} ${sizeClass} ${skeletonClass} ${this.class}`;
-	}
-
-	@HostBinding("attr.aria-label") get attrAriaLabel() {
-		return `${this.title || ""} ${this.closeButtonLabel}`.trim();
 	}
 }

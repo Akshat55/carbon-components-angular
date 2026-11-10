@@ -1,29 +1,26 @@
-import { Component, Input } from "@angular/core";
-import { NgClass } from "@angular/common";
+import {
+	ChangeDetectionStrategy,
+	Component,
+	CUSTOM_ELEMENTS_SCHEMA,
+	Input
+} from "@angular/core";
+import "@carbon/web-components/es/components/ui-shell/index.js";
 
 /**
- * `Panel` is a component that can be used to display content on the right side of the screen.
- * `Panel`s are generally activated by and linked to a `HeaderAction` component.
+ * A header panel. Renders the `<cds-header-panel>` web component.
  */
 @Component({
-	selector: "cds-panel, ibm-panel",
+	selector: "cds-panel",
 	template: `
-		<div
-			class="cds--header-panel"
-			[attr.aria-label]="ariaLabel"
-			[ngClass]="{
-				'cds--header-panel--expanded': expanded
-			}">
+		<cds-header-panel [expanded]="expanded" [attr.aria-label]="ariaLabel">
 			<ng-content />
-		</div>
+		</cds-header-panel>
 	`,
-	imports: [NgClass]
+	styles: [":host { display: contents; }"],
+	changeDetection: ChangeDetectionStrategy.OnPush,
+	schemas: [CUSTOM_ELEMENTS_SCHEMA]
 })
 export class Panel {
-	/**
-	 * Controls the visibility of the panel
-	 */
 	@Input() expanded = false;
-
-	@Input() ariaLabel;
+	@Input() ariaLabel: string;
 }

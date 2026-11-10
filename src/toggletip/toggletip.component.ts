@@ -1,115 +1,42 @@
 import {
-	AfterViewInit,
 	ChangeDetectionStrategy,
-	ChangeDetectorRef,
 	Component,
-	ContentChild,
-	ElementRef,
-	HostBinding,
-	HostListener,
-	Input,
-	NgZone,
-	OnDestroy,
-	Renderer2,
-	inject
+	CUSTOM_ELEMENTS_SCHEMA,
+	Input
 } from "@angular/core";
-import { fromEvent, Subscription } from "rxjs";
-import { PopoverContainer, PopoverContent } from "carbon-components-angular/popover";
-import { ToggletipButton } from "./toggletip-button.directive";
+import "@carbon/web-components/es/components/toggle-tip/index.js";
+import { PopoverBase } from "carbon-components-angular/popover";
 
 /**
- * Get started with importing the component:
+ * Wraps the `<cds-toggletip>` web component.
  *
- * ```typescript
- * import { Toggletip } from 'carbon-components-angular';
+ * ```html
+ * <cds-toggletip>
+ * 	<span cdsToggletipLabel>Label</span>
+ * 	<div cdsToggletipContent>Details</div>
+ * </cds-toggletip>
  * ```
+ *
+ * `cdsToggletipButton` content becomes the trigger icon (the web component renders the button).
  *
  * [See demo](../../?path=/story/components-toggletip--basic)
  */
 @Component({
-	selector: "cds-toggletip, ibm-toggletip",
+	selector: "cds-toggletip",
+	template: "<ng-content />",
+	host: {
+		"[id]": "id",
+		"[alignment]": "align",
+		"[alignmentAxisOffset]": "alignmentAxisOffset",
+		"[buttonLabel]": "buttonLabel"
+	},
 	changeDetection: ChangeDetectionStrategy.OnPush,
-	template: `
-		<ng-content select="[cdsToggletipButton]" />
-		<cds-popover-content [attr.id]="id" aria-live="polite">
-			<ng-content select="[cdsToggletipContent]" />
-		</cds-popover-content>
-	`,
-	imports: [PopoverContent]
+	schemas: [CUSTOM_ELEMENTS_SCHEMA]
 })
-export class Toggletip extends PopoverContainer implements AfterViewInit, OnDestroy {
+export class Toggletip extends PopoverBase {
 	static toggletipCounter = 0;
 
-	@Input() id = `tooltip-${Toggletip.toggletipCounter++}`;
-
-	@HostBinding("class.cds--toggletip") toggletipClass = true;
-	@HostBinding("class.cds--toggletip--open") @Input() isOpen = false;
-
-	@ContentChild(ToggletipButton, { read: ElementRef }) btn!: ElementRef;
-
-	documentClick = this.handleFocusOut.bind(this);
-
-	private subscription: Subscription;
-
-	/** Inserted by Angular inject() migration for backwards compatibility */
-	// eslint-disable-next-line @angular-eslint/prefer-inject -- backwards-compatible DI overload until next major
-	constructor(...args: unknown[]);
-
-	constructor() {
-		super();
-		this.highContrast = true;
-		this.dropShadow = false;
-	}
-
-	ngAfterViewInit(): void {
-		this.initializeReferences();
-
-		// Listen for click events on trigger
-		this.subscription = fromEvent(this.btn.nativeElement, "click")
-			.subscribe((event: Event) => {
-				// Add/Remove event listener based on isOpen to improve performance when there
-				// are a lot of toggletips
-				if (this.isOpen) {
-					document.removeEventListener("click", this.documentClick);
-				} else {
-					document.addEventListener("click", this.documentClick);
-				}
-
-				this.handleExpansion(!this.isOpen, event);
-			});
-
-		// Toggletip is open on initial render, add 'click' event listener to document so users can close
-		if (this.isOpen) {
-			document.addEventListener("click", this.documentClick);
-		}
-
-		if (this.btn) {
-			this.renderer.setAttribute(this.btn.nativeElement, "aria-controls", this.id);
-		}
-	}
-
-	@HostListener("keyup", ["$event"])
-	hostkeys(event: KeyboardEvent) {
-		if (open && event.key === "Escape") {
-			event.stopPropagation();
-			this.handleExpansion(false, event);
-		}
-	}
-
-	handleFocusOut(event) {
-		if (!this.elementRef.nativeElement.contains(event.target)) {
-			this.handleExpansion(false, event);
-		}
-	}
-
-	ngOnDestroy(): void {
-		this.subscription.unsubscribe();
-	}
-
-	private handleExpansion(state = false, event: Event) {
-		this.handleChange(state, event);
-		if (this.btn) {
-			this.renderer.setAttribute(this.btn.nativeElement, "aria-expanded", this.isOpen.toString());
-		}
-	}
+	@Input() id = `toggletip-${Toggletip.toggletipCounter++}`;
+	@Input() alignmentAxisOffset: number;
+	@Input() buttonLabel = "Show information";
 }

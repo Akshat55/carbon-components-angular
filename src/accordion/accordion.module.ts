@@ -1,20 +1,13 @@
 import { NgModule } from "@angular/core";
-import { CommonModule } from "@angular/common";
-
 import { Accordion } from "./accordion.component";
 import { AccordionItem } from "./accordion-item.component";
-import { IconModule } from "carbon-components-angular/icon";
 
+/**
+ * Importing this module (or the standalone components) registers the
+ * `cds-accordion` and `cds-accordion-item` web components.
+ */
 @NgModule({
-	exports: [
-		Accordion,
-		AccordionItem
-	],
-	imports: [
-		CommonModule,
-		IconModule,
-		Accordion,
-		AccordionItem
-	]
+	imports: [Accordion, AccordionItem],
+	exports: [Accordion, AccordionItem]
 })
 export class AccordionModule {}

@@ -80,26 +80,26 @@ export const basic = basicTemplate.bind({});
 const usageExamplesTemplate = () => ({
 	template: `
 		<ng-template #add let-item>
-			<ibm-icon-button
+			<cds-icon-button
 				type="button"
 				kind="primary"
 				align="left"
 				description="Add">
 				<svg class="cds--btn__icon" ibmIcon="add" size="16"></svg>
-			</ibm-icon-button>
+			</cds-icon-button>
 		</ng-template>
 		<ng-template #overflowMenu let-item>
-			<ibm-tooltip class="cds--icon-tooltip" description="Options" align="left">
-				<ibm-overflow-menu
+			<cds-tooltip class="cds--icon-tooltip" description="Options" align="left">
+				<cds-overflow-menu
 					[flip]="true"
 					[customTrigger]="customTrigger"
 					triggerClass="cds--toolbar-action"
 					[offset]="{ x: 0, y: 0 }">
-					<ibm-overflow-menu-option>View details</ibm-overflow-menu-option>
-					<ibm-overflow-menu-option>Edit</ibm-overflow-menu-option>
-					<ibm-overflow-menu-option [divider]="true" type="danger">Remove</ibm-overflow-menu-option>
-				</ibm-overflow-menu>
-			</ibm-tooltip>
+					<cds-overflow-menu-option>View details</cds-overflow-menu-option>
+					<cds-overflow-menu-option>Edit</cds-overflow-menu-option>
+					<cds-overflow-menu-option [divider]="true" type="danger">Remove</cds-overflow-menu-option>
+				</cds-overflow-menu>
+			</cds-tooltip>
 		</ng-template>
 		<cds-contained-list label="List title" [action]="add">
 			<cds-contained-list-item [action]="overflowMenu">List item</cds-contained-list-item>
@@ -108,13 +108,13 @@ const usageExamplesTemplate = () => ({
 		</cds-contained-list>
 
 		<ng-template #addGhost let-item>
-			<ibm-icon-button
+			<cds-icon-button
 				type="button"
 				kind="ghost"
 				align="left"
 				description="Add">
 				<svg class="cds--btn__icon" ibmIcon="add" size="16"></svg>
-			</ibm-icon-button>
+			</cds-icon-button>
 		</ng-template>
 		<cds-contained-list label="List title" [action]="addGhost">
 			<cds-contained-list-item>
@@ -359,7 +359,7 @@ const withListTitleDecoratorsTemplate = () => ({
 		<ng-template #label let-item>
 			<div style="display: flex; alignItems: center; justifyContent: space-between">
 		    	<span>List title</span>
-		    	<ibm-tag size="sm">4</ibm-tag>
+		    	<cds-tag size="sm">4</cds-tag>
 		    </div>
 		</ng-template>
 		<cds-contained-list [label]="label">

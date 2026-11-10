@@ -1,167 +1,98 @@
 import {
-	Component,
 	AfterContentInit,
-	Input,
-	Output,
-	EventEmitter,
-	HostBinding,
+	ChangeDetectionStrategy,
+	Component,
 	ContentChildren,
-	QueryList,
+	CUSTOM_ELEMENTS_SCHEMA,
+	EventEmitter,
+	Input,
 	OnDestroy,
-	TemplateRef,
-	ChangeDetectionStrategy
+	Output,
+	QueryList,
+	TemplateRef
 } from "@angular/core";
-import { SelectionTile } from "./selection-tile.component";
-import { NG_VALUE_ACCESSOR } from "@angular/forms";
-import { TileSelection } from "./tile-selection.interface";
 import { Subject } from "rxjs";
 import { takeUntil } from "rxjs/operators";
-import { NgTemplateOutlet } from "@angular/common";
+import "@carbon/web-components/es/components/tile/index.js";
+import { provideValueAccessor, TemplateSlot, WebComponentValueAccessor } from "carbon-components-angular/utils";
+import { SelectionTile } from "./selection-tile.component";
+import { TileSelection } from "./tile-selection.interface";
 
 /**
- * Get started with importing the components:
- *
- * ```typescript
- * import { Tile, TileGroup } from 'carbon-components-angular';
- * ```
+ * Wraps the `<cds-tile-group>` web component. Works with `ngModel` / reactive forms;
+ * the value is the selected tile's `value`.
  *
  * [See demo](../../?path=/story/components-tiles-grouped--selectable)
  */
 @Component({
-	selector: "cds-tile-group, ibm-tile-group",
+	selector: "cds-tile-group",
 	template: `
-		<fieldset>
-			@if (legend) {
-				<legend class="cds--label">
-					@if (isTemplate(legend)) {
-						<ng-template [ngTemplateOutlet]="legend" />
-					} @else {
-						{{legend}}
-					}
-				</legend>
-			}
-			<ng-content select="ibm-selection-tile,cds-selection-tile" />
-		</fieldset>`,
-	providers: [
-		{
-			provide: NG_VALUE_ACCESSOR,
-			useExisting: TileGroup,
-			multi: true
+		@if (isTemplate(legend)) {
+			<ng-container cdsSlot="legend" [cdsSlotTemplate]="legend" />
+		} @else if (legend) {
+			<span slot="legend">{{ legend }}</span>
 		}
-	],
+		<ng-content />
+	`,
+	providers: [provideValueAccessor(() => TileGroup)],
 	changeDetection: ChangeDetectionStrategy.OnPush,
-	imports: [NgTemplateOutlet]
+	imports: [TemplateSlot],
+	schemas: [CUSTOM_ELEMENTS_SCHEMA]
 })
-export class TileGroup implements AfterContentInit, OnDestroy {
+export class TileGroup extends WebComponentValueAccessor implements AfterContentInit, OnDestroy {
 	static tileGroupCount = 0;
+
+	@Input() name = `tile-group-${TileGroup.tileGroupCount++}`;
 	/**
-	 * The tile group `name`
-	 */
-	@Input() name = `tile-group-${TileGroup.tileGroupCount}`;
-	/**
-	 * Set to `true` to support multiple tile selection
+	 * Allows selecting more than one tile (checkbox tiles instead of radio tiles).
 	 */
 	@Input() multiple = false;
-
 	@Input() legend: string | TemplateRef<any>;
 
-	/**
-	 * Emits an event when the tile selection changes.
-	 *
-	 * Emits an object that looks like:
-	 * ```javascript
-	 * {
-	 * 	value: "something",
-	 * 	selected: true,
-	 * 	name: "tile-group-1"
-	 * }
-	 * ```
-	 */
 	@Output() selected: EventEmitter<TileSelection> = new EventEmitter();
-
-	@HostBinding("class.cds--tile-group") tileGroupClass = true;
 
 	@ContentChildren(SelectionTile) selectionTiles: QueryList<SelectionTile>;
 
 	protected unsubscribe$ = new Subject<void>();
 	protected unsubscribeTiles$ = new Subject<void>();
-
-	constructor() {
-		TileGroup.tileGroupCount++;
-	}
-
-	onChange = (_: any) => {};
-
-	onTouched = () => {};
+	private value: any;
 
 	ngAfterContentInit() {
-		const updateTiles = () => {
-			// remove old subscriptions
-			this.unsubscribeTiles$.next();
-
-			// react to changes
-			// setTimeout to avoid ExpressionChangedAfterItHasBeenCheckedError
-			setTimeout(() => {
-				this.selectionTiles.forEach(tile => {
-					tile.name = this.name;
-					tile.change
-						.pipe(takeUntil(this.unsubscribeTiles$))
-						.subscribe(() => {
-							if (!this.multiple) {
-								this.selectionTiles.forEach(otherTile => {
-									if (otherTile !== tile) {
-										otherTile.selected = false;
-									}
-								});
-								tile.selected = true;
-							}
-							this.selected.emit({
-								value: tile.value,
-								selected: tile.selected,
-								name: this.name
-							});
-							this.onChange(tile.value);
-						});
-					tile.multiple = this.multiple;
-				});
-			});
-		};
-		updateTiles();
-
-		this.selectionTiles.changes
-			.pipe(takeUntil(this.unsubscribe$))
-			.subscribe(_ => updateTiles());
+		this.updateTiles();
+		this.selectionTiles.changes.pipe(takeUntil(this.unsubscribe$)).subscribe(() => this.updateTiles());
 	}
 
 	ngOnDestroy() {
 		this.unsubscribe$.next();
 		this.unsubscribe$.complete();
-
-		// takes care of tile subscriptions when tile-group dies
 		this.unsubscribeTiles$.next();
 		this.unsubscribeTiles$.complete();
 	}
 
 	writeValue(value: any) {
-		if (!this.selectionTiles) { return; }
-		this.selectionTiles.forEach(tile => {
-			if (tile.value === value) {
-				tile.selected = true;
-			} else {
-				tile.selected = false;
-			}
-		});
+		this.value = value;
+		this.selectionTiles?.forEach(tile => tile.selected = tile.value === value);
 	}
 
-	registerOnChange(fn: any) {
-		this.onChange = fn;
-	}
-
-	registerOnTouched(fn: any) {
-		this.onTouched = fn;
-	}
-
-	public isTemplate(value) {
+	isTemplate(value: unknown): value is TemplateRef<any> {
 		return value instanceof TemplateRef;
+	}
+
+	protected updateTiles() {
+		this.unsubscribeTiles$.next();
+		this.selectionTiles.forEach(tile => {
+			tile.name = this.name;
+			tile.multiple = this.multiple;
+			tile.change.pipe(takeUntil(this.unsubscribeTiles$)).subscribe(() => {
+				if (!this.multiple) {
+					this.selectionTiles.forEach(other => other.selected = other === tile);
+				}
+				this.selected.emit({ value: tile.value, selected: tile.selected, name: this.name });
+				this.onChange(tile.value);
+			});
+		});
+		if (this.value !== undefined) {
+			this.writeValue(this.value);
+		}
 	}
 }

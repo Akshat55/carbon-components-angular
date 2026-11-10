@@ -74,14 +74,14 @@ describe("Table cell components", () => {
 	});
 
 	it("should check the checkbox and radio when the row is selected", () => {
-		const checkbox = fixture.nativeElement.querySelector("[cdsTableCheckbox] input");
+		const checkbox = fixture.nativeElement.querySelector("[cdsTableCheckbox] cds-checkbox");
 		expect(checkbox.checked).toBe(false);
 
 		wrapper.selected = true;
 		fixture.detectChanges();
 
 		expect(checkbox.checked).toBe(true);
-		expect(fixture.nativeElement.querySelector("[cdsTableRadio] input").checked).toBe(true);
+		expect(fixture.nativeElement.querySelector("[cdsTableRadio] cds-radio-button").checked).toBe(true);
 	});
 
 	it("should update the cell when its item data changes", () => {

@@ -1,308 +1,146 @@
 import {
 	ChangeDetectionStrategy,
-	ChangeDetectorRef,
 	Component,
+	CUSTOM_ELEMENTS_SCHEMA,
+	DestroyRef,
 	ElementRef,
 	EventEmitter,
-	HostBinding,
-	HostListener,
 	Input,
 	Output,
-	ViewChild,
 	inject
 } from "@angular/core";
-import { ControlValueAccessor, NG_VALUE_ACCESSOR } from "@angular/forms";
+import "@carbon/web-components/es/components/search/index.js";
 import { I18n } from "carbon-components-angular/i18n";
-import { NgClass } from "@angular/common";
-import { IconDirective } from "carbon-components-angular/icon";
+import { provideValueAccessor, WebComponentValueAccessor } from "carbon-components-angular/utils";
 
 /**
- * Get started with importing the component:
- *
- * ```typescript
- * import { Search } from 'carbon-components-angular';
- * ```
+ * Wraps the `<cds-search>` web component. Works with `ngModel` / reactive forms.
  *
  * [See demo](../../?path=/story/components-search--basic)
  */
 @Component({
-	selector: "cds-search, ibm-search",
-	templateUrl: "search.component.html",
-	providers: [
-		{
-			provide: NG_VALUE_ACCESSOR,
-			useExisting: Search,
-			multi: true
-		}
-	],
+	selector: "cds-search",
+	template: `<ng-content />`,
+	host: {
+		"[id]": "id",
+		"[name]": "name",
+		"[value]": "value ?? ''",
+		"[size]": "size",
+		"[disabled]": "disabled",
+		"[expandable]": "expandable || toolbar",
+		"[expanded]": "active",
+		"[autoComplete]": "autocomplete",
+		"[labelText]": "label",
+		"[placeholder]": "placeholder",
+		"[closeButtonLabelText]": "clearButtonTitle",
+		"[attr.aria-label]": "ariaLabel",
+		"(cds-search-input)": "onSearch($event)",
+		"(keydown)": "onKeydown($event)"
+	},
+	providers: [provideValueAccessor(() => Search)],
 	changeDetection: ChangeDetectionStrategy.OnPush,
-	imports: [NgClass, IconDirective]
+	schemas: [CUSTOM_ELEMENTS_SCHEMA]
 })
-export class Search implements ControlValueAccessor {
-	/**
-	 * Variable used for creating unique ids for search components.
-	 */
+export class Search extends WebComponentValueAccessor<string> {
 	static searchCount = 0;
 
 	public i18n = inject(I18n);
 
-	@HostBinding("class.cds--form-item") get containerClass() {
-		return !(this.toolbar || this.expandable);
-	}
-
-	@HostBinding("class.cds--text-input--fluid__skeleton") get fluidSkeletonClass() {
-		return this.skeleton && this.fluid;
-	}
-
-	/**
-	 * @deprecated since v5 - Use `cdsLayer` directive instead
-	 * `light` or `dark` search theme.
-	 */
-	@Input() theme: "light" | "dark" = "dark";
-
-	/**
-	 * Size of the search field.
-	 */
 	@Input() size: "sm" | "md" | "lg" = "md";
-
 	/**
-	 * Set to `true` for a disabled search input.
-	 */
-	@Input() disabled = false;
-	/**
-	 * Set to `true` for a toolbar search component.
-	 */
-	@Input() toolbar = false;
-	/**
-	 * Set to `true` to make the search component expandable.
-	 * `expandable` would override `toolbar` property behaviours.
+	 * Collapses to an icon button until focused.
 	 */
 	@Input() expandable = false;
 	/**
-	 * Set to `true` for a loading search component.
+	 * @deprecated use `expandable`.
+	 */
+	@Input() toolbar = false;
+	/**
+	 * Whether an expandable search is open.
+	 */
+	@Input() active = false;
+	@Input() name: string;
+	@Input() id = `search-${Search.searchCount++}`;
+	@Input() required: boolean;
+	@Input() value = "";
+	@Input() autocomplete = "on";
+	@Input() label = this.i18n.get().SEARCH.LABEL;
+	@Input() placeholder = this.i18n.get().SEARCH.PLACEHOLDER;
+	@Input() clearButtonTitle = this.i18n.get().SEARCH.CLEAR_BUTTON;
+	@Input() ariaLabel: string;
+	/**
+	 * @deprecated the web component follows the surrounding theme / layer.
+	 */
+	@Input() theme: "light" | "dark" = "dark";
+	/**
+	 * @deprecated use `<cds-search-skeleton>` instead.
 	 */
 	@Input() skeleton = false;
 	/**
-	 * Set to `true` to expand the toolbar search component.
-	 */
-	@Input() active = false;
-	/**
-	 * Specifies whether the search component is used in the table toolbar.
+	 * @deprecated
 	 */
 	@Input() tableSearch = false;
 	/**
-	 * Sets the name attribute on the `input` element.
-	 */
-	@Input() name: string;
-	/**
-	 * The unique id for the search component.
-	 */
-	@Input() id = `search-${Search.searchCount}`;
-	/**
-	 * Reflects the required attribute of the `input` element.
-	 */
-	@Input() required: boolean;
-	/**
-	 * Sets the value attribute on the `input` element.
-	 */
-	@Input() value = "";
-	/**
-	 * Sets the autocomplete attribute on the `input` element.
-	 * For reference: https://developer.mozilla.org/en-US/docs/Web/HTML/Attributes/autocomplete#Values
-	 */
-	@Input() autocomplete = "on";
-	/**
-	 * Sets the text inside the `label` tag.
-	 */
-	@Input() label = this.i18n.get().SEARCH.LABEL;
-	/**
-	 * Sets the placeholder attribute on the `input` element.
-	 */
-	@Input() placeholder = this.i18n.get().SEARCH.PLACEHOLDER;
-	/**
-	 * Used to set the `title` attribute of the clear button.
-	 */
-	@Input() clearButtonTitle = this.i18n.get().SEARCH.CLEAR_BUTTON;
-	/**
-	 * Title for the search trigger
+	 * @deprecated
 	 */
 	@Input() searchTitle = "";
 	/**
-	 * Sets the aria label on the `div` element with the `search` role.
-	 */
-	@Input() ariaLabel: string;
-	/**
-	 * Experimental: enable fluid state
+	 * @deprecated use `<cds-fluid-search>`.
 	 */
 	@Input() fluid = false;
-	/**
-	 * Emits an event when value is changed.
-	 */
+
 	@Output() valueChange = new EventEmitter<string>();
+	/**
+	 * Emits `active` when an expandable search opens or closes.
+	 */
 	@Output() open = new EventEmitter<boolean>();
 	/**
-	 * Emits an event when the clear button is clicked.
+	 * Supports two-way binding with `active`.
 	 */
+	@Output() activeChange = new EventEmitter<boolean>();
 	@Output() clear = new EventEmitter();
 	/**
-	 * Emits an event on enter.
+	 * Emits the value when Enter is pressed.
 	 */
 	@Output() search = new EventEmitter<string>();
 
-	@ViewChild("input") inputRef: ElementRef;
-
-	protected elementRef = inject(ElementRef);
-	protected changeDetectorRef = inject(ChangeDetectorRef);
-
-	/**
-	 * Sets `true` when composing text via IME.
-	 */
-	protected isComposing = false;
-
-	/** Inserted by Angular inject() migration for backwards compatibility */
-	// eslint-disable-next-line @angular-eslint/prefer-inject -- backwards-compatible DI overload until next major
-	constructor(...args: unknown[]);
-
-	/**
-	 * Creates an instance of `Search`.
-	 * @param i18n The i18n translations.
-	 */
 	constructor() {
-		Search.searchCount++;
+		super();
+		// The web component expands / collapses itself (magnifier click, Escape, focus out)
+		// through its reflected `expanded` attribute; mirror that into `active` and `open`.
+		const element: HTMLElement = inject(ElementRef).nativeElement;
+		const observer = new MutationObserver(() => {
+			const expanded = element.hasAttribute("expanded");
+			if (expanded !== this.active) {
+				this.active = expanded;
+				this.open.emit(expanded);
+				this.activeChange.emit(expanded);
+				this.changeDetectorRef.markForCheck();
+			}
+		});
+		observer.observe(element, { attributes: true, attributeFilter: ["expanded"] });
+		inject(DestroyRef).onDestroy(() => observer.disconnect());
 	}
 
-	/**
-	 * This is the initial value set to the component
-	 * @param value The input value.
-	 */
-	public writeValue(value: any) {
+	writeValue(value: string) {
 		this.value = value;
 		this.changeDetectorRef.markForCheck();
 	}
 
-	/**
-	 * Sets a method in order to propagate changes back to the form.
-	 */
-	public registerOnChange(fn: any) {
-		this.propagateChange = fn;
-	}
-
-	/**
-	 * Registers a callback to be triggered when the control has been touched.
-	 * @param fn Callback to be triggered when the search input is touched.
-	 */
-	public registerOnTouched(fn: any) {
-		this.onTouched = fn;
-	}
-
-	/**
-	 * Called when search input is blurred. Needed to properly implement `ControlValueAccessor`.
-	 */
-	onTouched: () => any = () => {};
-
-	/**
-	 * Method set in `registerOnChange` to propagate changes back to the form.
-	 */
-	propagateChange = (_: any) => {};
-
-	/**
-	 * Called when text is written in the input.
-	 * @param search The input text.
-	 */
-	onSearch(search: string) {
-		if (this.isComposing) { // check for IME use
-			return;
-		}
-		this.value = search;
-		this.doValueChange();
-	}
-
-	/**
-	 * Called on enter.
-	 */
-	onEnter() {
-		this.search.emit(this.value);
-	}
-
-	/**
-	 * Called when clear button is clicked.
-	 */
-	clearSearch(): void {
-		this.value = "";
-		this.doValueChange();
-		this.clear.emit();
-	}
-
-	doValueChange() {
-		this.propagateChange(this.value);
-		this.valueChange.emit(this.value);
-	}
-
-	openSearch() {
-		this.active = true;
-		this.open.emit(this.active);
-		setTimeout(() => this.inputRef.nativeElement.focus());
-	}
-
-	@HostListener("keydown", ["$event"])
-	keyDown(event: KeyboardEvent) {
-		if (this.toolbar || this.expandable) {
-			if (event.key === "Escape") {
-				if (this.value === "") {
-					this.active = false;
-					this.open.emit(this.active);
-					this.changeDetectorRef.markForCheck();
-				}
-			} else if (event.key === "Enter") {
-				this.openSearch();
-			}
-		}
-
-		if (event.key === "Escape") {
-			if (this.value !== "") {
-				this.clearSearch();
-				this.changeDetectorRef.markForCheck();
-			}
+	onSearch(event: Event) {
+		const value = (event as CustomEvent<{ value: string }>).detail.value;
+		const cleared = !value && !!this.value;
+		this.value = value;
+		this.onChange(value);
+		this.valueChange.emit(value);
+		if (cleared) {
+			this.clear.emit();
 		}
 	}
 
-	@HostListener("focusout", ["$event"])
-	focusOut(event) {
-		this.onTouched();
-		if ((this.expandable || this.toolbar) &&
-			this.inputRef &&
-			this.inputRef.nativeElement.value === "" &&
-			!(this.elementRef.nativeElement as HTMLElement).contains(event.relatedTarget)) {
-			this.active = false;
-			this.open.emit(this.active);
+	onKeydown(event: KeyboardEvent) {
+		if (event.key === "Enter") {
+			this.search.emit(this.value);
 		}
-	}
-
-	@HostListener("focusin", ["$event"])
-	focusIn(event) {
-		this.onTouched();
-		// set input focus if search icon get focus from tab key press event.
-		if ((this.expandable || this.toolbar) &&
-			this.inputRef && !event.relatedTarget &&
-			!(this.elementRef.nativeElement as HTMLElement).contains(event.relatedTarget) ) {
-			this.openSearch();
-		}
-	}
-
-	/**
-	 * Called when using IME composition.
-	 */
-	@HostListener("compositionstart", ["$event"])
-	compositionStart(event) {
-		this.isComposing = true;
-	}
-
-	/**
-	 * Called when IME composition finishes.
-	 */
-	@HostListener("compositionend", ["$event"])
-	compositionEnd(event) {
-		this.isComposing = false;
-		this.onSearch(this.value + event.data);
 	}
 }

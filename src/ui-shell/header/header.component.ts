@@ -1,133 +1,63 @@
 import {
+	ChangeDetectionStrategy,
 	Component,
+	CUSTOM_ELEMENTS_SCHEMA,
 	Input,
-	Output,
-	EventEmitter,
 	TemplateRef,
 	inject
 } from "@angular/core";
-import { DomSanitizer } from "@angular/platform-browser";
-import { Router, RouterLink } from "@angular/router";
+import { NgTemplateOutlet } from "@angular/common";
+import "@carbon/web-components/es/components/ui-shell/index.js";
+import "@carbon/web-components/es/components/skip-to-content/index.js";
 import { I18n } from "carbon-components-angular/i18n";
-import { NgTemplateOutlet, AsyncPipe } from "@angular/common";
+import { ShellLink } from "../shell-link.class";
 
 /**
- * A fixed header and navigation.
- * Header may contain a Hamburger menu to toggle the side navigation, navigation actions,
- * and global actions (generally in the form of `Panel`s).
+ * Wraps the `<cds-header>` web component and renders the product name.
+ *
+ * ```html
+ * <cds-header name="Platform" skipTo="main">
+ * 	<cds-hamburger />
+ * 	<cds-header-navigation>...</cds-header-navigation>
+ * 	<cds-header-global>...</cds-header-global>
+ * </cds-header>
+ * ```
  *
  * [See demo](../../?path=/story/components-ui-shell--header)
  */
 @Component({
-	selector: "cds-header, ibm-header",
+	selector: "cds-header",
 	template: `
-		<header
-			class="cds--header"
-			[attr.aria-label]="brand + ' ' + name">
-			@if (skipTo) {
-				<a
-					class="cds--skip-to-content"
-					[href]="skipTo"
-					tabindex="0">
-					{{ i18n.get("UI_SHELL.SKIP_TO") | async }}
-				</a>
-			}
-			<ng-content select="cds-hamburger,ibm-hamburger" />
+		@if (skipTo) {
+			<cds-skip-to-content [href]="'#' + skipTo">{{ i18n.get().UI_SHELL.SKIP_TO }}</cds-skip-to-content>
+		}
+		<ng-content select="cds-hamburger" />
+		<cds-header-name [href]="href ?? ''" [prefix]="isTemplate(brand) ? '' : brand" (click)="navigate($event)">
 			@if (isTemplate(brand)) {
 				<ng-template [ngTemplateOutlet]="brand" />
-			} @else {
-				@if (useRouter) {
-					<a
-						class="cds--header__name"
-						[routerLink]="route">
-						<span class="cds--header__name--prefix">{{brand}}&nbsp;</span>
-						{{name}}
-					</a>
-				} @else {
-					<a
-						class="cds--header__name"
-						[href]="href"
-						(click)="navigate($event)">
-						<span class="cds--header__name--prefix">{{brand}}&nbsp;</span>
-						{{name}}
-					</a>
-				}
 			}
-			<ng-content />
-		</header>
+			{{ name }}
+		</cds-header-name>
+		<ng-content />
 	`,
-	imports: [NgTemplateOutlet, RouterLink, AsyncPipe]
+	host: {
+		"[attr.aria-label]": "(isTemplate(brand) ? '' : brand + ' ') + (name ?? '')"
+	},
+	changeDetection: ChangeDetectionStrategy.OnPush,
+	imports: [NgTemplateOutlet],
+	schemas: [CUSTOM_ELEMENTS_SCHEMA]
 })
-export class Header {
-	public i18n = inject(I18n);
+export class Header extends ShellLink {
+	i18n = inject(I18n);
 
 	/**
-	 * ID in the main body content to jump to. Used by keyboard and screen reader users to skip the header content.
+	 * Id of the main content, for the skip-to-content link.
 	 */
 	@Input() skipTo: string;
-	/**
-	 * Label that shows to the right of the `brand` text. Generally a product name.
-	 */
 	@Input() name: string;
-	/**
-	 * Top level branding. Defaults to "IBM"
-	 */
 	@Input() brand: string | TemplateRef<any> = "IBM";
-	/**
-	 * Optional link for the header
-	 */
-	@Input() set href(v: string) {
-		this._href = v;
-	}
 
-	get href() {
-		return this.domSanitizer.bypassSecurityTrustUrl(this._href) as string;
-	}
-
-	/**
-	 * Array of commands to send to the router when the link is activated
-	 * See: https://angular.io/api/router/Router#navigate
-	 */
-	@Input() route: any[];
-
-	/**
-	 * Router options. Used in conjunction with `route`
-	 * See: https://angular.io/api/router/Router#navigate
-	 */
-	@Input() routeExtras: any;
-
-	/**
-	 * Use the routerLink attribute on <a> tag for navigation instead of using event handlers
-	 */
-	@Input() useRouter = false;
-
-	/**
-	 * Emits the navigation status promise when the link is activated
-	 */
-	@Output() navigation = new EventEmitter<Promise<boolean>>();
-
-	protected _href = "#";
-
-	protected domSanitizer = inject(DomSanitizer);
-	protected router = inject(Router, { optional: true })!;
-
-	/** Inserted by Angular inject() migration for backwards compatibility */
-	// eslint-disable-next-line @angular-eslint/prefer-inject -- backwards-compatible DI overload until next major
-	constructor(...args: unknown[]);
-
-	constructor() {}
-
-	public isTemplate(value) {
+	isTemplate(value: unknown): value is TemplateRef<any> {
 		return value instanceof TemplateRef;
-	}
-
-	navigate(event) {
-		if (this.router && this.route) {
-			event.preventDefault();
-			const status = this.router.navigate(this.route, this.routeExtras);
-			this.navigation.emit(status);
-		} else if (this._href === "#") {
-			event.preventDefault();
-		}
 	}
 }

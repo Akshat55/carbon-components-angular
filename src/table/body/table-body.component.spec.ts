@@ -108,7 +108,7 @@ describe("TableBody", () => {
 		fixture.detectChanges();
 
 		expect(firstRow.classList).toContain("cds--data-table--selected");
-		expect(fixture.nativeElement.querySelector("[cdsTableCheckbox] input").checked).toBe(true);
+		expect(fixture.nativeElement.querySelector("[cdsTableCheckbox] cds-checkbox").checked).toBe(true);
 	});
 
 	it("should expand a row when the model expands it", () => {

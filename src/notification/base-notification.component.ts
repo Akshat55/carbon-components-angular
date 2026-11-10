@@ -82,6 +82,15 @@ export class BaseNotification {
 		this.close.emit();
 	}
 
+	/**
+	 * The notification web components remove themselves on close. Angular owns the element,
+	 * so cancel that and emit `close` (the `NotificationService` destroys the component).
+	 */
+	onBeingClosed(event: Event) {
+		event.preventDefault();
+		this.onClose();
+	}
+
 	onClick(action, event) {
 		if (!action.click) {
 			return;

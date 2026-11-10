@@ -2,211 +2,99 @@ import {
 	ChangeDetectionStrategy,
 	ChangeDetectorRef,
 	Component,
-	Input,
-	HostBinding,
-	Output,
+	CUSTOM_ELEMENTS_SCHEMA,
 	EventEmitter,
+	Input,
+	Output,
 	TemplateRef,
 	inject
 } from "@angular/core";
-import { NG_VALUE_ACCESSOR } from "@angular/forms";
+import "@carbon/web-components/es/components/radio-button/index.js";
+import { TemplateSlot } from "carbon-components-angular/utils";
 import { RadioChange } from "./radio-change.class";
-import { NgClass, NgTemplateOutlet } from "@angular/common";
 
 /**
- * class: Radio (extends Checkbox)
+ * Renders the `<cds-radio-button>` web component. Use inside `cds-radio-group`.
  *
- * selector: `n-radio`
- *
- * source: `src/forms/radio.component.ts`
- *
- * ```html
- *	<cds-radio [(ngModel)]="radioState">Radio</cds-radio>
- * ```
- *
- * Also see: [`RadioGroup`](#cds-radio-group)
+ * [See demo](../../?path=/story/components-radio--basic)
  */
 @Component({
-	selector: "cds-radio, ibm-radio",
+	selector: "cds-radio",
 	template: `
-		@if (!skeleton) {
-			<input
-				class="cds--radio-button"
-				type="radio"
-				[checked]="checked"
-				[disabled]="disabled || disabledFromGroup"
-				[name]="name"
-				[id]="id"
-				[required]="required"
-				[attr.value]="value"
-				[attr.aria-labelledby]="ariaLabelledby"
-				(change)="onChange($event)"
-				(click)="onClick($event)">
-		}
-		@if (skeleton) {
-			<div class="cds--radio-button cds--skeleton"></div>
-		}
-		<label
-			class="cds--radio-button__label"
-			[attr.aria-label]="ariaLabel"
-			[ngClass]="{
-				'cds--skeleton': skeleton
-			}"
-			[for]="id"
-			id="label-{{id}}">
-			<span class="cds--radio-button__appearance"></span>
-			<span class="cds--radio-button__label-text">
-				<ng-content></ng-content>
-				@if (decorator) {
-					<div class="cds--radio-button-wrapper-inner--decorator">
-						<ng-template [ngTemplateOutlet]="decorator"></ng-template>
-					</div>
-				}
-			</span>
-		</label>
+		<cds-radio-button
+			[id]="id"
+			[checked]="checked"
+			[disabled]="disabled || disabledFromGroup"
+			[name]="name"
+			[required]="required"
+			[value]="stringValue"
+			[labelPosition]="labelPlacement"
+			[attr.aria-label]="ariaLabel || null"
+			[attr.aria-labelledby]="ariaLabelledby || null"
+			(cds-radio-button-changed)="onChanged($event)">
+			<ng-content />
+			<ng-container cdsSlot="ai-label" [cdsSlotTemplate]="decorator" />
+		</cds-radio-button>
 	`,
-	providers: [
-		{
-			provide: NG_VALUE_ACCESSOR,
-			useExisting: Radio,
-			multi: true
-		}
-	],
+	styles: [":host { display: contents; }"],
 	changeDetection: ChangeDetectionStrategy.OnPush,
-	imports: [NgClass, NgTemplateOutlet]
+	imports: [TemplateSlot],
+	schemas: [CUSTOM_ELEMENTS_SCHEMA]
 })
 export class Radio {
-	/**
-	 * Used to dynamically create unique ids for the `Radio`.
-	 */
 	static radioCount = 0;
 
-	/**
-	 * Set by the parent `RadioGroup` component when the selection changes
-	 */
 	@Input() set checked(value: boolean) {
 		this._checked = value;
 		this.changeDetectorRef.markForCheck();
 	}
-
 	get checked() {
 		return this._checked;
 	}
-
 	@Input() set name(value: string) {
 		this._name = value;
 		this.changeDetectorRef.markForCheck();
 	}
-
 	get name() {
 		return this._name;
 	}
-
 	@Input() disabled = false;
-
-	@Input() labelPlacement: "right" | "left" =  "right";
-
-	@Input() set ariaLabelledby(value: string) {
-		this._labelledby = value;
-	}
-
-	get ariaLabelledby() {
-		if (this._labelledby) {
-			return this._labelledby;
-		}
-		return `label-${this.id}`;
-	}
-
-	/**
-	 * Used to set the `aria-label` attribute on the input label.
-	 */
+	@Input() labelPlacement: "right" | "left" = "right";
+	@Input() ariaLabelledby: string;
 	@Input() ariaLabel: string;
-
-	/**
-	 * Sets the HTML required attribute
-	 */
 	@Input() required = false;
 	/**
-	 * The value of the `Radio`.
+	 * Any value; the web component receives it as a string.
 	 */
-	@Input() value;
-	/**
-	 * Set to `true` for a loading table.
-	 */
-	@Input() set skeleton(value: boolean) {
-		this._skeleton = value;
-		this.changeDetectorRef.markForCheck();
-	}
-
-	get skeleton() {
-		return this._skeleton;
-	}
-	/**
-	 * The id for the `Radio`.
-	 */
+	@Input() value: any;
 	@Input() id = `radio-${Radio.radioCount++}`;
+	@Input() decorator: TemplateRef<any>;
 	/**
-	 * emits when the state of the radio changes
+	 * @deprecated use `<cds-radio-button-skeleton>` instead.
 	 */
+	@Input() skeleton = false;
+
 	// eslint-disable-next-line @angular-eslint/no-output-native
 	@Output() change = new EventEmitter<RadioChange>();
 
-	@HostBinding("class.cds--radio-button-wrapper") hostClass = true;
-
-	@HostBinding("class.cds--radio-button-wrapper--decorator") get hasDecorator() {
-		return !!this.decorator;
-	}
-
-	@HostBinding("class.cds--radio-button-wrapper--label-left") get labelLeft() {
-		return this.labelPlacement === "left";
-	}
-
-	/**
-	 * **Experimental**: Optional decorator (e.g. AI label).
-	 */
-	@Input() decorator: TemplateRef<any>;
-
-	/**
-	 * Reflects whether or not the input is disabled at `RadioGroup` level.
-	 */
 	disabledFromGroup = false;
-
 	protected changeDetectorRef = inject(ChangeDetectorRef);
 	protected _checked = false;
 	protected _name = "";
-	protected _skeleton = false;
-	protected _labelledby = "";
 
-	/**
-	 * Handler provided by the `RadioGroup` to bubble events up
-	 */
-	radioChangeHandler = (event: RadioChange) => {};
-
-	/**
-	 * Synchronizes with the `RadioGroup` in the event of a changed `Radio`.
-	 * Emits the changes of both the `RadioGroup` and `Radio`.
-	 */
-	onChange(event: Event) {
-		event.stopPropagation();
-	}
-
-	onClick(event: Event) {
-		this.checked = (event.target as HTMLInputElement).checked;
-		const radioEvent = new RadioChange(this, this.value);
-		this.change.emit(radioEvent);
-		this.radioChangeHandler(radioEvent);
-	}
-
-	/**
-	 * Method called by `RadioGroup` with a callback function to bubble `RadioChange` events
-	 * @param fn callback that expects a `RadioChange` as an argument
-	 */
-	registerRadioChangeHandler(fn: (event: RadioChange) => void) {
-		this.radioChangeHandler = fn;
+	get stringValue() {
+		return this.value === undefined || this.value === null ? "" : String(this.value);
 	}
 
 	setDisabledFromGroup(disabled: boolean) {
 		this.disabledFromGroup = disabled;
 		this.changeDetectorRef.markForCheck();
+	}
+
+	onChanged(event: Event) {
+		this.checked = (event.target as any).checked;
+		if (this.checked) {
+			this.change.emit(new RadioChange(this, this.value));
+		}
 	}
 }

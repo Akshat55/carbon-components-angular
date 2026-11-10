@@ -134,7 +134,7 @@ describe("TableHead", () => {
 	});
 
 	it("should put the select all checkbox in the indeterminate state", () => {
-		const checkbox = fixture.nativeElement.querySelector("[cdsTableHeadCheckbox] input");
+		const checkbox = fixture.nativeElement.querySelector("[cdsTableHeadCheckbox] cds-checkbox");
 		expect(checkbox.indeterminate).toBe(false);
 
 		wrapper.selectAllCheckbox = true;

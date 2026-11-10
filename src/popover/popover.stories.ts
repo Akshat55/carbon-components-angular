@@ -57,8 +57,7 @@ export default {
 const Template = (args) => ({
 	props: args,
 	template: `
-		<div
-			cdsPopover
+		<cds-popover
 			[isOpen]="isOpen"
 			[dropShadow]="dropShadow"
 			[align]="align"
@@ -78,7 +77,7 @@ const Template = (args) => ({
 					<p class="popover-content">This server has 150GB of block storage remaining</p>
 				</div>
 			</cds-popover-content>
-		</div>
+		</cds-popover>
 	`,
 	styles: [`
 		.popover-trigger {
@@ -125,8 +124,7 @@ const AutoAlignTemplate = (args) => ({
 		<div style="height:3000px">
 			Scrolling will update the position of the popover:
 			<div style="position: absolute; top: 500px; left: 500px;">
-				<div
-					cdsPopover
+				<cds-popover
 					[isOpen]="isOpen"
 					[dropShadow]="dropShadow"
 					[align]="align"
@@ -152,7 +150,7 @@ const AutoAlignTemplate = (args) => ({
 							<p class="popover-content">This server has 150GB of block storage remaining</p>
 						</div>
 					</cds-popover-content>
-				</div>
+				</cds-popover>
 			</div>
 		</div>
 	`,

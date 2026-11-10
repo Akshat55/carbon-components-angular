@@ -2,150 +2,61 @@ import {
 	ChangeDetectionStrategy,
 	ChangeDetectorRef,
 	Component,
-	HostBinding,
-	ContentChildren,
-	QueryList,
-	AfterContentInit,
-	Input,
-	HostListener,
-	ViewChild,
-	ElementRef,
+	CUSTOM_ELEMENTS_SCHEMA,
 	EventEmitter,
+	Input,
 	Output,
 	inject
 } from "@angular/core";
-import { ListColumn } from "./list-column.component";
-import { IconDirective } from "carbon-components-angular/icon";
+import "@carbon/web-components/es/components/structured-list/index.js";
 
 /**
- * `ListRow` provides a container for the `ListColumn`s that make up the body of a structured list.
- *
- * Example:
- * ```html
- * 	<cds-list-row>
- *		<cds-list-column>Row 1</cds-list-column>
- *		<cds-list-column nowrap="true">Row One</cds-list-column>
- *		<cds-list-column>
- *			Lorem ipsum dolor sit amet,
- *			consectetur adipiscing elit. Nunc dui magna,
- *			finibus id tortor sed, aliquet bibendum augue.
- *			Aenean posuere sem vel euismod dignissim. Nulla ut cursus dolor.
- *			Pellentesque vulputate nisl a porttitor interdum.
- *		</cds-list-column>
- *	</cds-list-row>
- * ```
+ * A structured list row. Renders `<cds-structured-list-row>`; in a selectable list,
+ * clicking it selects it and emits `change`.
  */
 @Component({
-	selector: "cds-list-row, ibm-list-row",
+	selector: "cds-list-row",
 	template: `
-		<ng-content />
-		@if (selection) {
-			<input
-				#input
-				class="cds--structured-list-input cds--visually-hidden"
-				type="radio"
-				[value]="value"
-				[name]="name"
-				[title]="label"
-				(focus)="handleFocus(true)"
-				(blur)="handleFocus(false)"
-				(change)="onChange($event)"
-				[checked]="selected" />
-			<div class="cds--structured-list-td">
-				<svg cdsIcon="checkmark--filled" size="16" class="cds--structured-list-svg"></svg>
-			</div>
-		}
+		<cds-structured-list-row
+			[selected]="selected"
+			[selectionValue]="value"
+			[attr.aria-label]="label"
+			(click)="onClick($event)">
+			<ng-content />
+		</cds-structured-list-row>
 	`,
+	styles: [":host { display: contents; }"],
 	changeDetection: ChangeDetectionStrategy.OnPush,
-	imports: [IconDirective]
+	schemas: [CUSTOM_ELEMENTS_SCHEMA]
 })
-export class ListRow implements AfterContentInit {
-	@HostBinding("class.cds--structured-list-row--focused-within") get focusClass() {
-		return this.isFocused;
-	}
-	@Input() @HostBinding("class.cds--structured-list-row--selected") set selected(value: boolean) {
+export class ListRow {
+	@Input() set selected(value: boolean) {
 		this._selected = value;
 		this.changeDetectorRef.markForCheck();
 	}
-
 	get selected() {
 		return this._selected;
 	}
-	/**
-	 * Applies an accessible label to the row. Defaults to no label.
-	 */
-	@Input() @HostBinding("attr.aria-label") label;
-	/**
-	 * The value for the row. Returned via `ngModel` or `selected` event on the containing `StructuredList`.
-	 */
-	@Input() value;
-	/**
-	 * Internal event used to notify the containing `StructuredList` of changes.
-	 */
+
+	@Input() label: string;
+	@Input() value: any;
+
 	// eslint-disable-next-line @angular-eslint/no-output-native
 	@Output() change: EventEmitter<Event> = new EventEmitter();
 
 	/**
-	 * Set by the containing `StructuredList`. Enables or disables row level selection features.
+	 * Set by the parent `cds-structured-list`.
 	 */
-	set selection(value: boolean) {
-		this._selection = value;
-		this.changeDetectorRef.markForCheck();
-	}
-
-	get selection() {
-		return this._selection;
-	}
-	/**
-	 * Set by the containing `StructuredList`. When `selection = true`, used for the `name` property on the radio input.
-	 */
-	set name(value: string) {
-		this._name = value;
-		this.changeDetectorRef.markForCheck();
-	}
-
-	get name() {
-		return this._name;
-	}
-
-	@HostBinding("class.cds--structured-list-row") wrapper = true;
-	@HostBinding("attr.role") role = "row";
-
-	@ContentChildren(ListColumn) columns: QueryList<ListColumn>;
-
-	@ViewChild("input") input: ElementRef;
+	selection = false;
+	name = "list";
 
 	protected changeDetectorRef = inject(ChangeDetectorRef);
 	protected _selected = false;
-	protected _selection = false;
-	protected _name = "list";
 
-	private isFocused = false;
-
-	ngAfterContentInit() {
-		this.columns.forEach(column => {
-			column.isBodyColumn = true;
-			column.isHeaderColumn = false;
-		});
-	}
-
-	@HostListener("click")
-	onclick() {
+	onClick(event: Event) {
 		if (this.selection) {
-			this.input.nativeElement.click();
-		}
-	}
-
-	onChange(event) {
-		this.change.emit(event);
-	}
-
-	handleFocus(isFocused) {
-		if (this.selection) {
-			this.isFocused = isFocused;
-			if (this.isFocused) {
-				this.input.nativeElement.click();
-			}
+			this.selected = true;
+			this.change.emit(event);
 		}
 	}
 }

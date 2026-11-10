@@ -23,9 +23,9 @@ const Template = (args) => ({
 			[selectionMode]="selectionMode"
 			[selectedIndex]="selectedIndex"
 			(selected)="selected($event)">
-			<button cdsContentOption name="First">First section</button>
-			<button cdsContentOption name="Second">Second section</button>
-			<button cdsContentOption name="Third">Third section</button>
+			<cds-content-switcher-item name="First">First section</cds-content-switcher-item>
+			<cds-content-switcher-item name="Second">Second section</cds-content-switcher-item>
+			<cds-content-switcher-item name="Third">Third section</cds-content-switcher-item>
 		</cds-content-switcher>
 	`
 });

@@ -1,497 +1,164 @@
 import {
 	AfterContentInit,
 	ChangeDetectionStrategy,
-	ContentChildren,
 	Component,
+	ContentChildren,
+	CUSTOM_ELEMENTS_SCHEMA,
 	EventEmitter,
 	forwardRef,
 	Input,
+	OnDestroy,
 	Output,
 	QueryList,
-	HostBinding,
-	AfterViewInit,
-	HostListener,
-	TemplateRef,
-	OnDestroy,
-	ChangeDetectorRef,
-	inject
+	TemplateRef
 } from "@angular/core";
-import { NG_VALUE_ACCESSOR, ControlValueAccessor } from "@angular/forms";
+import { Subscription } from "rxjs";
+import "@carbon/web-components/es/components/radio-button/index.js";
+import { provideValueAccessor, TemplateContent, TemplateSlot, WebComponentValueAccessor } from "carbon-components-angular/utils";
 import { Radio } from "./radio.component";
 import { RadioChange } from "./radio-change.class";
-import { NgClass, NgTemplateOutlet } from "@angular/common";
-import { IconDirective } from "carbon-components-angular/icon";
-import { Subscription } from "rxjs/internal/Subscription";
 
 /**
- * Get started with importing the components:
- *
- * ```typescript
- * import { RadioGroup, Radio } from 'carbon-components-angular';
- * ```
- *
- * Ex:
- *
- * ```html
- * <cds-radio-group [(ngModel)]="radio">
- * 	<cds-radio *ngFor="let one of manyRadios" [value]="one">
- *		Radio {{one}}
- * 	</cds-radio>
- * </cds-radio-group>
- *
- * Radio selected: {{radio}}
- * ```
- *
- * ```ts
- *	const manyRadios = ["one", "two", "three", "four", "five", "six"];
- * ```
+ * Renders the `<cds-radio-button-group>` web component around projected `cds-radio`s.
+ * Works with `ngModel` / reactive forms; the value is the selected radio's `value`.
  *
  * [See demo](../../?path=/story/components-radio--basic)
  */
 @Component({
-	selector: "cds-radio-group, ibm-radio-group",
+	selector: "cds-radio-group",
 	template: `
-		<fieldset
-			class="cds--radio-button-group"
-			[attr.aria-label]="ariaLabel"
-			[attr.aria-labelledby]="ariaLabelledby"
-			[ngClass]="{
-				'cds--radio-button-group--vertical': orientation === 'vertical',
-				'cds--radio-button-group--label-left': labelPlacement === 'left',
-				'cds--radio-button-group--invalid': invalid,
-				'cds--radio-button-group--warning': !invalid && warn,
-				'cds--radio-button-group--decorator': !!decorator
-			}"
-			[attr.data-invalid]="invalid ? true : null">
-			@if (legend) {
-				<legend class="cds--label">
-					@if (isTemplate(legend)) {
-						<ng-template [ngTemplateOutlet]="legend"></ng-template>
-					} @else {
-						{{legend}}
-					}
-
-					@if (decorator) {
-						<div class="cds--radio-button-group-inner--decorator">
-							<ng-template [ngTemplateOutlet]="decorator"></ng-template>
-						</div>
-					}
-				</legend>
-			}
-			<ng-content></ng-content>
-		</fieldset>
-		<div class="cds--radio-button__validation-msg">
-			@if (invalid) {
-				<svg
-					cdsIcon="warning--filled"
-					size="16"
-					class="cds--radio-button__invalid-icon">
-				</svg>
-				<div class="cds--form-requirement">
-					@if (!isTemplate(invalidText)) {
-						{{ invalidText }}
-					}
-					@if (isTemplate(invalidText)) {
-						<ng-template [ngTemplateOutlet]="invalidText"></ng-template>
-					}
-				</div>
-
-			}
-			@if (!invalid && warn) {
-				<svg
-					cdsIcon="warning--alt--filled"
-					class="cds--radio-button__invalid-icon cds--radio-button__invalid-icon--warning"
-					size="16">
-				</svg>
-				<div class="cds--form-requirement">
-					@if (!isTemplate(warnText)) {
-						{{warnText}}
-					}
-					@if (isTemplate(warnText)) {
-						<ng-template [ngTemplateOutlet]="warnText"></ng-template>
-					}
-				</div>
-
-			}
-		</div>
-		@if (helperText && !invalid && !warn) {
-			<div
-				class="cds--form__helper-text"
-				[ngClass]="{'cds--form__helper-text--disabled': disabled}">
-				@if (!isTemplate(helperText)) {
-					{{helperText}}
-				}
-				@if (isTemplate(helperText)) {
-					<ng-template [ngTemplateOutlet]="helperText"></ng-template>
-				}
-			</div>
-		}
+		<cds-radio-button-group
+			[name]="name"
+			[value]="selected?.stringValue ?? ''"
+			[disabled]="disabled"
+			[orientation]="orientation"
+			[labelPosition]="labelPlacement"
+			[legendText]="isTemplate(legend) ? '' : legend"
+			[helperText]="content.render('helperText', helperText)"
+			[invalid]="invalid"
+			[invalidText]="content.render('invalidText', invalidText)"
+			[warn]="warn"
+			[warnText]="content.render('warnText', warnText)"
+			[attr.aria-label]="ariaLabel || null"
+			[attr.aria-labelledby]="ariaLabelledby || null"
+			(cds-radio-button-group-changed)="onGroupChanged($event)">
+			<ng-container cdsSlot="ai-label" [cdsSlotTemplate]="decorator" />
+			<ng-content />
+		</cds-radio-button-group>
 	`,
-	providers: [
-		{
-			provide: NG_VALUE_ACCESSOR,
-			useExisting: RadioGroup,
-			multi: true
-		}
-	],
+	styles: [":host { display: block; }"],
+	providers: [provideValueAccessor(() => RadioGroup)],
 	changeDetection: ChangeDetectionStrategy.OnPush,
-	imports: [NgClass, NgTemplateOutlet, IconDirective]
+	imports: [TemplateSlot],
+	schemas: [CUSTOM_ELEMENTS_SCHEMA]
 })
-export class RadioGroup implements AfterContentInit, AfterViewInit, OnDestroy, ControlValueAccessor {
+export class RadioGroup extends WebComponentValueAccessor implements AfterContentInit, OnDestroy {
+	static radioGroupCount = 0;
 
 	/**
-	 * Sets the passed in `Radio` item as the selected input within the `RadioGroup`.
+	 * The selected `Radio`.
 	 */
-	@Input()
-	set selected(selected: Radio | null) {
-		const alreadySelected = (this._selected && this._selected.value) === (selected && selected.value);
-		if (alreadySelected) {
-			// no need to redo
-			return;
-		}
-
-		if (this._selected) {
-			this._selected.checked = false;
-		}
-		this._selected = selected;
+	@Input() set selected(selected: Radio | null) {
 		this.value = selected ? selected.value : null;
-		this.checkSelectedRadio();
+	}
+	get selected(): Radio | null {
+		return this.radios?.find(radio => radio.value === this._value) ?? null;
 	}
 
-	/**
-	 * Returns the `Radio` that is selected within the `RadioGroup`.
-	 */
-	get selected() {
-		return this._selected;
+	@Input() set value(value: any) {
+		this._value = value;
+		this.updateRadios();
 	}
-
-	/**
-	 * Sets the value/state of the selected `Radio` within the `RadioGroup` to the passed in value.
-	 */
-	@Input()
-	set value(newValue: any) {
-		if (this._value !== newValue) {
-			this._value = newValue;
-
-			this.updateSelectedRadioFromValue();
-			this.checkSelectedRadio();
-		}
-	}
-
-	/**
-	 * Returns the value/state of the selected `Radio` within the `RadioGroup`.
-	 */
 	get value() {
 		return this._value;
 	}
 
-	/**
-	 * Replaces the name associated with the `RadioGroup` with the provided parameter.
-	 */
-	@Input()
-	set name(name: string) {
+	@Input() set name(name: string) {
 		this._name = name;
 		this.updateRadios();
 	}
-	/**
-	 * Returns the associated name of the `RadioGroup`.
-	 */
 	get name() {
 		return this._name;
 	}
 
-	/**
-	 * Set to true to disable the whole radio group
-	 */
-	@Input()
-	set disabled(disabled: boolean) {
-		this._disabled = disabled;
-		this.updateRadios();
+	@Input() set skeleton(value: boolean) {
+		this._skeleton = value;
+		this.radios?.forEach(radio => radio.skeleton = value);
 	}
-	/**
-	 * Returns the disabled value for the `RadioGroup`.
-	 */
-	get disabled(): boolean {
-		return this._disabled;
-	}
-
-	/**
-	 * Returns the skeleton value in the `RadioGroup` if there is one.
-	 */
-	@Input()
-	get skeleton(): any {
+	get skeleton() {
 		return this._skeleton;
 	}
 
-	/**
-	 * Sets the skeleton value for all `Radio` to the skeleton value of `RadioGroup`.
-	 */
-	set skeleton(value: any) {
-		this._skeleton = value;
-		this.updateChildren();
-	}
-	/**
-	 * Used for creating the `RadioGroup` 'name' property dynamically.
-	 */
-	static radioGroupCount = 0;
-
 	@Input() orientation: "horizontal" | "vertical" = "horizontal";
-
-	@Input() labelPlacement: "right" | "left" =  "right";
-
+	@Input() labelPlacement: "right" | "left" = "right";
+	/**
+	 * Legend text. A `TemplateRef` is not supported by the web component and renders nothing.
+	 */
 	@Input() legend: string | TemplateRef<any>;
-
-	/**
-	 * **Experimental**: Optional decorator (e.g. AI label).
-	 */
 	@Input() decorator: TemplateRef<any>;
-
-	/**
-	 * Used to set the `aria-label` attribute on the radio group element.
-	 */
 	@Input() ariaLabel: string;
-
-	/**
-	 * Used to set the `aria-labelledby` attribute on the radio group element.
-	 */
 	@Input() ariaLabelledby: string;
-
-	/**
-	 * Sets the optional helper text.
-	 */
 	@Input() helperText: string | TemplateRef<any>;
-
-	/**
-	 * Set to `true` to show the invalid state.
-	 */
 	@Input() invalid = false;
-
-	/**
-	 * Value displayed if combobox is in an invalid state.
-	 */
 	@Input() invalidText: string | TemplateRef<any>;
-
-	/**
-	* Set to `true` to show a warning (contents set by warnText)
-	*/
 	@Input() warn = false;
-
-	/**
-	 * Sets the warning text
-	 */
 	@Input() warnText: string | TemplateRef<any>;
 
-	/**
-	 * Emits event notifying other classes of a change using a `RadioChange` class.
-	 */
 	// eslint-disable-next-line @angular-eslint/no-output-native
-	@Output() change: EventEmitter<RadioChange> = new EventEmitter<RadioChange>();
+	@Output() change = new EventEmitter<RadioChange>();
 
-	/**
-	 * The `Radio` input items in the `RadioGroup`.
-	 */
 	@ContentChildren(forwardRef(() => Radio)) radios: QueryList<Radio>;
 
-	/**
-	 * Binds 'cds--form-item' value to the class for `RadioGroup`.
-	 */
-	@HostBinding("class.cds--form-item") radioButtonGroupClass = true;
-
-	/**
-	 * To track whether the `RadioGroup` has been initialized.
-	 */
-	protected isInitialized = false;
-
-	protected changeDetectorRef = inject(ChangeDetectorRef);
-	/**
-	 * Reflects whether or not the input is disabled and cannot be selected.
-	 */
-	protected _disabled = false;
-	/**
-	 * Reflects whether or not the dropdown is loading.
-	 */
-	protected _skeleton = false;
-	/**
-	 * The value of the selected option within the `RadioGroup`.
-	 */
+	protected content = new TemplateContent();
 	protected _value: any = null;
-	/**
-	 * The `Radio` within the `RadioGroup` that is selected.
-	 */
-	protected _selected: Radio = null;
-	/**
-	 * The name attribute associated with the `RadioGroup`.
-	 */
 	protected _name = `radio-group-${RadioGroup.radioGroupCount++}`;
-
+	protected _skeleton = false;
 	private subscription = new Subscription();
 
-	/**
-	 * Updates the selected `Radio` to be checked (selected).
-	 */
-	checkSelectedRadio() {
-		if (this.selected && !this._selected.checked) {
-			this.selected.checked = true;
-		}
-	}
-
-	/**
-	 * Use the value of the `RadioGroup` to update the selected radio to the right state (selected state).
-	 */
-	updateSelectedRadioFromValue() {
-		let alreadySelected = this._selected != null && this._selected.value === this._value;
-		if (this.radios && !alreadySelected) {
-			if (this.selected && this.value) {
-				this.selected.checked = false;
-			}
-			this._selected = null;
-			this.radios.forEach(radio => {
-				if (radio.checked || radio.value === this._value) {
-					this._selected = radio;
-				}
-			});
-			if (this.selected && !this.value) {
-				this._value = this.selected.value;
-			}
-		}
-	}
-
-	/**
-	 * `ControlValueAccessor` method to programmatically disable the `RadioGroup`.
-	 *
-	 * ex: `this.formGroup.get("myRadioGroup").disable();`
-	 *
-	 * @param isDisabled `true` to disable the inputs
-	 */
-	setDisabledState(isDisabled: boolean) {
-		this.disabled = isDisabled;
-		this.changeDetectorRef.markForCheck();
-	}
-
-	/**
-	 * Creates a class of `RadioChange` to emit the change in the `RadioGroup`.
-	 */
-	emitChangeEvent(event: RadioChange) {
-		this.change.emit(event);
-		this.propagateChange(event.value);
-		this.onTouched();
-	}
-
-	/**
-	 * Synchronizes radio properties.
-	 */
-	updateRadios() {
-		if (this.radios) {
-			setTimeout(() => {
-				this.radios.forEach(radio => {
-					radio.name = this.name;
-					radio.setDisabledFromGroup(this.disabled);
-					if (this.labelPlacement === "left") {
-						radio.labelPlacement = "left";
-					}
-				});
-				// the radios are projected content, refresh view on change
-				this.changeDetectorRef.markForCheck();
-			});
-		}
-	}
-
-	/**
-	 * Updates the value of the `RadioGroup` using the provided parameter.
-	 */
-	writeValue(value: any) {
-		this.value = value;
-	}
-
 	ngAfterContentInit() {
-		this.subscription.add(
-			this.radios.changes.subscribe(() => {
-				if (this.value) {
-					if (this.selected) {
-						this._selected = null;
-					}
-					this.updateSelectedRadioFromValue();
-					this.checkSelectedRadio();
-				}
-				this.updateRadios();
-				this.updateRadioChangeHandler();
-			})
-		);
-
-		if (this.value) {
-			this.updateSelectedRadioFromValue();
-			this.checkSelectedRadio();
+		// A pre-checked radio sets the initial value.
+		if (this._value === null || this._value === undefined) {
+			this._value = this.radios.find(radio => radio.checked)?.value ?? null;
 		}
-
-		this.updateChildren();
-		this.updateRadioChangeHandler();
-	}
-
-	ngAfterViewInit() {
 		this.updateRadios();
+		// Keep the selection when the radios change (e.g. `@for` re-renders).
+		this.subscription.add(this.radios.changes.subscribe(() => this.updateRadios()));
 	}
 
 	ngOnDestroy() {
 		this.subscription.unsubscribe();
 	}
 
-	/**
-	 * Used to set method to propagate changes back to the form.
-	 */
-	public registerOnChange(fn: any) {
-		this.propagateChange = fn;
+	writeValue(value: any) {
+		this.value = value;
 	}
 
-	/**
-	 * Registers a callback to be triggered when the control has been touched.
-	 * @param fn Callback to be triggered when the checkbox is touched.
-	 */
-	public registerOnTouched(fn: any) {
-		this.onTouched = fn;
-	}
-
-	@HostListener("focusout")
-	focusOut() {
+	onGroupChanged(event: Event) {
+		const value = (event as CustomEvent<{ value: string }>).detail.value;
+		const radio = this.radios.find(r => r.stringValue === value);
+		if (!radio) {
+			return;
+		}
+		this.value = radio.value;
+		this.change.emit(new RadioChange(radio, radio.value));
+		this.onChange(radio.value);
 		this.onTouched();
 	}
 
-	/**
-	 * Needed to properly implement ControlValueAccessor.
-	 */
-	onTouched: () => any = () => {};
-
-	/**
-	 * Method set in registerOnChange to propagate changes back to the form.
-	 */
-	propagateChange = (_: any) => {};
-
-	public isTemplate(value) {
+	isTemplate(value: unknown): value is TemplateRef<any> {
 		return value instanceof TemplateRef;
 	}
 
-	protected updateChildren() {
-		if (this.radios) {
-			this.radios.forEach(child => child.skeleton = this.skeleton);
-		}
+	protected onDisabledChange() {
+		this.updateRadios();
 	}
 
-	protected updateRadioChangeHandler() {
-		this.radios.forEach(radio => {
-			radio.registerRadioChangeHandler((event: RadioChange) => {
-				if ((this.selected && this.selected.value) === event.value) {
-					// no need to redo
-					return;
-				}
-				// deselect previous radio
-				if (this.selected) {
-					this.selected.checked = false;
-				}
-				// update selected and value from the event
-				this._selected = event.source;
-				this._value = event.value;
-				// bubble the event
-				this.emitChangeEvent(event);
-			});
+	protected updateRadios() {
+		this.radios?.forEach(radio => {
+			radio.name = this.name;
+			radio.checked = radio.value === this._value;
+			radio.setDisabledFromGroup(this.disabled);
 		});
+		this.changeDetectorRef.markForCheck();
 	}
 }

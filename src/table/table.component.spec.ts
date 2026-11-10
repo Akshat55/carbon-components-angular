@@ -17,9 +17,15 @@ import { TableToolbar } from "./toolbar/table-toolbar.component";
 import { TableToolbarSearch } from "./toolbar/table-toolbar-search.component";
 import { advancedFakeAsync } from "../test-helpers/change-detection";
 
+/** The checkbox <input> lives in the cds-checkbox web component's shadow root. */
+const checkboxInput = async (host: any): Promise<HTMLInputElement> => {
+	await host.updateComplete;
+	return host.shadowRoot.querySelector("input");
+};
+
 @Component({
 	template: `
-		<cds-table
+		<ibm-table
 			[model]="tableModel"
 			(sort)="simpleSort()"
 			(selectRow)="onChange()"
@@ -28,7 +34,7 @@ import { advancedFakeAsync } from "../test-helpers/change-detection";
 			title="title"
 			[isDataGrid]="isDataGrid"
 			[showSelectionColumn]="showSelectionColumn">
-		</cds-table>`,
+		</ibm-table>`,
 	imports: [TableModule]
 })
 class TableTest implements OnInit {
@@ -59,7 +65,7 @@ describe("Table", () => {
 		});
 
 		fixture = TestBed.createComponent(TableTest);
-		tableInstance = fixture.debugElement.query(By.css("cds-table"));
+		tableInstance = fixture.debugElement.query(By.css("ibm-table"));
 		fixture.detectChanges();
 	});
 
@@ -77,20 +83,20 @@ describe("Table", () => {
 
 	xit("should call the row filter function", () => {});
 
-	it("should emit a select all event", () => {
+	it("should emit a select all event", async () => {
 		spyOn(tableInstance.componentInstance.selectAll, "emit");
 
-		let checkbox = fixture.nativeElement.querySelector("th input[type='checkbox']");
+		let checkbox = await checkboxInput(fixture.nativeElement.querySelector("th cds-checkbox"));
 		checkbox.click();
 		fixture.detectChanges();
 
 		expect(tableInstance.componentInstance.selectAll.emit).toHaveBeenCalled();
 	});
 
-	it("should emit a deselect all event", () => {
+	it("should emit a deselect all event", async () => {
 		spyOn(tableInstance.componentInstance.deselectAll, "emit");
 
-		let checkbox = fixture.nativeElement.querySelector("th input[type='checkbox']");
+		let checkbox = await checkboxInput(fixture.nativeElement.querySelector("th cds-checkbox"));
 		checkbox.click();
 		fixture.detectChanges();
 		checkbox.click();
@@ -99,20 +105,20 @@ describe("Table", () => {
 		expect(tableInstance.componentInstance.deselectAll.emit).toHaveBeenCalled();
 	});
 
-	it("should emit a select row event", () => {
+	it("should emit a select row event", async () => {
 		spyOn(tableInstance.componentInstance.selectRow, "emit");
 
-		let checkbox = fixture.nativeElement.querySelector("td input[type='checkbox']");
+		let checkbox = await checkboxInput(fixture.nativeElement.querySelector("td cds-checkbox"));
 		checkbox.click();
 		fixture.detectChanges();
 
 		expect(tableInstance.componentInstance.selectRow.emit).toHaveBeenCalled();
 	});
 
-	it("should emit a deselect row event", () => {
+	it("should emit a deselect row event", async () => {
 		spyOn(tableInstance.componentInstance.deselectRow, "emit");
 
-		let checkbox = fixture.nativeElement.querySelector("td input[type='checkbox']");
+		let checkbox = await checkboxInput(fixture.nativeElement.querySelector("td cds-checkbox"));
 		checkbox.click();
 		fixture.detectChanges();
 		checkbox.click();
@@ -145,20 +151,20 @@ describe("Table", () => {
 
 		expect(tableInstance.componentInstance.selectAllCheckbox).toBe(true);
 		expect(tableInstance.componentInstance.selectAllCheckboxSomeSelected).toBe(true);
-		expect(fixture.nativeElement.querySelector("thead cds-checkbox input").indeterminate).toBe(true);
+		expect(fixture.nativeElement.querySelector("thead cds-checkbox").indeterminate).toBe(true);
 	});
 
 	it("should clear the indeterminate state once every row is selected", () => {
 		const model = fixture.componentInstance.tableModel;
 		model.selectRow(0, true);
 		fixture.detectChanges();
-		expect(fixture.nativeElement.querySelector("thead cds-checkbox input").indeterminate).toBe(true);
+		expect(fixture.nativeElement.querySelector("thead cds-checkbox").indeterminate).toBe(true);
 
 		model.data.forEach((_row, index) => model.selectRow(index, true));
 		fixture.detectChanges();
 
 		expect(tableInstance.componentInstance.selectAllCheckboxSomeSelected).toBe(false);
-		expect(fixture.nativeElement.querySelector("thead cds-checkbox input").indeterminate).toBe(false);
+		expect(fixture.nativeElement.querySelector("thead cds-checkbox").indeterminate).toBe(false);
 	});
 
 	it("should re-render the rows when the model data changes", () => {
@@ -224,24 +230,24 @@ describe("Table", () => {
 
 @Component({
 	template: `
-		<cds-table-container [aiEnabled]="aiEnabled">
-			<cds-table-header>
+		<ibm-table-container [aiEnabled]="aiEnabled">
+			<ibm-table-header>
 				<h4>{{title}}</h4>
 				@if (showDecorator) {
-					<cds-table-header-decorator>
+					<ibm-table-header-decorator>
 						<span class="decorator-content">AI</span>
-					</cds-table-header-decorator>
+					</ibm-table-header-decorator>
 				}
-			</cds-table-header>
-			<cds-table-toolbar [model]="model" [size]="size" (cancel)="onCancel()">
-				<cds-table-toolbar-content>
-					<cds-table-toolbar-search [(ngModel)]="searchValue" [expandable]="true"></cds-table-toolbar-search>
-					<cds-table-toolbar-actions>
+			</ibm-table-header>
+			<ibm-table-toolbar [model]="model" [size]="size" (cancel)="onCancel()">
+				<ibm-table-toolbar-content>
+					<ibm-table-toolbar-search [(ngModel)]="searchValue" [expandable]="true"></ibm-table-toolbar-search>
+					<ibm-table-toolbar-actions>
 						<button cdsButton="primary">Action</button>
-					</cds-table-toolbar-actions>
-				</cds-table-toolbar-content>
-			</cds-table-toolbar>
-		</cds-table-container>
+					</ibm-table-toolbar-actions>
+				</ibm-table-toolbar-content>
+			</ibm-table-toolbar>
+		</ibm-table-container>
 	`,
 	imports: [TableModule, FormsModule]
 })
@@ -292,20 +298,20 @@ describe("TableContainer, TableHeader and TableToolbar", () => {
 	});
 
 	it("should apply the container and header classes", () => {
-		expect(fixture.nativeElement.querySelector("cds-table-container").classList)
+		expect(fixture.nativeElement.querySelector("ibm-table-container").classList)
 			.toContain("cds--data-table-container");
-		expect(fixture.nativeElement.querySelector("cds-table-header").classList)
+		expect(fixture.nativeElement.querySelector("ibm-table-header").classList)
 			.toContain("cds--data-table-header");
 	});
 
 	it("should project the toolbar content and actions", () => {
-		expect(fixture.nativeElement.querySelector("cds-table-toolbar-content")).toBeTruthy();
-		expect(fixture.nativeElement.querySelector("cds-table-toolbar-actions")).toBeTruthy();
+		expect(fixture.nativeElement.querySelector("ibm-table-toolbar-content")).toBeTruthy();
+		expect(fixture.nativeElement.querySelector("ibm-table-toolbar-actions")).toBeTruthy();
 		expect(fixture.nativeElement.textContent).toContain("Action");
 	});
 
 	it("should apply the ai enabled class to the container", () => {
-		const container = fixture.nativeElement.querySelector("cds-table-container");
+		const container = fixture.nativeElement.querySelector("ibm-table-container");
 		expect(container.classList).not.toContain("cds--data-table-container--ai-enabled");
 
 		wrapper.aiEnabled = true;

@@ -1,104 +1,78 @@
 import {
-	Component,
-	HostBinding,
-	Input,
-	Output,
-	EventEmitter,
 	ChangeDetectionStrategy,
 	ChangeDetectorRef,
+	Component,
+	CUSTOM_ELEMENTS_SCHEMA,
+	EventEmitter,
+	Input,
+	Output,
 	inject
 } from "@angular/core";
-import { DomSanitizer } from "@angular/platform-browser";
-import { Router } from "@angular/router";
 import { NgTemplateOutlet } from "@angular/common";
+import { Router } from "@angular/router";
+import "@carbon/web-components/es/components/breadcrumb/index.js";
 
+/**
+ * Wraps the `<cds-breadcrumb-item>` web component. With `href` or `route` the content is
+ * rendered inside a `<cds-breadcrumb-link>`; `route` navigates with the Angular router.
+ *
+ * [See demo](../../?path=/story/components-breadcrumb--basic)
+ */
 @Component({
-	selector: "cds-breadcrumb-item, ibm-breadcrumb-item",
+	selector: "cds-breadcrumb-item",
 	template: `
-		<ng-template #content>
-			<ng-content />
-		</ng-template>
-
-		@if (useTemplate()) {
-			<a
-				class="cds--link"
-				[href]="(skeleton ? '/#' : href)"
-				(click)="navigate($event)"
-				[attr.aria-current]="(current ? ariaCurrent : null)">
+		<ng-template #content><ng-content /></ng-template>
+		@if (useLink()) {
+			<cds-breadcrumb-link
+				[href]="skeleton ? '/#' : href"
+				[isCurrentPage]="current"
+				[ariaCurrent]="current ? ariaCurrent : null"
+				(click)="navigate($event)">
 				<ng-container *ngTemplateOutlet="content" />
-			</a>
+			</cds-breadcrumb-link>
 		} @else {
 			<ng-container *ngTemplateOutlet="content" />
 		}
 	`,
 	changeDetection: ChangeDetectionStrategy.OnPush,
-	imports: [NgTemplateOutlet]
+	imports: [NgTemplateOutlet],
+	schemas: [CUSTOM_ELEMENTS_SCHEMA]
 })
 export class BreadcrumbItemComponent {
-	@Input() set href(v: string) {
-		this._href = v;
-	}
-
-	get href() {
-		return this.domSanitizer.bypassSecurityTrustUrl(this._href) as string;
-	}
-
+	@Input() href: string;
 	/**
-	 * Array of commands to send to the router when the link is activated
-	 * See: https://angular.io/api/router/Router#navigate
+	 * Angular router commands, used instead of `href`.
 	 */
 	@Input() route: any[];
-
-	/**
-	 * Router options. Used in conjunction with `route`
-	 * See: https://angular.io/api/router/Router#navigate
-	 */
 	@Input() routeExtras: any;
+	@Input() ariaCurrent = "page";
+	@Input() current = false;
 
-	/**
-	 * Emits the navigation status promise when the link is activated
-	 */
-	@Output() navigation = new EventEmitter<Promise<boolean>>();
-
-	/**
-	 * Set by the parent `cds-breadcrumb`
-	 */
 	@Input() set skeleton(value: boolean) {
 		this._skeleton = value;
 		this.changeDetectorRef.markForCheck();
 	}
-
 	get skeleton() {
 		return this._skeleton;
 	}
 
-	@Input() ariaCurrent = "page";
+	/**
+	 * Emits the router's navigation promise when `route` is used.
+	 */
+	@Output() navigation = new EventEmitter<Promise<boolean>>();
 
-	@HostBinding("class.cds--breadcrumb-item--current") @Input() current = false;
-
-	@HostBinding("class.cds--breadcrumb-item") itemClass = true;
-
-	protected domSanitizer = inject(DomSanitizer);
 	protected changeDetectorRef = inject(ChangeDetectorRef);
+	protected router = inject(Router, { optional: true });
 	protected _skeleton = false;
-	protected router = inject(Router, { optional: true })!;
-	protected _href: string;
 
-	/** Inserted by Angular inject() migration for backwards compatibility */
-	// eslint-disable-next-line @angular-eslint/prefer-inject -- backwards-compatible DI overload until next major
-	constructor(...args: unknown[]);
-
-	constructor() {}
-
-	useTemplate() {
-		return this.skeleton || this._href || this.route;
+	useLink() {
+		return this.skeleton || this.href || this.route;
 	}
 
-	navigate(event) {
+	navigate(event: Event) {
 		if (this.router && this.route) {
 			event.preventDefault();
-			const status = this.router.navigate(this.route, this.routeExtras);
-			this.navigation.emit(status);
+			this.navigation.emit(this.router.navigate(this.route, this.routeExtras));
 		}
 	}
 }

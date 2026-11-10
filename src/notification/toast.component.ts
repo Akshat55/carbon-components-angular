@@ -1,117 +1,71 @@
 import {
+	ChangeDetectionStrategy,
 	Component,
+	CUSTOM_ELEMENTS_SCHEMA,
 	Input,
-	OnInit,
-	HostBinding,
-	inject
+	OnInit
 } from "@angular/core";
-
+import { AsyncPipe, NgTemplateOutlet } from "@angular/common";
 import { isObservable, of } from "rxjs";
-import { ToastContent } from "./notification-content.interface";
-import { NotificationDisplayService } from "./notification-display.service";
-import { I18n } from "carbon-components-angular/i18n";
+import "@carbon/web-components/es/components/notification/index.js";
 import { BaseNotification } from "./base-notification.component";
-import { IconDirective } from "carbon-components-angular/icon";
-import { ToastTitle } from "./toast-title.directive";
-import { ToastSubtitle } from "./toast-subtitle.directive";
-import { ToastCaption } from "./toast-caption.directive";
-import { NgTemplateOutlet, AsyncPipe } from "@angular/common";
-import { NotificationService } from "./notification.service";
+import { NotificationDisplayService } from "./notification-display.service";
+import { ToastContent } from "./notification-content.interface";
 
 /**
- * Toast messages are displayed toward the top of the UI and do not interrupt user’s work.
+ * Renders the `<cds-toast-notification>` web component from `notificationObj`.
+ * Use `NotificationService.showToast()` to create one dynamically.
  *
  * [See demo](../../?path=/story/components-notification--toast)
  */
 @Component({
-	selector: "cds-toast, ibm-toast",
+	selector: "cds-toast",
 	template: `
-		@if (notificationObj.type) {
-			<svg
-				[cdsIcon]="iconDictionary[notificationObj.type]"
-				size="20"
-				class="cds--toast-notification__icon">
-			</svg>
-		}
-		<div class="cds--toast-notification__details">
-			@if (!notificationObj.template) {
-				<h3 cdsToastTitle [innerHTML]="notificationObj.title"></h3>
+		<cds-toast-notification
+			[id]="toastID"
+			[kind]="notificationObj.type"
+			[lowContrast]="!!notificationObj.lowContrast"
+			[hideCloseButton]="!notificationObj.showClose"
+			[attr.aria-label]="notificationObj.closeLabel | async"
+			open
+			(cds-notification-beingclosed)="onBeingClosed($event)">
+			@if (notificationObj.template) {
+				<ng-container *ngTemplateOutlet="notificationObj.template; context: { $implicit: notificationObj }" />
+			} @else {
+				<span slot="title" [innerHTML]="notificationObj.title"></span>
 				@if (notificationObj.subtitle) {
-					<div cdsToastSubtitle>
-						<span [innerHTML]="notificationObj.subtitle"></span>
-					</div>
+					<span slot="subtitle" [innerHTML]="notificationObj.subtitle"></span>
 				}
 				@if (notificationObj.caption) {
-					<p cdsToastCaption [innerHTML]="notificationObj.caption"></p>
+					<span slot="caption" [innerHTML]="notificationObj.caption"></span>
 				}
 			}
-			<ng-container *ngTemplateOutlet="notificationObj.template; context: { $implicit: notificationObj }" />
-		</div>
-		@if (!isCloseHidden) {
-			<button
-				class="cds--toast-notification__close-button"
-				type="button"
-				[attr.aria-label]="notificationObj.closeLabel | async"
-				(click)="onClose()">
-				<svg cdsIcon="close" size="16" class="cds--toast-notification__close-icon"></svg>
-			</button>
-		}
+		</cds-toast-notification>
 	`,
+	styles: [":host { display: contents; }"],
 	providers: [NotificationDisplayService],
-	imports: [
-		IconDirective,
-		ToastTitle,
-		ToastSubtitle,
-		ToastCaption,
-		NgTemplateOutlet,
-		AsyncPipe
-	]
+	changeDetection: ChangeDetectionStrategy.OnPush,
+	imports: [NgTemplateOutlet, AsyncPipe],
+	schemas: [CUSTOM_ELEMENTS_SCHEMA]
 })
 export class Toast extends BaseNotification implements OnInit {
 	private static toastCount = 0;
 
-	/**
-	 * Can have `type`, `title`, `subtitle`, and `caption` members.
-	 *
-	 * `type` can be one of `"error"`, `"info"`, `"info-square"`, `"warning"`, `"warning-alt"`, or `"success"`
-	 */
+	toastID = `toast-${Toast.toastCount++}`;
+
 	@Input() set notificationObj(obj: ToastContent) {
 		if (obj.closeLabel && !isObservable(obj.closeLabel)) {
 			obj.closeLabel = of(obj.closeLabel);
 		}
 		this._notificationObj = Object.assign({}, this.defaultNotificationObj, obj);
 	}
-
 	get notificationObj(): ToastContent {
 		return this._notificationObj as ToastContent;
 	}
 
-
-	@HostBinding("attr.id") toastID = `toast-${Toast.toastCount++}`;
-	@HostBinding("class.cds--toast-notification") toastClass = true;
-	@HostBinding("class.cds--toast-notification--error") get isError() { return this.notificationObj.type === "error"; }
-	@HostBinding("class.cds--toast-notification--info") get isInfo() { return this.notificationObj.type === "info"; }
-	@HostBinding("class.cds--toast-notification--info-square") get isInfoSquare() { return this.notificationObj.type === "info-square"; }
-	@HostBinding("class.cds--toast-notification--success") get isSuccess() { return this.notificationObj.type === "success"; }
-	@HostBinding("class.cds--toast-notification--warning") get isWarning() { return this.notificationObj.type === "warning"; }
-	@HostBinding("class.cds--toast-notification--warning-alt") get isWarningAlt() { return this.notificationObj.type === "warning-alt"; }
-	@HostBinding("class.cds--toast-notification--low-contrast") get isLowContrast() { return this.notificationObj.lowContrast; }
-	@HostBinding("class.cds--toast-notification--hide-close-button") get isCloseHidden() { return !this.notificationObj.showClose; }
-
-	protected notificationDisplayService: NotificationDisplayService;
-	protected i18n: I18n;
-
-	/** Inserted by Angular inject() migration for backwards compatibility */
-	// eslint-disable-next-line @angular-eslint/prefer-inject -- backwards-compatible DI overload until next major
-	constructor(...args: unknown[]);
-
-	constructor() {
-		super();
-	}
-
 	ngOnInit() {
 		if (!this.notificationObj.closeLabel) {
-			this.notificationObj.closeLabel = this.i18n.get().NOTIFICATION.CLOSE_BUTTON;
+			this.notificationObj.closeLabel = of(this.i18n.get().NOTIFICATION.CLOSE_BUTTON);
 		}
 	}
 }

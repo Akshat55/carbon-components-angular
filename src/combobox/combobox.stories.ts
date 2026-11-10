@@ -3,7 +3,7 @@ import { moduleMetadata, Meta } from "@storybook/angular";
 import { ComboBox } from "./";
 
 import { DynamicListComboBox, ReactiveFormsCombobox, MockQueryCombobox } from "./stories";
-import { DropdownList } from "../dropdown";
+import { DropdownList, MultiSelect } from "../dropdown";
 import { AILabelModule } from "../ai-label";
 import { ButtonModule } from "../button";
 import { IconModule } from "../icon";
@@ -17,6 +17,7 @@ export default {
 				FormsModule,
 				ReactiveFormsModule,
 				ComboBox,
+				MultiSelect,
 				DropdownList,
 				AILabelModule,
 				ButtonModule,
@@ -190,7 +191,7 @@ Fluid.args = {
 const MultiTemplate = (args) => ({
 	props: args,
 	template: `
-		<cds-combo-box
+		<cds-multi-select filterable
 			[invalid]="invalid"
 			[invalidText]="invalidText"
 			[label]="label"
@@ -208,12 +209,11 @@ const MultiTemplate = (args) => ({
 			[appendInline]="appendInline"
 			[fluid]="fluid"
 			[itemValueKey]="itemValueKey"
-			type="multi"
 			(selected)="selected($event)"
 			(submit)="submit($event)"
 			(clear)="clear($event)">
 			<cds-dropdown-list></cds-dropdown-list>
-		</cds-combo-box>
+		</cds-multi-select>
 	`
 });
 export const Multiselect = MultiTemplate.bind({});

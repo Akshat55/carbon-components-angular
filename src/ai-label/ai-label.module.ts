@@ -8,7 +8,6 @@
 import { NgModule } from "@angular/core";
 
 import { AILabelComponent } from "./ai-label.component";
-import { AILabelPopoverDirective } from "./ai-label-popover.directive";
 import { AILabelContent } from "./ai-label-content.directive";
 import { AILabelActions } from "./ai-label-actions.directive";
 
@@ -20,7 +19,6 @@ import { AILabelActions } from "./ai-label-actions.directive";
 	],
 	imports: [
 		AILabelComponent,
-		AILabelPopoverDirective,
 		AILabelContent,
 		AILabelActions
 	]

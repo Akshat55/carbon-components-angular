@@ -1,6 +1,6 @@
 import { FormsModule, ReactiveFormsModule } from "@angular/forms";
 import { moduleMetadata, Meta } from "@storybook/angular";
-import { Dropdown, DropdownList } from "./";
+import { Dropdown, DropdownList, MultiSelect } from "./";
 import { Placeholder } from "../placeholder";
 
 import { ReactiveFormsStory } from "./stories";
@@ -18,6 +18,7 @@ export default {
 				FormsModule,
 				ReactiveFormsModule,
 				Dropdown,
+				MultiSelect,
 				DropdownList,
 				Placeholder,
 				ReactiveFormsStory,
@@ -133,8 +134,7 @@ Fluid.args = {
 const MultiTemplate = (args) => ({
 	props: args,
 	template: `
-		<cds-dropdown
-			type="multi"
+		<cds-multi-select
 			[selectionFeedback]="selectionFeedback"
 			[(ngModel)]="model"
 			[label]="label"
@@ -156,7 +156,7 @@ const MultiTemplate = (args) => ({
 			(selected)="selected($event)"
 			(onClose)="onClose($event)">
 			<cds-dropdown-list [items]="items"></cds-dropdown-list>
-		</cds-dropdown>
+		</cds-multi-select>
 		<span>{{model | json}}</span>
 	`
 });
@@ -271,8 +271,7 @@ const multiselectWithAILabelTemplate = (args) => ({
 	styles: AI_LABEL_STORY_STYLES,
 	template: `
 		<div style="width: 400px">
-			<cds-dropdown
-				type="multi"
+			<cds-multi-select
 				[selectionFeedback]="selectionFeedback"
 				[(ngModel)]="model"
 				[label]="label"
@@ -295,7 +294,7 @@ const multiselectWithAILabelTemplate = (args) => ({
 				(selected)="selected($event)"
 				(onClose)="onClose($event)">
 				<cds-dropdown-list [items]="items"></cds-dropdown-list>
-			</cds-dropdown>
+			</cds-multi-select>
 		</div>
 		<ng-template #decoratorTpl>
 			<cds-ai-label

@@ -1,114 +1,56 @@
 import {
 	ChangeDetectionStrategy,
 	Component,
-	EventEmitter,
-	HostBinding,
+	CUSTOM_ELEMENTS_SCHEMA,
 	Input,
-	Output,
 	TemplateRef
 } from "@angular/core";
-import { NgTemplateOutlet } from "@angular/common";
+import "@carbon/web-components/es/components/contained-list/index.js";
 import { IconDirective } from "carbon-components-angular/icon";
+import { TemplateSlot } from "carbon-components-angular/utils";
 
+/**
+ * Wraps the `<cds-contained-list-item>` web component. Listen to clicks on `clickable` items with `(click)`.
+ *
+ * [See demo](../../?path=/story/components-contained-list--basic)
+ */
 @Component({
-	selector: "cds-contained-list-item, ibm-contained-list-item",
+	selector: "cds-contained-list-item",
 	template: `
-		@if (clickable) {
-			<button
-				class="cds--contained-list-item__content"
-				type="button"
-				[disabled]="disabled"
-				(click)="onClick()">
-				<ng-content select="[cdsContainedListItemButton],[ibmContainedListItemButton]" />
-			</button>
-		} @else {
-			<div class="cds--contained-list-item__content">
-				@if (icon) {
-					<div class="cds--contained-list-item__icon">
-						@if (isTemplate(icon)) {
-							<ng-template [ngTemplateOutlet]="icon" />
-						} @else {
-							<svg [ibmIcon]="icon" size="16"></svg>
-						}
-					</div>
-				}
-				<ng-content />
-			</div>
+		@if (isTemplate(icon)) {
+			<ng-container cdsSlot="icon" [cdsSlotTemplate]="icon" />
+		} @else if (icon) {
+			<svg [cdsIcon]="icon" size="16" slot="icon"></svg>
 		}
-		@if (action) {
-			<div class="cds--contained-list-item__action">
-				<ng-template [ngTemplateOutlet]="action" [ngTemplateOutletContext]="{ $implicit: actionData }" />
-			</div>
-		}
+		<ng-content />
+		<ng-container cdsSlot="action" [cdsSlotTemplate]="action" [cdsSlotContext]="{ $implicit: actionData }" />
 	`,
+	host: {
+		"[clickable]": "clickable",
+		"[disabled]": "disabled",
+		"role": "listitem"
+	},
 	changeDetection: ChangeDetectionStrategy.OnPush,
-	imports: [NgTemplateOutlet, IconDirective]
+	imports: [IconDirective, TemplateSlot],
+	schemas: [CUSTOM_ELEMENTS_SCHEMA]
 })
 export class ContainedListItem {
 	/**
-	 * A slot for a possible interactive element to render within the item.
+	 * Template rendered in the action slot, with `actionData` as `$implicit`.
 	 */
 	@Input() action: TemplateRef<any>;
-
-	/**
-	 * Optional interactive element data.
-	 */
 	@Input() actionData: any;
-
-	/**
-	 * Whether this item is disabled.
-	 */
 	@Input() disabled = false;
-
 	/**
-	 * Whether this item is clickable.
+	 * Renders the item as a button.
 	 */
 	@Input() clickable: boolean;
-
 	/**
-	 * Provide an optional icon to render in front of the item's content.
-	 *
-	 * Note that if you intend to use this as a string ref, it's important to remember
-	 * to register the icon that you wish to add. In this case, it's also worth noting
-	 * that only icons with a size of 16 are currently supported.
+	 * Icon name (for `cdsIcon`) or a template.
 	 */
 	@Input() icon: TemplateRef<any> | string;
 
-	/**
-	 * Emits click event.
-	 */
-	// eslint-disable-next-line @angular-eslint/no-output-native
-	@Output() click = new EventEmitter<void>();
-
-	/**
-	 * Host binding item class.
-	 */
-	@HostBinding("class.cds--contained-list-item") itemClass = true;
-
-	/**
-	 * Host binding item role attribute
-	 */
-	@HostBinding("attr.role") role = "listitem";
-
-	/**
-	 * Host binding clickable item class.
-	 */
-	@HostBinding("class.cds--contained-list-item--clickable") get itemClickableClass() {
-		return this.clickable;
-	}
-
-	/**
-	 * Host binding item with icon class.
-	 */
-	@HostBinding("class.cds--contained-list-item--with-icon") get itemWithIconClass() {
-		return !!this.icon;
-	}
-
-	public onClick() {
-		this.click.emit();
-	}
-
-	public isTemplate(value: string | TemplateRef<any>) {
+	isTemplate(value: unknown): value is TemplateRef<any> {
 		return value instanceof TemplateRef;
 	}
 }

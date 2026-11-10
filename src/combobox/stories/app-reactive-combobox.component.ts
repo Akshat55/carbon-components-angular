@@ -11,12 +11,12 @@ import { Component,
 	OnInit } from "@angular/core";
 import isEqual from "lodash-es/isEqual";
 
-import { DropdownList } from "carbon-components-angular/dropdown";
+import { DropdownList, MultiSelect } from "carbon-components-angular/dropdown";
 import { ComboBox } from "../combobox.component";
 
 @Component({
 	selector: "app-reactive-combobox",
-	imports: [ComboBox, DropdownList, ReactiveFormsModule, JsonPipe],
+	imports: [ComboBox, MultiSelect, DropdownList, ReactiveFormsModule, JsonPipe],
 	template: `
 		<form [formGroup]="sampleForm" (ngSubmit)="onSubmit(sampleForm)">
 			<cds-combo-box
@@ -34,21 +34,20 @@ import { ComboBox } from "../combobox.component";
 				<cds-dropdown-list />
 			</cds-combo-box>
 			selected: {{ sampleForm.get("combobox").value | json }}
-			<cds-combo-box
+			<cds-multi-select filterable
 				style="margin-top: 40px"
 				formControlName="multibox"
 				[label]="label"
 				[size]="size"
 				[itemValueKey]="itemValueKey"
 				[helperText]="helperText"
-				type="multi"
 				[invalid]="invalid"
 				[invalidText]="invalidText"
 				[warn]="warn"
 				[warnText]="warnText"
 				[items]="_items">
 				<cds-dropdown-list />
-			</cds-combo-box>
+			</cds-multi-select>
 			selected: {{ sampleForm.get("multibox").value | json }}
 		</form>
 	`

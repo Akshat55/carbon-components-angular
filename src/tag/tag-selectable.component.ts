@@ -1,58 +1,45 @@
 import {
 	ChangeDetectionStrategy,
 	Component,
+	CUSTOM_ELEMENTS_SCHEMA,
 	EventEmitter,
-	HostBinding,
-	HostListener,
 	Input,
 	Output
 } from "@angular/core";
+import "@carbon/web-components/es/components/tag/index.js";
 
+/**
+ * Wraps the `<cds-selectable-tag>` web component. Supports `[(selected)]`.
+ *
+ * [See demo](../../?path=/story/components-tag--selectable)
+ */
 @Component({
-	selector: "cds-tag-selectable, ibm-tag-selectable",
+	selector: "cds-tag-selectable",
 	template: `
-		@if (!skeleton) {
-			<ng-content select="[cdsTagIcon],[ibmTagIcon]" />
-			<span class="cds--tag__label">
+		<cds-selectable-tag
+			[size]="size"
+			[disabled]="disabled"
+			[selected]="selected"
+			(cds-selectable-tag-selected)="onSelected($event)">
+			@if (!skeleton) {
 				<ng-content />
-			</span>
-		}
+			}
+		</cds-selectable-tag>
 	`,
+	styles: [":host { display: contents; }"],
 	changeDetection: ChangeDetectionStrategy.OnPush,
-	standalone: true
+	schemas: [CUSTOM_ELEMENTS_SCHEMA]
 })
 export class TagSelectableComponent {
-	@HostBinding("attr.role") role = "button";
-	@HostBinding("attr.type") buttonType = "button";
-	@HostBinding("attr.tabindex") tabIndex = 0;
-	@HostBinding("attr.aria-pressed") get ariaPressed() {
-		return this.selected;
-	}
-
 	@Input() size: "sm" | "md" | "lg" = "md";
 	@Input() skeleton = false;
 	@Input() disabled = false;
-	@Input() class = "";
 	@Input() selected = false;
 
 	@Output() selectedChange = new EventEmitter<boolean>();
 
-	@HostListener("click")
-	onClick() {
-		this.selected = !this.selected;
+	onSelected(event: Event) {
+		this.selected = (event as CustomEvent<{ selected: boolean }>).detail.selected;
 		this.selectedChange.emit(this.selected);
-	}
-
-	/**
-	 * @todo
-	 * Remove `cds--tag--${this.size}` in Carbon v12
-	 */
-	@HostBinding("attr.class") get attrClass() {
-		const disabledClass = this.disabled ? "cds--tag--disabled" : "";
-		const sizeClass = `cds--tag--${this.size} cds--layout--size-${this.size}`;
-		const skeletonClass = this.skeleton ? "cds--skeleton" : "";
-		const selectedClass = this.selected ? "cds--tag--selectable-selected" : "";
-
-		return `cds--tag cds--tag--selectable ${selectedClass} ${disabledClass} ${sizeClass} ${skeletonClass} ${this.class}`;
 	}
 }

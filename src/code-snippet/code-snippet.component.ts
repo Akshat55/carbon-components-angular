@@ -1,21 +1,13 @@
 import {
-	AfterViewInit,
 	ChangeDetectionStrategy,
-	ChangeDetectorRef,
 	Component,
-	HostBinding,
+	CUSTOM_ELEMENTS_SCHEMA,
 	Input,
-	OnInit,
-	ViewChild,
 	inject
 } from "@angular/core";
-
+import "@carbon/web-components/es/components/code-snippet/index.js";
 import { BaseIconButton } from "carbon-components-angular/button";
 import { I18n } from "carbon-components-angular/i18n";
-import { EventService } from "carbon-components-angular/utils";
-import { NgTemplateOutlet, NgClass, NgStyle } from "@angular/common";
-import { IconDirective } from "carbon-components-angular/icon";
-import { IconButton } from "carbon-components-angular/button";
 
 export enum SnippetType {
 	single = "single",
@@ -24,351 +16,69 @@ export enum SnippetType {
 }
 
 /**
- * Get started with importing the component:
- *
- * ```typescript
- * import { CodeSnippet } from 'carbon-components-angular';
- * ```
+ * Wraps the `<cds-code-snippet>` web component. The code goes in the default slot.
  *
  * ```html
- * <cds-code-snippet>Code</cds-code-snippet>
+ * <cds-code-snippet display="multi">{{ code }}</cds-code-snippet>
  * ```
  *
  * [See demo](../../?path=/story/components-code-snippet--basic)
  */
 @Component({
-	selector: "cds-code-snippet, ibm-code-snippet",
-	template: `
-		@if (display === 'inline') {
-			@if (!hideCopyButton) {
-				<ng-container *ngTemplateOutlet="buttonTemplate" />
-			} @else {
-				<span
-					class="cds--snippet cds--snippet--inline cds--snippet--no-copy"
-					[ngClass]="{
-						'cds--snippet--light': theme === 'light'
-					}">
-					<code #code>
-						<ng-container *ngTemplateOutlet="codeTemplate" />
-					</code>
-				</span>
-			}
-		} @else {
-			<div
-				#codeContainer
-				class="cds--snippet-container"
-				[attr.aria-label]="translations.CODE_SNIPPET_TEXT"
-				[attr.tabindex]="display === 'single' && !disabled ? '0' : null"
-				[attr.role]="display==='single' ? 'textarea' : null"
-				[ngStyle]="styles"
-				(scroll)="(display === 'single' ? handleScroll() : null)">
-				@if (skeleton) {
-					@if (display === 'single') {
-						<span></span>
-					} @else {
-						<span></span>
-						<span></span>
-						<span></span>
-					}
-				}
-				@if (!skeleton) {
-					<pre #codeContent (scroll)="(display === 'multi' ? handleScroll() : null)"><code #code><ng-container *ngTemplateOutlet="codeTemplate" /></code></pre>
-				}
-			</div>
-			@if (hasLeft) {
-				<div class="cds--snippet__overflow-indicator--left"></div>
-			}
-			@if (hasRight) {
-				<div class="cds--snippet__overflow-indicator--right"></div>
-			}
-			@if (!hideCopyButton) {
-				<ng-container *ngTemplateOutlet="buttonTemplate" />
-			}
-			@if (isExpandable) {
-				<button
-					class="cds--btn cds--btn--ghost cds--btn--sm cds--snippet-btn--expand"
-					(click)="toggleSnippetExpansion()"
-					type="button">
-					<span class="cds--snippet-btn--text">{{expanded ? translations.SHOW_LESS : translations.SHOW_MORE}}</span>
-					<svg cdsIcon="chevron--down" size="16" class="cds--icon-chevron--down" [attr.aria-label]="translations.SHOW_MORE_ICON"></svg>
-				</button>
-			}
-		}
-
-		<ng-template #buttonTemplate>
-			@if (!skeleton) {
-				<cds-icon-button
-					[description]="showFeedback ? feedbackText : copyButtonDescription"
-					[align]="align"
-					[autoAlign]="autoAlign"
-					[dropShadow]="dropShadow"
-					[caret]="caret"
-					[highContrast]="highContrast"
-					[isOpen]="isOpen"
-					[enterDelayMs]="enterDelayMs"
-					[leaveDelayMs]="leaveDelayMs"
-					type="button"
-					kind="primary"
-					size="md"
-					(click)="onCopyButtonClicked()"
-					[buttonNgClass]="{
-						'cds--snippet--light': theme === 'light',
-						'cds--snippet--inline': display === 'inline',
-						'cds--btn--icon-only': display !== 'inline',
-						'cds--copy-btn': display !== 'inline',
-						'cds--copy-btn--animating': animating,
-						'cds--copy-btn--fade-in': showFeedback,
-						'cds--copy-btn--fade-out': !showFeedback && animating,
-						'cds--snippet cds--copy': true
-					}"
-					[buttonAttributes]="{
-						'aria-label': translations.COPY_CODE,
-						'aria-live': 'polite',
-						'tabindex': '0'
-					}">
-					@if (display === 'inline') {
-						<code #code>
-							<ng-container *ngTemplateOutlet="codeTemplate" />
-						</code>
-					} @else {
-						<svg cdsIcon="copy" size="16" class="cds--snippet__icon"></svg>
-					}
-				</cds-icon-button>
-			}
-		</ng-template>
-
-		<ng-template #codeTemplate>
-			<ng-content />
-		</ng-template>
-	`,
+	selector: "cds-code-snippet",
+	template: `<ng-content />`,
+	host: {
+		"[type]": "display",
+		"[disabled]": "disabled",
+		"[hideCopyButton]": "hideCopyButton",
+		"[wrapText]": "wrapText",
+		"[tooltipContent]": "copyButtonDescription || translations.COPY_CODE",
+		"[feedback]": "feedbackText",
+		"[feedbackTimeout]": "feedbackTimeout",
+		"[showMoreText]": "translations.SHOW_MORE",
+		"[showLessText]": "translations.SHOW_LESS",
+		"[maxCollapsedNumberOfRows]": "maxCollapsedNumberOfRows",
+		"[minCollapsedNumberOfRows]": "minCollapsedNumberOfRows",
+		"[maxExpandedNumberOfRows]": "maxExpandedNumberOfRows",
+		"[minExpandedNumberOfRows]": "minExpandedNumberOfRows"
+	},
 	changeDetection: ChangeDetectionStrategy.OnPush,
-	providers: [EventService],
-	imports: [
-		NgTemplateOutlet,
-		NgClass,
-		NgStyle,
-		IconDirective,
-		IconButton
-	]
+	schemas: [CUSTOM_ELEMENTS_SCHEMA]
 })
-export class CodeSnippet extends BaseIconButton implements OnInit, AfterViewInit {
+export class CodeSnippet extends BaseIconButton {
 	public i18n = inject(I18n);
-	public eventService = inject(EventService);
 
-	@HostBinding("class.cds--snippet") get snippetClass() {
-		return this.display !== SnippetType.inline;
-	}
-	@HostBinding("class.cds--snippet--single") get snippetSingleClass() {
-		return this.display === SnippetType.single;
-	}
-	@HostBinding("class.cds--snippet--multi") get snippetMultiClass() {
-		return this.display === SnippetType.multi;
-	}
-	@HostBinding("class.cds--snippet--disabled") get snippetDisabledClass() {
-		return this.display !== "inline" && this.disabled;
-	}
-	@HostBinding("class.cds--snippet--light") get snippetInlineLightClass() {
-		return this.theme === "light";
-	}
-
-	readonly rowHeightInPixel: number = 16;
-
-	/**
-	 * It can be `"single"`, `"multi"` or `"inline"`
-	 */
 	@Input() display: SnippetType = SnippetType.single;
 	@Input() translations = this.i18n.get().CODE_SNIPPET;
 	/**
-	 * copy button description to show on hover
+	 * Tooltip text for the copy button.
 	 */
 	@Input() copyButtonDescription: string;
-	/**
-	 * Set to `true` to hide copy button
-	 */
 	@Input() hideCopyButton = false;
-	/**
-	 * Set to `true` to disable the code snippet
-	 */
 	@Input() disabled = false;
-	/**
-	 * Specify the max number of rows to show when collapsed
-	 * Default is `15`
-	 */
 	@Input() maxCollapsedNumberOfRows = 15;
-	/**
-	 * Specify the min number of rows to show when collapsed
-	 * Default is `3`
-	 */
 	@Input() minCollapsedNumberOfRows = 3;
-	/**
-	 * Specify the max number of rows to show when expanded
-	 * Default is `0`, hence all content will be visible when expanded
-	 */
 	@Input() maxExpandedNumberOfRows = 0;
-	/**
-	 * Specify the min number of rows to show when expanded
-	 * Default is `16`, hence height of expanded row will be 16 * rowHeightInPixel (16) =  256px
-	 */
 	@Input() minExpandedNumberOfRows = 16;
+	@Input() wrapText = false;
 	/**
-	 * Set to `true` to wrap the text
-	 */
-	@HostBinding("class.cds--snippet--wraptext") @Input() wrapText = false;
-	/**
-	 * @deprecated since v5 - Use `cdsLayer` directive instead
-	 * Set to `"light"` to apply the light style
-	 */
-	@Input() theme: "light" | "dark" = "dark";
-	/**
-	 * Text displayed in the tooltip when user clicks button to copy code.
+	 * Text shown after the code is copied.
 	 */
 	@Input() feedbackText = this.translations.COPIED;
 	/**
-	 * Time in miliseconds to keep the feedback tooltip displayed.
-	 * Defaults to 2 seconds
+	 * Milliseconds the copy feedback stays visible.
 	 */
 	@Input() feedbackTimeout = 2000;
-
-	@HostBinding("class.cds--snippet--expand") @Input() expanded = false;
-	@HostBinding("class.cds--skeleton") @Input() skeleton = false;
-	styles: any = {};
-
-	@ViewChild("code") code;
-	@ViewChild("codeContent") codeContent;
-	@ViewChild("codeContainer") codeContainer;
-
-	showFeedback = false;
-	animating = false;
-	hasExpandButton = null;
-	isExpandable = false;
-	hasRightOverflow = false;
-
-	hasRight = false;
-	hasLeft = false;
-
-	protected changeDetectorRef = inject(ChangeDetectorRef);
-
-	/** Inserted by Angular inject() migration for backwards compatibility */
-	// eslint-disable-next-line @angular-eslint/prefer-inject -- backwards-compatible DI overload until next major
-	constructor(...args: unknown[]);
-
 	/**
-	 * Creates an instance of CodeSnippet.
+	 * @deprecated the web component follows the surrounding theme / layer.
 	 */
-	constructor() {
-		super();
-		this.dropShadow = false;
-	}
-
-	handleScroll() {
-		if (this.skeleton) {
-			return;
-		}
-
-		let ref;
-		switch (this.display) {
-			case "multi":
-				ref = this.codeContent.nativeElement;
-				break;
-			case "single":
-				ref = this.codeContainer.nativeElement;
-				break;
-			default:
-				return;
-		}
-		if (ref) {
-			const {
-				scrollWidth,
-				clientWidth,
-				scrollLeft
-			} = ref;
-			const horizontalOverflow = scrollWidth > clientWidth;
-			this.hasLeft = horizontalOverflow && !!scrollLeft;
-			this.hasRight = horizontalOverflow && scrollLeft + clientWidth !== scrollWidth;
-		}
-	}
-
-	toggleSnippetExpansion() {
-		this.expanded = !this.expanded;
-		this.calculateContainerHeight();
-	}
-
-	onCopyButtonClicked() {
-		if (!this.disabled) {
-			window.navigator.clipboard
-				.writeText(this.code.nativeElement.innerText || this.code.nativeElement.textContent).then(() => {
-					this.showFeedback = true;
-					this.animating = true;
-					this.changeDetectorRef.markForCheck();
-					setTimeout(() => {
-						this.showFeedback = false;
-						this.animating = false;
-						this.changeDetectorRef.markForCheck();
-					}, this.feedbackTimeout);
-				});
-		}
-	}
-
-	ngOnInit() {
-		this.calculateContainerHeight();
-	}
-
-	ngAfterViewInit() {
-		this.canExpand();
-		this.handleScroll();
-		// Have to detect changes because the parent's dirty flag is cleared after hooks run
-		this.changeDetectorRef.detectChanges();
-		if (window) {
-			this.eventService.on(window as any, "resize", () => {
-				this.canExpand();
-				this.handleScroll();
-				this.changeDetectorRef.markForCheck();
-			});
-		}
-	}
-
-	calculateContainerHeight() {
-		if (this.display === "multi" && !this.skeleton) {
-			this.styles = {};
-			if (this.expanded) {
-				if (this.maxExpandedNumberOfRows > 0) {
-					this.styles["max-height"] = `${this.maxExpandedNumberOfRows * this.rowHeightInPixel}px`;
-				}
-				if (this.minExpandedNumberOfRows > 0) {
-					this.styles["min-height"] = `${this.minExpandedNumberOfRows * this.rowHeightInPixel}px`;
-				}
-			} else {
-				if (this.maxCollapsedNumberOfRows > 0) {
-					this.styles["max-height"] = `${this.maxCollapsedNumberOfRows * this.rowHeightInPixel}px`;
-				}
-				if (this.minCollapsedNumberOfRows > 0) {
-					this.styles["min-height"] = `${this.minCollapsedNumberOfRows * this.rowHeightInPixel}px`;
-				}
-			}
-		}
-	}
-
-	protected canExpand() {
-		if (this.display === "multi" && !this.skeleton) {
-			const height = this.codeContent.nativeElement.getBoundingClientRect().height;
-			if (
-				this.maxCollapsedNumberOfRows > 0 &&
-				(this.maxExpandedNumberOfRows <= 0 ||
-					this.maxExpandedNumberOfRows > this.maxCollapsedNumberOfRows) &&
-				height > this.maxCollapsedNumberOfRows * this.rowHeightInPixel
-			) {
-				this.isExpandable = true;
-			} else {
-				this.isExpandable = false;
-			}
-
-			if (
-				this.expanded &&
-				this.minExpandedNumberOfRows > 0 &&
-				height <= this.minExpandedNumberOfRows * this.rowHeightInPixel
-			) {
-				this.isExpandable = false;
-			}
-		}
-	}
+	@Input() theme: "light" | "dark" = "dark";
+	/**
+	 * @deprecated the web component manages its own expanded state.
+	 */
+	@Input() expanded = false;
+	/**
+	 * @deprecated use `<cds-code-snippet-skeleton>` instead.
+	 */
+	@Input() skeleton = false;
 }

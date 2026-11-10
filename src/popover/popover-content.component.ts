@@ -1,54 +1,17 @@
 import {
 	ChangeDetectionStrategy,
 	Component,
-	HostBinding,
-	ViewChild,
-	ElementRef,
-	AfterViewInit,
-	ChangeDetectorRef,
-	inject
+	CUSTOM_ELEMENTS_SCHEMA
 } from "@angular/core";
+import "@carbon/web-components/es/components/popover/index.js";
 
 /**
- * [See demo](../../?path=/story/components-popover--basic)
+ * Wraps the `<cds-popover-content>` web component. Use inside `cds-popover`.
  */
 @Component({
-	selector: "cds-popover-content, ibm-popover-content",
-	template: `
-		<span class="cds--popover-content" #content>
-			<div>
-				<ng-content />
-			</div>
-			@if (autoAlign) {
-				<span class="cds--popover-caret cds--popover--auto-align"></span>
-			}
-		</span>
-		@if (!autoAlign) {
-			<span class="cds--popover-caret"></span>
-		}
-	`,
-	standalone: true,
-	changeDetection: ChangeDetectionStrategy.OnPush
+	selector: "cds-popover-content",
+	template: "<ng-content />",
+	changeDetection: ChangeDetectionStrategy.OnPush,
+	schemas: [CUSTOM_ELEMENTS_SCHEMA]
 })
-export class PopoverContent implements AfterViewInit {
-	@HostBinding("class.cds--popover") popoverClass = true;
-	@ViewChild("content") popoverContent: ElementRef;
-	autoAlign = false;
-
-	private changeDetectorRef = inject(ChangeDetectorRef);
-
-	/** Inserted by Angular inject() migration for backwards compatibility */
-	// eslint-disable-next-line @angular-eslint/prefer-inject -- backwards-compatible DI overload until next major
-	constructor(...args: unknown[]);
-
-	constructor() {}
-
-	ngAfterViewInit(): void {
-		if (this.popoverContent) {
-			// Check we are in a popover with autoAlign enabled
-			this.autoAlign = !!this.popoverContent.nativeElement.closest(".cds--popover--auto-align");
-			// Run change detection manually to resolve ExpressionHasChanged
-			this.changeDetectorRef.detectChanges();
-		}
-	}
-}
+export class PopoverContent {}

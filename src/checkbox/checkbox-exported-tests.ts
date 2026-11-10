@@ -21,12 +21,11 @@ class CheckboxExportedTests extends ComponentTests {
 				name: "initially be unchecked, be checked on click",
 				getActual: fragment =>
 					new Promise(resolve => {
-						const component = this.getComponent(
-							fragment,
-							`${this.settings.selectors.root} ${this.settings.selectors.input}`
-						);
+						// The <input> lives in the web component's shadow root;
+						// `checked` is mirrored on the host element.
+						const component = this.getComponent(fragment, this.settings.selectors.root);
 						const initialState = component.checked;
-						component.click();
+						component.shadowRoot.querySelector(this.settings.selectors.input).click();
 						const afterClickState = component.checked;
 						resolve({
 							initialState,
