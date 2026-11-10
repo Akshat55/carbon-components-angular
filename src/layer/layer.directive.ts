@@ -1,29 +1,32 @@
+/**
+ * Copyright IBM Corp. 2024
+ *
+ * Directive: CdsLayerDirective
+ *
+ * Sits directly on <cds-layer> — the web component replacement for the old
+ * class-based `[cdsLayer]` directive. The web component auto-increments
+ * nested layer levels itself; `[cdsLayer]` can still be used to override
+ * the level explicitly.
+ *
+ * Backwards-compatible API surface:
+ *   [cdsLayer] → level attribute (0 | 1 | 2)
+ *
+ * `setLevel()` is used by the ThemeDirective to reset the layer level at a
+ * theme boundary without stomping an explicit `[cdsLayer]` binding.
+ */
 import {
 	Directive,
-	HostBinding,
+	ElementRef,
 	Input,
-	ContentChildren,
-	QueryList,
-	AfterContentInit
+	OnChanges
 } from "@angular/core";
 
-const MAX_LEVEL = 2;
-
-/**
- * Applies layering styles to the div container it is applied to. Get started with importing the module:
- *
- * ```typescript
- * import { LayerModule } from 'carbon-components-angular';
- * ```
- *
- * [See demo](../../?path=/story/components-layer--basic)
- */
 @Directive({
-	selector: "[cdsLayer], [ibmLayer]",
-	exportAs: "layer"
+	selector: "cds-layer, [cdsLayer], [ibmLayer]",
+	exportAs: "layer",
+	standalone: true
 })
-export class LayerDirective implements AfterContentInit {
-
+export class CdsLayerDirective implements OnChanges {
 	/**
 	 * @deprecated as of v5 - Use `cdsLayer` input property instead
 	 */
@@ -32,68 +35,25 @@ export class LayerDirective implements AfterContentInit {
 	}
 
 	/**
-	 * Override layer level
-	 * Empty string has been added as an option for Angular 16+ to resolve type errors
+	 * Override layer level. When omitted the web component manages nesting
+	 * (and a parent ThemeDirective may reset it to 1).
 	 */
-	@Input() set cdsLayer(level: 0 | 1 | 2 | "") {
-		if (typeof(level) === "number") {
-			this._passedLevel = level;
-			this.layer = level;
-		}
-	}
+	@Input() cdsLayer: 0 | 1 | 2 | "" = "";
 
-	get cdsLayer() {
-		return this._passedLevel;
+	constructor(private _el: ElementRef<HTMLElement>) { }
+
+	ngOnChanges(): void {
+		if (typeof this.cdsLayer === "number") {
+			this.setLevel(this.cdsLayer);
+		}
 	}
 
 	/**
-	 * If cdsLayer is undefined, auto increment & iterate level
+	 * Writes the level onto the web component. Called by ThemeDirective when
+	 * resetting layering at a theme boundary; the explicit `[cdsLayer]`
+	 * binding always wins (ThemeDirective checks it before calling this).
 	 */
-	set layer(level: number) {
-		if (typeof level === "number") {
-			this._level = Math.max(0, Math.min(level, MAX_LEVEL));
-			if (this.layerChildren) {
-				this.layerChildren.forEach((layer) => {
-					// Ignore self to prevent infinite recursion
-					if (layer === this) {
-						return;
-					}
-					layer.layer = typeof layer._passedLevel === "number" ? layer._passedLevel : this.layer + 1;
-				});
-			}
-		}
-	}
-
-	get layer() {
-		return this._level;
-	}
-
-	/**
-	 * Using host bindings with classes to ensure we do not
-	 * overwrite user added classes
-	 */
-	@HostBinding("class.cds--layer-one") get layerOneClass() {
-		return this.layer === 0;
-	}
-
-	@HostBinding("class.cds--layer-two") get layerTwoClass() {
-		return this.layer === 1;
-	}
-
-	@HostBinding("class.cds--layer-three") get layerThreeClass() {
-		return this.layer === 2;
-	}
-
-	@ContentChildren(LayerDirective, { descendants: false }) layerChildren: QueryList<LayerDirective>;
-
-	// Holds user passsed level
-	private _passedLevel;
-	// Holds current level
-	private _level;
-
-	ngAfterContentInit(): void {
-		if (typeof this.cdsLayer !== "number") {
-			this.layer = 1;
-		}
+	setLevel(level: number): void {
+		this._el.nativeElement.setAttribute("level", String(level));
 	}
 }

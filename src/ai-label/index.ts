@@ -1,4 +1,9 @@
-export * from "./ai-label-actions.directive";
-export * from "./ai-label-content.directive";
-export * from "./ai-label.component";
-export * from "./ai-label.module";
+/**
+ * Public API surface for the Angular ai-label layer.
+ */
+export { AILabelModule } from "./ai-label.module";
+export {
+	CdsAILabelDirective,
+	CdsAILabelContentDirective,
+	CdsAILabelActionsDirective
+} from "./ai-label.directive";

@@ -1,120 +1,53 @@
-// modules
-import { NgModule } from "@angular/core";
+/**
+ * Copyright IBM Corp. 2024
+ *
+ * TableModule
+ *
+ * Drop-in replacement for the old carbon-components-angular TableModule.
+ * Registers the data-table web components and exports the thin Angular
+ * directive that maps the old TableModel-driven API onto them.
+ */
+import { NgModule, CUSTOM_ELEMENTS_SCHEMA } from "@angular/core";
 import { CommonModule } from "@angular/common";
-import { FormsModule } from "@angular/forms";
 
-// internal module imports
-import { NFormsModule } from "carbon-components-angular/forms";
-import { DialogModule } from "carbon-components-angular/dialog";
-import { I18nModule } from "carbon-components-angular/i18n";
-import { ButtonModule } from "carbon-components-angular/button";
-import { SearchModule } from "carbon-components-angular/search";
-import { IconModule } from "carbon-components-angular/icon";
+import CDSTable from "@carbon/web-components/es/components/data-table/table.js";
+import CDSTableHead from "@carbon/web-components/es/components/data-table/table-head.js";
+import CDSTableHeaderRow from "@carbon/web-components/es/components/data-table/table-header-row.js";
+import CDSTableHeaderCell from "@carbon/web-components/es/components/data-table/table-header-cell.js";
+import CDSTableBody from "@carbon/web-components/es/components/data-table/table-body.js";
+import CDSTableRow from "@carbon/web-components/es/components/data-table/table-row.js";
+import CDSTableCell from "@carbon/web-components/es/components/data-table/table-cell.js";
+import CDSTableToolbar from "@carbon/web-components/es/components/data-table/table-toolbar.js";
+import CDSTableToolbarContent from "@carbon/web-components/es/components/data-table/table-toolbar-content.js";
+import CDSTableToolbarSearch from "@carbon/web-components/es/components/data-table/table-toolbar-search.js";
 
-// table utilities/toolbar imports
-import { TableToolbar } from "./toolbar/table-toolbar.component";
-import { TableToolbarActions } from "./toolbar/table-toolbar-actions.component";
-import { TableToolbarSearch } from "./toolbar/table-toolbar-search.component";
-import { TableToolbarContent } from "./toolbar/table-toolbar-content.component";
+import { CdsTableDirective } from "./table.directive";
 
-import { TableContainer } from "./table-container.component";
-import { TableHeader } from "./header/table-header.component";
-import { TableHeaderTitle } from "./header/table-header-title.directive";
-import { TableHeaderDescription } from "./header/table-header-description.directive";
-import { TableHeaderDecorator } from "./header/table-header-decorator.component";
+function safeDefine(tag: string, ctor: CustomElementConstructor): void {
+	if (!customElements.get(tag)) {
+		customElements.define(tag, ctor);
+	}
+}
 
-import { ExpandedRowHover } from "./expanded-row-hover.directive";
-
-// core table imports
-import { Table } from "./table.component";
-import { TableDirective } from "./table.directive";
-import { TableHead } from "./head/table-head.component";
-import { TableHeadCell } from "./head/table-head-cell.component";
-import { TableHeadCheckbox } from "./head/table-head-checkbox.component";
-import { TableHeadExpand } from "./head/table-head-expand.component";
-import { TableBody } from "./body/table-body.component";
-import { TableRowComponent } from "./body/table-row.component";
-import { TableExpandedRow } from "./body/table-expanded-row.component";
-import { TableData } from "./cell/table-data.component";
-import { TableCheckbox } from "./cell/table-checkbox.component";
-import { TableRadio } from "./cell/table-radio.component";
-import { TableExpandButton } from "./cell/table-expand-button.component";
-import { TableHeadCellLabel } from "./head/table-head-cell-label.directive";
-
-// model exports
-export { TableModel } from "./table-model.class";
-export { TableRow } from "./table-row.class";
-export { TableItem } from "./table-item.class";
-export { TableHeaderItem } from "./table-header-item.class";
-export * from "./table-adapter.class";
-export * from "./data-grid-interaction-model.class";
+safeDefine("cds-table", CDSTable);
+safeDefine("cds-table-head", CDSTableHead);
+safeDefine("cds-table-header-row", CDSTableHeaderRow);
+safeDefine("cds-table-header-cell", CDSTableHeaderCell);
+safeDefine("cds-table-body", CDSTableBody);
+safeDefine("cds-table-row", CDSTableRow);
+safeDefine("cds-table-cell", CDSTableCell);
+safeDefine("cds-table-toolbar", CDSTableToolbar);
+safeDefine("cds-table-toolbar-content", CDSTableToolbarContent);
+safeDefine("cds-table-toolbar-search", CDSTableToolbarSearch);
 
 @NgModule({
-	declarations: [
-		// toolbar and utility components
-		TableToolbar,
-		TableContainer,
-		TableHeader,
-		TableHeaderTitle,
-		TableHeaderDescription,
-		TableHeaderDecorator,
-		TableHeadCellLabel,
-		TableToolbarActions,
-		TableToolbarSearch,
-		TableToolbarContent,
-		ExpandedRowHover,
-		// core table components
-		Table,
-		TableDirective,
-		TableHead,
-		TableHeadCell,
-		TableHeadCheckbox,
-		TableHeadExpand,
-		TableBody,
-		TableRowComponent,
-		TableExpandedRow,
-		TableData,
-		TableCheckbox,
-		TableRadio,
-		TableExpandButton
-	],
-	exports: [
-		// toolbar and utility components
-		TableToolbar,
-		TableContainer,
-		TableHeader,
-		TableHeaderTitle,
-		TableHeaderDescription,
-		TableHeaderDecorator,
-		TableHeadCellLabel,
-		TableToolbarActions,
-		TableToolbarSearch,
-		TableToolbarContent,
-		ExpandedRowHover,
-		// core table components
-		Table,
-		TableDirective,
-		TableHead,
-		TableHeadCell,
-		TableHeadCheckbox,
-		TableHeadExpand,
-		TableBody,
-		TableRowComponent,
-		TableExpandedRow,
-		TableData,
-		TableCheckbox,
-		TableRadio,
-		TableExpandButton
-	],
 	imports: [
 		CommonModule,
-		NFormsModule,
-		FormsModule,
-		DialogModule,
-		ButtonModule,
-		SearchModule,
-		I18nModule,
-		IconModule
-	]
+		CdsTableDirective
+	],
+	exports: [
+		CdsTableDirective
+	],
+	schemas: [CUSTOM_ELEMENTS_SCHEMA]
 })
-export class TableModule {}
+export class TableModule { }

@@ -1,66 +1,127 @@
-import { Directive, HostBinding, Input } from "@angular/core";
-
 /**
- * A directive for applying styling to an input element.
+ * Copyright IBM Corp. 2024
  *
- * Example:
+ * Directive: CdsTextInputDirective
  *
- * ```html
- * <input cdsText/>
- * ```
+ * Sits directly on <cds-text-input> — the web component replacement for the
+ * old class-based `TextInput` directive (`[cdsText]` on a native <input>).
+ * Implements ControlValueAccessor so `[(ngModel)]` and reactive forms keep
+ * working.
  *
- * See the [vanilla carbon docs](http://www.carbondesignsystem.com/components/text-input/code) for more detail.
+ * Backwards-compatible API surface:
+ *   [size] [invalid] [warn] [disabled] [readonly]
+ *   plus the label texts that previously lived on the `cds-label` wrapper:
+ *   [label] [helperText] [invalidText] [warnText] [placeholder] [hideLabel]
+ *   (valueChange) — emits the current value on input
  */
-@Directive({
-	selector: "[cdsText], [ibmText]"
-})
-export class TextInput {
-	/**
-	 * @deprecated since v5 - Use `cdsLayer` directive instead
-	 * `light` or `dark` input theme
-	 */
-	@Input() theme: "light" | "dark" = "dark";
+import {
+	Directive,
+	ElementRef,
+	EventEmitter,
+	forwardRef,
+	HostListener,
+	Input,
+	OnChanges,
+	Output
+} from "@angular/core";
+import { ControlValueAccessor, NG_VALUE_ACCESSOR } from "@angular/forms";
 
-	/**
-	 * Input field render size
-	 */
+@Directive({
+	selector: "cds-text-input, [cdsText], [ibmText]",
+	standalone: true,
+	providers: [
+		{
+			provide: NG_VALUE_ACCESSOR,
+			useExisting: forwardRef(() => CdsTextInputDirective),
+			multi: true
+		}
+	]
+})
+export class CdsTextInputDirective implements OnChanges, ControlValueAccessor {
+	/** Input size. */
 	@Input() size: "sm" | "md" | "lg" = "md";
 
-	@HostBinding("class.cds--text-input") inputClass = true;
+	@Input() invalid = false;
+	@Input() warn = false;
+	@Input() disabled = false;
+	@Input() readonly = false;
+	@Input() hideLabel = false;
 
-	/**
-	 * @todo - remove `cds--text-input--${size}` classes in v12
-	 */
-	@HostBinding("class.cds--text-input--sm") get isSizeSm() {
-		return this.size === "sm";
-	}
-	@HostBinding("class.cds--text-input--md") get isSizeMd() {
-		return this.size === "md";
-	}
-	@HostBinding("class.cds--text-input--lg") get isSizelg() {
-		return this.size === "lg";
+	/** Label rendered by the web component (replaces the cds-label wrapper). */
+	@Input() label: string;
+	@Input() helperText: string;
+	@Input() invalidText: string;
+	@Input() warnText: string;
+	@Input() placeholder: string;
+
+	/** Current value. */
+	@Input() value = "";
+
+	/** Emits the current value on every input. */
+	@Output() valueChange = new EventEmitter<string>();
+
+	private _onChange: (value: string) => void = () => { };
+	private _onTouched: () => void = () => { };
+
+	constructor(private _el: ElementRef<HTMLElement>) { }
+
+	ngOnChanges(): void {
+		const el = this._el.nativeElement;
+
+		el.setAttribute("size", this.size);
+		this._setStrAttr("label", this.label);
+		this._setStrAttr("helper-text", this.helperText);
+		this._setStrAttr("invalid-text", this.invalidText);
+		this._setStrAttr("warn-text", this.warnText);
+		this._setStrAttr("placeholder", this.placeholder);
+		(el as any).value = this.value;
+
+		this._setBoolAttr("invalid", this.invalid);
+		this._setBoolAttr("warn", this.warn);
+		this._setBoolAttr("disabled", this.disabled);
+		this._setBoolAttr("readonly", this.readonly);
+		this._setBoolAttr("hide-label", this.hideLabel);
 	}
 
-	// Size
-	@HostBinding("class.cds--layout--size-sm") get sizeSm() {
-		return this.size === "sm";
-	}
-	@HostBinding("class.cds--layout--size-md") get sizeMd() {
-		return this.size === "md";
-	}
-	@HostBinding("class.cds--layout--size-lg") get sizelg() {
-		return this.size === "lg";
+	@HostListener("input", ["$event"])
+	onInput(event: Event): void {
+		const value = (event.target as any)?.value ?? "";
+		this.value = value;
+		this.valueChange.emit(value);
+		this._onChange(value);
+		this._onTouched();
 	}
 
-	@HostBinding("class.cds--text-input--invalid") @Input() invalid = false;
-	@HostBinding("class.cds--text-input--warning") @Input() warn = false;
-	@HostBinding("class.cds--skeleton") @Input() skeleton = false;
-	@HostBinding("class.cds--text-input--light") get isLightTheme() {
-		return this.theme === "light";
+	// ----------------------------------------------------- ControlValueAccessor
+	writeValue(value: string): void {
+		this.value = value ?? "";
+		(this._el.nativeElement as any).value = this.value;
 	}
 
-	@HostBinding("attr.data-invalid") get getInvalidAttribute() {
-		return this.invalid ? true : undefined;
+	registerOnChange(fn: (value: string) => void): void {
+		this._onChange = fn;
 	}
 
+	registerOnTouched(fn: () => void): void {
+		this._onTouched = fn;
+	}
+
+	setDisabledState(isDisabled: boolean): void {
+		this.disabled = isDisabled;
+		this._setBoolAttr("disabled", isDisabled);
+	}
+
+	private _setStrAttr(name: string, value: string | undefined): void {
+		if (value !== undefined && value !== null) {
+			this._el.nativeElement.setAttribute(name, value);
+		}
+	}
+
+	private _setBoolAttr(name: string, value: boolean): void {
+		if (value) {
+			this._el.nativeElement.setAttribute(name, "");
+		} else {
+			this._el.nativeElement.removeAttribute(name);
+		}
+	}
 }

@@ -1,7 +1,10 @@
-/* tslint:disable variable-name */
-
-import { moduleMetadata, Meta } from "@storybook/angular";
-import { LayerModule, LayerDirective } from "./";
+/**
+ * Storybook stories for the Angular layer directive layer.
+ * The directive maps the old `[cdsLayer]` API onto the <cds-layer>
+ * web component, which handles nested layer levels itself.
+ */
+import { Meta, moduleMetadata } from "@storybook/angular";
+import { LayerModule } from "./index";
 
 export default {
 	title: "Components/Layer",
@@ -9,63 +12,30 @@ export default {
 		moduleMetadata({
 			imports: [LayerModule]
 		})
-	],
-	parameters: {
-		controls: {
-			disable: true
-		}
-	},
-	component: LayerDirective
+	]
 } as Meta;
 
-const Template = (args) => ({
-	props: args,
+export const Basic = () => ({
 	template: `
-		<div class="example-layer">Layer 0</div>
-		<div cdsLayer>
-			<div class="example-layer">Layer 1</div>
-			<div cdsLayer>
-				<div class="example-layer">Layer 2</div>
-			</div>
-		</div>
-	`,
-	styles: [
-		`.example-layer {
-			padding: 1rem;
-			background: var(--cds-layer);
-			color: theme.$text-primary;
-		}`
-	]
+		<cds-layer>
+			<div style="padding: 1rem">Layer one</div>
+			<cds-layer>
+				<div style="padding: 1rem">Layer two</div>
+				<cds-layer>
+					<div style="padding: 1rem">Layer three</div>
+				</cds-layer>
+			</cds-layer>
+		</cds-layer>
+	`
 });
-export const Basic = Template.bind({});
 
-const TemplateWithInput = (args) => ({
-	props: args,
+export const ExplicitLevel = () => ({
 	template: `
-		<div class="example-layer">Layer 0</div>
-		<div cdsLayer>
-			<div class="example-layer">Layer 1</div>
-			<div cdsLayer>
-				<div class="example-layer">Layer 2</div>
-				<!-- Reset layer, child layer will auto increment or you can pass in layer of your choice -->
-				<div [cdsLayer]="0">
-					<div class="example-layer">Layer 0</div>
-					<div [cdsLayer]="1">
-						<div class="example-layer">Layer 1</div>
-						<div cdsLayer>
-							<div class="example-layer">Layer 2</div>
-						</div>
-					</div>
-				</div>
-			</div>
+		<div [cdsLayer]="2">
+			<cds-layer level="2">
+				<div style="padding: 1rem">Explicit layer level 2</div>
+			</cds-layer>
 		</div>
-	`,
-	styles: [
-		`.example-layer {
-			padding: 1rem;
-			background: var(--cds-layer);
-			color: theme.$text-primary;
-		}`
-	]
+	`
 });
-export const CustomOrder = TemplateWithInput.bind({});
+ExplicitLevel.storyName = "Explicit Level";

@@ -1,7 +1,9 @@
-/* tslint:disable variable-name */
-
-import { moduleMetadata, Meta } from "@storybook/angular";
-import { ProgressBarModule, ProgressBar } from "./";
+/**
+ * Storybook stories for the Angular progress-bar directive layer.
+ * The directive maps the old @Input API onto the <cds-progress-bar> web component.
+ */
+import { Meta, moduleMetadata } from "@storybook/angular";
+import { ProgressBarModule } from "./index";
 
 export default {
 	title: "Components/Progress Bar",
@@ -10,72 +12,51 @@ export default {
 			imports: [ProgressBarModule]
 		})
 	],
-	component: ProgressBar
+	argTypes: {
+		value: { control: "number" },
+		max: { control: "number" },
+		label: { control: "text" },
+		helperText: { control: "text" },
+		type: { control: "radio", options: ["default", "inline", "indented"] },
+		status: { control: "radio", options: ["active", "finished", "error"] },
+		size: { control: "radio", options: ["small", "big"] },
+		hideLabel: { control: "boolean" }
+	},
+	args: {
+		value: 30,
+		max: 100,
+		label: "Progress bar label",
+		helperText: "Optional helper text",
+		type: "default",
+		status: "active",
+		size: "big",
+		hideLabel: false
+	}
 } as Meta;
 
-const Template = (args) => ({
+export const Basic = (args) => ({
 	props: args,
 	template: `
 		<cds-progress-bar
-			[label]="label"
-			[helperText]="helperText"
+			[value]="value"
 			[max]="max"
-			[size]="size"
-			[status]="status"
-			[type]="type"
-			[value]="value">
-		</cds-progress-bar>
-	`
-});
-export const Basic = Template.bind({});
-Basic.args = {
-	label: "Progress bar label",
-	helperText: "Optional helper text",
-	max: 100,
-	size: "big",
-	status: "active",
-	type: "default",
-	value: 35
-};
-
-Basic.argTypes = {
-	size: {
-		options: ["big", "small"],
-		control: "radio"
-	},
-	status: {
-		options: ["active", "finished", "error"],
-		control: "radio"
-	},
-	type: {
-		options: ["default", "inline", "indented"],
-		control: "radio"
-	}
-};
-
-const IndeterminateTemplate = (args) => ({
-	props: args,
-	template: `
-		<cds-progress-bar
 			[label]="label"
 			[helperText]="helperText"
-			[size]="size"
+			[type]="type"
 			[status]="status"
-			[type]="type">
+			[size]="size"
+			[hideLabel]="hideLabel">
 		</cds-progress-bar>
 	`
 });
-export const Indeterminate = IndeterminateTemplate.bind({});
-Indeterminate.args = {
-	label: "Progress bar label",
-	helperText: "Optional helper text",
-	size: "big",
-	type: "default"
-};
 
-Indeterminate.argTypes = {
-	...Basic.argTypes,
-	status: {
-		control: false
-	}
-};
+export const Indeterminate = (args) => ({
+	props: { ...args, value: undefined },
+	template: `
+		<cds-progress-bar
+			[value]="value"
+			[label]="label"
+			[helperText]="'Indeterminate — no value set'">
+		</cds-progress-bar>
+	`
+});

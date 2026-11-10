@@ -1,2 +1,5 @@
-export { CodeSnippet, SnippetType } from "./code-snippet.component";
-export * from "./code-snippet.module";
+/**
+ * Public API surface for the Angular code-snippet layer.
+ */
+export { CodeSnippetModule } from "./code-snippet.module";
+export { CdsCodeSnippetDirective, SnippetType } from "./code-snippet.directive";

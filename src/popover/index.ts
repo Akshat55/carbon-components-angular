@@ -1,3 +1,5 @@
-export { PopoverContainer } from "./popover.directive";
-export { PopoverContent } from "./popover-content.component";
-export * from "./popover.module";
+/**
+ * Public API surface for the Angular popover layer.
+ */
+export { PopoverModule } from "./popover.module";
+export { CdsPopoverDirective } from "./popover.directive";

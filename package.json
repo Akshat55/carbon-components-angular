@@ -18,7 +18,7 @@
     "ng": "ng",
     "ng:build": "node --max_old_space_size=4096 ./node_modules/@angular/cli/bin/ng build",
     "prepare": "husky install",
-    "postinstall": "ibmtelemetry --config=telemetry.yml"
+    "postinstall": "ibmtelemetry --config=telemetry.yml && node ./scripts/patch-web-components-types.js"
   },
   "release": {
     "pkgRoot": "dist",
@@ -64,6 +64,9 @@
   },
   "license": "Apache-2.0",
   "author": "IBM",
+  "overrides": {
+    "terser": "^5.31.0"
+  },
   "peerDependencies": {
     "@angular/common": "^14.0.0 || ^15.0.0 || ^16.0.0 || ^17.0.0 || ^18.0.0 || ^19.0.0 || ^20.0.0 || ^21.0.0",
     "@angular/core": "^14.0.0 || ^15.0.0 || ^16.0.0 || ^17.0.0 || ^18.0.0 || ^19.0.0 || ^20.0.0 || ^21.0.0",
@@ -143,6 +146,7 @@
     "@carbon/icon-helpers": "10.74.0",
     "@carbon/icons": "11.77.1",
     "@carbon/utils-position": "1.1.4",
+    "@carbon/web-components": "^2.56.0",
     "@floating-ui/dom": "1.6.13",
     "@ibm/telemetry-js": "^1.5.0",
     "flatpickr": "4.6.13",

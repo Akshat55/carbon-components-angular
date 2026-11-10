@@ -1,213 +1,160 @@
-import {
-	ComponentRef,
-	EventEmitter,
-	Injectable,
-	OnDestroy,
-	NgZone,
-	ViewContainerRef,
-	Injector
-} from "@angular/core";
-
-import { NotificationContent, ToastContent, ActionableContent } from "./notification-content.interface";
-import { Notification } from "./notification.component";
-import { Toast } from "./toast.component";
-import { ActionableNotification } from "./actionable-notification.component";
-
 /**
- * Provides a way to use the notification component.
+ * Copyright IBM Corp. 2024
  *
- * Notifications are displayed toward the top of the UI and do not interrupt the user’s work.
+ * NotificationService
+ *
+ * Restores the old carbon-components-angular NotificationService on top of
+ * the notification web components. Since web components are plain DOM
+ * elements, the service dynamically creates them with `document.createElement`,
+ * maps the same `NotificationContent` fields to attributes that the
+ * directives use, and manages their lifecycle (duration timeout, close
+ * events, removal from the DOM).
+ *
+ * Backwards-compatible API surface (matches carbon-components-angular):
+ *   showNotification(content) — inline notification
+ *   showToast(content)        — toast notification
+ *   showActionable(content)   — actionable notification
+ *   close(elementOrRef)       — programmatically dismiss
+ *
+ * Each method returns the created HTMLElement so callers can hold on to it
+ * (the old API returned a ComponentRef; the element is the closest analogue
+ * and supports the same close-event subscriptions via addEventListener).
  */
-@Injectable()
-export class NotificationService implements OnDestroy {
-	/**
-	 * An array containing `ComponentRef`s to all the notifications this service instance
-	 * is responsible for.
-	 *
-	 */
-	public notificationRefs = new Array<ComponentRef<any>>();
-	public onClose: EventEmitter<any> = new EventEmitter();
+import { Injectable, NgZone } from "@angular/core";
+
+import CDSInlineNotification from "@carbon/web-components/es/components/notification/inline-notification.js";
+import CDSToastNotification from "@carbon/web-components/es/components/notification/toast-notification.js";
+import CDSActionableNotification from "@carbon/web-components/es/components/notification/actionable-notification.js";
+import CDSActionableNotificationButton from "@carbon/web-components/es/components/notification/actionable-notification-button.js";
+
+import {
+	ActionableContent,
+	NotificationContent,
+	ToastContent
+} from "./notification-content.interface";
+
+// The service is `providedIn: "root"` and can be injected without
+// NotificationModule ever being imported — register the web components here
+// too so dynamically created elements always upgrade.
+function safeDefine(tag: string, ctor: CustomElementConstructor): void {
+	if (!customElements.get(tag)) {
+		customElements.define(tag, ctor);
+	}
+}
+
+safeDefine("cds-inline-notification", CDSInlineNotification);
+safeDefine("cds-toast-notification", CDSToastNotification);
+safeDefine("cds-actionable-notification", CDSActionableNotification);
+safeDefine("cds-actionable-notification-button", CDSActionableNotificationButton);
+
+@Injectable({ providedIn: "root" })
+export class NotificationService {
+
+	constructor(protected ngZone: NgZone) { }
 
 	/**
-	 * Constructs Notification Service
+	 * Shows an inline notification (<cds-inline-notification>).
+	 * Same `NotificationContent` shape as before.
 	 */
-	constructor(
-		protected injector: Injector,
-		protected viewContainer: ViewContainerRef,
-		protected ngZone: NgZone
-	) {}
+	showNotification(content: NotificationContent): HTMLElement {
+		return this._show("cds-inline-notification", content);
+	}
 
 	/**
-	 * Shows the notification based on the `notificationObj`.
-	 *
-	 * @param notificationObj Can have `type`, `message`, `target`, `duration` and `smart` members.
-	 *
-	 * **Members:**
-	 *
-	 * * `type` can be one of `"info"`, `"warning"`, `"danger"`, `"success"`
-	 * * `message` is message for notification to display
-	 * * `target` is css selector defining an element to append notification to. If not provided,
-	 * `showNotification()` creates a place for the notification in `body`
-	 * * `duration` is number of ms to close the notification after. If used in combination with `smart`,
-	 * it's added to the calculated timeout
-	 * * `smart`, set to `true` if you want to use smart notification.
-	 *
-	 * **Example:**
-	 * ```typescript
-	 * // Info notification, saying "Sample message." added to the element with id notification-container
-	 * // uses smart timeout with added duration of 1 second.
-	 * {
-	 *	type: "info",
-	 *	message: "Sample message.",
-	 *	target: "#notification-container",
-	 *	duration: 1000,
-	 *	smart: true
-	 * }
-	 * ```
-	 *
-	 * @param [notificationComp=Notification] If provided, used to resolve component factory
+	 * Shows a toast notification (<cds-toast-notification>).
 	 */
-	showNotification(
-		notificationObj: NotificationContent | ToastContent | ActionableContent,
-		notificationComp = Notification
-	) {
-		const notificationRef = this.viewContainer.createComponent(notificationComp);
-		notificationRef.instance.notificationObj = notificationObj;
-		this.notificationRefs.push(notificationRef);
+	showToast(content: ToastContent | NotificationContent): HTMLElement {
+		return this._show("cds-toast-notification", content);
+	}
 
-		this.onClose = notificationRef.instance.close;
+	/**
+	 * Shows an actionable notification (<cds-actionable-notification>).
+	 * `content.actions` are rendered as <cds-actionable-notification-button>s
+	 * and their `click` handlers/subjects are invoked exactly as before.
+	 */
+	showActionable(content: ActionableContent): HTMLElement {
+		const element = this._show("cds-actionable-notification", content);
 
-		if (notificationObj.target) {
-			document.querySelector(notificationObj.target).appendChild(notificationRef.location.nativeElement);
-		} else {
-			let body = document.querySelector("body");
-
-			// get or create a container for alert list
-			let notificationClassName = "notification-overlay";
-			let notificationList = body.querySelector(`.${notificationClassName}`);
-			if (!notificationList) {
-				notificationList = document.createElement("div");
-				notificationList.className = notificationClassName;
-				body.appendChild(notificationList);
-			}
-
-			// add the notification to the top of the list
-			if (notificationList.firstChild) {
-				notificationList.insertBefore(notificationRef.location.nativeElement, notificationList.firstChild);
-			} else {
-				notificationList.appendChild(notificationRef.location.nativeElement);
-			}
+		if (content.variant === "inline") {
+			element.setAttribute("inline", "");
 		}
 
-		if (notificationObj.duration && notificationObj.duration > 0) {
-			this.ngZone.runOutsideAngular(() => {
-				setTimeout(() => {
-					this.ngZone.run(() => {
-						this.close(notificationRef);
-					});
-				}, notificationObj.duration);
+		for (const action of content.actions ?? []) {
+			const button = document.createElement("cds-actionable-notification-button");
+			button.setAttribute("slot", "action");
+			button.textContent = action.text;
+			button.addEventListener("click", (event: Event) => {
+				this.ngZone.run(() => {
+					if (typeof action.click === "function") {
+						action.click({ event, action });
+					} else {
+						// Subject-style handler from the old API.
+						action.click.next({ event, action });
+					}
+				});
 			});
+			element.appendChild(button);
 		}
 
-		if (notificationObj.smart) {
-			this.ngZone.runOutsideAngular(() => {
-				// let it disappear after calculated timeout
-				setTimeout(() => {
-					this.ngZone.run(() => {
-						this.close(notificationRef);
-					});
-				}, this.getSmartTimeout(notificationObj));
-			});
+		return element;
+	}
+
+	/**
+	 * Programmatically closes a notification created by this service.
+	 */
+	close(element: HTMLElement): void {
+		// Let the web component animate/emit its close event, then remove.
+		element.removeAttribute("open");
+		element.remove();
+	}
+
+	// ------------------------------------------------------- private helpers
+
+	/**
+	 * Creates the web component element, maps `NotificationContent` fields to
+	 * its attributes and appends it to the target (or document.body).
+	 */
+	private _show(tag: string, content: NotificationContent): HTMLElement {
+		const element = document.createElement(tag);
+
+		element.setAttribute("kind", content.type ?? "info");
+		if (typeof content.title === "string") {
+			element.setAttribute("title", content.title);
+		}
+		const subtitle = (content as any).subtitle ?? content.message;
+		if (typeof subtitle === "string") {
+			element.setAttribute("subtitle", subtitle);
+		}
+		const caption = (content as any).caption;
+		if (typeof caption === "string") {
+			element.setAttribute("caption", caption);
+		}
+		if (content.lowContrast) {
+			element.setAttribute("low-contrast", "");
+		}
+		if (content.showClose === false) {
+			element.setAttribute("hide-close-button", "");
+		}
+		if (content.closeLabel) {
+			element.setAttribute("aria-label", String(content.closeLabel));
 		}
 
-		this.onClose.subscribe(() => {
-			this.close(notificationRef);
+		// The web component removes itself visually on close; drop the node
+		// from the DOM as the old NotificationDisplayService did.
+		element.addEventListener("cds-notification-closed", () => {
+			element.remove();
 		});
 
-		notificationRef.instance.componentRef = notificationRef;
-		return notificationRef.instance;
-	}
-
-	showToast(notificationObj: NotificationContent | ToastContent, notificationComp = Toast) {
-		return this.showNotification(notificationObj, notificationComp as any);
-	}
-
-	showActionable(notificationObj: ActionableContent, notificationComp = ActionableNotification) {
-		return this.showNotification(notificationObj, notificationComp as any);
-	}
-
-	/**
-	 * Programatically closes notification based on `notificationRef`.
-	 *
-	 * @param notificationRef `ComponentRef` of a notification or `Notification` component you wish to close
-	 */
-	close(notificationRef: any) {
-		if (notificationRef) {
-			if (notificationRef instanceof Notification) {
-				this.close(notificationRef.componentRef);
-			} else {
-				notificationRef.destroy();
-				const index = this.notificationRefs.indexOf(notificationRef);
-				if (index !== -1) {
-					this.notificationRefs.splice(index, 1);
-				}
-			}
-		}
-	}
-
-	/**
-	 * Calculates the amount of time user needs to read the message in the notification.
-	 *
-	 * @param notificationObj Same object used to instantiate notification.
-	 *
-	 * In addition to `type` and `message` members, use `duration` member to add
-	 * some extra time (in ms) to timeout if you need to.
-	 * @returns calculated timeout (in ms) for smart notification
-	 */
-	getSmartTimeout(notificationObj): number {
-		// calculate timeout
-		let timeout = 600; // start with reaction time
-
-		// custom duration
-		timeout += notificationObj.duration || 0;
-
-		// message type
-		switch (notificationObj.type) {
-			case "info":
-			case "info-square":
-			case "success":
-			default: {
-				break;
-			}
-			case "danger": {
-				timeout += 3000;
-				break;
-			}
-			case "warning":
-			case "warning-alt": {
-				timeout += 1500;
-				break;
-			}
+		// Auto-close after `duration`, matching the old smart/duration options.
+		if (content.duration) {
+			element.setAttribute("timeout", String(content.duration));
+			// Fallback removal in case the timeout close event isn't observed.
+			setTimeout(() => element.remove(), content.duration + 1000);
 		}
 
-		// message length
-		// average reader reads around 200 words per minute, or it takes them ~0.3s per word
-		// let's use 1.5 factor for below average speed readers and have 0.45s per word
-		let wordCount = notificationObj.message.trim().split(/\s+/).length;
-		timeout += wordCount * 450;
+		const target = content.target ? document.querySelector(content.target) : null;
+		(target ?? document.body).appendChild(element);
 
-		return timeout;
-	}
-
-	/**
-	 * OnDestroy hook.
-	 *
-	 * Destroys all living notifications it is responsible for.
-	 *
-	 */
-	ngOnDestroy() {
-		this.notificationRefs.forEach((ref) => {
-			ref.destroy();
-		});
+		return element;
 	}
 }

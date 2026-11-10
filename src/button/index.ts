@@ -1,6 +1,8 @@
-export { Button } from "./button.directive";
-export { ButtonSet } from "./button-set.component";
-export { IconButton } from "./icon-button.component";
-export { BaseIconButton } from "./base-icon-button.component";
+/**
+ * Public API surface for the Angular button layer.
+ */
 export { ButtonModule } from "./button.module";
+export { CdsButtonDirective } from "./button.directive";
+export { CdsButtonSetDirective } from "./button-set.directive";
+export { CdsIconButtonDirective } from "./icon-button.directive";
 export { ButtonSize, ButtonType, DangerButtonType } from "./button.types";

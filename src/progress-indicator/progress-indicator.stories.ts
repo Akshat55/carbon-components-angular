@@ -1,7 +1,10 @@
-/* tslint:disable variable-name */
-
-import { moduleMetadata, Meta } from "@storybook/angular";
-import { ProgressIndicatorModule, ProgressIndicator } from "./";
+/**
+ * Storybook stories for the Angular progress-indicator directive layer.
+ * The directive maps the old `[steps]`/`[current]` API onto the
+ * <cds-progress-indicator> web component.
+ */
+import { Meta, moduleMetadata } from "@storybook/angular";
+import { ProgressIndicatorModule } from "./index";
 
 export default {
 	title: "Components/Progress Indicator",
@@ -10,71 +13,48 @@ export default {
 			imports: [ProgressIndicatorModule]
 		})
 	],
-	component: ProgressIndicator
+	argTypes: {
+		orientation: { control: "radio", options: ["horizontal", "vertical"] },
+		spacing: { control: "radio", options: ["default", "equal"] },
+		current: { control: "number" },
+		stepSelected: { action: "stepSelected" }
+	},
+	args: {
+		orientation: "horizontal",
+		spacing: "default",
+		current: 1
+	}
 } as Meta;
 
-const Template = (args) => ({
-	props: args,
+const steps = [
+	{ label: "First step", secondaryLabel: "Optional label", complete: true },
+	{ label: "Second step" },
+	{ label: "Third step", invalid: true },
+	{ label: "Fourth step", disabled: true },
+	{ label: "Fifth step" }
+];
+
+export const Basic = (args) => ({
+	props: { ...args, steps },
 	template: `
 		<cds-progress-indicator
-			[skeleton]="skeleton"
 			[steps]="steps"
-			[orientation]="orientation"
 			[current]="current"
-			(stepSelected)="stepSelected($event)"
-			[spacing]="spacing">
+			[orientation]="orientation"
+			[spacing]="spacing"
+			(stepSelected)="stepSelected($event)">
 		</cds-progress-indicator>
 	`
 });
-export const Basic = Template.bind({});
-Basic.args = {
-	skeleton: false,
-	current: 1,
-	steps: [
-		{
-			label: "First step",
-			complete: true,
-			secondaryLabel: "optional text",
-			onClick: () => {
-				alert("First step clicked!");
-			}
-		},
-		{
-			label: "Second step",
-			complete: false,
-			current: true
-		},
-		{
-			label: "Third step",
-			complete: false
-		},
-		{
-			label: "Fourth step",
-			complete: false,
-			invalid: true
-		},
-		{
-			label: "Fifth step",
-			complete: false,
-			disabled: true
-		}
-	],
-	align: "default",
-	orientation: "horizontal"
-};
-Basic.argTypes = {
-	steps: {
-		control: false
-	},
-	StepSelected: {
-		control: "Step selected!"
-	},
-	align: {
-		options: ["default", "equal"],
-		control: "radio"
-	},
-	orientation: {
-		options: ["horizontal", "vertical"],
-		control: "radio"
-	}
-};
+
+export const Vertical = (args) => ({
+	props: { ...args, steps, orientation: "vertical" },
+	template: `
+		<cds-progress-indicator
+			[steps]="steps"
+			[current]="current"
+			[orientation]="orientation"
+			(stepSelected)="stepSelected($event)">
+		</cds-progress-indicator>
+	`
+});

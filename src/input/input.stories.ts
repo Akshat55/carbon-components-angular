@@ -1,120 +1,69 @@
-/* tslint:disable variable-name */
-
-import { moduleMetadata, Meta } from "@storybook/angular";
-import { InputModule, TextInputLabelComponent } from "./";
-import { AILabelModule } from "../ai-label";
-import { ButtonModule } from "../button";
-import { IconModule } from "../icon";
-import { AI_LABEL_INNER, AI_LABEL_STORY_STYLES } from "../storybook/ai-label-story-shared";
+/**
+ * Storybook stories for the Angular text-input directive layer.
+ * The directive maps the old API onto the <cds-text-input> web component.
+ */
+import { FormsModule } from "@angular/forms";
+import { Meta, moduleMetadata } from "@storybook/angular";
+import { InputModule } from "./index";
 
 export default {
 	title: "Components/Input",
 	decorators: [
 		moduleMetadata({
-			imports: [InputModule, AILabelModule, ButtonModule, IconModule]
+			imports: [InputModule, FormsModule]
 		})
 	],
+	argTypes: {
+		size: { control: "radio", options: ["sm", "md", "lg"] },
+		invalid: { control: "boolean" },
+		warn: { control: "boolean" },
+		disabled: { control: "boolean" },
+		hideLabel: { control: "boolean" },
+		label: { control: "text" },
+		helperText: { control: "text" },
+		invalidText: { control: "text" },
+		warnText: { control: "text" },
+		placeholder: { control: "text" },
+		valueChange: { action: "valueChange" }
+	},
 	args: {
-		disabled: false,
+		size: "md",
 		invalid: false,
-		invalidText: "Invalid entry",
 		warn: false,
-		warnText: "This is a warning!",
+		disabled: false,
+		hideLabel: false,
 		label: "Text input label",
 		helperText: "Optional helper text",
-		placeholder: "Placeholder",
-		autocomplete: "on",
-		theme: "dark",
-		size: "md",
-		readonly: false,
-		fluid: false,
-		skeleton: false,
-		inline: false,
-		enableCounter: false,
-		maxCount: 500
-	},
-	argTypes: {
-		autocomplete: {
-			options: ["on", "off"],
-			control: "radio"
-		},
-		theme: {
-			options: ["light", "dark"],
-			control: "radio"
-		},
-		size: {
-			options: ["sm", "md", "lg"],
-			control: "select"
-		}
-	},
-	component: TextInputLabelComponent
+		invalidText: "Invalid input",
+		warnText: "Warning",
+		placeholder: "Placeholder"
+	}
 } as Meta;
 
-const Template = (args) => ({
+export const Basic = (args) => ({
 	props: args,
 	template: `
-		<cds-text-label
-		[helperText]="helperText"
-		[invalid]="invalid"
-		[invalidText]="invalidText"
-		[warn]="warn"
-		[disabled]="disabled"
-		[fluid]="fluid"
-		[skeleton]="skeleton"
-		[warnText]="warnText"
-		[enableCounter]="enableCounter"
-		[maxCount]="maxCount"
-		[inline]="inline">
-		{{label}}
-		<input
-			cdsText
+		<cds-text-input
+			[label]="label"
+			[helperText]="helperText"
+			[invalidText]="invalidText"
+			[warnText]="warnText"
+			[placeholder]="placeholder"
 			[size]="size"
 			[invalid]="invalid"
 			[warn]="warn"
 			[disabled]="disabled"
-			[theme]="theme"
-			[placeholder]="placeholder"
-			[readonly]="readonly"
-			[autocomplete]="autocomplete">
-		</cds-text-label>
+			[hideLabel]="hideLabel"
+			(valueChange)="valueChange($event)">
+		</cds-text-input>
 	`
 });
-export const Basic = Template.bind({});
 
-export const Fluid = Template.bind({});
-Fluid.args = {
-	fluid: true
-};
-
-const SkeletonTemplate = (args) => ({
-	props: args,
+export const WithNgModel = (args) => ({
+	props: { ...args, model: "" },
 	template: `
-		<cds-label skeleton="true">
-			<input cdsText skeleton="true">
-		</cds-label>
-		<br>
-		<input cdsText skeleton="true">
+		<cds-text-input [(ngModel)]="model" [label]="label" [placeholder]="placeholder"></cds-text-input>
+		<p style="margin-top: 1rem">Value: {{ model }}</p>
 	`
 });
-export const Skeleton = SkeletonTemplate.bind({});
-
-export const withAILabel = () => ({
-	styles: AI_LABEL_STORY_STYLES,
-	template: `
-		<cds-text-label [decorator]="decoratorTpl">
-			Text input with decorator
-			<input cdsText placeholder="Placeholder" />
-		</cds-text-label>
-		<ng-template #decoratorTpl>
-			<cds-ai-label
-				class="ai-label-container"
-				kind="default"
-				size="mini"
-				[autoAlign]="true"
-				aiText="AI"
-				ariaLabel="Show information">
-				` + AI_LABEL_INNER + `
-			</cds-ai-label>
-		</ng-template>
-	`
-});
+WithNgModel.storyName = "With ngModel";

@@ -1,6 +1,6 @@
-export { PaginationModel } from "./pagination-model.class";
-export { Pagination, PaginationTranslations } from "./pagination.component";
+/**
+ * Public API surface for the Angular pagination layer.
+ */
 export { PaginationModule } from "./pagination.module";
-export { PaginationNav, PaginationNavTranslations } from "./pagination-nav/pagination-nav.component";
-export { PaginationNavItem } from "./pagination-nav/pagination-item.component";
-export { PaginationOverflow } from "./pagination-nav/pagination-overflow.component";
+export { CdsPaginationDirective } from "./pagination.directive";
+export { PaginationModel } from "./pagination-model.class";

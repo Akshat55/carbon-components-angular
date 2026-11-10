@@ -1,49 +1,32 @@
-/* tslint:disable variable-name */
-
-import { moduleMetadata, Meta } from "@storybook/angular";
-import { IconModule } from "../icon";
-import { ButtonModule, ButtonSet } from "./";
+/**
+ * Storybook stories for the Angular button-set directive layer.
+ */
+import { Meta, moduleMetadata } from "@storybook/angular";
+import { ButtonModule } from "./index";
 
 export default {
 	title: "Components/Button/Button Set",
 	decorators: [
 		moduleMetadata({
-			imports: [ButtonModule, IconModule]
+			imports: [ButtonModule]
 		})
 	],
-	parameters: {
-		layout: "centered"
+	argTypes: {
+		fluid: { control: "boolean" },
+		stacked: { control: "boolean" }
 	},
-	component: ButtonSet
+	args: {
+		fluid: false,
+		stacked: false
+	}
 } as Meta;
 
-const Template = (args) => ({
+export const Basic = (args) => ({
 	props: args,
 	template: `
-		<cds-button-set>
-			<button cdsButton="secondary">Button</button>
-			<button cdsButton>Button</button>
+		<cds-button-set [fluid]="fluid" [stacked]="stacked">
+			<cds-button cdsButton="secondary">Secondary button</cds-button>
+			<cds-button cdsButton="primary">Primary button</cds-button>
 		</cds-button-set>
 	`
 });
-export const Basic = Template.bind({});
-Basic.args = {
-	fluid: false,
-	stacked: false
-};
-
-const FluidTemplate = (args) => ({
-	props: args,
-	template: `
-		<cds-button-set [fluid]="fluid" [stacked]="stacked" style="width: 800px;">
-			<button cdsButton="ghost" [size]="size">Cancel</button>
-			<button cdsButton="secondary" [size]="size">Button</button>
-			<button cdsButton>Button</button>
-		</cds-button-set>
-	`
-});
-export const Fluid = FluidTemplate.bind({});
-Fluid.args = {
-	fluid: true,
-	stacked: false
-};

@@ -1,3 +1,6 @@
-export * from "./progress-indicator-step.interface";
-export * from "./progress-indicator.component";
-export * from "./progress-indicator.module";
+/**
+ * Public API surface for the Angular progress-indicator layer.
+ */
+export { ProgressIndicatorModule } from "./progress-indicator.module";
+export { CdsProgressIndicatorDirective } from "./progress-indicator.directive";
+export { Step } from "./progress-indicator-step.interface";

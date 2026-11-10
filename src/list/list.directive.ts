@@ -1,47 +1,69 @@
+/**
+ * Copyright IBM Corp. 2024
+ *
+ * Directives: CdsOrderedListDirective / CdsUnorderedListDirective
+ *
+ * Sit directly on <cds-ordered-list> / <cds-unordered-list> — the web
+ * component replacements for the old `[cdsList]` directive on native
+ * <ol> / <ul> elements.
+ *
+ * Backwards-compatible API surface:
+ *   [isExpressive] → isExpressive attribute
+ *   [nested]       → nested attribute (previously inferred from DOM nesting)
+ */
 import {
 	Directive,
 	ElementRef,
-	HostBinding,
-	Input
+	Input,
+	OnChanges
 } from "@angular/core";
 
-/**
- * Applies either ordered or unordered styling to the list container it is applied to.
- *
- * For `ul`s it will apply unordered list styles, and for `ol`s it will apply ordered list styles.
- *
- * If a `ul` or `ol` is nested within a `li` the directive will apply nested list styling.
- *
- * Get started with importing the module:
- *
- * ```typescript
- * import { ListModule } from 'carbon-components-angular';
- * ```
- *
- * [See demo](../../?path=/story/components-list--basic)
- */
 @Directive({
-	selector: "[cdsList], [ibmList]"
+	selector: "cds-ordered-list, [cdsOrderedList]",
+	standalone: true
 })
-export class List {
-	@HostBinding("class.cds--list--ordered") get ordered() {
-		if (this.nested) { return false; }
-		return this.elementRef.nativeElement.tagName === "OL";
+export class CdsOrderedListDirective implements OnChanges {
+	/** Expressive type styles. */
+	@Input() isExpressive = false;
+
+	/** Render as a nested list. */
+	@Input() nested = false;
+
+	/** Use native list numbering (for lists > 9 items). */
+	@Input() native = false;
+
+	constructor(private _el: ElementRef<HTMLElement>) { }
+
+	ngOnChanges(): void {
+		setBoolAttr(this._el.nativeElement, "isExpressive", this.isExpressive);
+		setBoolAttr(this._el.nativeElement, "nested", this.nested);
+		setBoolAttr(this._el.nativeElement, "native", this.native);
 	}
+}
 
-	@HostBinding("class.cds--list--unordered") get unordered() {
-		if (this.nested) { return false; }
-		return this.elementRef.nativeElement.tagName === "UL";
+@Directive({
+	selector: "cds-unordered-list, [cdsUnorderedList], [cdsList], [ibmList]",
+	standalone: true
+})
+export class CdsUnorderedListDirective implements OnChanges {
+	/** Expressive type styles. */
+	@Input() isExpressive = false;
+
+	/** Render as a nested list. */
+	@Input() nested = false;
+
+	constructor(private _el: ElementRef<HTMLElement>) { }
+
+	ngOnChanges(): void {
+		setBoolAttr(this._el.nativeElement, "isExpressive", this.isExpressive);
+		setBoolAttr(this._el.nativeElement, "nested", this.nested);
 	}
+}
 
-	@HostBinding("class.cds--list--nested") get nested() {
-		return !!(this.elementRef.nativeElement.parentElement && this.elementRef.nativeElement.parentElement.tagName === "LI");
+function setBoolAttr(el: HTMLElement, name: string, value: boolean): void {
+	if (value) {
+		el.setAttribute(name, "");
+	} else {
+		el.removeAttribute(name);
 	}
-
-	/**
-	 * Set to `true` to make list expressive
-	 */
-	@Input() @HostBinding("class.cds--list--expressive") isExpressive = false;
-
-	constructor(protected elementRef: ElementRef) {}
 }

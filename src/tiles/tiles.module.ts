@@ -1,44 +1,62 @@
-import { NgModule } from "@angular/core";
+/**
+ * Copyright IBM Corp. 2024
+ *
+ * TilesModule
+ *
+ * Drop-in replacement for the old carbon-components-angular TilesModule.
+ * Registers the tile web components and exports the thin Angular directives
+ * that map the old @Input/@Output API onto them.
+ */
+import { NgModule, CUSTOM_ELEMENTS_SCHEMA } from "@angular/core";
 import { CommonModule } from "@angular/common";
 
-import { Tile } from "./tile.component";
-import { ClickableTile } from "./clickable-tile.component";
-import { ClickableTileIconDirective } from "./clickable-tile-icon.directive";
-import { ExpandableTile } from "./expandable-tile.component";
-import { ExpandableTileAboveFoldDirective } from "./expandable-tile-above.directive";
-import { ExpandableTileBelowFoldDirective } from "./expandable-tile-below.directive";
-import { SelectionTile } from "./selection-tile.component";
-import { TileGroup } from "./tile-group.component";
-import { I18nModule } from "carbon-components-angular/i18n";
-import { IconModule } from "carbon-components-angular/icon";
-import { LinkModule } from "carbon-components-angular/link";
+import CDSTile from "@carbon/web-components/es/components/tile/tile.js";
+import CDSClickableTile from "@carbon/web-components/es/components/tile/clickable-tile.js";
+import CDSExpandableTile from "@carbon/web-components/es/components/tile/expandable-tile.js";
+import CDSSelectableTile from "@carbon/web-components/es/components/tile/selectable-tile.js";
+import CDSRadioTile from "@carbon/web-components/es/components/tile/radio-tile.js";
+import CDSTileGroup from "@carbon/web-components/es/components/tile/tile-group.js";
+
+import {
+	CdsTileDirective,
+	CdsClickableTileDirective,
+	CdsExpandableTileDirective,
+	CdsExpandableTileAboveDirective,
+	CdsSelectableTileDirective,
+	CdsTileGroupDirective
+} from "./tile.directive";
+
+function safeDefine(tag: string, ctor: CustomElementConstructor): void {
+	if (!customElements.get(tag)) {
+		customElements.define(tag, ctor);
+	}
+}
+
+safeDefine("cds-tile", CDSTile);
+safeDefine("cds-clickable-tile", CDSClickableTile);
+safeDefine("cds-expandable-tile", CDSExpandableTile);
+safeDefine("cds-selectable-tile", CDSSelectableTile);
+safeDefine("cds-radio-tile", CDSRadioTile);
+safeDefine("cds-tile-group", CDSTileGroup);
 
 @NgModule({
-	declarations: [
-		Tile,
-		ClickableTile,
-		ClickableTileIconDirective,
-		ExpandableTileAboveFoldDirective,
-		ExpandableTileBelowFoldDirective,
-		ExpandableTile,
-		SelectionTile,
-		TileGroup
-	],
-	exports: [
-		Tile,
-		ClickableTile,
-		ClickableTileIconDirective,
-		ExpandableTileAboveFoldDirective,
-		ExpandableTileBelowFoldDirective,
-		ExpandableTile,
-		SelectionTile,
-		TileGroup
-	],
 	imports: [
 		CommonModule,
-		I18nModule,
-		IconModule,
-		LinkModule
-	]
+		CdsTileDirective,
+		CdsClickableTileDirective,
+		CdsExpandableTileDirective,
+		CdsExpandableTileAboveDirective,
+		CdsSelectableTileDirective,
+		CdsTileGroupDirective
+	],
+	exports: [
+		CdsTileDirective,
+		CdsClickableTileDirective,
+		CdsExpandableTileDirective,
+		CdsExpandableTileAboveDirective,
+		CdsSelectableTileDirective,
+		CdsTileGroupDirective
+	],
+	schemas: [CUSTOM_ELEMENTS_SCHEMA]
 })
-export class TilesModule {}
+export class TilesModule { }

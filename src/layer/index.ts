@@ -1,2 +1,5 @@
-export * from "./layer.directive";
-export * from "./layer.module";
+/**
+ * Public API surface for the Angular layer layer.
+ */
+export { LayerModule } from "./layer.module";
+export { CdsLayerDirective } from "./layer.directive";

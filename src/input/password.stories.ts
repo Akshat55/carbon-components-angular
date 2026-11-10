@@ -1,94 +1,51 @@
-/* tslint:disable variable-name */
-
+/**
+ * Storybook stories for the Angular password-input directive layer.
+ * The directive maps the old API onto the <cds-password-input> web component.
+ */
 import { FormsModule } from "@angular/forms";
 import { Meta, moduleMetadata } from "@storybook/angular";
-import { InputModule, PasswordInputLabelComponent } from ".";
+import { InputModule } from "./index";
 
 export default {
-	title: "Components/Input/Password",
+	title: "Components/Password Input",
 	decorators: [
 		moduleMetadata({
 			imports: [InputModule, FormsModule]
 		})
 	],
-	args: {
-		disabled: false,
-		invalid: false,
-		invalidText: "Invalid entry",
-		warn: false,
-		warnText: "This is a warning!",
-		label: "Text input label",
-		helperText: "Optional helper text",
-		placeholder: "Placeholder",
-		autocomplete: "on",
-		theme: "dark",
-		size: "md",
-		readonly: false,
-		fluid: false,
-		skeleton: false,
-		inline: false
-	},
 	argTypes: {
-		autocomplete: {
-			options: ["on", "off"],
-			control: "radio"
-		},
-		theme: {
-			options: ["light", "dark"],
-			control: "radio"
-		},
-		size: {
-			options: ["sm", "md", "lg"],
-			control: "select"
-		},
-		toggleVisibility: { action: "clicked" }
+		size: { control: "radio", options: ["sm", "md", "lg"] },
+		invalid: { control: "boolean" },
+		disabled: { control: "boolean" },
+		label: { control: "text" },
+		helperText: { control: "text" },
+		invalidText: { control: "text" },
+		placeholder: { control: "text" },
+		valueChange: { action: "valueChange" }
 	},
-	component: PasswordInputLabelComponent
+	args: {
+		size: "md",
+		invalid: false,
+		disabled: false,
+		label: "Password",
+		helperText: "Optional helper text",
+		invalidText: "Invalid password",
+		placeholder: "Enter password"
+	}
 } as Meta;
 
-const Template = (args) => ({
+export const Basic = (args) => ({
 	props: args,
 	template: `
-		<cds-password-label
+		<cds-password-input
+			[label]="label"
 			[helperText]="helperText"
-			[invalid]="invalid"
 			[invalidText]="invalidText"
-			[warn]="warn"
+			[placeholder]="placeholder"
+			[size]="size"
+			[invalid]="invalid"
 			[disabled]="disabled"
-			[fluid]="fluid"
-			[skeleton]="skeleton"
-			[inline]="inline"
-			[hideLabel]="hideLabel"
-			[warnText]="warnText"
-			(togglePasswordVisibility)="toggleVisibility($event)">
-			{{ label }}
-			<input
-				cdsPassword
-				type="password"
-				[size]="size"
-				[invalid]="invalid"
-				[warn]="warn"
-				[disabled]="disabled"
-				[theme]="theme"
-				[placeholder]="placeholder"
-				[autocomplete]="autocomplete"
-				[readonly]="readonly">
-		</cds-password-label>
+			(valueChange)="valueChange($event)">
+		</cds-password-input>
 	`
 });
-export const Basic = Template.bind({});
-
-export const Fluid = Template.bind({});
-Fluid.args = {
-	fluid: true
-};
-
-const SkeletonTemplate = (args) => ({
-	props: args,
-	template: `
-		<cds-password-label skeleton="true">
-			<input cdsPassword [skeleton]="true">
-		</cds-password-label>
-	`
-});
-export const Skeleton = SkeletonTemplate.bind({});

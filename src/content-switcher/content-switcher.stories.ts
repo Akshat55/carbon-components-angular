@@ -1,11 +1,10 @@
-/* tslint:disable variable-name */
-
-import { moduleMetadata, Meta } from "@storybook/angular";
-import {
-	ContentSwitcherModule,
-	ContentSwitcher,
-	ContentSwitcherOption
-} from "./";
+/**
+ * Storybook stories for the Angular content-switcher directive layer.
+ * The directives map the old @Input/@Output API onto the content-switcher
+ * web components.
+ */
+import { Meta, moduleMetadata } from "@storybook/angular";
+import { ContentSwitcherModule } from "./index";
 
 export default {
 	title: "Components/Content Switcher",
@@ -15,34 +14,39 @@ export default {
 		})
 	],
 	argTypes: {
-		code: {
-			control: false
-		}
+		size: { control: "radio", options: ["sm", "md", "lg"] },
+		lowContrast: { control: "boolean" },
+		selected: { action: "selected" }
 	},
-	component: ContentSwitcher,
-	subcomponents: ContentSwitcherOption
+	args: {
+		size: "md",
+		lowContrast: false
+	}
 } as Meta;
 
-const Template = (args) => ({
+export const Basic = (args) => ({
 	props: args,
 	template: `
 		<cds-content-switcher
+			value="first"
+			[size]="size"
 			[lowContrast]="lowContrast"
-			[selectionMode]="selectionMode"
-			[selectedIndex]="selectedIndex"
 			(selected)="selected($event)">
-			<button cdsContentOption name="First">First section</button>
-			<button cdsContentOption name="Second">Second section</button>
-			<button cdsContentOption name="Third">Third section</button>
+			<cds-content-switcher-item name="first">First section</cds-content-switcher-item>
+			<cds-content-switcher-item name="second">Second section</cds-content-switcher-item>
+			<cds-content-switcher-item name="third">Third section</cds-content-switcher-item>
 		</cds-content-switcher>
 	`
 });
-export const Basic = Template.bind({});
-Basic.args = {
-	lowContrast: false,
-	selectionMode: "automatic",
-	selectedIndex: 0
-};
-Basic.argTypes = {
-	selected: { action: "selected" }
-};
+
+export const WithDisabledOption = (args) => ({
+	props: args,
+	template: `
+		<cds-content-switcher value="first" (selected)="selected($event)">
+			<cds-content-switcher-item name="first">First</cds-content-switcher-item>
+			<cds-content-switcher-item name="second" [disabled]="true">Second (disabled)</cds-content-switcher-item>
+			<cds-content-switcher-item name="third">Third</cds-content-switcher-item>
+		</cds-content-switcher>
+	`
+});
+WithDisabledOption.storyName = "With Disabled Option";

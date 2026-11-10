@@ -1,187 +1,70 @@
-/* tslint:disable variable-name */
-
-import { FormsModule, ReactiveFormsModule } from "@angular/forms";
-import { moduleMetadata, Meta } from "@storybook/angular";
-import { RadioModule, RadioGroup, Radio } from "./";
-
-import { ReactiveFormsStory } from "./stories";
-import { AILabelModule } from "../ai-label";
-import { ButtonModule } from "../button";
-import { IconModule } from "../icon";
-import { AI_LABEL_INNER, AI_LABEL_STORY_STYLES } from "../storybook/ai-label-story-shared";
+/**
+ * Storybook stories for the Angular radio directive layer.
+ * The directives map the old @Input/@Output API onto the
+ * <cds-radio-button-group> / <cds-radio-button> web components.
+ */
+import { FormsModule } from "@angular/forms";
+import { Meta, moduleMetadata } from "@storybook/angular";
+import { RadioModule } from "./index";
 
 export default {
 	title: "Components/Radio",
 	decorators: [
 		moduleMetadata({
-			declarations: [ReactiveFormsStory],
-			imports: [
-				FormsModule,
-				ReactiveFormsModule,
-				RadioModule,
-				AILabelModule,
-				ButtonModule,
-				IconModule
-			]
+			imports: [RadioModule, FormsModule]
 		})
 	],
-	component: RadioGroup,
-	subcomponents: Radio
+	argTypes: {
+		orientation: { control: "radio", options: ["horizontal", "vertical"] },
+		labelPlacement: { control: "radio", options: ["right", "left"] },
+		disabled: { control: "boolean" },
+		invalid: { control: "boolean" },
+		warn: { control: "boolean" },
+		legend: { control: "text" },
+		helperText: { control: "text" },
+		change: { action: "change" }
+	},
+	args: {
+		orientation: "horizontal",
+		labelPlacement: "right",
+		disabled: false,
+		invalid: false,
+		warn: false,
+		legend: "Radio group legend",
+		helperText: "Helper text"
+	}
 } as Meta;
 
-const Template = (args) => ({
+export const Basic = (args) => ({
 	props: args,
 	template: `
-		<cds-radio-group
-			[legend]="label"
-			[disabled]="disabled"
-			[helperText]="helperText"
-			[invalid]="invalid"
-			[invalidText]="invalidText"
-			[warn]="warn"
-			[warnText]="warnText"
-			ariaLabel="radiogroup"
+		<cds-radio-button-group
+			name="radio-group"
+			value="one"
+			[legend]="legend"
 			[orientation]="orientation"
 			[labelPlacement]="labelPlacement"
-			(change)="onChange($event)">
-			<cds-radio value="Zero" [checked]="true">
-				Zero
-			</cds-radio>
-			<cds-radio [value]="One">One</cds-radio>
-			<cds-radio [value]="Two">Two</cds-radio>
-			<cds-radio [value]="Three">Three</cds-radio>
-			<cds-radio [value]="Four" [disabled]="true">Four</cds-radio>
-		</cds-radio-group>
+			[disabled]="disabled"
+			[invalid]="invalid"
+			[warn]="warn"
+			[helperText]="helperText"
+			(change)="change($event)">
+			<cds-radio-button value="one">Radio one</cds-radio-button>
+			<cds-radio-button value="two">Radio two</cds-radio-button>
+			<cds-radio-button value="three">Radio three</cds-radio-button>
+		</cds-radio-button-group>
 	`
 });
-export const Basic = Template.bind({});
-Basic.args = {
-	label: "Radio button heading",
-	helperText: "Helper text message goes here and can wrap lines",
-	invalid: false,
-	invalidText: "Error message goes here and can wrap lines",
-	warn: false,
-	warnText: "Warning message goes here and can wrap lines",
-	orientation: "horizontal",
-	labelPlacement: "right"
-};
-Basic.argTypes = {
-	onChange: {
-		control: "Changed!"
-	},
-	orientation: {
-		options: ["horizontal", "vertical"],
-		control: "radio"
-	},
-	labelPlacement: {
-		options: ["left", "right"],
-		control: "radio"
-	}
-};
 
-const SkeletonTemplate = (args) => ({
-	props: args,
+export const WithNgModel = (args) => ({
+	props: { ...args, model: "two" },
 	template: `
-		<cds-radio-group skeleton="true">
-			<cds-radio></cds-radio>
-		</cds-radio-group>
+		<cds-radio-button-group name="ngmodel-group" [(ngModel)]="model" [legend]="legend">
+			<cds-radio-button value="one">One</cds-radio-button>
+			<cds-radio-button value="two">Two</cds-radio-button>
+			<cds-radio-button value="three">Three</cds-radio-button>
+		</cds-radio-button-group>
+		<p style="margin-top: 1rem">Selected: {{ model }}</p>
 	`
 });
-export const Skeleton = SkeletonTemplate.bind({});
-
-const ReactiveFormsTemplate = (args) => ({
-	props: args,
-	template: `
-		<!--
-		app-* components are for demo purposes only.
-		You can create your own implementation by using the component source found at:
-		https://github.com/IBM/carbon-components-angular/tree/master/src/radio/stories/app-reactive-form.component.ts
-		-->
-		<app-reactive-forms></app-reactive-forms>
-	`
-});
-export const ReactiveForms = ReactiveFormsTemplate.bind({});
-ReactiveForms.parameters = {
-	controls: {
-		disable: true
-	}
-};
-
-const withAILabelTemplate = (args) => ({
-	props: args,
-	styles: AI_LABEL_STORY_STYLES,
-	template: `
-		<div class="ai-label-check-radio-container">
-			<cds-radio-group
-				legend="Group label"
-				orientation="vertical"
-				[decorator]="aiLabelDefaultTpl"
-				ariaLabel="radiogroup"
-				[invalid]="invalid"
-				[invalidText]="invalidText"
-				[warn]="warn"
-				[warnText]="warnText">
-				<cds-radio value="radio-1" id="radio-1" [checked]="true">Radio button label</cds-radio>
-				<cds-radio value="radio-2" id="radio-2">Radio button label</cds-radio>
-				<cds-radio value="radio-3" id="radio-3">Radio button label</cds-radio>
-			</cds-radio-group>
-
-			<cds-radio-group
-				legend="Group label"
-				orientation="vertical"
-				ariaLabel="radiogroup"
-				[invalid]="invalid"
-				[invalidText]="invalidText"
-				[warn]="warn"
-				[warnText]="warnText">
-				<cds-radio value="radio-4" id="radio-4" [checked]="true" [decorator]="aiLabelDefaultTpl">Radio button label</cds-radio>
-				<cds-radio value="radio-5" id="radio-5" [decorator]="aiLabelDefaultTpl">Radio button label</cds-radio>
-				<cds-radio value="radio-6" id="radio-6">Radio button label</cds-radio>
-			</cds-radio-group>
-
-			<cds-radio-group
-				legend="Group label"
-				orientation="vertical"
-				ariaLabel="radiogroup"
-				[invalid]="invalid"
-				[invalidText]="invalidText"
-				[warn]="warn"
-				[warnText]="warnText">
-				<cds-radio value="radio-7" id="radio-7" [checked]="true" [decorator]="aiLabelInlineTpl">Radio button label</cds-radio>
-				<cds-radio value="radio-8" id="radio-8" [decorator]="aiLabelInlineTpl">Radio button label</cds-radio>
-				<cds-radio value="radio-9" id="radio-9">Radio button label</cds-radio>
-			</cds-radio-group>
-		</div>
-
-		<ng-template #aiLabelDefaultTpl>
-			<cds-ai-label
-				class="ai-label-container"
-				kind="default"
-				size="md"
-				[autoAlign]="true"
-				aiText="AI"
-				ariaLabel="Show information">
-				` + AI_LABEL_INNER + `
-			</cds-ai-label>
-		</ng-template>
-		<ng-template #aiLabelInlineTpl>
-			<cds-ai-label
-				class="ai-label-container"
-				kind="inline"
-				size="md"
-				[autoAlign]="true"
-				aiText="AI"
-				ariaLabel="Show information">
-				` + AI_LABEL_INNER + `
-			</cds-ai-label>
-		</ng-template>
-	`
-});
-
-export const withAILabel = withAILabelTemplate.bind({});
-withAILabel.args = {
-	invalid: false,
-	invalidText: "Invalid message goes here",
-	warn: false,
-	warnText: "Warning message goes here"
-};
+WithNgModel.storyName = "With ngModel";

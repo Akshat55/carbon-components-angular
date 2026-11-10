@@ -1,90 +1,57 @@
-/* tslint:disable variable-name */
-
-import { moduleMetadata, Meta } from "@storybook/angular";
-import { SliderModule, Slider } from "./";
+/**
+ * Storybook stories for the Angular slider directive layer.
+ * The directive maps the old @Input/@Output API onto the <cds-slider>
+ * web component.
+ */
+import { FormsModule } from "@angular/forms";
+import { Meta, moduleMetadata } from "@storybook/angular";
+import { SliderModule } from "./index";
 
 export default {
 	title: "Components/Slider",
 	decorators: [
 		moduleMetadata({
-			imports: [
-				SliderModule
-			]
+			imports: [SliderModule, FormsModule]
 		})
 	],
-	component: Slider
+	argTypes: {
+		min: { control: "number" },
+		max: { control: "number" },
+		step: { control: "number" },
+		disabled: { control: "boolean" },
+		label: { control: "text" },
+		valueChange: { action: "valueChange" }
+	},
+	args: {
+		min: 0,
+		max: 100,
+		step: 1,
+		disabled: false,
+		label: "Slider label"
+	}
 } as Meta;
 
-const Template = (args) => ({
-	props: args,
+export const Basic = (args) => ({
+	props: { ...args, value: 50 },
 	template: `
 		<cds-slider
-			[label]="label"
 			[min]="min"
 			[max]="max"
 			[step]="step"
 			[value]="value"
-			[skeleton]="skeleton"
-			[shiftMultiplier]="shiftMultiplier"
+			[label]="label"
 			[disabled]="disabled"
-			[readonly]="readonly"
-			aria-Label="Label for slider value"
 			(valueChange)="valueChange($event)">
-			<span minLabel>{{minLabel}}</span>
-			<span maxLabel>{{maxLabel}}</span>
-			<input [ngClass]="{'cds--text-input--light': theme === 'light'}"/>
+			<cds-slider-input type="number"></cds-slider-input>
 		</cds-slider>
 	`
 });
-export const Basic = Template.bind({});
-Basic.args = {
-	min: 0,
-	max: 100,
-	step: 1,
-	value: 0,
-	minLabel: "0",
-	maxLabel: "100",
-	disabled: false,
-	readonly: false,
-	shiftMultiplier: 4,
-	theme: "dark"
-};
-Basic.argTypes = {
-	valueChange: {
-		control: "Value changed!"
-	},
-	theme: {
-		options: ["light", "dark"],
-		control: "radio"
-	}
-};
 
-const RangeTemplate = (args) => ({
-	props: args,
+export const WithNgModel = (args) => ({
+	props: { ...args, model: 25 },
 	template: `
-		<cds-slider
-			[label]="label"
-			[min]="min"
-			[max]="max"
-			[step]="step"
-			[value]="value"
-			[shiftMultiplier]="shiftMultiplier"
-			[disabled]="disabled"
-			[readonly]="readonly"
-			aria-Label="Label for slider value"
-			(valueChange)="valueChange($event)">
-			<span minLabel>{{minLabel}}</span>
-			<span maxLabel>{{maxLabel}}</span>
-			<input [ngClass]="{'cds--text-input--light': theme === 'light'}"/>
-			<input [ngClass]="{'cds--text-input--light': theme === 'light'}"/>
-		</cds-slider>
+		<cds-slider [min]="min" [max]="max" [label]="label" [(ngModel)]="model"></cds-slider>
+		<p style="margin-top: 1rem">Value: {{ model }}</p>
 	`
 });
-export const Range = RangeTemplate.bind({});
-Range.args = {
-	...Basic.args,
-	value: [20, 80]
-};
-Range.argTypes = {
-	...Basic.argTypes
-};
+WithNgModel.storyName = "With ngModel";

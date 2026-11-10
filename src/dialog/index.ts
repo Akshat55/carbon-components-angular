@@ -1,17 +1,9 @@
-export { DialogService } from "./dialog.service";
-export { Dialog } from "./dialog.component";
-export { DialogDirective } from "./dialog.directive";
-
-export { OverflowMenu } from "./overflow-menu/overflow-menu.component";
-export { OverflowMenuPane } from "./overflow-menu/overflow-menu-pane.component";
-export { OverflowMenuCustomPane } from "./overflow-menu/overflow-menu-custom-pane.component";
-export { OverflowMenuDirective } from "./overflow-menu/overflow-menu.directive";
-export { OverflowMenuOption } from "./overflow-menu/overflow-menu-option.component";
-
-export {
-	DialogConfig,
-	CloseMeta,
-	CloseReasons
-} from "./dialog-config.interface";
-
+/**
+ * Public API surface for the Angular dialog layer.
+ *
+ * The dialog-service infrastructure was removed — the web components manage
+ * their own floating panes. Overflow-menu directives live here to preserve
+ * the old `carbon-components-angular/dialog` import path.
+ */
 export { DialogModule } from "./dialog.module";
+export { CdsOverflowMenuDirective, CdsOverflowMenuItemDirective } from "./overflow-menu.directive";

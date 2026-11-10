@@ -1,128 +1,90 @@
+/**
+ * Copyright IBM Corp. 2024
+ *
+ * Directive: CdsButtonDirective
+ *
+ * Sits directly on <cds-button> — no wrapper element, no extra DOM node.
+ * Translates the old carbon-components-angular `Button` directive @Inputs to
+ * web component attributes.
+ *
+ * Backwards-compatible API surface (matches carbon-components-angular):
+ *   [cdsButton]     → kind attribute ('primary' | 'secondary' | … | 'danger--ghost')
+ *   [size]          → size attribute ('xs' | 'sm' | 'md' | 'lg' | 'xl' | '2xl')
+ *   [isExpressive]  → isExpressive attribute
+ *   [skeleton]      → renders <cds-button-skeleton> styling via attribute — prefer
+ *                     the dedicated <cds-button-skeleton> element
+ *   [disabled]      → disabled attribute
+ *   [iconOnly]      → deprecated; use <cds-icon-button> instead
+ */
 import {
 	Directive,
-	HostBinding,
-	Input
+	ElementRef,
+	Input,
+	OnChanges
 } from "@angular/core";
 import { ButtonSize, ButtonType } from "./button.types";
 
-/**
- * A convenience directive for applying styling to a button. Get started with importing the module:
- *
- * ```typescript
- * import { ButtonModule } from 'carbon-components-angular';
- * ```
- *
- * Example:
- *
- * ```html
- * <button cdsButton>A button</button>
- * <button cdsButton="secondary">A secondary button</button>
- * ```
- *
- * See the [vanilla carbon docs](http://www.carbondesignsystem.com/components/button/code) for more detail.
- *
- * [See demo](../../?path=/story/components-button--basic)
- */
 @Directive({
-	selector: "[cdsButton], [ibmButton]"
+	selector: "cds-button, [cdsButton], [ibmButton]",
+	standalone: true
 })
-export class Button {
+export class CdsButtonDirective implements OnChanges {
 	/**
 	 * @deprecated as of v5 - Use `cdsButton` input property instead
 	 */
 	@Input() set ibmButton(type: ButtonType) {
 		this.cdsButton = type;
 	}
+
 	/**
-	 * Sets the button type
-	 * Accepts `ButtonType` or nothing (empty string which is equivalent to "primary")
-	 * Empty string has been added as an option for Angular 16+ to resolve type errors
+	 * Sets the button kind.
+	 * Accepts `ButtonType` or an empty string (equivalent to "primary").
 	 */
 	@Input() cdsButton: ButtonType | "" = "primary";
-	/**
-	 * Specify the size of the button
-	 */
+
+	/** Specify the size of the button. */
 	@Input() size: ButtonSize;
-	/**
-	 * Set to `true` for a skeleton state button
-	 */
-	@HostBinding("class.cds--skeleton") @Input() skeleton = false;
-	/**
-	 * Set to `true` if the button contains only an icon
-	 * This should only be used for creating custom icon buttons, otherwise use
-	 * `<cds-icon-button></cds-icon-button>` component
-	 */
-	@HostBinding("class.cds--btn--icon-only") @Input() iconOnly = false;
+
+	/** Set to `true` to disable the button. */
+	@Input() disabled = false;
+
+	/** Set to `true` for an "expressive" style button. */
+	@Input() isExpressive = false;
 
 	/**
-	 * Set to `true` for a "expressive" style button
+	 * @deprecated use `<cds-button-skeleton>` — the web component ships a
+	 * dedicated skeleton element. Kept so old bindings don't break the build.
 	 */
-	@HostBinding("class.cds--btn--expressive") @Input() isExpressive = false;
+	@Input() skeleton = false;
 
-	// a whole lot of HostBindings ... this way we don't have to touch the elementRef directly
-	@HostBinding("class.cds--btn") baseClass = true;
-	@HostBinding("class.cds--btn--primary") get primaryButton() {
-		return this.cdsButton === "primary" || !this.cdsButton;
-	}
-	@HostBinding("class.cds--btn--secondary") get secondaryButton() {
-		return this.cdsButton === "secondary";
-	}
-	@HostBinding("class.cds--btn--tertiary") get tertiaryButton() {
-		return this.cdsButton === "tertiary";
-	}
-	@HostBinding("class.cds--btn--ghost") get ghostButton() {
-		return this.cdsButton === "ghost";
-	}
-	@HostBinding("class.cds--btn--danger") get dangerButton() {
-		return this.cdsButton === "danger" || this.cdsButton === "danger--primary";
-	}
-	@HostBinding("class.cds--btn--danger--tertiary") get dangerTertiary() {
-		return this.cdsButton === "danger--tertiary";
-	}
-	@HostBinding("class.cds--btn--danger--ghost") get dangerGhost() {
-		return this.cdsButton === "danger--ghost";
-	}
 	/**
-	 * @todo remove `cds--btn--${size}` classes in v12
+	 * @deprecated use `<cds-icon-button>` for icon-only buttons.
 	 */
-	@HostBinding("class.cds--btn--xs") get extraSmallSize() {
-		return this.size === "xs" && !this.isExpressive;
-	}
-	@HostBinding("class.cds--btn--sm") get smallSize() {
-		return this.size === "sm" && !this.isExpressive;
-	}
-	@HostBinding("class.cds--btn--md") get mediumSize() {
-		return this.size === "md" && !this.isExpressive;
-	}
-	@HostBinding("class.cds--btn--lg") get largeSize() {
-		return this.size === "lg";
-	}
-	@HostBinding("class.cds--btn--xl") get extraLargeSize() {
-		return this.size === "xl";
-	}
-	@HostBinding("class.cds--btn--2xl") get twoExtraLargeSize() {
-		return this.size === "2xl";
+	@Input() iconOnly = false;
+
+	constructor(private _el: ElementRef<HTMLElement>) { }
+
+	ngOnChanges(): void {
+		const el = this._el.nativeElement;
+
+		// The web component's `kind` uses `danger-tertiary` / `danger-ghost`
+		// where the old API used `danger--tertiary` / `danger--ghost`.
+		const kind = (this.cdsButton || "primary").replace("--", "-");
+		el.setAttribute("kind", kind);
+
+		if (this.size) {
+			el.setAttribute("size", this.size);
+		}
+
+		this._setBoolAttr("disabled", this.disabled);
+		this._setBoolAttr("isExpressive", this.isExpressive);
 	}
 
-	// Size classes
-	@HostBinding("class.cds--layout--size-xs") get extraSmallLayoutSize() {
-		return this.size === "xs" && !this.isExpressive;
+	private _setBoolAttr(name: string, value: boolean): void {
+		if (value) {
+			this._el.nativeElement.setAttribute(name, "");
+		} else {
+			this._el.nativeElement.removeAttribute(name);
+		}
 	}
-	@HostBinding("class.cds--layout--size-sm") get smallLayoutSize() {
-		return this.size === "sm" && !this.isExpressive;
-	}
-	@HostBinding("class.cds--layout--size-md") get mediumLayoutSize() {
-		return this.size === "md" && !this.isExpressive;
-	}
-	@HostBinding("class.cds--layout--size-lg") get largeLayoutSize() {
-		return this.size === "lg";
-	}
-	@HostBinding("class.cds--layout--size-xl") get extraLargeLayoutSize() {
-		return this.size === "xl";
-	}
-	@HostBinding("class.cds--layout--size-2xl") get twoExtraLargeLayoutSize() {
-		return this.size === "2xl";
-	}
-
-
 }

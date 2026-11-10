@@ -1,9 +1,9 @@
 import { TestBed, ComponentFixture } from "@angular/core/testing";
-import { Component } from "@angular/core";
+import { Component, CUSTOM_ELEMENTS_SCHEMA } from "@angular/core";
 import { By } from "@angular/platform-browser";
 
 import { ThemeDirective } from "./theme.directive";
-import { LayerDirective } from "../layer";
+import { CdsLayerDirective } from "../layer";
 
 @Component({
 	template: `<div cdsTheme></div>`
@@ -15,17 +15,17 @@ describe("Theme", () => {
 		TestBed.configureTestingModule({
 			declarations: [
 				TestThemeComponent,
-				ThemeDirective,
-				LayerDirective
-			]
+				ThemeDirective
+			],
+			imports: [
+				// standalone directive
+				CdsLayerDirective
+			],
+			schemas: [CUSTOM_ELEMENTS_SCHEMA]
 		});
 	});
 
 	it("should assign theme class to div", () => {
-		TestBed.configureTestingModule({
-			declarations: [TestThemeComponent, ThemeDirective]
-		});
-
 		let fixture: ComponentFixture<TestThemeComponent> = TestBed.createComponent(TestThemeComponent);
 		let component: TestThemeComponent = fixture.componentInstance;
 		fixture.detectChanges();
@@ -41,22 +41,40 @@ describe("Theme", () => {
 		TestBed.overrideComponent(TestThemeComponent, {
 			set: {
 				template: `
-					<div cdsLayer>
+					<cds-layer level="2">
 						<div cdsTheme>
-							<div cdsLayer id="nested-layer"></div>
+							<cds-layer id="nested-layer"></cds-layer>
 						</div>
+					</cds-layer>
+				`
+			}
+		});
+
+		let fixture: ComponentFixture<TestThemeComponent> = TestBed.createComponent(TestThemeComponent);
+		fixture.detectChanges();
+
+		// A theme boundary restarts layering — the layer nested directly
+		// inside the theme is reset to level 1.
+		const nestedLayer = fixture.debugElement.query(By.css("#nested-layer")).nativeElement;
+		expect(nestedLayer.getAttribute("level")).toBe("1");
+	});
+
+	it("should not override an explicit [cdsLayer] level inside a theme", () => {
+		TestBed.overrideComponent(TestThemeComponent, {
+			set: {
+				template: `
+					<div cdsTheme>
+						<cds-layer id="explicit-layer" [cdsLayer]="2"></cds-layer>
 					</div>
 				`
 			}
 		});
 
-		TestBed.compileComponents().then(() => {
-			let fixture: ComponentFixture<TestThemeComponent> = TestBed.createComponent(TestThemeComponent);
-			fixture.detectChanges();
+		let fixture: ComponentFixture<TestThemeComponent> = TestBed.createComponent(TestThemeComponent);
+		fixture.detectChanges();
 
-			const directiveEl = fixture.debugElement.query(By.directive(ThemeDirective)).nativeElement;
-			expect(directiveEl.querySelector("div").classList.contains("cds--layer-two")).toBeTruthy();
-		});
+		const explicitLayer = fixture.debugElement.query(By.css("#explicit-layer")).nativeElement;
+		expect(explicitLayer.getAttribute("level")).toBe("2");
 	});
 
 	/**

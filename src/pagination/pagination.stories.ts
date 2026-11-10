@@ -1,53 +1,51 @@
-/* tslint:disable variable-name */
-
-import { moduleMetadata, Meta } from "@storybook/angular";
-
-
-import { PaginationModule, Pagination } from "./";
-
-import { PaginationStory } from "./stories";
+/**
+ * Storybook stories for the Angular pagination directive layer.
+ * The directive maps the old `[model]` API onto the <cds-pagination>
+ * web component.
+ */
+import { Meta, moduleMetadata } from "@storybook/angular";
+import { PaginationModule } from "./index";
+import { PaginationModel } from "./pagination-model.class";
 
 export default {
 	title: "Components/Pagination",
 	decorators: [
 		moduleMetadata({
-			imports: [PaginationModule],
-			declarations: [PaginationStory]
+			imports: [PaginationModule]
 		})
 	],
-	component: Pagination
+	argTypes: {
+		size: { control: "radio", options: ["sm", "md", "lg"] },
+		disabled: { control: "boolean" },
+		pageInputDisabled: { control: "boolean" },
+		pagesUnknown: { control: "boolean" },
+		selectPage: { action: "selectPage" }
+	},
+	args: {
+		size: "md",
+		disabled: false,
+		pageInputDisabled: false,
+		pagesUnknown: false
+	}
 } as Meta;
 
-const Template = (args) => ({
-	props: args,
-	template: `
-		<!--
-		app-* components are for demo purposes only.
-		You can create your own implementation by using the component source found at:
-		https://github.com/IBM/carbon-components-angular/tree/master/src/pagination/stories/pagination.component.ts
-		-->
-		<app-pagination
-			[disabled]="disabled"
-			[pageInputDisabled]="pageInputDisabled"
-			[paginationSize]="paginationSize"
-			[pagesUnknown]="pagesUnknown"
-			[totalDataLength]="totalDataLength"
-			[showPageInput]="showPageInput"
-			[backwardDisabled]="backwardDisabled"
-			[forwardDisabled]="forwardDisabled"
-			[skeleton]="skeleton">
-		</app-pagination>
-	`
-});
-export const Basic = Template.bind({});
-Basic.args = {
-	disabled: false,
-	pageInputDisabled: false,
-	paginationSize: "md",
-	pagesUnknown: false,
-	totalDataLength: 105,
-	showPageInput: true,
-	skeleton: false,
-	backwardDisabled: false,
-	forwardDisabled: false
+export const Basic = (args) => {
+	const model = new PaginationModel();
+	model.currentPage = 1;
+	model.pageLength = 10;
+	model.totalDataLength = 105;
+
+	return {
+		props: { ...args, model },
+		template: `
+			<cds-pagination
+				[model]="model"
+				[size]="size"
+				[disabled]="disabled"
+				[pageInputDisabled]="pageInputDisabled"
+				[pagesUnknown]="pagesUnknown"
+				(selectPage)="selectPage($event)">
+			</cds-pagination>
+		`
+	};
 };

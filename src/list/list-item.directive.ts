@@ -1,11 +1,17 @@
-import { Directive, HostBinding } from "@angular/core";
-
 /**
- * Applies list styling to the item it is used on. Best used with `li`s.
+ * Copyright IBM Corp. 2024
+ *
+ * Directive: CdsListItemDirective
+ *
+ * Sits directly on <cds-list-item> — the web component replacement for the
+ * old `[cdsListItem]` directive on native <li> elements. Kept as a directive
+ * so the old attribute selector keeps compiling; the web component handles
+ * all styling.
  */
+import { Directive } from "@angular/core";
+
 @Directive({
-	selector: "[cdsListItem], [ibmListItem]"
+	selector: "cds-list-item, [cdsListItem], [ibmListItem]",
+	standalone: true
 })
-export class ListItemDirective {
-	@HostBinding("class.cds--list__item") wrapper = true;
-}
+export class CdsListItemDirective { }

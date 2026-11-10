@@ -1,20 +1,39 @@
-import { NgModule } from "@angular/core";
+/**
+ * Copyright IBM Corp. 2024
+ *
+ * ComboButtonModule
+ *
+ * Drop-in replacement for the old carbon-components-angular ComboButtonModule.
+ * Registers the combo-button web components and exports the thin Angular
+ * directive that maps the old @Input/@Output API onto them.
+ */
+import { NgModule, CUSTOM_ELEMENTS_SCHEMA } from "@angular/core";
 import { CommonModule } from "@angular/common";
 
-import { IconModule } from "carbon-components-angular/icon";
-import { ContextMenuModule } from "carbon-components-angular/context-menu";
-import { ButtonModule } from "carbon-components-angular/button";
+import CDSComboButton from "@carbon/web-components/es/components/combo-button/combo-button.js";
+import CDSMenu from "@carbon/web-components/es/components/menu/menu.js";
+import CDSMenuItem from "@carbon/web-components/es/components/menu/menu-item.js";
 
-import { ComboButtonComponent } from "./combo-button.component";
+import { CdsComboButtonDirective } from "./combo-button.directive";
+
+function safeDefine(tag: string, ctor: CustomElementConstructor): void {
+	if (!customElements.get(tag)) {
+		customElements.define(tag, ctor);
+	}
+}
+
+safeDefine("cds-combo-button", CDSComboButton);
+safeDefine("cds-menu", CDSMenu);
+safeDefine("cds-menu-item", CDSMenuItem);
 
 @NgModule({
 	imports: [
 		CommonModule,
-		ButtonModule,
-		IconModule,
-		ContextMenuModule
+		CdsComboButtonDirective
 	],
-	exports: [ComboButtonComponent],
-	declarations: [ComboButtonComponent]
+	exports: [
+		CdsComboButtonDirective
+	],
+	schemas: [CUSTOM_ELEMENTS_SCHEMA]
 })
 export class ComboButtonModule { }

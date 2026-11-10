@@ -1,48 +1,66 @@
-/* tslint:disable variable-name */
-
-import { moduleMetadata, Meta } from "@storybook/angular";
-import { InlineLoadingModule, InlineLoading } from "./";
-
-import { InlineLoadingStory } from "./stories";
+/**
+ * Storybook stories for the Angular inline-loading directive layer.
+ * The directive maps the old @Input/@Output API onto the
+ * <cds-inline-loading> web component.
+ */
+import { Meta, moduleMetadata } from "@storybook/angular";
+import { InlineLoadingModule } from "./index";
 
 export default {
 	title: "Components/Inline loading",
 	decorators: [
 		moduleMetadata({
-			declarations: [InlineLoadingStory],
 			imports: [InlineLoadingModule]
 		})
 	],
-	args: {
-		loadingText: "Loading data...",
-		successText: "Data loaded!",
-		errorText: "Data not found",
-		iconDescription: "Inline loading status"
-	},
 	argTypes: {
-		onSuccess: {
-			action: "Success!"
-		}
+		state: { control: "radio", options: ["hidden", "inactive", "active", "finished", "error"] },
+		loadingText: { control: "text" },
+		successText: { control: "text" },
+		errorText: { control: "text" },
+		successDelay: { control: "number" },
+		onSuccess: { action: "onSuccess" }
 	},
-	component: InlineLoading
+	args: {
+		state: "active",
+		loadingText: "Loading data...",
+		successText: "Data loaded",
+		errorText: "Error loading data",
+		successDelay: 1500
+	}
 } as Meta;
 
-const Template = (args) => ({
+export const Basic = (args) => ({
 	props: args,
 	template: `
-		<!--
-		app-* components are for demo purposes only.
-		You can create your own implementation by using the component source found at:
-		https://github.com/IBM/carbon-components-angular/tree/master/src/inline-loading/stories/inline.component.ts
-		-->
-		<app-inline-loading
-			#loading
-			(onSuccess)="onSuccess()"
+		<cds-inline-loading
+			[state]="state"
 			[loadingText]="loadingText"
 			[successText]="successText"
 			[errorText]="errorText"
-			[iconDescription]="iconDescription">
-		</app-inline-loading>
+			[successDelay]="successDelay"
+			(onSuccess)="onSuccess($event)">
+		</cds-inline-loading>
 	`
 });
-export const Basic = Template.bind({});
+
+export const StateCycle = (args) => ({
+	props: {
+		...args,
+		toggle(this: any) {
+			this.success = !this.success;
+		},
+		success: false
+	},
+	template: `
+		<cds-inline-loading
+			[loadingText]="loadingText"
+			[successText]="successText"
+			[errorText]="errorText"
+			[success]="success"
+			(onSuccess)="onSuccess($event)">
+		</cds-inline-loading>
+		<button style="margin-top: 1rem" (click)="toggle()">Toggle success</button>
+	`
+});
+StateCycle.storyName = "Success and Error States";

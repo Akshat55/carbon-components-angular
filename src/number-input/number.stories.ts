@@ -1,147 +1,80 @@
-/* tslint:disable variable-name */
-
-import { moduleMetadata, Meta } from "@storybook/angular";
+/**
+ * Storybook stories for the Angular number-input directive layer.
+ * The directive maps the old @Input/@Output API onto the <cds-number-input>
+ * web component (previously <cds-number>).
+ */
 import { FormsModule } from "@angular/forms";
-import { NumberModule, NumberComponent } from "./";
-import { AILabelModule } from "../ai-label";
-import { ButtonModule } from "../button";
-import { IconModule } from "../icon";
-import { AI_LABEL_INNER, AI_LABEL_STORY_STYLES } from "../storybook/ai-label-story-shared";
+import { Meta, moduleMetadata } from "@storybook/angular";
+import { NumberModule } from "./index";
 
 export default {
-	title: "Components/Number Input",
+	title: "Components/Number",
 	decorators: [
 		moduleMetadata({
-			imports: [NumberModule, FormsModule, AILabelModule, ButtonModule, IconModule]
+			imports: [NumberModule, FormsModule]
 		})
 	],
+	argTypes: {
+		size: { control: "radio", options: ["sm", "md", "lg"] },
+		disabled: { control: "boolean" },
+		invalid: { control: "boolean" },
+		warn: { control: "boolean" },
+		hideSteppers: { control: "boolean" },
+		hideLabel: { control: "boolean" },
+		min: { control: "number" },
+		max: { control: "number" },
+		step: { control: "number" },
+		label: { control: "text" },
+		helperText: { control: "text" },
+		invalidText: { control: "text" },
+		warnText: { control: "text" },
+		change: { action: "change" }
+	},
 	args: {
-		value: 0,
-		label: "Number input label",
-		helperText: "Optional helper text",
-		invalidText: "Invalid text",
+		size: "md",
+		disabled: false,
+		invalid: false,
+		warn: false,
+		hideSteppers: false,
+		hideLabel: false,
 		min: 0,
 		max: 100,
 		step: 1,
-		invalid: false,
-		readonly: false,
-		disabled: false,
-		size: "md",
-		theme: "dark",
-		warn: false,
-		warnText: "Warn text",
-		fluid: false,
-		hideLabel: false,
-		hideSteppers: false
-	},
-	argTypes: {
-		size: {
-			options: ["sm", "md", "lg"],
-			control: "radio"
-		},
-		theme: {
-			options: ["light", "dark"],
-			control: "radio"
-		},
-		// Actions
-		change: { action: "changed"}
-	},
-	component: NumberComponent
+		label: "Number input label",
+		helperText: "Optional helper text",
+		invalidText: "Value out of range",
+		warnText: "Warning"
+	}
 } as Meta;
 
-const Template = (args) => ({
-	props: args,
+export const Basic = (args) => ({
+	props: { ...args, value: 10 },
 	template: `
-		<cds-number
-			[label]="label"
-			[helperText]="[helperText]"
-			[theme]="theme"
+		<cds-number-input
+			[value]="value"
 			[min]="min"
 			[max]="max"
 			[step]="step"
-			[invalid]="invalid"
-			[invalidText]="invalidText"
-			[warn]="warn"
-			[warnText]="warnText"
-			[size]="size"
-			[readonly]="readonly"
-			[disabled]="disabled"
-			[fluid]="fluid"
-			[hideLabel]="hideLabel"
-			[hideSteppers]="hideSteppers"
-			(change)="change($event)">
-		</cds-number>
-	`
-});
-export const Basic = Template.bind({});
-
-export const Fluid = Template.bind({});
-Fluid.args = {
-	fluid: true
-};
-
-const ModelTemplate = (args) => ({
-	props: args,
-	template: `
-		<cds-number
 			[label]="label"
-			[helperText]="[helperText]"
-			[theme]="theme"
-			[min]="min"
-			[size]="size"
-			[max]="max"
-			[step]="step"
-			[precision]="precision"
-			[invalid]="invalid"
+			[helperText]="helperText"
 			[invalidText]="invalidText"
-			[warn]="warn"
 			[warnText]="warnText"
+			[size]="size"
 			[disabled]="disabled"
-			[(ngModel)]="value"
-			[fluid]="fluid"
-			[hideLabel]="hideLabel"
+			[invalid]="invalid"
+			[warn]="warn"
 			[hideSteppers]="hideSteppers"
+			[hideLabel]="hideLabel"
 			(change)="change($event)">
-		</cds-number>
-		{{ value }}
+		</cds-number-input>
 	`
 });
-export const NgModel = ModelTemplate.bind({});
-NgModel.story = "ngModel";
 
-const SkeletonTemplate = (args) => ({
-	props: args,
+export const WithNgModel = (args) => ({
+	props: { ...args, model: 42 },
 	template: `
-		<cds-number
-			label="Number input label"
-			skeleton="true"
-			[fluid]="fluid"
-			(change)="change($event)">
-		</cds-number>
+		<cds-number-input [(ngModel)]="model" [label]="label" [min]="min" [max]="max"></cds-number-input>
+		<p style="margin-top: 1rem">Value: {{ model }}</p>
 	`
 });
-export const Skeleton = SkeletonTemplate.bind({});
-
-export const withAILabel = () => ({
-	styles: AI_LABEL_STORY_STYLES,
-	template: `
-		<cds-number
-			label="Number"
-			[decorator]="decoratorTpl"
-			[min]="0"
-			[max]="100">
-		</cds-number>
-		<ng-template #decoratorTpl>
-			<cds-ai-label
-				class="ai-label-container"
-				kind="default"
-				size="mini"
-				[autoAlign]="true"
-				[align]="'bottom-end'"
-				aiText="AI"
-				ariaLabel="Show information">
-				` + AI_LABEL_INNER + `
-			</cds-ai-label>
-		</ng-template>
-	`
-});
+WithNgModel.storyName = "With ngModel";

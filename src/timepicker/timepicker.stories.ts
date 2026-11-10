@@ -1,78 +1,52 @@
-/* tslint:disable variable-name */
-
+/**
+ * Storybook stories for the Angular time-picker directive layer.
+ * The directive maps the old API onto the <cds-time-picker> web component.
+ */
 import { FormsModule } from "@angular/forms";
-import { moduleMetadata, Meta } from "@storybook/angular";
-import { TimePickerModule, TimePicker } from "./";
-import { TimePickerSelectModule } from "../timepicker-select";
+import { Meta, moduleMetadata } from "@storybook/angular";
+import { TimePickerModule } from "./index";
 
 export default {
-	title: "Components/Timepicker",
+	title: "Components/Time Picker",
 	decorators: [
 		moduleMetadata({
-			imports: [
-				TimePickerModule,
-				TimePickerSelectModule,
-				FormsModule
-			]
+			imports: [TimePickerModule, FormsModule]
 		})
 	],
-	component: TimePicker
+	argTypes: {
+		size: { control: "radio", options: ["sm", "md", "lg"] },
+		disabled: { control: "boolean" },
+		invalid: { control: "boolean" },
+		label: { control: "text" },
+		placeholder: { control: "text" },
+		invalidText: { control: "text" },
+		valueChange: { action: "valueChange" }
+	},
+	args: {
+		size: "md",
+		disabled: false,
+		invalid: false,
+		label: "Select a time",
+		placeholder: "hh:mm",
+		invalidText: "Invalid time"
+	}
 } as Meta;
 
-const Template = (args) => ({
+export const Basic = (args) => ({
 	props: args,
 	template: `
-		<cds-timepicker
-			(valueChange)="timePickerChange($event)"
-			[(ngModel)]="model"
-			[disabled]="disableTime"
+		<cds-time-picker
+			[label]="label"
+			[placeholder]="placeholder"
+			[size]="size"
+			[disabled]="disabled"
 			[invalid]="invalid"
 			[invalidText]="invalidText"
-			label="Select a time">
-			<cds-timepicker-select
-				(valueChange)="timePickerSelectChange($event)"
-				[disabled]="disabledSelect"
-				[(ngModel)]="period"
-				ariaLabel="Open list of options">
-				<option selected value="AM">AM</option>
-				<option value="PM">PM</option>
-			</cds-timepicker-select>
-			<cds-timepicker-select
-				(valueChange)="timePickerSelectChange($event)"
-				[disabled]="disabledSelect"
-				[(ngModel)]="timeZone"
-				ariaLabel="Open list of options">
-				<option selected value="Time Zone 1">Time Zone 1</option>
-				<option value="Time Zone 2">Time Zone 2</option>
-			</cds-timepicker-select>
-		</cds-timepicker>
-		<br>
-		<p> Input: {{model}} </p>
-		<p> Period: {{period}} </p>
-		<p> Time Zone: {{timeZone}} </p>
+			(valueChange)="valueChange($event)">
+			<cds-time-picker-select id="time-picker-ampm">
+				<cds-select-item value="am">AM</cds-select-item>
+				<cds-select-item value="pm">PM</cds-select-item>
+			</cds-time-picker-select>
+		</cds-time-picker>
 	`
 });
-export const Basic = Template.bind({});
-Basic.args = {
-	model: "12:12",
-	period: "AM",
-	timeZone: "Time Zone 1",
-	disableTime: false,
-	disabledSelect: false,
-	invalid: false,
-	invalidText: "A valid value is required!",
-	theme: "dark"
-};
-
-Basic.argTypes = {
-	timePickerChange: {
-		action: "Time picker value changed!"
-	},
-	timePickerSelectChange: {
-		action: "Time picker select change fired!"
-	},
-	theme: {
-		options: ["light", "dark"],
-		control: "radio"
-	}
-};

@@ -1,165 +1,58 @@
-/* tslint:disable variable-name */
-
-import { FormsModule } from "@angular/forms";
-import { moduleMetadata, Meta } from "@storybook/angular";
-import {
-	StructuredListModule,
-	StructuredList,
-	ListColumn,
-	ListHeader,
-	ListRow
-} from "./";
+/**
+ * Storybook stories for the Angular structured-list directive layer.
+ * The directives map the old @Input/@Output API onto the structured-list
+ * web components.
+ */
+import { Meta, moduleMetadata } from "@storybook/angular";
+import { StructuredListModule } from "./index";
 
 export default {
 	title: "Components/Structured List",
 	decorators: [
 		moduleMetadata({
-			imports: [
-				StructuredListModule,
-				FormsModule
-			]
+			imports: [StructuredListModule]
 		})
 	],
-	component: StructuredList,
-	subcomponents: {
-		ListHeader,
-		ListRow,
-		ListColumn
+	argTypes: {
+		selection: { control: "boolean" },
+		condensed: { control: "boolean" },
+		flushed: { control: "boolean" },
+		selected: { action: "selected" }
+	},
+	args: {
+		selection: false,
+		condensed: false,
+		flushed: false
 	}
 } as Meta;
 
-const Template = (args) => ({
-	props: args,
-	template: `
-		<cds-structured-list [condensed]="condensed" [ariaLabel]="ariaLabel">
-			<cds-list-header>
-				<cds-list-column nowrap="true">Column 1</cds-list-column>
-				<cds-list-column nowrap="true">Column 2</cds-list-column>
-				<cds-list-column>Column 3</cds-list-column>
-			</cds-list-header>
-			<cds-list-row>
-				<cds-list-column>Row 1</cds-list-column>
-				<cds-list-column nowrap="true">Row One</cds-list-column>
-				<cds-list-column>
-					Lorem ipsum dolor sit amet,
-					consectetur adipiscing elit. Nunc dui magna,
-					finibus id tortor sed, aliquet bibendum augue.
-					Aenean posuere sem vel euismod dignissim. Nulla ut cursus dolor.
-					Pellentesque vulputate nisl a porttitor interdum.
-				</cds-list-column>
-			</cds-list-row>
-			<cds-list-row>
-				<cds-list-column>Row 2</cds-list-column>
-				<cds-list-column nowrap="true">Row Two</cds-list-column>
-				<cds-list-column>
-					Lorem ipsum dolor sit amet,
-					consectetur adipiscing elit. Nunc dui magna,
-					finibus id tortor sed, aliquet bibendum augue.
-					Aenean posuere sem vel euismod dignissim. Nulla ut cursus dolor.
-					Pellentesque vulputate nisl a porttitor interdum.
-				</cds-list-column>
-			</cds-list-row>
-		</cds-structured-list>
-	`
-});
-export const Basic = Template.bind({});
-Basic.args = {
-	condensed: false,
-	ariaLabel: "Sample structured list"
-};
-
-const SelectionTemplate = (args) => ({
+export const Basic = (args) => ({
 	props: args,
 	template: `
 		<cds-structured-list
+			[selection]="selection"
 			[condensed]="condensed"
-			[selection]="true"
-			[(ngModel)]="valueSelected">
-			<cds-list-header>
-				<cds-list-column nowrap="true">Column 1</cds-list-column>
-				<cds-list-column nowrap="true">Column 2</cds-list-column>
-				<cds-list-column>Column 3</cds-list-column>
-			</cds-list-header>
-			<cds-list-row value="row1">
-				<cds-list-column>Row 1</cds-list-column>
-				<cds-list-column nowrap="true">Row One</cds-list-column>
-				<cds-list-column>
-					Lorem ipsum dolor sit amet,
-					consectetur adipiscing elit. Nunc dui magna,
-					finibus id tortor sed, aliquet bibendum augue.
-					Aenean posuere sem vel euismod dignissim. Nulla ut cursus dolor.
-					Pellentesque vulputate nisl a porttitor interdum.
-				</cds-list-column>
-			</cds-list-row>
-			<cds-list-row value="row2">
-				<cds-list-column>Row 2</cds-list-column>
-				<cds-list-column nowrap="true">Row Two</cds-list-column>
-				<cds-list-column>
-					Lorem ipsum dolor sit amet,
-					consectetur adipiscing elit. Nunc dui magna,
-					finibus id tortor sed, aliquet bibendum augue.
-					Aenean posuere sem vel euismod dignissim. Nulla ut cursus dolor.
-					Pellentesque vulputate nisl a porttitor interdum.
-				</cds-list-column>
-			</cds-list-row>
-			<cds-list-row value="row3">
-				<cds-list-column>Row 3</cds-list-column>
-				<cds-list-column nowrap="true">Row Three</cds-list-column>
-				<cds-list-column>
-					Lorem ipsum dolor sit amet,
-					consectetur adipiscing elit. Nunc dui magna,
-					finibus id tortor sed, aliquet bibendum augue.
-					Aenean posuere sem vel euismod dignissim. Nulla ut cursus dolor.
-					Pellentesque vulputate nisl a porttitor interdum.
-				</cds-list-column>
-			</cds-list-row>
-			<cds-list-row value="row4">
-				<cds-list-column>Row 4</cds-list-column>
-				<cds-list-column nowrap="true">Row Four</cds-list-column>
-				<cds-list-column>
-					Lorem ipsum dolor sit amet,
-					consectetur adipiscing elit. Nunc dui magna,
-					finibus id tortor sed, aliquet bibendum augue.
-					Aenean posuere sem vel euismod dignissim. Nulla ut cursus dolor.
-					Pellentesque vulputate nisl a porttitor interdum.
-				</cds-list-column>
-			</cds-list-row>
-		</cds-structured-list>
-		<p>{{valueSelected}}</p>
-	`
-});
-export const Selection = SelectionTemplate.bind({});
-Selection.args = {
-	...Basic.args
-};
-
-const SkeletonTemplate = (args) => ({
-	props: args,
-	template: `
-		<cds-structured-list
-			skeleton="true"
-			[border]="border"
-			[condensed]="condensed"
-			[nowrap]="nowrap">
-			<cds-list-header>
-				<cds-list-column></cds-list-column>
-				<cds-list-column></cds-list-column>
-				<cds-list-column></cds-list-column>
-			</cds-list-header>
-			<cds-list-row>
-				<cds-list-column></cds-list-column>
-				<cds-list-column></cds-list-column>
-				<cds-list-column></cds-list-column>
-			</cds-list-row>
-			<cds-list-row>
-				<cds-list-column></cds-list-column>
-				<cds-list-column></cds-list-column>
-				<cds-list-column></cds-list-column>
-			</cds-list-row>
+			[flushed]="flushed"
+			(selected)="selected($event)">
+			<cds-structured-list-head>
+				<cds-structured-list-header-row>
+					<cds-structured-list-header-cell>Column A</cds-structured-list-header-cell>
+					<cds-structured-list-header-cell>Column B</cds-structured-list-header-cell>
+					<cds-structured-list-header-cell>Column C</cds-structured-list-header-cell>
+				</cds-structured-list-header-row>
+			</cds-structured-list-head>
+			<cds-structured-list-body>
+				<cds-structured-list-row value="row-1">
+					<cds-structured-list-cell>Row 1</cds-structured-list-cell>
+					<cds-structured-list-cell>Row 1</cds-structured-list-cell>
+					<cds-structured-list-cell>Lorem ipsum dolor sit amet, consectetur adipiscing elit.</cds-structured-list-cell>
+				</cds-structured-list-row>
+				<cds-structured-list-row value="row-2">
+					<cds-structured-list-cell>Row 2</cds-structured-list-cell>
+					<cds-structured-list-cell>Row 2</cds-structured-list-cell>
+					<cds-structured-list-cell>Ut enim ad minim veniam, quis nostrud exercitation.</cds-structured-list-cell>
+				</cds-structured-list-row>
+			</cds-structured-list-body>
 		</cds-structured-list>
 	`
 });
-export const Skeleton = SkeletonTemplate.bind({});
-Skeleton.args = {
-	...Basic.args
-};

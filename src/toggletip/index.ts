@@ -1,6 +1,10 @@
-export * from "./toggletip-action.directive";
-export * from "./toggletip-button.directive";
-export * from "./toggletip-content.directive";
-export * from "./toggletip-label.directive";
-export * from "./toggletip.component";
-export * from "./toggletip.module";
+/**
+ * Public API surface for the Angular toggletip layer.
+ */
+export { ToggletipModule } from "./toggletip.module";
+export {
+	CdsToggletipDirective,
+	CdsToggletipButtonDirective,
+	CdsToggletipContentDirective,
+	CdsToggletipActionDirective
+} from "./toggletip.directive";

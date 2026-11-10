@@ -1,39 +1,43 @@
 /**
- * Copyright IBM Corp. 2024, 2026
+ * Copyright IBM Corp. 2024
  *
- * This source code is licensed under the Apache-2.0 license found in the
- * LICENSE file in the root directory of this source tree.
+ * AILabelModule
+ *
+ * Drop-in replacement for the old carbon-components-angular AILabelModule.
+ * Registers the <cds-ai-label> web component and exports the thin Angular
+ * directives that map the old API onto it.
  */
-
-import { NgModule } from "@angular/core";
+import { NgModule, CUSTOM_ELEMENTS_SCHEMA } from "@angular/core";
 import { CommonModule } from "@angular/common";
 
-import { ButtonModule } from "carbon-components-angular/button";
-import { IconModule } from "carbon-components-angular/icon";
-import { PopoverModule } from "carbon-components-angular/popover";
+import CDSAILabel from "@carbon/web-components/es/components/ai-label/ai-label.js";
 
-import { AILabelComponent } from "./ai-label.component";
-import { AILabelPopoverDirective } from "./ai-label-popover.directive";
-import { AILabelContent } from "./ai-label-content.directive";
-import { AILabelActions } from "./ai-label-actions.directive";
+import {
+	CdsAILabelDirective,
+	CdsAILabelContentDirective,
+	CdsAILabelActionsDirective
+} from "./ai-label.directive";
+
+function safeDefine(tag: string, ctor: CustomElementConstructor): void {
+	if (!customElements.get(tag)) {
+		customElements.define(tag, ctor);
+	}
+}
+
+safeDefine("cds-ai-label", CDSAILabel);
 
 @NgModule({
-	declarations: [
-		AILabelComponent,
-		AILabelPopoverDirective,
-		AILabelContent,
-		AILabelActions
-	],
-	exports: [
-		AILabelComponent,
-		AILabelContent,
-		AILabelActions
-	],
 	imports: [
 		CommonModule,
-		ButtonModule,
-		IconModule,
-		PopoverModule
-	]
+		CdsAILabelDirective,
+		CdsAILabelContentDirective,
+		CdsAILabelActionsDirective
+	],
+	exports: [
+		CdsAILabelDirective,
+		CdsAILabelContentDirective,
+		CdsAILabelActionsDirective
+	],
+	schemas: [CUSTOM_ELEMENTS_SCHEMA]
 })
-export class AILabelModule {}
+export class AILabelModule { }

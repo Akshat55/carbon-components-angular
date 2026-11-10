@@ -1,9 +1,6 @@
-export { Dropdown } from "./dropdown.component";
-export { DropdownList } from "./list/dropdown-list.component";
-
-export { ScrollableList } from "./scrollable-list.directive";
-export { AbstractDropdownView } from "./abstract-dropdown-view.class";
+/**
+ * Public API surface for the Angular dropdown layer.
+ */
+export { DropdownModule } from "./dropdown.module";
+export { CdsDropdownDirective } from "./dropdown.directive";
 export { ListItem } from "./list-item.interface";
-export { DropdownService } from "./dropdown.service";
-
-export * from "./dropdown.module";

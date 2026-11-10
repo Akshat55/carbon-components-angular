@@ -6,7 +6,7 @@ import {
 	Input,
 	QueryList
 } from "@angular/core";
-import { LayerDirective } from "carbon-components-angular/layer";
+import { CdsLayerDirective } from "carbon-components-angular/layer";
 
 export type ThemeType = "white" | "g10" | "g90" | "g100";
 
@@ -38,7 +38,7 @@ export class ThemeDirective implements AfterContentChecked {
 	 */
 	@Input() cdsTheme: ThemeType | "" = "white";
 
-	@ContentChildren(LayerDirective, { descendants: false }) layerChildren: QueryList<LayerDirective>;
+	@ContentChildren(CdsLayerDirective, { descendants: false }) layerChildren: QueryList<CdsLayerDirective>;
 
 	/**
 	 * Using host bindings with classes to ensure we do not
@@ -64,12 +64,17 @@ export class ThemeDirective implements AfterContentChecked {
 
 	ngAfterContentChecked(): void {
 		/**
-		 * Resets next layer level in theme
-		 * If not found, the layer will be 1 by default
+		 * A theme boundary resets layering: any layer nested directly inside
+		 * the theme starts back at level 1 — unless the consumer explicitly
+		 * set `[cdsLayer]`, which always wins.
+		 *
+		 *   Layer 2
+		 *     theme
+		 *       ---> Layer 1
 		 */
-		this.layerChildren.toArray().forEach(layer => {
+		this.layerChildren?.forEach(layer => {
 			if (typeof layer.cdsLayer !== "number") {
-				layer.cdsLayer = 1;
+				layer.setLevel(1);
 			}
 		});
 	}

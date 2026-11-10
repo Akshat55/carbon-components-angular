@@ -1,53 +1,61 @@
-/* tslint:disable variable-name */
-
-import { moduleMetadata, Meta } from "@storybook/angular";
-
-
-import { ToggleModule, Toggle } from "./";
+/**
+ * Storybook stories for the Angular toggle directive layer.
+ * The directive maps the old @Input/@Output API onto the <cds-toggle>
+ * web component and supports ngModel / reactive forms via ControlValueAccessor.
+ */
+import { FormsModule } from "@angular/forms";
+import { Meta, moduleMetadata } from "@storybook/angular";
+import { ToggleModule } from "./index";
 
 export default {
 	title: "Components/Toggle",
 	decorators: [
 		moduleMetadata({
-			imports: [ToggleModule]
+			imports: [ToggleModule, FormsModule]
 		})
 	],
-	component: Toggle
+	argTypes: {
+		checked: { control: "boolean" },
+		disabled: { control: "boolean" },
+		hideLabel: { control: "boolean" },
+		size: { control: "radio", options: ["sm", "md"] },
+		label: { control: "text" },
+		onText: { control: "text" },
+		offText: { control: "text" },
+		checkedChange: { action: "checkedChange" }
+	},
+	args: {
+		checked: false,
+		disabled: false,
+		hideLabel: false,
+		size: "md",
+		label: "Toggle element label",
+		onText: "On",
+		offText: "Off"
+	}
 } as Meta;
 
-const Template = (args) => ({
+export const Basic = (args) => ({
 	props: args,
 	template: `
 		<cds-toggle
-			[skeleton]="skeleton"
-			[label]="label"
+			[checked]="checked"
+			[disabled]="disabled"
 			[hideLabel]="hideLabel"
+			[size]="size"
+			[label]="label"
 			[onText]="onText"
 			[offText]="offText"
-			[disabled]="disabled"
-			[checked]="checked"
-			(checkedChange)="onChange($event)"
-			[size]="size">
+			(checkedChange)="checkedChange($event)">
 		</cds-toggle>
 	`
 });
-export const Basic = Template.bind({});
-Basic.args = {
-	disabled: false,
-	checked: false,
-	hideLabel: false,
-	label: "Toggle element label",
-	onText: "On",
-	offText: "Off",
-	skeleton: false,
-	size: "md"
-};
-Basic.argTypes = {
-	onChange: {
-		control: "Toggled!"
-	},
-	size: {
-		options: ["sm", "md"],
-		control: "radio"
-	}
-};
+
+export const WithNgModel = (args) => ({
+	props: { ...args, model: true },
+	template: `
+		<cds-toggle [(ngModel)]="model" [label]="label"></cds-toggle>
+		<p style="margin-top: 1rem">Model value: {{ model }}</p>
+	`
+});
+WithNgModel.storyName = "With ngModel";

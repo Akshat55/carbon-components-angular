@@ -1,245 +1,120 @@
-/* tslint:disable variable-name */
+/**
+ * Storybook stories for the Angular notification directive layer.
+ * The directives map the old `[notificationObj]` API onto the notification
+ * web components.
+ */
+import { Component } from "@angular/core";
+import { Meta, moduleMetadata } from "@storybook/angular";
+import { NotificationModule, NotificationService } from "./index";
 
-import { ViewEncapsulation } from "@angular/core";
-import { Subject } from "rxjs";
-import { moduleMetadata, Meta } from "@storybook/angular";
-import { ButtonModule } from "../button";
-import { NotificationModule, BaseNotification } from "./";
+/**
+ * Story host component demonstrating `NotificationService` — the service
+ * dynamically creates notification web components at runtime.
+ */
+@Component({
+	selector: "app-notification-service-story",
+	template: `
+		<button (click)="showToast()">Show toast (service)</button>
+		<button (click)="showInline()" style="margin-left: 0.5rem">Show inline (service)</button>
+		<div id="notification-target" style="margin-top: 1rem"></div>
+	`
+})
+class NotificationServiceStory {
+	constructor(protected notificationService: NotificationService) { }
 
-import {
-	DyanmicActionableStory,
-	NotificationStory,
-	ToastStory
-} from "./stories";
+	showToast() {
+		this.notificationService.showToast({
+			type: "success",
+			title: "Created dynamically",
+			subtitle: "This toast element was created by NotificationService.",
+			caption: String(new Date()),
+			duration: 5000
+		});
+	}
+
+	showInline() {
+		this.notificationService.showNotification({
+			type: "info",
+			title: "Inline notification",
+			message: "Rendered into #notification-target.",
+			target: "#notification-target"
+		});
+	}
+}
 
 export default {
 	title: "Components/Notification",
 	decorators: [
 		moduleMetadata({
-			declarations: [
-				DyanmicActionableStory,
-				NotificationStory,
-				ToastStory
-			],
-			imports: [
-				NotificationModule,
-				ButtonModule
-			]
+			imports: [NotificationModule],
+			declarations: [NotificationServiceStory]
 		})
 	],
-	component: BaseNotification
+	argTypes: {
+		close: { action: "close" }
+	}
 } as Meta;
 
-const InlineTemplate = (args) => ({
-	props: args,
+export const DynamicWithService = () => ({
+	template: `<app-notification-service-story></app-notification-service-story>`
+});
+DynamicWithService.storyName = "Dynamic (NotificationService)";
+DynamicWithService.parameters = { controls: { disable: true } };
+
+export const Inline = (args) => ({
+	props: {
+		...args,
+		notificationObj: {
+			type: "info",
+			title: "Sample notification",
+			message: "Sample subtitle message",
+			showClose: true,
+			lowContrast: false
+		}
+	},
 	template: `
-		<cds-inline-notification [notificationObj]="{
-			type: type,
-			title: 'Sample notification',
-			message: 'Sample error message',
-			showClose: showClose,
-			lowContrast: lowContrast}">
+		<cds-inline-notification
+			[notificationObj]="notificationObj"
+			(close)="close($event)">
 		</cds-inline-notification>
 	`
 });
-export const InlineNotification = InlineTemplate.bind({});
-InlineNotification.args = {
-	showClose: true,
-	lowContrast: false,
-	type: "info"
-};
-InlineNotification.argTypes = {
-	type: {
-		options: [
-			"error",
-			"info",
-			"info-square",
-			"success",
-			"warning",
-			"warning-alt"
-		],
-		control: "select"
-	}
-};
 
-const ToastTemplate = (args) => ({
-	props: args,
+export const Toast = (args) => ({
+	props: {
+		...args,
+		notificationObj: {
+			type: "success",
+			title: "Toast title",
+			subtitle: "Toast subtitle",
+			caption: "Toast caption",
+			showClose: true
+		}
+	},
 	template: `
-		<cds-toast [notificationObj]="{
-			type: type,
-			title: 'Sample toast',
-			subtitle: 'Sample subtitle message',
-			caption: 'Sample caption',
-			lowContrast: lowContrast,
-			showClose: showClose
-		}"></cds-toast>
+		<cds-toast-notification
+			[notificationObj]="notificationObj"
+			(close)="close($event)">
+		</cds-toast-notification>
 	`
 });
-export const Toast = ToastTemplate.bind({});
-Toast.args = {
-	...InlineNotification.args
-};
-Toast.argTypes = {
-	...InlineNotification.argTypes
-};
 
-const ActionableTemplate = (args) => ({
-	props: args,
+export const Actionable = (args) => ({
+	props: {
+		...args,
+		notificationObj: {
+			type: "error",
+			title: "Actionable notification",
+			message: "Something requires your attention",
+			showClose: true
+		}
+	},
 	template: `
 		<cds-actionable-notification
-			[notificationObj]="{
-				type: type,
-				title: 'Sample notification',
-				message: 'Sample error message',
-				showClose: showClose,
-				lowContrast: lowContrast,
-				actions: actions,
-				variant: variant
-			}">
+			[notificationObj]="notificationObj"
+			[inline]="true"
+			(close)="close($event)">
+			<cds-actionable-notification-button slot="action">Action</cds-actionable-notification-button>
 		</cds-actionable-notification>
 	`
 });
-export const Actionable = ActionableTemplate.bind({});
-Actionable.args = {
-	...InlineNotification.args,
-	variant: "inline"
-};
-Actionable.argTypes = {
-	...InlineNotification.argTypes,
-	variant: {
-		options: ["toast", "inline"],
-		control: "radio"
-	},
-	actions: {
-		control: "object",
-		defaultValue: [
-			{
-				text: "Action",
-				click: new Subject<any>()
-			}
-		]
-	}
-};
-
-const DynamicActionableTemplate = (args) => ({
-	props: args,
-	template: `
-		<!--
-		app-* components are for demo purposes only.
-		You can create your own implementation by using the component source found at:
-		https://github.com/IBM/carbon-components-angular/tree/master/src/notification/stories/dynamic-actionable.component.ts
-		-->
-		<app-dynamic-actionable-story></app-dynamic-actionable-story>
-	`
-});
-export const DynamicActionable = DynamicActionableTemplate.bind({});
-
-const DynamicToastTemplate = (args) => ({
-	props: args,
-	template: `
-		<!--
-		app-* components are for demo purposes only.
-		You can create your own implementation by using the component source found at:
-		https://github.com/IBM/carbon-components-angular/tree/master/src/notification/stories/toast.component.ts
-		-->
-		<app-toast-story></app-toast-story>
-	`
-});
-export const DynamicToast = DynamicToastTemplate.bind({});
-
-const DynamicInlineTemplate = (args) => ({
-	props: args,
-	template: `
-		<!--
-		app-* components are for demo purposes only.
-		You can create your own implementation by using the component source found at:
-		https://github.com/IBM/carbon-components-angular/tree/master/src/notification/stories/notification.component.ts
-		-->
-		<app-notification-story></app-notification-story>
-	`
-});
-export const DynamicInline = DynamicInlineTemplate.bind({});
-
-const CustomTemplate = (args) => ({
-	props: args,
-	template: `
-		<cds-toast [notificationObj]="{
-			type: 'error',
-			template: customToastContent,
-			title: 'Sample title',
-			myData: {
-				subtitle: 'Sample custom subtitle'
-			},
-			myCaption: 'Sample custom caption',
-			showClose: showClose
-		}">
-		</cds-toast>
-		<cds-notification [notificationObj]="{
-			type: 'warning',
-			template: customNotificationContent,
-			title: 'Sample notification',
-			myData: {
-				subtitle: 'Sample custom subtitle'
-			},
-			showClose: showClose
-		}">
-		</cds-notification>
-		<cds-actionable-notification [notificationObj]="{
-			type: 'success',
-			template: customActionableContent,
-			actionsTemplate: customActionableTrigger,
-			title: 'Sample notification',
-			myData: {
-				subtitle: 'Sample custom subtitle'
-			},
-			showClose: showClose
-		}">
-		</cds-actionable-notification>
-		<ng-template #customToastContent let-data>
-			<h3 cdsToastTitle>{{data.title}}</h3>
-			<p cdsToastSubtitle>{{data.myData.subtitle}}</p>
-			<p cdsToastCaption>{{data.myCaption}}</p>
-		</ng-template>
-		<ng-template #customNotificationContent let-data>
-			<p cdsNotificationTitle>{{data.title}}</p>
-			<p cdsNotificationSubtitle>{{data.myData.subtitle}}</p>
-		</ng-template>
-		<ng-template #customActionableContent let-data>
-			<p cdsActionableTitle>{{data.title}}</p>
-			<p cdsActionableSubtitle>{{data.myData.subtitle}}</p>
-		</ng-template>
-		<ng-template #customActionableTrigger>
-			<button
-				cdsActionableButton
-				cdsButton="ghost"
-				size="sm">
-				Action
-			</button>
-		</ng-template>
-	`,
-	encapsulation: ViewEncapsulation.None,
-	styles: [`
-		cds-toast {
-			width: 450px;
-			margin-bottom: 1rem;
-		}
-
-		cds-notification {
-			margin-bottom: 1rem;
-		}
-
-		.secondary-toast-button {
-			margin-right: 10px;
-		}
-
-		.actions {
-			margin-bottom: 25px;
-			display: flex;
-			justify-content: flex-end;
-		}
-	`]
-});
-export const CustomContent = CustomTemplate.bind({});
-CustomContent.args = {
-	showClose: true
-};

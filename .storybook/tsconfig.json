@@ -11,5 +11,8 @@
 		"../src/**/*",
 		"../projects/**/*"
 	],
-	"exclude": [],
+	"exclude": [
+		"../src/**/*.spec.ts",
+		"../src/test.ts"
+	],
 }

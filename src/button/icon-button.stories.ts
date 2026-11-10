@@ -1,143 +1,45 @@
-/* tslint:disable variable-name */
-
-import { moduleMetadata, Meta } from "@storybook/angular";
-import { IconModule } from "../icon";
-import {
-	ButtonModule,
-	IconButton
-} from "./";
+/**
+ * Storybook stories for the Angular icon-button directive layer.
+ * The directive maps the old @Input API onto the <cds-icon-button> web component.
+ */
+import { Meta, moduleMetadata } from "@storybook/angular";
+import { ButtonModule } from "./index";
 
 export default {
 	title: "Components/Button/Icon Button",
 	decorators: [
 		moduleMetadata({
-			imports: [
-				ButtonModule,
-				IconModule
-			]
+			imports: [ButtonModule]
 		})
 	],
-	args: {
-		align: "bottom",
-		kind: "primary",
-		size: "md",
-		isExpressive: "false",
-		disabled: false,
-		autoAlign: false,
-		showTooltipWhenDisabled: false
-	},
 	argTypes: {
-		align: {
-			options: ["top", "left", "bottom", "right"],
-			control: { type: "select" }
-		},
-		kind: {
-			options: [
-				"primary",
-				"secondary",
-				"tertiary",
-				"ghost",
-				"danger",
-				"danger--primary",
-				"danger--tertiary",
-				"danger--ghost"
-			],
-			control: { type: "select" },
-			name: "kind"
-		},
-		size: {
-			options: ["sm", "md", "lg", "xl", "2xl"],
-			control: { type: "select" }
-		},
-		isExpressive: {
-			type: "boolean"
-		},
-		disabled: {
-			type: "boolean"
-		},
-		showTooltipWhenDisabled: {
-			type: "boolean"
-		},
-		// Actions
-		onClick: { action: "clicked" },
-		onMouseEnter: { action: "mouseenter" },
-		onMouseLeave: { action: "mouseleave" },
-		onFocus: { action: "focus" },
-		onBlur: { action: "blur" }
+		kind: { control: "select", options: ["primary", "secondary", "tertiary", "ghost", "danger"] },
+		size: { control: "select", options: ["sm", "md", "lg"] },
+		align: { control: "select", options: ["top", "bottom", "left", "right"] },
+		disabled: { control: "boolean" },
+		description: { control: "text" }
 	},
-	parameters: {
-		layout: "centered"
-	},
-	component: IconButton
+	args: {
+		kind: "primary",
+		size: "lg",
+		align: "top",
+		disabled: false,
+		description: "Icon description"
+	}
 } as Meta;
 
-const Template = (args) => ({
+export const Basic = (args) => ({
 	props: args,
 	template: `
 		<cds-icon-button
-			buttonId="icon-btn1"
-			type="button"
 			[kind]="kind"
 			[size]="size"
 			[align]="align"
-			[buttonNgClass]="buttonNgClass"
-			[buttonAttributes]="buttonAttributes"
 			[disabled]="disabled"
-			[showTooltipWhenDisabled]="showTooltipWhenDisabled"
-			description="Icon Description"
-			(click)="onClick($event)"
-			(mouseenter)="onMouseEnter($event)"
-			(mouseleave)="onMouseLeave($event)"
-			(focus)="onFocus($event)"
-			(blur)="onBlur($event)">
-			<svg class="cds--btn__icon" cdsIcon="copy" size="16"></svg>
+			[description]="description">
+			<svg slot="icon" width="16" height="16" viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg">
+				<path d="M17 15L17 8 15 8 15 15 8 15 8 17 15 17 15 24 17 24 17 17 24 17 24 15z"></path>
+			</svg>
 		</cds-icon-button>
 	`
 });
-export const Basic = Template.bind({});
-Basic.args = {
-	buttonAttributes: {
-		"aria-label": "Example button aria-label"
-	},
-	buttonNgClass: {
-		"example-global-class": true
-	}
-};
-
-const AutoAlignTemplate = (args) => ({
-	props: args,
-	template: `
-		<div style="height:3000px">
-			Scrolling will update the position of the tooltip:
-			<div style="position: absolute; top: 500px; left: 500px;">
-				<cds-icon-button
-					buttonId="icon-btn1"
-					type="button"
-					[kind]="kind"
-					[size]="size"
-					[align]="align"
-					[autoAlign]="autoAlign"
-					[isOpen]="isOpen"
-					[buttonNgClass]="buttonNgClass"
-					[disabled]="disabled"
-					[showTooltipWhenDisabled]="showTooltipWhenDisabled"
-					[description]="description"
-					(click)="onClick($event)"
-					(mouseenter)="onMouseEnter($event)"
-					(mouseleave)="onMouseLeave($event)"
-					(focus)="onFocus($event)"
-					(blur)="onBlur($event)">
-					<svg class="cds--btn__icon" cdsIcon="copy" size="16"></svg>
-				</cds-icon-button>
-			</div>
-		</div>
-	`
-});
-export const WithAutoAlign = AutoAlignTemplate.bind({});
-WithAutoAlign.args = {
-	autoAlign: true,
-	description: "Icon Description",
-	align: "top",
-	isOpen: true
-};
-

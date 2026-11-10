@@ -1,228 +1,61 @@
-/* tslint:disable variable-name */
-
-import { moduleMetadata, Meta } from "@storybook/angular";
-import { DatePickerModule, DatePicker } from "./";
-import { AILabelModule } from "../ai-label";
-import { ButtonModule } from "../button";
-import { IconModule } from "../icon";
-import { AI_LABEL_INNER, AI_LABEL_STORY_STYLES } from "../storybook/ai-label-story-shared";
+/**
+ * Storybook stories for the Angular date-picker directive layer.
+ * The directive maps the old @Input/@Output API onto the <cds-date-picker>
+ * web component, generating <cds-date-picker-input> children automatically.
+ */
+import { Meta, moduleMetadata } from "@storybook/angular";
+import { DatePickerModule } from "./index";
 
 export default {
 	title: "Components/Date Picker",
 	decorators: [
 		moduleMetadata({
-			imports: [DatePickerModule, AILabelModule, ButtonModule, IconModule]
+			imports: [DatePickerModule]
 		})
 	],
-	args: {
-		label: "Label text",
-		placeholder: "mm/dd/yyyy",
-		invalidText: "Invalid date format",
-		invalid: false,
-		warnText: "This is a warning",
-		warn: false,
-		disabled: false,
-		readonly: false,
-		language: "en",
-		theme: "dark",
-		size: "md"
-	},
 	argTypes: {
-		theme: {
-			options: ["light", "dark"],
-			control: "radio"
-		},
-		size: {
-			options: ["sm", "md", "lg"],
-			control: "radio"
-		},
-		valueChange: {
-			action: "Date changed!"
-		}
+		size: { control: "radio", options: ["sm", "md", "lg"] },
+		disabled: { control: "boolean" },
+		invalid: { control: "boolean" },
+		label: { control: "text" },
+		placeholder: { control: "text" },
+		invalidText: { control: "text" },
+		valueChange: { action: "valueChange" }
 	},
-	component: DatePicker
+	args: {
+		size: "md",
+		disabled: false,
+		invalid: false,
+		label: "Date picker label",
+		placeholder: "mm/dd/yyyy",
+		invalidText: "Invalid date"
+	}
 } as Meta;
 
-const Template = (args) => ({
+export const Single = (args) => ({
 	props: args,
 	template: `
-		<cds-date-picker-input
-			[theme]="theme"
-			[label]="label"
-			[placeholder]="placeholder"
-			[disabled]="disabled"
-			[readonly]="readonly"
-			[size]="size"
-			[invalid]="invalid"
-			[invalidText]="invalidText"
-			[warn]="warn"
-			[warnText]="warnText"
-			(valueChange)="valueChange($event)">
-		</cds-date-picker-input>
-	`
-});
-export const Basic = Template.bind({});
-
-const withAILabelTemplate = (args) => ({
-	props: args,
-	styles: AI_LABEL_STORY_STYLES,
-	template: `
-		<cds-date-picker
-			[theme]="theme"
-			[label]="label"
-			[placeholder]="placeholder"
-			[disabled]="disabled"
-			[readonly]="readonly"
-			[size]="size"
-			[type]="'single'"
-			[invalid]="invalid"
-			[invalidText]="invalidText"
-			[warn]="warn"
-			[warnText]="warnText"
-			[decorator]="decoratorTpl"
-			(valueChange)="valueChange($event)">
-		</cds-date-picker>
-		<ng-template #decoratorTpl>
-			<cds-ai-label
-				class="ai-label-container"
-				kind="default"
-				size="mini"
-				[autoAlign]="true"
-				aiText="AI"
-				ariaLabel="Show information">
-				` + AI_LABEL_INNER + `
-			</cds-ai-label>
-		</ng-template>
-	`
-});
-export const withAILabel = withAILabelTemplate.bind({});
-
-const SingleTemplate = (args) => ({
-	props: args,
-	template: `
-		<p>With initial value</p>
-		<cds-date-picker
-			[label]="label"
-			id="initial-value-datepicker"
-			[placeholder]="placeholder"
-			[language]="language"
-			[size]="size"
-			[theme]="theme"
-			[value]="value"
-			[disabled]="disabled"
-			[readonly]="readonly"
-			[invalid]="invalid"
-			[invalidText]="invalidText"
-			[warn]="warn"
-			[warnText]="warnText"
-			[dateFormat]="dateFormat"
-			(valueChange)="valueChange($event)">
-		</cds-date-picker>
-		<p style="margin-top: 20px;">Without initial value</p>
 		<cds-date-picker
 			[label]="label"
 			[placeholder]="placeholder"
-			[language]="language"
 			[size]="size"
-			[theme]="theme"
 			[disabled]="disabled"
-			[readonly]="readonly"
 			[invalid]="invalid"
 			[invalidText]="invalidText"
-			[warn]="warn"
-			[warnText]="warnText"
-			[dateFormat]="dateFormat"
 			(valueChange)="valueChange($event)">
 		</cds-date-picker>
 	`
 });
-export const Single = SingleTemplate.bind({});
-Single.args = {
-	dateFormat: "m/d/y",
-	language: "en"
-};
-Single.argTypes = {
-	language: {
-		options: ["en", "de", "fi", "ja", "zh", "es", "fr", "it", "ko", "pt"],
-		control: "select"
-	}
-};
 
-const RangeTemplate = (args) => ({
+export const Range = (args) => ({
 	props: args,
 	template: `
-		<p>With initial value</p>
 		<cds-date-picker
-			[label]="label"
-			[rangeLabel]="label"
-			[size]="size"
-			range="true"
-			id="initial-value-range-datepicker"
+			[range]="true"
+			[label]="'Start date'"
+			rangeLabel="End date"
 			[placeholder]="placeholder"
-			[language]="language"
-			[theme]="theme"
-			[disabled]="disabled"
-			[readonly]="readonly"
-			[invalid]="invalid"
-			[invalidText]="invalidText"
-			[warn]="warn"
-			[warnText]="warnText"
-			[rangeInvalid]="invalid"
-			[rangeInvalidText]="invalidText"
-			[dateFormat]="dateFormat"
-			[flatpickrOptions]="flatpickrOptions"
-			[value]="value"
-			(valueChange)="valueChange($event)"
-			[helperText]="helperText">
-		</cds-date-picker>
-		<p style="margin-top: 20px;">Without initial value</p>
-		<cds-date-picker
-			[label]="label"
-			[rangeLabel]="label"
-			[size]="size"
-			range="true"
-			[language]="language"
-			[placeholder]="placeholder"
-			[theme]="theme"
-			[disabled]="disabled"
-			[readonly]="readonly"
-			[invalid]="invalid"
-			[invalidText]="invalidText"
-			[warn]="warn"
-			[warnText]="warnText"
-			[rangeWarn]="warn"
-			[rangeWarnText]="warnText"
-			[dateFormat]="dateFormat"
-			[flatpickrOptions]="flatpickrOptions"
-			(valueChange)="valueChange($event)"
-			[helperText]="helperText">
+			(valueChange)="valueChange($event)">
 		</cds-date-picker>
 	`
 });
-export const Range = RangeTemplate.bind({});
-Range.args = {
-	dateFormat: "d/m/Y",
-	value: ["02/11/24", "08/11/24"],
-	language: "en",
-	flatpickrOptions: {
-		minDate: new Date("11/01/24"),
-		maxDate: new Date("11/30/24")
-	}
-};
-Range.argTypes = {
-	language: {
-		options: ["en", "de", "fi", "ja", "zh", "es", "fr", "it", "ko", "pt"],
-		control: "select"
-	}
-};
-
-const SkeletonTemplate = (args) => ({
-	props: args,
-	template: `
-	<cds-date-picker
-		range="true"
-		skeleton="true">
-	</cds-date-picker>
-	`
-});
-export const Skeleton = SkeletonTemplate.bind({});

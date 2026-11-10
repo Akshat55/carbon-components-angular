@@ -1,36 +1,39 @@
-import { NgModule } from "@angular/core";
+/**
+ * Copyright IBM Corp. 2024
+ *
+ * PaginationModule
+ *
+ * Drop-in replacement for the old carbon-components-angular PaginationModule.
+ * Registers the pagination web components and exports the thin Angular
+ * directive that maps the old @Input/@Output API onto them.
+ */
+import { NgModule, CUSTOM_ELEMENTS_SCHEMA } from "@angular/core";
 import { CommonModule } from "@angular/common";
 import { FormsModule } from "@angular/forms";
 
-import { Pagination } from "./pagination.component";
-import { I18nModule } from "carbon-components-angular/i18n";
-import { ExperimentalModule } from "carbon-components-angular/experimental";
-import { PaginationNav } from "./pagination-nav/pagination-nav.component";
-import { PaginationNavItem } from "./pagination-nav/pagination-item.component";
-import { PaginationOverflow } from "./pagination-nav/pagination-overflow.component";
-import { IconModule } from "carbon-components-angular/icon";
-import { ButtonModule } from "carbon-components-angular/forms";
+import CDSPagination from "@carbon/web-components/es/components/pagination/pagination.js";
+import CDSSelectItem from "@carbon/web-components/es/components/select/select-item.js";
+
+import { CdsPaginationDirective } from "./pagination.directive";
+
+function safeDefine(tag: string, ctor: CustomElementConstructor): void {
+	if (!customElements.get(tag)) {
+		customElements.define(tag, ctor);
+	}
+}
+
+safeDefine("cds-pagination", CDSPagination);
+safeDefine("cds-select-item", CDSSelectItem);
 
 @NgModule({
-	declarations: [
-		Pagination,
-		PaginationNav,
-		PaginationNavItem,
-		PaginationOverflow
-	],
-	exports: [
-		Pagination,
-		PaginationNav,
-		PaginationNavItem,
-		PaginationOverflow
-	],
 	imports: [
 		CommonModule,
 		FormsModule,
-		I18nModule,
-		ExperimentalModule,
-		IconModule,
-		ButtonModule
-	]
+		CdsPaginationDirective
+	],
+	exports: [
+		CdsPaginationDirective
+	],
+	schemas: [CUSTOM_ELEMENTS_SCHEMA]
 })
-export class PaginationModule {}
+export class PaginationModule { }

@@ -1,98 +1,62 @@
-/* tslint:disable variable-name */
-
-import { moduleMetadata, Meta } from "@storybook/angular";
-import { IconModule } from "../icon";
-import { ButtonModule, Button } from "./";
+/**
+ * Storybook stories for the Angular button directive layer.
+ * The directive maps the old @Input API onto the <cds-button> web component.
+ */
+import { Meta, moduleMetadata } from "@storybook/angular";
+import { ButtonModule } from "./index";
 
 export default {
 	title: "Components/Button",
 	decorators: [
 		moduleMetadata({
-			imports: [
-				ButtonModule,
-				IconModule
-			]
+			imports: [ButtonModule]
 		})
 	],
-	args: {
-		kind: "primary",
-		size: "md",
-		isExpressive: "false",
-		disabled: false
-	},
 	argTypes: {
-		kind: {
+		cdsButton: {
+			control: "select",
 			options: [
-				"primary",
-				"secondary",
-				"tertiary",
-				"ghost",
-				"danger",
-				"danger--primary",
-				"danger--tertiary",
-				"danger--ghost"
-			],
-			control: { type: "select" },
-			name: "cdsButton"
+				"primary", "secondary", "tertiary", "ghost",
+				"danger", "danger--tertiary", "danger--ghost"
+			]
 		},
-		size: {
-			options: ["sm", "md", "lg", "xl", "2xl"],
-			control: { type: "select" }
-		},
-		isExpressive: {
-			type: "boolean"
-		},
-		disabled: {
-			type: "boolean"
-		},
-		// Actions
-		onClick: { action: "clicked" },
-		onMouseEnter: { action: "mouseenter" },
-		onMouseLeave: { action: "mouseleave" },
-		onFocus: { action: "focus" },
-		onBlur: { action: "blur" }
+		size: { control: "select", options: ["sm", "md", "lg", "xl", "2xl"] },
+		isExpressive: { control: "boolean" },
+		disabled: { control: "boolean" }
 	},
-	parameters: {
-		layout: "centered"
-	},
-	component: Button
+	args: {
+		cdsButton: "primary",
+		size: "lg",
+		isExpressive: false,
+		disabled: false
+	}
 } as Meta;
 
-const Template = (args) => ({
+export const Basic = (args) => ({
 	props: args,
 	template: `
-		<button
-			[cdsButton]="kind"
+		<cds-button
+			[cdsButton]="cdsButton"
 			[size]="size"
 			[isExpressive]="isExpressive"
-			[disabled]="disabled"
-			(click)="onClick($event)"
-			(mouseenter)="onMouseEnter($event)"
-			(mouseleave)="onMouseLeave($event)"
-			(focus)="onFocus($event)"
-			(blur)="onBlur($event)">
+			[disabled]="disabled">
 			Button
-		</button>
+		</cds-button>
 	`
 });
-export const Basic = Template.bind({});
 
-const WithIconTemplate = (args) => ({
-	props: args,
+export const AllKinds = () => ({
 	template: `
-		<button
-			[cdsButton]="kind"
-			[size]="size"
-			[isExpressive]="isExpressive"
-			[disabled]="disabled"
-			(click)="onClick($event)"
-			(mouseenter)="onMouseEnter($event)"
-			(mouseleave)="onMouseleave($event)"
-			(focus)="onFocus($event)"
-			(blur)="onBlur($event)">
-			With icon
-			<svg class="cds--btn__icon" cdsIcon="add" size="16"></svg>
-		</button>
+		<cds-button cdsButton="primary">Primary</cds-button>
+		<cds-button cdsButton="secondary">Secondary</cds-button>
+		<cds-button cdsButton="tertiary">Tertiary</cds-button>
+		<cds-button cdsButton="ghost">Ghost</cds-button>
+		<cds-button cdsButton="danger">Danger</cds-button>
 	`
 });
-export const WithIcon = WithIconTemplate.bind({});
+AllKinds.parameters = { controls: { disable: true } };
+
+export const Skeleton = () => ({
+	template: `<cds-button-skeleton size="lg"></cds-button-skeleton>`
+});
+Skeleton.parameters = { controls: { disable: true } };

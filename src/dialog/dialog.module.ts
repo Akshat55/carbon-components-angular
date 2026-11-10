@@ -1,54 +1,42 @@
-// modules
-import { NgModule } from "@angular/core";
+/**
+ * Copyright IBM Corp. 2024
+ *
+ * DialogModule
+ *
+ * The old dialog-service infrastructure (DialogService, Dialog,
+ * DialogDirective) has been removed — the web components manage their own
+ * floating panes. This module now registers the overflow-menu web components
+ * and exports the thin directives that preserve the old overflow-menu API.
+ */
+import { NgModule, CUSTOM_ELEMENTS_SCHEMA } from "@angular/core";
 import { CommonModule } from "@angular/common";
 
-// imports
-import { DialogService } from "./dialog.service";
-import { Dialog } from "./dialog.component";
-import { DialogDirective } from "./dialog.directive";
+import CDSOverflowMenu from "@carbon/web-components/es/components/overflow-menu/overflow-menu.js";
+import CDSOverflowMenuBody from "@carbon/web-components/es/components/overflow-menu/overflow-menu-body.js";
+import CDSOverflowMenuItem from "@carbon/web-components/es/components/overflow-menu/overflow-menu-item.js";
 
-import { OverflowMenu } from "./overflow-menu/overflow-menu.component";
-import { OverflowMenuPane } from "./overflow-menu/overflow-menu-pane.component";
-import { OverflowMenuCustomPane } from "./overflow-menu/overflow-menu-custom-pane.component";
-import { OverflowMenuDirective } from "./overflow-menu/overflow-menu.directive";
-import { OverflowMenuOption } from "./overflow-menu/overflow-menu-option.component";
-import { I18nModule } from "carbon-components-angular/i18n";
-import { PlaceholderModule } from "carbon-components-angular/placeholder";
-import { ExperimentalModule } from "carbon-components-angular/experimental";
-import { UtilsModule } from "carbon-components-angular/utils";
-import { IconModule } from "carbon-components-angular/icon";
-import { ButtonModule } from "carbon-components-angular/button";
-import { TooltipModule } from "carbon-components-angular/tooltip";
+import { CdsOverflowMenuDirective, CdsOverflowMenuItemDirective } from "./overflow-menu.directive";
+
+function safeDefine(tag: string, ctor: CustomElementConstructor): void {
+	if (!customElements.get(tag)) {
+		customElements.define(tag, ctor);
+	}
+}
+
+safeDefine("cds-overflow-menu", CDSOverflowMenu);
+safeDefine("cds-overflow-menu-body", CDSOverflowMenuBody);
+safeDefine("cds-overflow-menu-item", CDSOverflowMenuItem);
 
 @NgModule({
-	declarations: [
-		Dialog,
-		OverflowMenu,
-		OverflowMenuPane,
-		OverflowMenuCustomPane,
-		DialogDirective,
-		OverflowMenuDirective,
-		OverflowMenuOption
-	],
-	exports: [
-		Dialog,
-		OverflowMenu,
-		OverflowMenuPane,
-		OverflowMenuCustomPane,
-		DialogDirective,
-		OverflowMenuDirective,
-		OverflowMenuOption
-	],
-	providers: [ DialogService ],
 	imports: [
 		CommonModule,
-		I18nModule,
-		PlaceholderModule,
-		ExperimentalModule,
-		UtilsModule,
-		IconModule,
-		ButtonModule,
-		TooltipModule
-	]
+		CdsOverflowMenuDirective,
+		CdsOverflowMenuItemDirective
+	],
+	exports: [
+		CdsOverflowMenuDirective,
+		CdsOverflowMenuItemDirective
+	],
+	schemas: [CUSTOM_ELEMENTS_SCHEMA]
 })
-export class DialogModule {}
+export class DialogModule { }

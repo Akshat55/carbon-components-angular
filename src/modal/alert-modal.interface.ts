@@ -1,50 +1,9 @@
-export enum AlertModalType {
-	default = "default",
-	danger = "danger"
-}
-
-export interface AlertModalData {
-	/**
-	 * type of the modal
-	 */
-	type?: AlertModalType;
-	/**
-	 * Additional label shown over the modal
-	 */
-	label?: string;
-	/**
-	 * Primary title for the modal
-	 */
-	title?: string;
-	/**
-	 * Content for the modal body, could include HTML tags
-	 */
-	content?: string;
-	/**
-	 * Size of the modal to display.
-	 */
-	size?: "xs" | "sm" | "md" | "lg";
-	/**
-	 * Array of `ModalButton`s
-	 */
-	buttons?: Array<ModalButton>;
-	/**
-	 * Specify whether the modal contains scrolling content. This property overrides the automatic detection
-	 * of the existence of scrolling content. Set this property to `true` to force overflow indicator to
-	 * show up or to `false` to force overflow indicator to disappear.
-	 * It is set to `null` by default which indicates not to override automatic detection.
-	 */
-	hasScrollingContent?: boolean;
-	/**
-	 * Callback for non-specific close events. `return false;` to prevent the modal from closing
-	 * Property trigger has a value of `overlay` or `close`
-	 */
-	close?: (trigger?: "overlay" | "close") => boolean;
-	/**
-	 * Set to `false` to hide the header's close button.
-	 */
-	showCloseButton?: boolean;
-}
+/**
+ * Copyright IBM Corp. 2024
+ *
+ * Interfaces for `ModalService.show()` — unchanged from
+ * carbon-components-angular so existing call sites keep compiling.
+ */
 
 export enum ModalButtonType {
 	primary = "primary",
@@ -55,21 +14,65 @@ export enum ModalButtonType {
 	danger_primary = "danger--primary"
 }
 
+export enum AlertModalType {
+	default = "default",
+	danger = "danger"
+}
+
 export interface ModalButton {
 	/**
-	 * Display value of the button
+	 * Button text.
 	 */
 	text: string;
 	/**
-	 * Optional unique ID for the button
+	 * Button type — maps to the footer button's `kind`.
 	 */
-	id?: string;
+	type?: ModalButtonType | string;
 	/**
-	 * Button type
-	 */
-	type?: ModalButtonType;
-	/**
-	 * Callback for the button `click` event
+	 * Invoked when the button is clicked (before the modal closes).
 	 */
 	click?: Function;
+}
+
+export interface AlertModalData {
+	/**
+	 * Use of `modalType` is deprecated, use `type` instead.
+	 */
+	modalType?: string;
+	/**
+	 * Modal type — 'default' or 'danger'.
+	 */
+	type?: AlertModalType | string;
+	/**
+	 * Modal label (small text above the title).
+	 */
+	label?: string;
+	/**
+	 * Modal title.
+	 */
+	title?: string;
+	/**
+	 * Modal body content (plain text or HTML string).
+	 */
+	content?: string;
+	/**
+	 * Modal size.
+	 */
+	size?: "xs" | "sm" | "md" | "lg";
+	/**
+	 * Set to `true` to render without a visible close ("x") button.
+	 */
+	hasScrollingContent?: boolean;
+	/**
+	 * Show the close button (default true).
+	 */
+	showCloseButton?: boolean;
+	/**
+	 * Footer buttons.
+	 */
+	buttons?: Array<ModalButton>;
+	/**
+	 * Invoked when the modal closes. Return `false` to keep the modal open.
+	 */
+	close?: Function;
 }

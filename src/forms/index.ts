@@ -1,38 +1,34 @@
 // export the forms module
 export { NFormsModule } from "./forms.module";
 
-// re-export from form related modules and components
+// re-export from form related modules and directives (web component wrappers)
 export {
 	CheckboxModule,
-	Checkbox,
-	CheckboxState,
-	CheckboxValue
+	CdsCheckboxDirective,
+	CdsCheckboxGroupDirective
 } from "carbon-components-angular/checkbox";
 export {
 	ToggleModule,
-	Toggle,
-	ToggleState
+	CdsToggleDirective
 } from "carbon-components-angular/toggle";
 export {
 	RadioModule,
-	Radio,
-	RadioChange,
-	RadioGroup
+	CdsRadioDirective,
+	CdsRadioGroupDirective,
+	RadioChange
 } from "carbon-components-angular/radio";
 export {
 	InputModule,
-	Label,
-	TextArea,
-	TextInput,
-	TextInputLabelComponent,
-	TextareaLabelComponent
+	CdsTextInputDirective,
+	CdsTextareaDirective,
+	CdsPasswordInputDirective
 } from "carbon-components-angular/input";
 export {
 	ButtonModule,
-	Button,
+	CdsButtonDirective,
+	CdsButtonSetDirective,
+	CdsIconButtonDirective,
 	ButtonSize,
 	ButtonType,
-	ButtonSet,
-	DangerButtonType,
-	IconButton
+	DangerButtonType
 } from "carbon-components-angular/button";

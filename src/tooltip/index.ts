@@ -1,4 +1,6 @@
-export * from "./tooltip.interface";
-export * from "./tooltip.component";
-export * from "./definition-tooptip.component";
-export * from "./tooltip.module";
+/**
+ * Public API surface for the Angular tooltip layer.
+ */
+export { TooltipModule } from "./tooltip.module";
+export { CdsTooltipDirective } from "./tooltip.directive";
+export { CdsDefinitionTooltipDirective } from "./definition-tooltip.directive";

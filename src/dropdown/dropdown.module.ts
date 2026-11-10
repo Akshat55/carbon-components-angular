@@ -1,39 +1,41 @@
-import { NgModule } from "@angular/core";
+/**
+ * Copyright IBM Corp. 2024
+ *
+ * DropdownModule
+ *
+ * Drop-in replacement for the old carbon-components-angular DropdownModule.
+ * Registers the dropdown web components and exports the thin Angular
+ * directive that maps the old @Input/@Output API onto them.
+ */
+import { NgModule, CUSTOM_ELEMENTS_SCHEMA } from "@angular/core";
 import { CommonModule } from "@angular/common";
 import { FormsModule } from "@angular/forms";
 
-import { Dropdown } from "./dropdown.component";
-import { DropdownList } from "./list/dropdown-list.component";
-import { AbstractDropdownView } from "./abstract-dropdown-view.class";
+import CDSDropdown from "@carbon/web-components/es/components/dropdown/dropdown.js";
+import CDSDropdownItem from "@carbon/web-components/es/components/dropdown/dropdown-item.js";
+import CDSDropdownSkeleton from "@carbon/web-components/es/components/dropdown/dropdown-skeleton.js";
 
-import { ScrollableList } from "./scrollable-list.directive";
-import { I18nModule } from "carbon-components-angular/i18n";
-import { PlaceholderModule } from "carbon-components-angular/placeholder";
-import { DropdownService } from "./dropdown.service";
-import { UtilsModule } from "carbon-components-angular/utils";
-import { IconModule } from "carbon-components-angular/icon";
+import { CdsDropdownDirective } from "./dropdown.directive";
+
+function safeDefine(tag: string, ctor: CustomElementConstructor): void {
+	if (!customElements.get(tag)) {
+		customElements.define(tag, ctor);
+	}
+}
+
+safeDefine("cds-dropdown", CDSDropdown);
+safeDefine("cds-dropdown-item", CDSDropdownItem);
+safeDefine("cds-dropdown-skeleton", CDSDropdownSkeleton);
 
 @NgModule({
-	declarations: [
-		Dropdown,
-		DropdownList,
-		ScrollableList,
-		AbstractDropdownView
-	],
-	exports: [
-		Dropdown,
-		DropdownList,
-		ScrollableList,
-		AbstractDropdownView
-	],
 	imports: [
 		CommonModule,
 		FormsModule,
-		I18nModule,
-		PlaceholderModule,
-		UtilsModule,
-		IconModule
+		CdsDropdownDirective
 	],
-	providers: [ DropdownService ]
+	exports: [
+		CdsDropdownDirective
+	],
+	schemas: [CUSTOM_ELEMENTS_SCHEMA]
 })
-export class DropdownModule {}
+export class DropdownModule { }

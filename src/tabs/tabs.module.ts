@@ -1,58 +1,41 @@
-import { NgModule } from "@angular/core";
+/**
+ * Copyright IBM Corp. 2024
+ *
+ * TabsModule
+ *
+ * Drop-in replacement for the old carbon-components-angular TabsModule.
+ * Registers the tabs web components and exports the thin Angular directives
+ * that map the old @Input/@Output API onto them.
+ */
+import { NgModule, CUSTOM_ELEMENTS_SCHEMA } from "@angular/core";
 import { CommonModule } from "@angular/common";
-import { UtilsModule } from "carbon-components-angular/utils";
-import { I18nModule } from "carbon-components-angular/i18n";
-import { TooltipModule } from "carbon-components-angular/tooltip";
 
-import { TabSkeleton } from "./tab-skeleton.component";
-import { BaseTabHeader } from "./base-tab-header.component";
-import { Tabs } from "./tabs.component";
-import { TabsVertical } from "./tabs-vertical.component";
-import { TabsVerticalGrouped } from "./tabs-vertical-grouped.component";
-import { Tab } from "./tab.component";
-import { IconTab } from "./icon-tab.component";
-import { TabHeader } from "./tab-header.directive";
-import { TabHeaderComponent } from "./tab-header.component";
-import { TabHeaders } from "./tab-headers.component";
-import { TabHeadersVertical } from "./tab-headers-vertical.component";
-import { TabHeaderGroup } from "./tab-header-group.component";
-import { TabHeaderGroupVertical } from "./tab-header-group-vertical.component";
+import CDSTabs from "@carbon/web-components/es/components/tabs/tabs.js";
+import CDSTab from "@carbon/web-components/es/components/tabs/tab.js";
+import CDSTabsSkeleton from "@carbon/web-components/es/components/tabs/tabs-skeleton.js";
+
+import { CdsTabsDirective, CdsTabDirective } from "./tabs.directive";
+
+function safeDefine(tag: string, ctor: CustomElementConstructor): void {
+	if (!customElements.get(tag)) {
+		customElements.define(tag, ctor);
+	}
+}
+
+safeDefine("cds-tabs", CDSTabs);
+safeDefine("cds-tab", CDSTab);
+safeDefine("cds-tabs-skeleton", CDSTabsSkeleton);
 
 @NgModule({
-	declarations: [
-		BaseTabHeader,
-		Tabs,
-		TabsVertical,
-		TabsVerticalGrouped,
-		Tab,
-		IconTab,
-		TabHeader,
-		TabHeaderComponent,
-		TabHeaders,
-		TabHeadersVertical,
-		TabHeaderGroup,
-		TabHeaderGroupVertical,
-		TabSkeleton
-	],
-	exports: [
-		Tabs,
-		TabsVertical,
-		TabsVerticalGrouped,
-		Tab,
-		IconTab,
-		TabHeader,
-		TabHeaderComponent,
-		TabHeaders,
-		TabHeadersVertical,
-		TabHeaderGroup,
-		TabHeaderGroupVertical,
-		TabSkeleton
-	],
 	imports: [
 		CommonModule,
-		UtilsModule,
-		I18nModule,
-		TooltipModule
-	]
+		CdsTabsDirective,
+		CdsTabDirective
+	],
+	exports: [
+		CdsTabsDirective,
+		CdsTabDirective
+	],
+	schemas: [CUSTOM_ELEMENTS_SCHEMA]
 })
-export class TabsModule {}
+export class TabsModule { }

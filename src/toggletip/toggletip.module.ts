@@ -1,29 +1,46 @@
-import { NgModule } from "@angular/core";
+/**
+ * Copyright IBM Corp. 2024
+ *
+ * ToggletipModule
+ *
+ * Drop-in replacement for the old carbon-components-angular ToggletipModule.
+ * Registers the <cds-toggletip> web component and exports the thin Angular
+ * directives that map the old API onto it.
+ */
+import { NgModule, CUSTOM_ELEMENTS_SCHEMA } from "@angular/core";
 import { CommonModule } from "@angular/common";
 
-import { PopoverModule } from "carbon-components-angular/popover";
+import CDSToggletip from "@carbon/web-components/es/components/toggle-tip/toggletip.js";
 
-import { ToggletipLabel } from "./toggletip-label.directive";
-import { ToggletipAction } from "./toggletip-action.directive";
-import { Toggletip } from "./toggletip.component";
-import { ToggletipButton } from "./toggletip-button.directive";
-import { ToggletipContent } from "./toggletip-content.directive";
+import {
+	CdsToggletipDirective,
+	CdsToggletipButtonDirective,
+	CdsToggletipContentDirective,
+	CdsToggletipActionDirective
+} from "./toggletip.directive";
+
+function safeDefine(tag: string, ctor: CustomElementConstructor): void {
+	if (!customElements.get(tag)) {
+		customElements.define(tag, ctor);
+	}
+}
+
+safeDefine("cds-toggletip", CDSToggletip);
 
 @NgModule({
-	declarations: [
-		Toggletip,
-		ToggletipLabel,
-		ToggletipAction,
-		ToggletipButton,
-		ToggletipContent
+	imports: [
+		CommonModule,
+		CdsToggletipDirective,
+		CdsToggletipButtonDirective,
+		CdsToggletipContentDirective,
+		CdsToggletipActionDirective
 	],
 	exports: [
-		Toggletip,
-		ToggletipLabel,
-		ToggletipAction,
-		ToggletipButton,
-		ToggletipContent
+		CdsToggletipDirective,
+		CdsToggletipButtonDirective,
+		CdsToggletipContentDirective,
+		CdsToggletipActionDirective
 	],
-	imports: [CommonModule, PopoverModule]
+	schemas: [CUSTOM_ELEMENTS_SCHEMA]
 })
-export class ToggletipModule {}
+export class ToggletipModule { }

@@ -1,310 +1,71 @@
-/* tslint:disable variable-name */
-
-import { FormsModule, ReactiveFormsModule } from "@angular/forms";
-import { moduleMetadata, Meta } from "@storybook/angular";
-import { ComboBoxModule, ComboBox } from "./";
-
-import {
-	DynamicListComboBox,
-	ReactiveFormsCombobox,
-	MockQueryCombobox
-} from "./stories";
-import { AILabelModule } from "../ai-label";
-import { ButtonModule } from "../button";
-import { IconModule } from "../icon";
-import { AI_LABEL_INNER, AI_LABEL_STORY_STYLES } from "../storybook/ai-label-story-shared";
+/**
+ * Storybook stories for the Angular combo-box directive layer.
+ * The directive maps the old @Input/@Output API onto the <cds-combo-box>
+ * web component. `[items]` renders <cds-combo-box-item> children.
+ */
+import { FormsModule } from "@angular/forms";
+import { Meta, moduleMetadata } from "@storybook/angular";
+import { ComboBoxModule } from "./index";
 
 export default {
 	title: "Components/Combobox",
 	decorators: [
 		moduleMetadata({
-			declarations: [
-				DynamicListComboBox,
-				ReactiveFormsCombobox,
-				MockQueryCombobox
-			],
-			imports: [
-				FormsModule,
-				ReactiveFormsModule,
-				ComboBoxModule,
-				AILabelModule,
-				ButtonModule,
-				IconModule
-			]
+			imports: [ComboBoxModule, FormsModule]
 		})
 	],
-	args: {
-		label: "Label",
-		hideLabel: false,
-		helperText: "Optional helper text",
-		disabled: false,
-		readonly: false,
-		invalid: false,
-		invalidText: "A valid value is required",
-		warn: false,
-		warnText: "This is a warning",
-		items: [
-			{
-				content: "one"
-			},
-			{
-				content: "two"
-			},
-			{
-				content: "three"
-			},
-			{
-				content: "four"
-			},
-			{
-				content: "five"
-			},
-			{
-				content: "six"
-			},
-			{
-				content: "seven"
-			},
-			{
-				content: "eight"
-			},
-			{
-				content: "nine"
-			},
-			{
-				content: "ten"
-			}
-		],
-		appendInline: false,
-		dropUp: false,
-		selectionFeedback: "top-after-reopen",
-		size: "md",
-		theme: "dark",
-		fluid: false
-	},
 	argTypes: {
-		size: {
-			options: ["sm", "md", "lg"],
-			control: "radio"
-		},
-		theme: {
-			options: ["light", "dark"],
-			control: "radio"
-		},
-		maxLength: {
-			control: false
-		},
-		type: {
-			control: false
-		},
-		selected: { action: "Selection changed!" },
-		submit: { action: "Submit" },
-		search: { action: "Search" },
-		clear: { action: "Clear!" }
+		size: { control: "radio", options: ["sm", "md", "lg"] },
+		disabled: { control: "boolean" },
+		invalid: { control: "boolean" },
+		warn: { control: "boolean" },
+		label: { control: "text" },
+		helperText: { control: "text" },
+		placeholder: { control: "text" },
+		selected: { action: "selected" },
+		search: { action: "search" }
 	},
-	parameters: {
-		layout: "centered"
-	},
-	component: ComboBox
+	args: {
+		size: "md",
+		disabled: false,
+		invalid: false,
+		warn: false,
+		label: "Combobox label",
+		helperText: "Optional helper text",
+		placeholder: "Filter..."
+	}
 } as Meta;
 
-const Template = (args) => ({
-	props: args,
+const items = [
+	{ content: "Apple", value: "apple" },
+	{ content: "Banana", value: "banana" },
+	{ content: "Cherry", value: "cherry" },
+	{ content: "Date", value: "date" }
+];
+
+export const Basic = (args) => ({
+	props: { ...args, items },
 	template: `
 		<cds-combo-box
-			[(ngModel)]="model"
-			[disabled]="disabled"
-			[readonly]="readonly"
-			[invalid]="invalid"
-			[size]="size"
-			[appendInline]="appendInline"
-			[invalidText]="invalidText"
-			[warn]="warn"
-			[warnText]="warnText"
 			[label]="label"
-			[hideLabel]="hideLabel"
 			[helperText]="helperText"
-			[items]="items"
-			[theme]="theme"
-			[dropUp]="dropUp"
-			[fluid]="fluid"
-			(selected)="selected($event)"
-			(submit)="submit($event)"
-			(search)="search($event)"
-			(clear)="clear($event)">
-			<cds-dropdown-list></cds-dropdown-list>
-		</cds-combo-box>
-		<span>{{model | json}}</span>
-	`
-});
-export const Basic = Template.bind({});
-Basic.argTypes = {
-	items: {
-		controls: false
-	}
-};
-
-const BasicMaxTemplate = (args) => ({
-	props: args,
-	template: `
-		<!--
-		app-* components are for demo purposes only.
-		You can create your own implementation by using the component source found at:
-		https://github.com/IBM/carbon-components-angular/tree/master/src/combobox/stories/app-dynamic-list-combobox.component.ts
-		-->
-		<app-dynamic-list-combobox></app-dynamic-list-combobox>
-	`
-});
-export const BasicMax = BasicMaxTemplate.bind({});
-BasicMax.storyName = "Basic with max length";
-BasicMax.args = {
-	maxLength: 4
-};
-BasicMax.argTypes = {
-	maxLength: {
-		control: "number"
-	}
-};
-
-const DynamicTemplate = (args) => ({
-	props: args,
-	template: `
-		<!--
-		app-* components are for demo purposes only.
-		You can create your own implementation by using the component source found at:
-		https://github.com/IBM/carbon-components-angular/tree/master/src/combobox/stories/app-dynamic-list-combobox.component.ts
-		-->
-		<app-dynamic-list-combobox></app-dynamic-list-combobox>
-	`
-});
-export const Dynamic = DynamicTemplate.bind({});
-Dynamic.storyName = "Dynamically added list items";
-Dynamic.parameters = {
-	controls: {
-		disable: true
-	}
-};
-
-export const Fluid = Template.bind({});
-Fluid.args = {
-	fluid: true
-};
-
-const MultiTemplate = (args) => ({
-	props: args,
-	template: `
-		<cds-combo-box
-			[invalid]="invalid"
-			[invalidText]="invalidText"
-			[label]="label"
-			[hideLabel]="hideLabel"
-			[warn]="warn"
-			[disabled]="disabled"
-			[readonly]="readonly"
+			[placeholder]="placeholder"
 			[size]="size"
-			[helperText]="helperText"
-			[appendInline]="false"
+			[disabled]="disabled"
+			[invalid]="invalid"
+			[warn]="warn"
 			[items]="items"
-			[theme]="theme"
-			[selectionFeedback]="selectionFeedback"
-			[dropUp]="dropUp"
-			[appendInline]="appendInline"
-			[fluid]="fluid"
-			type="multi"
 			(selected)="selected($event)"
-			(submit)="submit($event)"
-			(clear)="clear($event)">
-			<cds-dropdown-list></cds-dropdown-list>
+			(search)="search($event)">
 		</cds-combo-box>
 	`
 });
-export const Multiselect = MultiTemplate.bind({});
-Multiselect.argTypes = {
-	selectionFeedback: "top-after-reopen"
-};
 
-const ReactiveTemplate = (args) => ({
-	props: args,
+export const WithNgModel = (args) => ({
+	props: { ...args, items, model: "banana" },
 	template: `
-		<!--
-		app-* components are for demo purposes only.
-		You can create your own implementation by using the component source found at:
-		https://github.com/IBM/carbon-components-angular/tree/master/src/combobox/stories/app-reactive-combobox.component.ts
-		-->
-		<app-reactive-combobox
-			[disabled]="disabled"
-			[invalid]="invalid"
-			[size]="size"
-			[invalidText]="invalidText"
-			[warn]="warn"
-			[warnText]="warnText"
-			[label]="label"
-			[helperText]="helperText"
-			[items]="items"
-			[theme]="theme">
-		</app-reactive-combobox>
+		<cds-combo-box [label]="label" [items]="items" [(ngModel)]="model"></cds-combo-box>
+		<p style="margin-top: 1rem">Selected: {{ model }}</p>
 	`
 });
-export const ReactiveForms = ReactiveTemplate.bind({});
-
-const MockQueryTemplate = (args) => ({
-	props: args,
-	template: `
-		<!--
-		app-* components are for demo purposes only.
-		You can create your own implementation by using the component source found at:
-		https://github.com/IBM/carbon-components-angular/tree/master/src/combobox/stories/app-mock-query-search.component.ts
-		-->
-		<app-mock-query-search></app-mock-query-search>
-	`
-});
-export const MockQuerySearch = MockQueryTemplate.bind({});
-MockQuerySearch.parameters = {
-	controls: {
-		disable: true
-	}
-};
-
-const withAILabelTemplate = (args) => ({
-	props: args,
-	styles: AI_LABEL_STORY_STYLES,
-	template: `
-		<div style="width: 400px">
-			<cds-combo-box
-				[(ngModel)]="model"
-				[invalid]="invalid"
-				[invalidText]="invalidText"
-				[warn]="warn"
-				[warnText]="warnText"
-				[label]="label"
-				[hideLabel]="hideLabel"
-				[helperText]="helperText"
-				[items]="items"
-				[theme]="theme"
-				[dropUp]="dropUp"
-				[fluid]="fluid"
-				[decorator]="decoratorTpl"
-				(selected)="selected($event)"
-				(submit)="submit($event)"
-				(search)="search($event)"
-				(clear)="clear($event)">
-				<cds-dropdown-list></cds-dropdown-list>
-			</cds-combo-box>
-		</div>
-		<ng-template #decoratorTpl>
-			<cds-ai-label
-				class="ai-label-container"
-				kind="default"
-				size="mini"
-				[autoAlign]="true"
-				aiText="AI"
-				ariaLabel="Show information">
-				` + AI_LABEL_INNER + `
-			</cds-ai-label>
-		</ng-template>
-	`
-});
-export const withAILabel = withAILabelTemplate.bind({});
-
-export const filterableWithAILabel = withAILabelTemplate.bind({});
-filterableWithAILabel.storyName = "Filterable with AI label";
+WithNgModel.storyName = "With ngModel";

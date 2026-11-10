@@ -1,72 +1,57 @@
-/* tslint:disable variable-name */
-
-import { moduleMetadata, Meta } from "@storybook/angular";
-import { SearchModule, Search } from "./";
+/**
+ * Storybook stories for the Angular search directive layer.
+ * The directive maps the old @Input/@Output API onto the <cds-search>
+ * web component and supports ngModel / reactive forms via ControlValueAccessor.
+ */
+import { FormsModule } from "@angular/forms";
+import { Meta, moduleMetadata } from "@storybook/angular";
+import { SearchModule } from "./index";
 
 export default {
 	title: "Components/Search",
 	decorators: [
 		moduleMetadata({
-			imports: [SearchModule]
+			imports: [SearchModule, FormsModule]
 		})
 	],
+	argTypes: {
+		size: { control: "radio", options: ["sm", "md", "lg"] },
+		disabled: { control: "boolean" },
+		expandable: { control: "boolean" },
+		placeholder: { control: "text" },
+		label: { control: "text" },
+		valueChange: { action: "valueChange" },
+		clear: { action: "clear" }
+	},
 	args: {
+		size: "md",
+		disabled: false,
 		expandable: false,
 		placeholder: "Search",
-		disabled: false,
-		skeleton: false,
-		size: "md",
-		theme: "dark",
-		autocomplete: "on",
-		fluid: false
-	},
-	argTypes: {
-		expandable: {
-			type: "boolean",
-			defaultValue: false
-		},
-		size: {
-			options: ["sm", "md", "lg"],
-			control: "radio"
-		},
-		theme: {
-			options: ["light", "dark"],
-			control: "radio"
-		},
-		autocomplete: {
-			options: ["on", "off"],
-			control: "radio"
-		},
-		clear: {
-			action: "Cleared!"
-		},
-		valueChange: {
-			action: "Value changed!"
-		}
-	},
-	component: Search
+		label: "Search"
+	}
 } as Meta;
 
-const Template = (args) => ({
+export const Basic = (args) => ({
 	props: args,
 	template: `
 		<cds-search
-			[theme]="theme"
-			[placeholder]="placeholder"
-			[autocomplete]="autocomplete"
-			[disabled]="disabled"
 			[size]="size"
+			[disabled]="disabled"
+			[expandable]="expandable"
+			[placeholder]="placeholder"
+			[label]="label"
 			(valueChange)="valueChange($event)"
-			(clear)="clear()"
-			[fluid]="fluid"
-			[skeleton]="skeleton"
-			[expandable]="expandable">
+			(clear)="clear($event)">
 		</cds-search>
 	`
 });
-export const Basic = Template.bind({});
 
-export const Fluid = Template.bind({});
-Fluid.args = {
-	fluid: true
-};
+export const WithNgModel = (args) => ({
+	props: { ...args, model: "" },
+	template: `
+		<cds-search [(ngModel)]="model" [placeholder]="placeholder"></cds-search>
+		<p style="margin-top: 1rem">Value: {{ model }}</p>
+	`
+});
+WithNgModel.storyName = "With ngModel";

@@ -1,96 +1,67 @@
-/* tslint:disable variable-name */
-
-import { moduleMetadata, Meta } from "@storybook/angular";
-import { LayerModule } from "../layer";
-import { SkeletonModule } from "../skeleton";
-import { TilesModule, Tile } from "./";
-import { AILabelModule } from "../ai-label";
-import { ButtonModule } from "../button";
-import { IconModule } from "../icon";
-import { AI_LABEL_INNER, AI_LABEL_STORY_STYLES } from "../storybook/ai-label-story-shared";
+/**
+ * Storybook stories for the Angular tile directive layer.
+ * The directives map the old @Input/@Output API onto the tile web components.
+ */
+import { Meta, moduleMetadata } from "@storybook/angular";
+import { TilesModule } from "./index";
 
 export default {
 	title: "Components/Tiles",
 	decorators: [
 		moduleMetadata({
-			imports: [
-				TilesModule,
-				LayerModule,
-				SkeletonModule,
-				AILabelModule,
-				ButtonModule,
-				IconModule
-			]
+			imports: [TilesModule]
 		})
-	],
-	component: Tile
+	]
 } as Meta;
 
-const Template = (args) => ({
-	props: args,
+export const Basic = () => ({
 	template: `
 		<cds-tile>
-			Tile content goes here...
+			Tile content — anything can go here.
 		</cds-tile>
 	`
 });
-export const Basic = Template.bind({});
 
-const LayerTemplate = (args) => ({
-	props: args,
+export const Clickable = () => ({
 	template: `
-		<cds-tile>
-			First layer
-		</cds-tile>
-		<div cdsLayer>
-			<cds-tile>
-				Second layer
-			</cds-tile>
-			<div cdsLayer>
-				<cds-tile>Third layer</cds-tile>
-			</div>
-		</div>
+		<cds-clickable-tile href="https://carbondesignsystem.com/">
+			Clickable tile — navigates on click.
+		</cds-clickable-tile>
 	`
 });
-export const WithLayers = LayerTemplate.bind({});
 
-const SkeletonTemplate = (args) => ({
-	props: args,
+export const Expandable = () => ({
 	template: `
-		<cds-tile>
-			<div class="skeleton-placeholder">
-				<cds-skeleton-placeholder></cds-skeleton-placeholder>
+		<cds-expandable-tile>
+			<div cdsExpandableTileAbove style="height: 130px">
+				Above the fold content
 			</div>
-			<div class="skeleton-text">
-				<cds-skeleton-text [lines]="3"></cds-skeleton-text>
+			<div style="height: 200px">
+				Below the fold content
 			</div>
-		</cds-tile>
-	`,
-	styles: [`
-		.skeleton-placeholder {
-			margin-bottom: 10px;
-		}
-	`]
-});
-export const Skeleton = SkeletonTemplate.bind({});
-
-export const withAILabel = () => ({
-	styles: AI_LABEL_STORY_STYLES,
-	template: `
-		<cds-tile [decorator]="decoratorTpl">
-			Tile with AI label
-		</cds-tile>
-		<ng-template #decoratorTpl>
-			<cds-ai-label
-				class="ai-label-container"
-				kind="default"
-				size="mini"
-				[autoAlign]="true"
-				[align]="'bottom-end'"
-				aiText="AI"
-				ariaLabel="Show information">
-				` + AI_LABEL_INNER + `
-			</cds-ai-label>
-		</ng-template>
+		</cds-expandable-tile>
 	`
 });
+
+export const Selectable = (args) => ({
+	props: { onSelected: (event) => console.log("selected", event) },
+	template: `
+		<cds-tile-group name="multi-tiles" (selected)="onSelected($event)">
+			<cds-selectable-tile value="one">Option one</cds-selectable-tile>
+			<cds-selectable-tile value="two">Option two</cds-selectable-tile>
+			<cds-selectable-tile value="three">Option three</cds-selectable-tile>
+		</cds-tile-group>
+	`
+});
+
+export const RadioTiles = (args) => ({
+	props: { onSelected: (event) => console.log("selected", event) },
+	template: `
+		<cds-tile-group name="radio-tiles" (selected)="onSelected($event)">
+			<cds-radio-tile value="one">Option one</cds-radio-tile>
+			<cds-radio-tile value="two">Option two</cds-radio-tile>
+			<cds-radio-tile value="three">Option three</cds-radio-tile>
+		</cds-tile-group>
+	`
+});
+RadioTiles.storyName = "Radio Tiles (Single Select)";

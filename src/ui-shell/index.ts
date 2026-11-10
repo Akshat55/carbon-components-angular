@@ -1,4 +1,17 @@
-export * from "./header/header.module";
-export * from "./sidenav/sidenav.module";
-export * from "./panel/panel.module";
-export * from "./ui-shell.module";
+/**
+ * Public API surface for the Angular ui-shell layer.
+ */
+export { UIShellModule } from "./ui-shell.module";
+export {
+	CdsHeaderDirective,
+	CdsHamburgerDirective,
+	CdsHeaderNavDirective,
+	CdsHeaderItemDirective,
+	CdsHeaderMenuDirective,
+	CdsHeaderGlobalActionDirective,
+	CdsSideNavDirective,
+	CdsSideNavItemDirective,
+	CdsSideNavMenuDirective,
+	CdsHeaderPanelDirective,
+	CdsSwitcherItemDirective
+} from "./ui-shell.directive";

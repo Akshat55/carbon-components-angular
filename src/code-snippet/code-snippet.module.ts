@@ -1,27 +1,35 @@
-// modules
-import { NgModule } from "@angular/core";
+/**
+ * Copyright IBM Corp. 2024
+ *
+ * CodeSnippetModule
+ *
+ * Drop-in replacement for the old carbon-components-angular CodeSnippetModule.
+ * Registers the <cds-code-snippet> web component and exports the thin
+ * Angular directive that maps the old @Input API onto it.
+ */
+import { NgModule, CUSTOM_ELEMENTS_SCHEMA } from "@angular/core";
 import { CommonModule } from "@angular/common";
-import { ButtonModule } from "carbon-components-angular/button";
-import { IconModule } from "carbon-components-angular/icon";
-import { I18nModule } from "carbon-components-angular/i18n";
-import { UtilsModule } from "carbon-components-angular/utils";
 
-// imports
-import { CodeSnippet } from "./code-snippet.component";
+import CDSCodeSnippet from "@carbon/web-components/es/components/code-snippet/code-snippet.js";
+
+import { CdsCodeSnippetDirective } from "./code-snippet.directive";
+
+function safeDefine(tag: string, ctor: CustomElementConstructor): void {
+	if (!customElements.get(tag)) {
+		customElements.define(tag, ctor);
+	}
+}
+
+safeDefine("cds-code-snippet", CDSCodeSnippet);
 
 @NgModule({
-	declarations: [
-		CodeSnippet
-	],
-	exports: [
-		CodeSnippet
-	],
 	imports: [
 		CommonModule,
-		ButtonModule,
-		I18nModule,
-		UtilsModule,
-		IconModule
-	]
+		CdsCodeSnippetDirective
+	],
+	exports: [
+		CdsCodeSnippetDirective
+	],
+	schemas: [CUSTOM_ELEMENTS_SCHEMA]
 })
 export class CodeSnippetModule { }
