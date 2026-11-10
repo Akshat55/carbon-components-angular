@@ -172,7 +172,8 @@ describe("Slider with forms", () => {
 	});
 
 	it("should update ngModel from the keyboard", async () => {
-		shadow(single, ".cds--slider__thumb").dispatchEvent(new KeyboardEvent("keydown", { key: "ArrowRight", bubbles: true, composed: true }));
+		const thumb = shadow(single, ".cds--slider__thumb");
+		thumb.dispatchEvent(new KeyboardEvent("keydown", { key: "ArrowRight", bubbles: true, composed: true }));
 		await settle(fixture);
 		expect(fixture.componentInstance.model).toBe(41);
 	});

@@ -3,6 +3,8 @@ import {
 	ChangeDetectorRef,
 	Component,
 	CUSTOM_ELEMENTS_SCHEMA,
+	DestroyRef,
+	ElementRef,
 	EventEmitter,
 	Input,
 	OnDestroy,
@@ -31,7 +33,7 @@ import { EventOnNode, Node } from "./tree-node.types";
 			<svg [cdsIcon]="icon" size="16" slot="icon"></svg>
 		}
 		@for (child of children; track child.id ?? $index) {
-			<cds-tree-node [node]="child" [depth]="depth + 1" />
+			<cds-tree-node [node]="child" [depth]="depth + 1" [disabled]="disabled || !!child.disabled" />
 		}
 		<ng-content />
 	`,
@@ -106,6 +108,26 @@ export class TreeNodeComponent implements OnInit, OnDestroy {
 	private subscription: Subscription;
 	private treeViewService = inject(TreeViewService);
 	private changeDetectorRef = inject(ChangeDetectorRef);
+
+	constructor() {
+		// The web component only looks for child nodes when it connects (before Angular adds
+		// them) or when its child slot changes (which it only renders once it has children).
+		const element = inject(ElementRef).nativeElement;
+		const update = () => {
+			const hasChildren = Array.from(element.children).some((child: Element) => child.tagName === "CDS-TREE-NODE");
+			if (hasChildren !== element._hasChildren) {
+				element._hasChildren = hasChildren;
+				element.toggleAttribute("parent", hasChildren);
+				if (hasChildren && !element.hasAttribute("aria-expanded")) {
+					element.setAttribute("aria-expanded", String(!!element.isExpanded));
+				}
+				element.requestUpdate?.();
+			}
+		};
+		const observer = new MutationObserver(update);
+		observer.observe(element, { childList: true });
+		inject(DestroyRef).onDestroy(() => observer.disconnect());
+	}
 
 	get currentNode(): Node {
 		return { id: this.id, label: this.label, value: this.value };

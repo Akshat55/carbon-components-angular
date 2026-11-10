@@ -41,12 +41,16 @@ const toISODate = (date: Date) =>
 			[pattern]="inputPattern"
 			[size]="size"
 			[disabled]="disabled"
-			[readonly]="readonly"
+			[attr.readonly]="readonly ? '' : null"
 			[invalid]="invalid"
 			[invalidText]="content.render('invalidText', invalidText)"
 			[warn]="warn"
-			[warnText]="content.render('warnText', warnText)"
-			[helperText]="content.render('helperText', helperText)">
+			[warnText]="content.render('warnText', warnText)">
+			@if (isTemplate(helperText)) {
+				<ng-container cdsSlot="helper-text" [cdsSlotTemplate]="helperText" />
+			} @else if (helperText) {
+				<span slot="helper-text">{{ helperText }}</span>
+			}
 			<ng-container cdsSlot="label-text" [cdsSlotTemplate]="isTemplate(label) ? label : null" />
 			<ng-container cdsSlot="ai-label" [cdsSlotTemplate]="decorator" />
 		</cds-date-picker-input>
@@ -59,12 +63,16 @@ const toISODate = (date: Date) =>
 				[pattern]="inputPattern"
 				[size]="size"
 				[disabled]="disabled"
-				[readonly]="readonly"
+				[attr.readonly]="readonly ? '' : null"
 				[invalid]="rangeInvalid"
 				[invalidText]="content.render('rangeInvalidText', rangeInvalidText)"
 				[warn]="rangeWarn"
-				[warnText]="content.render('rangeWarnText', rangeWarnText)"
-				[helperText]="content.render('rangeHelperText', rangeHelperText)">
+				[warnText]="content.render('rangeWarnText', rangeWarnText)">
+				@if (isTemplate(rangeHelperText)) {
+					<ng-container cdsSlot="helper-text" [cdsSlotTemplate]="rangeHelperText" />
+				} @else if (rangeHelperText) {
+					<span slot="helper-text">{{ rangeHelperText }}</span>
+				}
 				<ng-container cdsSlot="ai-label" [cdsSlotTemplate]="rangeDecorator" />
 			</cds-date-picker-input>
 		}
@@ -76,6 +84,7 @@ const toISODate = (date: Date) =>
 		"[minDate]": "flatpickrOptions?.minDate ?? ''",
 		"[maxDate]": "flatpickrOptions?.maxDate ?? ''",
 		"[disabled]": "disabled",
+		"[allowInput]": "!readonly",
 		"[attr.readonly]": "readonly ? '' : null",
 		"[attr.aria-label]": "ariaLabel",
 		"(cds-date-picker-changed)": "onDatesChanged($event)"

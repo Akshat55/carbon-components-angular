@@ -14,6 +14,10 @@ import { DatePicker } from "./datepicker.component";
 		theme="light"
 		[(ngModel)]="value"
 		[disabled]="disabled"
+		[readonly]="readonly"
+		[range]="range"
+		helperText="Start date"
+		rangeHelperText="End date"
 		[invalid]="invalid"
 		invalidText="invalid text"
 		dateFormat="m/d/Y"
@@ -24,6 +28,8 @@ import { DatePicker } from "./datepicker.component";
 class DatePickerTest {
 	value: any = new Date(new Date().getFullYear(), 5, 15);
 	disabled = false;
+	readonly = false;
+	range = false;
 	invalid = false;
 	onValueChange() {}
 }
@@ -56,6 +62,23 @@ describe("DatePicker", () => {
 		await settle(fixture);
 		const dateInput = fixture.nativeElement.querySelector("cds-date-picker-input");
 		expect(shadow(dateInput, ".cds--label").textContent.trim()).toEqual("Date picker label");
+	});
+
+	it("should forward read-only state and helper text to both range inputs", async () => {
+		fixture = TestBed.createComponent(DatePickerTest);
+		fixture.componentInstance.range = true;
+		fixture.componentInstance.readonly = true;
+		await settle(fixture);
+		const dateInputs = Array.from<Element>(fixture.nativeElement.querySelectorAll("cds-date-picker-input"));
+		expect(dateInputs.length).toBe(2);
+		dateInputs.forEach((dateInput, index) => {
+			expect(shadow<HTMLInputElement>(dateInput, "input").readOnly).toBe(true);
+			const slot = shadow<HTMLSlotElement>(dateInput, 'slot[name="helper-text"]');
+			expect(slot.assignedElements()[0].textContent).toBe(index ? "End date" : "Start date");
+		});
+		fixture.componentInstance.readonly = false;
+		await settle(fixture);
+		dateInputs.forEach(dateInput => expect(shadow<HTMLInputElement>(dateInput, "input").readOnly).toBe(false));
 	});
 
 	it("should set the value of the component to be the value specified in the wrapper", async () => {

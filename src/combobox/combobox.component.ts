@@ -3,7 +3,6 @@ import {
 	Component,
 	CUSTOM_ELEMENTS_SCHEMA,
 	DestroyRef,
-	ElementRef,
 	EventEmitter,
 	Input,
 	Output,
@@ -38,14 +37,11 @@ import { provideValueAccessor, TemplateContent, TemplateSlot } from "carbon-comp
 		<ng-container cdsSlot="title-text" [cdsSlotTemplate]="isTemplate(label) ? label : null" />
 		<ng-container cdsSlot="helper-text" [cdsSlotTemplate]="isTemplate(helperText) ? helperText : null" />
 		<ng-container cdsSlot="ai-label" [cdsSlotTemplate]="decorator" />
-		@for (item of items; track $index) {
-			<cds-combo-box-item [value]="'' + $index" [disabled]="!!item.disabled" [selected]="!!item.selected">
-				@if (listTpl) {
-					<ng-template [ngTemplateOutlet]="listTpl" [ngTemplateOutletContext]="{ item: item }" />
-				} @else {
-					{{ item.content }}
-				}
-			</cds-combo-box-item>
+		@for (item of visibleItems; track item) {
+			<!-- The web component copies the item's text into the input, so no whitespace around it. -->
+			<cds-combo-box-item [value]="'' + items.indexOf(item)" [disabled]="!!item.disabled" [selected]="!!item.selected"
+				>@if (listTpl) {<ng-template [ngTemplateOutlet]="listTpl" [ngTemplateOutletContext]="{ item: item }" />} @else {{{ item.content }}}</cds-combo-box-item
+			>
 		}
 	`,
 	host: {
@@ -55,6 +51,7 @@ import { provideValueAccessor, TemplateContent, TemplateSlot } from "carbon-comp
 		"[hideLabel]": "hideLabel",
 		"[helperText]": "isTemplate(helperText) ? '' : helperText",
 		"[value]": "selectedIndex",
+		"[open]": "open",
 		"[size]": "size",
 		"[disabled]": "disabled",
 		"[readOnly]": "readonly",
@@ -69,7 +66,7 @@ import { provideValueAccessor, TemplateContent, TemplateSlot } from "carbon-comp
 		"[clearSelectionLabel]": "texts.clearSelectionAria",
 		"(cds-combo-box-selected)": "onSelected($event)",
 		"(cds-combo-box-toggled)": "onToggled($event)",
-		"(input)": "onInput($event)",
+		"(input)": "onSearch($event)",
 		"(keydown.enter)": "onEnter($event)"
 	},
 	providers: [provideValueAccessor(() => ComboBox)],
@@ -176,6 +173,11 @@ export class ComboBox extends ListSelection {
 	/**
 	 * Current values of the translatable strings.
 	 */
+	/**
+	 * Whether the menu is open.
+	 */
+	open = false;
+	protected searchText = "";
 	protected texts = {
 		placeholder: "",
 		openMenuAria: "",
@@ -189,7 +191,6 @@ export class ComboBox extends ListSelection {
 	protected _clearSelectionAria = this.i18n.getOverridable("COMBOBOX.A11Y.CLEAR_SELECTED");
 	private textSubscriptions: Record<string, Subscription> = {};
 	private destroyRef = inject(DestroyRef);
-	private element = inject(ElementRef).nativeElement;
 
 	constructor() {
 		super();
@@ -208,7 +209,17 @@ export class ComboBox extends ListSelection {
 		return index < 0 ? "" : String(index);
 	}
 
+	/**
+	 * The items matching the text typed in the input (as in v6, the list is filtered
+	 * and re-filtered when `items` change).
+	 */
+	get visibleItems() {
+		const text = this.searchText.trim().toLowerCase();
+		return text ? this._items.filter(item => item.content.toLowerCase().includes(text)) : this._items;
+	}
+
 	onSelected(event: Event) {
+		this.searchText = "";
 		const item = (event as CustomEvent<{ item: { value: string } | null }>).detail.item;
 		if (item) {
 			this.select([Number(item.value)]);
@@ -219,13 +230,40 @@ export class ComboBox extends ListSelection {
 	}
 
 	onToggled(event: Event) {
-		if (!(event as CustomEvent<{ open: boolean }>).detail.open) {
+		this.open = (event as CustomEvent<{ open: boolean }>).detail.open;
+		if (!this.open) {
+			this.searchText = "";
 			this.close.emit();
 		}
 	}
 
-	onInput(event: Event) {
-		this.search.emit((event.target as any).inputValue ?? (event.target as HTMLInputElement).value);
+	/**
+	 * Called as the user types: filters the items and emits `search`.
+	 */
+	onSearch(event: Event) {
+		const input = event.composedPath()[0] as HTMLInputElement;
+		this.searchText = input?.value ?? "";
+		this.search.emit(this.searchText);
+		this.changeDetectorRef.markForCheck();
+	}
+
+	openDropdown() {
+		this.open = true;
+		this.changeDetectorRef.markForCheck();
+	}
+
+	closeDropdown() {
+		this.open = false;
+		this.changeDetectorRef.markForCheck();
+	}
+
+	/**
+	 * Clears the selection, as the clear button does.
+	 */
+	clearSelected() {
+		this.searchText = "";
+		this.select([]);
+		this.clear.emit(new CustomEvent("clear"));
 	}
 
 	isTemplate(value: unknown): value is TemplateRef<any> {
@@ -233,7 +271,7 @@ export class ComboBox extends ListSelection {
 	}
 
 	onEnter(event: Event) {
-		const text: string = this.element.inputValue ?? "";
+		const text = this.searchText;
 		if (text && !this._items.some(item => item.content === text)) {
 			this.submit.emit({ items: this._items, index: -1, value: { content: text, selected: false } });
 		}
@@ -244,6 +282,13 @@ export class ComboBox extends ListSelection {
 	 */
 	protected emitSelected() {
 		this.selected.emit(this.selectedItems[0]);
+	}
+
+	/**
+	 * As in v6, a cleared combo box writes `[]` (not `null`) to the form.
+	 */
+	protected toModel() {
+		return super.toModel() ?? [];
 	}
 
 	/**

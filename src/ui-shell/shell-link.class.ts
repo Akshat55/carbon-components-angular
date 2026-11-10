@@ -46,6 +46,7 @@ export abstract class ShellLink {
 			takeUntilDestroyed(inject(DestroyRef))
 		).subscribe(() => {
 			this.routerActive = this.useRouter && !!this.href && this.router.url === this.href;
+			this.onRouterActiveChange();
 			this.changeDetectorRef.markForCheck();
 		});
 	}
@@ -62,4 +63,9 @@ export abstract class ShellLink {
 			this.navigation.emit(this.router.navigateByUrl(this.href, this.routeExtras));
 		}
 	}
+
+	/**
+	 * Called when `routerActive` is recalculated.
+	 */
+	protected onRouterActiveChange() {}
 }

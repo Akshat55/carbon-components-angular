@@ -15,6 +15,7 @@ import { Router } from "@angular/router";
 import "@carbon/web-components/es/components/breadcrumb/index.js";
 import "@carbon/web-components/es/components/overflow-menu/index.js";
 import { I18n } from "carbon-components-angular/i18n";
+import { FloatingMenuCleanup } from "carbon-components-angular/utils";
 import { BreadcrumbItemComponent } from "./breadcrumb-item.component";
 import { BreadcrumbItem } from "./breadcrumb-item.interface";
 
@@ -74,7 +75,7 @@ const MINIMUM_OVERFLOW_THRESHOLD = 4;
 		"[attr.aria-label]": "ariaLabel"
 	},
 	changeDetection: ChangeDetectionStrategy.OnPush,
-	imports: [BreadcrumbItemComponent, NgTemplateOutlet],
+	imports: [BreadcrumbItemComponent, NgTemplateOutlet, FloatingMenuCleanup],
 	schemas: [CUSTOM_ELEMENTS_SCHEMA]
 })
 export class Breadcrumb implements AfterContentInit {

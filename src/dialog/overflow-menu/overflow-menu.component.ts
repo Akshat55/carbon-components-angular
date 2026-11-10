@@ -15,6 +15,7 @@ import { NgTemplateOutlet } from "@angular/common";
 import "@carbon/web-components/es/components/overflow-menu/index.js";
 import { BaseIconButton } from "carbon-components-angular/button";
 import { I18n } from "carbon-components-angular/i18n";
+import { FloatingMenuCleanup } from "carbon-components-angular/utils";
 
 /**
  * Wraps the `<cds-overflow-menu>` web component. Project `cds-overflow-menu-option`s.
@@ -50,7 +51,7 @@ import { I18n } from "carbon-components-angular/i18n";
 		"[attr.aria-label]": "buttonLabel"
 	},
 	changeDetection: ChangeDetectionStrategy.OnPush,
-	imports: [NgTemplateOutlet],
+	imports: [NgTemplateOutlet, FloatingMenuCleanup],
 	schemas: [CUSTOM_ELEMENTS_SCHEMA]
 })
 export class OverflowMenu extends BaseIconButton {

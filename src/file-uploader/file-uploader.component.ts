@@ -27,7 +27,7 @@ import { FileItem } from "./file-item.interface";
 		@if (drop) {
 			<cds-file-uploader-drop-container
 				slot="drop-container"
-				[accept]="accept.join(' ')"
+				[accept]="acceptValue"
 				[multiple]="multiple"
 				[disabled]="disabled"
 				(cds-file-uploader-drop-container-changed)="onFilesAdded($event)">
@@ -41,7 +41,7 @@ import { FileItem } from "./file-item.interface";
 			<cds-file-uploader-button
 				[buttonKind]="buttonType.replace('--', '-')"
 				[size]="size"
-				[accept]="accept.join(' ')"
+				[accept]="acceptValue"
 				[multiple]="multiple"
 				[disabled]="disabled"
 				(cds-file-uploader-button-changed)="onFilesAdded($event)">
@@ -88,7 +88,7 @@ export class FileUploader extends WebComponentValueAccessor<Set<FileItem>> {
 	/**
 	 * Accepted extensions (`.png`) or MIME types (`image/png`).
 	 */
-	@Input() accept: string[] = [];
+	@Input() accept: string[] | string = [];
 	@Input() multiple = true;
 	@Input() size: "sm" | "md" | "lg";
 	@Input() fileItemSize: "sm" | "md" | "lg" = "lg";
@@ -113,6 +113,13 @@ export class FileUploader extends WebComponentValueAccessor<Set<FileItem>> {
 	@Input() skeleton = false;
 
 	@Output() filesChange = new EventEmitter<any>();
+
+	/**
+	 * `accept` as the web component expects it (a string).
+	 */
+	get acceptValue() {
+		return Array.isArray(this.accept) ? this.accept.join(",") : this.accept ?? "";
+	}
 
 	get value(): Set<FileItem> {
 		return this.files;

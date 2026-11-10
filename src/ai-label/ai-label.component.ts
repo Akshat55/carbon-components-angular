@@ -24,7 +24,12 @@ import { PopoverBase } from "carbon-components-angular/popover";
  */
 @Component({
 	selector: "cds-ai-label",
-	template: "<ng-content />",
+	template: `
+		<div slot="body-text"><ng-content /></div>
+		<ng-content select="[cdsAILabelActions], [ibmAILabelActions], [slot='actions']" />
+	`,
+	// The web component is `display: flex`; v6 AI labels sat inline next to their content.
+	styles: [":host { display: inline-flex; }"],
 	host: {
 		"[id]": "id",
 		"[alignment]": "align",

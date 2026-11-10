@@ -1,5 +1,4 @@
 import {
-	ChangeDetectionStrategy,
 	Component,
 	CUSTOM_ELEMENTS_SCHEMA,
 	Input
@@ -53,7 +52,7 @@ import { ActionableContent } from "./notification-content.interface";
 		"(cds-notification-beingclosed)": "onBeingClosed($event)"
 	},
 	providers: [NotificationDisplayService],
-	changeDetection: ChangeDetectionStrategy.OnPush,
+	// Default change detection: v6 notifications re-render when `notificationObj` is mutated.
 	imports: [NgTemplateOutlet],
 	schemas: [CUSTOM_ELEMENTS_SCHEMA]
 })

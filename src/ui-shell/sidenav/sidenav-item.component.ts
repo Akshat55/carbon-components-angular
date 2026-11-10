@@ -4,6 +4,8 @@ import {
 	CUSTOM_ELEMENTS_SCHEMA,
 	EventEmitter,
 	Input,
+	OnDestroy,
+	OnInit,
 	Output,
 	inject
 } from "@angular/core";
@@ -22,11 +24,11 @@ import { SIDE_NAV_MENU } from "./sidenav-menu.token";
 		<ng-template #icon><ng-content select="svg, [icon]" /></ng-template>
 		<ng-template #content><ng-content /></ng-template>
 		@if (inMenu || isSubMenu) {
-			<cds-side-nav-menu-item [href]="href ?? ''" [active]="active || routerActive" [title]="title ?? ''" (click)="onClick($event)">
+			<cds-side-nav-menu-item [href]="href ?? ''" [active]="isActive" [title]="title ?? ''" (click)="onClick($event)">
 				<ng-container *ngTemplateOutlet="content" />
 			</cds-side-nav-menu-item>
 		} @else {
-			<cds-side-nav-link [href]="href ?? ''" [active]="active || routerActive" [title]="title ?? ''" (click)="onClick($event)">
+			<cds-side-nav-link [href]="href ?? ''" [active]="isActive" [title]="title ?? ''" (click)="onClick($event)">
 				<span slot="title-icon"><ng-container *ngTemplateOutlet="icon" /></span>
 				<ng-container *ngTemplateOutlet="content" />
 			</cds-side-nav-link>
@@ -37,8 +39,14 @@ import { SIDE_NAV_MENU } from "./sidenav-menu.token";
 	imports: [NgTemplateOutlet],
 	schemas: [CUSTOM_ELEMENTS_SCHEMA]
 })
-export class SideNavItem extends ShellLink {
-	@Input() active = false;
+export class SideNavItem extends ShellLink implements OnInit, OnDestroy {
+	@Input() set active(value: boolean) {
+		this._active = value;
+		this.menu?.updateActiveChild();
+	}
+	get active() {
+		return this._active;
+	}
 	@Input() isSubMenu = false;
 	@Input() title: string;
 
@@ -47,10 +55,28 @@ export class SideNavItem extends ShellLink {
 	 */
 	@Output() selected = new EventEmitter<boolean>();
 
-	protected inMenu = !!inject(SIDE_NAV_MENU, { optional: true });
+	protected menu = inject(SIDE_NAV_MENU, { optional: true });
+	protected inMenu = !!this.menu;
+	protected _active = false;
+
+	get isActive() {
+		return this.active || this.routerActive;
+	}
+
+	ngOnInit() {
+		this.menu?.register(this);
+	}
+
+	ngOnDestroy() {
+		this.menu?.register(this, false);
+	}
 
 	onClick(event: Event) {
 		this.selected.emit(true);
 		this.navigate(event);
+	}
+
+	protected onRouterActiveChange() {
+		this.menu?.updateActiveChild();
 	}
 }

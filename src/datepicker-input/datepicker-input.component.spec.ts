@@ -13,6 +13,8 @@ import { DatePickerInput } from "./datepicker-input.component";
 			label="label"
 			placeholder="mm/dd/yyyy"
 			[disabled]="disabled"
+			[readonly]="readonly"
+			[helperText]="helperText"
 			[invalid]="invalid"
 			invalidText="invalid text"
 			(valueChange)="valueChange($event)"
@@ -24,6 +26,8 @@ class DatePickerInputTest {
 	model = null;
 	value = null;
 	disabled = false;
+	readonly = false;
+	helperText = "";
 	invalid = false;
 	valueChange(event) {
 		this.value = event;
@@ -85,6 +89,26 @@ describe("DatePickerInput", () => {
 	it("should disable input when disabled is true", async () => {
 		await create({ disabled: true });
 		expect(input().disabled).toBe(true);
+	});
+
+	it("should update the native input's read-only state", async () => {
+		await create({ readonly: true });
+		expect(input().readOnly).toBe(true);
+		wrapper.readonly = false;
+		await settle(fixture);
+		expect(input().readOnly).toBe(false);
+	});
+
+	it("should render and update helper text through the web component slot", async () => {
+		await create({ helperText: "Choose a date" });
+		const helperSlot = shadow<HTMLSlotElement>(element, 'slot[name="helper-text"]');
+		expect(helperSlot.assignedElements()[0].textContent).toBe("Choose a date");
+		wrapper.helperText = "Use month/day/year";
+		await settle(fixture);
+		expect(helperSlot.assignedElements()[0].textContent).toBe("Use month/day/year");
+		wrapper.helperText = "";
+		await settle(fixture);
+		expect(helperSlot.assignedElements().length).toBe(0);
 	});
 
 	it("should display invalid text when invalid is true", async () => {

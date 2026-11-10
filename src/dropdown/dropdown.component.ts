@@ -1,4 +1,5 @@
 import {
+	booleanAttribute,
 	ChangeDetectionStrategy,
 	Component,
 	CUSTOM_ELEMENTS_SCHEMA,
@@ -16,6 +17,7 @@ import "@carbon/web-components/es/components/multi-select/index.js";
 import { I18n } from "carbon-components-angular/i18n";
 import { provideValueAccessor, TemplateContent, TemplateSlot } from "carbon-components-angular/utils";
 import { ListSelection } from "./list-selection.class";
+import { ListItem } from "./list-item.interface";
 
 /**
  * Inputs and host bindings shared by `Dropdown` and `MultiSelect`.
@@ -103,15 +105,6 @@ export abstract class BaseDropdown extends ListSelection {
 	protected element = inject(ElementRef).nativeElement;
 	protected content = new TemplateContent();
 
-	/**
-	 * A disabled dropdown closes its menu (and keeps its selection).
-	 */
-	protected onDisabledChange() {
-		if (this.disabled) {
-			this.isOpen = false;
-		}
-	}
-
 	onToggled(event: Event) {
 		this.isOpen = (event as CustomEvent<{ open: boolean }>).detail.open;
 		if (!this.isOpen) {
@@ -123,6 +116,15 @@ export abstract class BaseDropdown extends ListSelection {
 	isTemplate(value: unknown): value is TemplateRef<any> {
 		return value instanceof TemplateRef;
 	}
+
+	/**
+	 * A disabled dropdown closes its menu (and keeps its selection).
+	 */
+	protected onDisabledChange() {
+		if (this.disabled) {
+			this.isOpen = false;
+		}
+	}
 }
 
 const SLOTS = `
@@ -131,13 +133,8 @@ const SLOTS = `
 	<ng-container cdsSlot="ai-label" [cdsSlotTemplate]="decorator" />
 `;
 
-const ITEM_CONTENT = `
-	@if (listTpl) {
-		<ng-template [ngTemplateOutlet]="listTpl" [ngTemplateOutletContext]="{ item: item }" />
-	} @else {
-		{{ item.content }}
-	}
-`;
+// The web components copy the item's text (selected label), so no whitespace around it.
+const ITEM_CONTENT = `@if (listTpl) {<ng-template [ngTemplateOutlet]="listTpl" [ngTemplateOutletContext]="{ item: item }" />} @else {{{ item.content }}}`;
 
 /**
  * Wraps the `<cds-dropdown>` web component (single selection). Works with `ngModel` / reactive forms.
@@ -158,9 +155,9 @@ const ITEM_CONTENT = `
 	template: `
 		${SLOTS}
 		@for (item of items; track $index) {
-			<cds-dropdown-item [value]="'' + $index" [disabled]="!!item.disabled" [selected]="!!item.selected">
-				${ITEM_CONTENT}
-			</cds-dropdown-item>
+			<cds-dropdown-item [value]="'' + $index" [disabled]="!!item.disabled" [selected]="!!item.selected"
+				>${ITEM_CONTENT}</cds-dropdown-item
+			>
 		}
 	`,
 	host: {
@@ -214,16 +211,18 @@ export class Dropdown extends BaseDropdown {
 	selector: "cds-multi-select",
 	template: `
 		${SLOTS}
-		@for (item of items; track $index) {
-			<cds-multi-select-item [value]="'' + $index" [disabled]="!!item.disabled" [selected]="!!item.selected">
-				${ITEM_CONTENT}
-			</cds-multi-select-item>
+		@for (item of displayItems; track item) {
+			<cds-multi-select-item [value]="'' + items.indexOf(item)" [disabled]="!!item.disabled" [selected]="!!item.selected"
+				>${ITEM_CONTENT}</cds-multi-select-item
+			>
 		}
 	`,
 	host: {
 		"[value]": "selectedValues",
 		"[filterable]": "filterable",
-		"[selectionFeedback]": "selectionFeedback",
+		// The web component reorders by replacing its children, which Angular owns, so the
+		// wrapper orders the items itself (see `displayItems`).
+		"[selectionFeedback]": "'fixed'",
 		"[clearSelectionLabel]": "clearText",
 		"(cds-multi-select-selected)": "onSelected()",
 		"(cds-multi-select-toggled)": "onToggled($event)"
@@ -237,11 +236,13 @@ export class MultiSelect extends BaseDropdown {
 	/**
 	 * Lets the user type to filter the items.
 	 */
-	@Input() filterable = false;
+	@Input({ transform: booleanAttribute }) filterable = false;
 	/**
 	 * Where selected items appear in the list.
 	 */
 	@Input() selectionFeedback: "top" | "fixed" | "top-after-reopen" = "top-after-reopen";
+
+	protected reopenOrder: ListItem[] | null = null;
 
 	get multiple() {
 		return true;
@@ -254,8 +255,34 @@ export class MultiSelect extends BaseDropdown {
 		return this._items.map((item, index) => item.selected ? String(index) : null).filter(Boolean).join(",");
 	}
 
+	/**
+	 * The items in display order: with `top`, selected items come first; with `top-after-reopen`,
+	 * the order is updated each time the menu opens.
+	 */
+	get displayItems(): ListItem[] {
+		if (this.selectionFeedback === "top") {
+			return this.selectedFirst();
+		}
+		if (this.selectionFeedback === "top-after-reopen" && this.reopenOrder) {
+			const kept = this.reopenOrder.filter(item => this._items.includes(item));
+			return [...kept, ...this._items.filter(item => !kept.includes(item))];
+		}
+		return this._items;
+	}
+
+	onToggled(event: Event) {
+		super.onToggled(event);
+		if (this.isOpen) {
+			this.reopenOrder = this.selectedFirst();
+		}
+	}
+
 	onSelected() {
 		const elements = Array.from<any>(this.element.querySelectorAll("cds-multi-select-item"));
 		this.select(elements.filter(item => item.selected).map(item => Number(item.value)));
+	}
+
+	private selectedFirst() {
+		return [...this._items.filter(item => item.selected), ...this._items.filter(item => !item.selected)];
 	}
 }

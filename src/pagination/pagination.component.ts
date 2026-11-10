@@ -95,6 +95,59 @@ export class Pagination {
 	@Output() selectPage = new EventEmitter<number>();
 
 	protected texts: PaginationTranslations = this.i18n.get().PAGINATION;
+	protected _pageOptions: number[] = [];
+
+	get itemsPerPage() {
+		return this.model.pageLength;
+	}
+	set itemsPerPage(value) {
+		this.model.pageLength = Number(value);
+		this.currentPage = 1;
+	}
+
+	get currentPage() {
+		return this.model.currentPage;
+	}
+	/**
+	 * Emits `selectPage`; update the model's `currentPage` in the handler.
+	 */
+	set currentPage(value) {
+		this.selectPage.emit(Number(value));
+	}
+
+	get totalDataLength() {
+		return this.model.totalDataLength;
+	}
+
+	get lastPage(): number {
+		return Math.max(Math.ceil(this.totalDataLength / this.itemsPerPage), 1);
+	}
+
+	get startItemIndex() {
+		return this.endItemIndex > 0 ? (this.currentPage - 1) * this.itemsPerPage + 1 : 0;
+	}
+
+	get endItemIndex() {
+		return Math.min(this.currentPage * this.itemsPerPage, this.totalDataLength);
+	}
+
+	get previousPage(): number {
+		return this.currentPage <= 1 ? 1 : this.currentPage - 1;
+	}
+
+	get nextPage(): number {
+		return Math.min(this.currentPage + 1, this.lastPage);
+	}
+
+	/**
+	 * Page numbers, from 1 to `lastPage`. A new array is only created when the page count changes.
+	 */
+	get pageOptions() {
+		if (this._pageOptions.length !== this.lastPage) {
+			this._pageOptions = Array.from({ length: this.lastPage }, (_, i) => i + 1);
+		}
+		return this._pageOptions;
+	}
 
 	onPageChanged(event: Event) {
 		this.selectPage.emit((event as CustomEvent<{ page: number }>).detail.page);
@@ -102,8 +155,9 @@ export class Pagination {
 
 	onPageSizeChanged(event: Event) {
 		if (this.model) {
-			this.model.pageLength = (event as CustomEvent<{ pageSize: number }>).detail.pageSize;
+			this.itemsPerPage = (event as CustomEvent<{ pageSize: number }>).detail.pageSize;
+		} else {
+			this.selectPage.emit(1);
 		}
-		this.selectPage.emit(1);
 	}
 }

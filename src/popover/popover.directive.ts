@@ -19,7 +19,7 @@ import "@carbon/web-components/es/components/popover/index.js";
  */
 @Directive({
 	host: {
-		"[align]": "align",
+		"[attr.align]": "align",
 		"[autoalign]": "autoAlign",
 		"[open]": "isOpen"
 	}

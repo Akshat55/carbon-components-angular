@@ -24,6 +24,8 @@ import { PopoverBase } from "carbon-components-angular/popover";
 @Component({
 	selector: "cds-toggletip",
 	template: "<ng-content />",
+	// The web component is `display: flex`; v6 toggletips sat inline next to their label.
+	styles: [":host { display: inline-flex; }"],
 	host: {
 		"[id]": "id",
 		"[alignment]": "align",

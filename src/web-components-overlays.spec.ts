@@ -26,6 +26,7 @@ import { Placeholder, PLACEHOLDER_SERVICE_PROVIDER } from "carbon-components-ang
 import { PopoverContainer, PopoverContent } from "carbon-components-angular/popover";
 import { ToggletipButton, ToggletipContent, ToggletipLabel, Toggletip } from "carbon-components-angular/toggletip";
 import { Tooltip, TooltipDefinition } from "carbon-components-angular/tooltip";
+import { settle } from "./test-helpers/web-components";
 
 const render = (template: string, imports: any[], props: Record<string, any> = {}, providers: any[] = []) => {
 	@Component({ template, imports, providers, schemas: [CUSTOM_ELEMENTS_SCHEMA] })
@@ -197,6 +198,34 @@ describe("Context menu", () => {
 });
 
 describe("Overlay and menu wrappers", () => {
+	it("Tooltip should open on hover and report closing through two-way binding", async () => {
+		const fixture = render(`<cds-tooltip [(isOpen)]="open" [enterDelayMs]="0" [leaveDelayMs]="0" description="Copy"><button>Copy</button></cds-tooltip>`,
+			[Tooltip], { open: false });
+		await settle(fixture);
+		const element = fixture.nativeElement.querySelector("cds-tooltip");
+		const trigger = element.querySelector("button");
+		trigger.dispatchEvent(new MouseEvent("mouseover", { bubbles: true }));
+		await settle(fixture);
+		expect(element.open).toBe(true);
+		expect((fixture.componentInstance as any).open).toBe(true);
+		trigger.dispatchEvent(new MouseEvent("mouseleave"));
+		await settle(fixture);
+		expect(element.open).toBe(false);
+		expect((fixture.componentInstance as any).open).toBe(false);
+	});
+
+	it("Tooltip should honor an initially open binding and close programmatically", async () => {
+		const fixture = render(`<cds-tooltip [(isOpen)]="open" description="Copy"><button>Copy</button></cds-tooltip>`,
+			[Tooltip], { open: true });
+		await settle(fixture);
+		const element = fixture.nativeElement.querySelector("cds-tooltip");
+		expect(element.open).toBe(true);
+		expect((fixture.componentInstance as any).open).toBe(true);
+		(fixture.componentInstance as any).open = false;
+		await settle(fixture);
+		expect(element.open).toBe(false);
+	});
+
 	it("Tooltip renders its description as tooltip content", () => {
 		const fixture = render(`<cds-tooltip description="Copy" align="bottom"><button>Copy</button></cds-tooltip>`, [Tooltip]);
 		const tooltip: any = fixture.nativeElement.querySelector("cds-tooltip");

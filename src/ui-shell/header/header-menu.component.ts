@@ -1,11 +1,16 @@
 import {
 	ChangeDetectionStrategy,
+	ChangeDetectorRef,
 	Component,
 	CUSTOM_ELEMENTS_SCHEMA,
+	DestroyRef,
+	ElementRef,
 	Input,
-	TemplateRef
+	TemplateRef,
+	inject
 } from "@angular/core";
 import "@carbon/web-components/es/components/ui-shell/index.js";
+import { observeAttribute } from "carbon-components-angular/utils";
 import { HeaderItem } from "./header-item.component";
 import { HeaderItemInterface } from "./header-navigation-items.interface";
 import { HEADER_MENU } from "./header-menu.token";
@@ -25,7 +30,10 @@ import { HEADER_MENU } from "./header-menu.token";
 	`,
 	host: {
 		"[triggerContent]": "title",
-		"[menuLabel]": "title"
+		"[menuLabel]": "title",
+		"[expanded]": "expanded",
+		"(mouseover)": "trigger === 'mouseover' && (expanded = true)",
+		"(mouseout)": "trigger === 'mouseover' && (expanded = false)"
 	},
 	providers: [{ provide: HEADER_MENU, useValue: true }],
 	changeDetection: ChangeDetectionStrategy.OnPush,
@@ -37,7 +45,7 @@ export class HeaderMenu {
 	@Input() headerItems: HeaderItemInterface[];
 	@Input() useRouter = false;
 	/**
-	 * @deprecated the web component opens on click.
+	 * Opens the menu on click, or while the pointer is over it.
 	 */
 	@Input() trigger: "click" | "mouseover" = "click";
 	/**
@@ -48,4 +56,14 @@ export class HeaderMenu {
 	 * @deprecated the web component renders its own chevron.
 	 */
 	@Input() icon: TemplateRef<any>;
+
+	expanded = false;
+
+	constructor() {
+		const changeDetectorRef = inject(ChangeDetectorRef);
+		observeAttribute(inject(ElementRef).nativeElement, "expanded", inject(DestroyRef), expanded => {
+			this.expanded = expanded;
+			changeDetectorRef.markForCheck();
+		});
+	}
 }

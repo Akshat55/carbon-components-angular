@@ -259,8 +259,8 @@ const cases: SmokeCase[] = [
 		hostProps: { steps: [{ label: "One", complete: true }, { label: "Two" }, { label: "Three", invalid: true }] },
 		tag: "cds-progress-indicator",
 		props: { vertical: true },
-		check: element => expect(Array.from<any>(element.querySelectorAll("cds-progress-step")).map(step => step.state))
-			.toEqual(["complete", "current", "invalid"])
+		check: element => expect(Array.from<any>(element.querySelectorAll("cds-progress-step")).map(step => [step.state, step.invalid]))
+			.toEqual([["complete", false], ["current", false], ["incomplete", true]])
 	},
 	{
 		name: "ContentSwitcher",

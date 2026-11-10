@@ -35,6 +35,7 @@ import { PopoverBase } from "carbon-components-angular/popover";
 		}
 	`,
 	host: {
+		"[defaultOpen]": "isOpen",
 		"[enterDelayMs]": "enterDelayMs",
 		"[leaveDelayMs]": "leaveDelayMs",
 		"[caret]": "caret",

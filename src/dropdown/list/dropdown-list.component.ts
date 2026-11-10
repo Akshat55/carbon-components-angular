@@ -64,7 +64,8 @@ export class DropdownList implements OnDestroy {
 	@Input() showTitles = true;
 
 	/**
-	 * @deprecated listen to `selected` on the parent instead.
+	 * Emits the selection: `{ item, isUpdate }`, or the selected `ListItem[]` for multiple selection.
+	 * The parent's `selected` output emits the same.
 	 */
 	@Output() select = new EventEmitter<{ item: ListItem, isUpdate?: boolean } | ListItem[]>();
 	/**

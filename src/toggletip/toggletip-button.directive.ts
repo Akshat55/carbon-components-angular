@@ -12,6 +12,10 @@ export class ToggletipButton {
 	@HostBinding("attr.slot") slot = "trigger";
 	@HostBinding("attr.tabindex") tabIndex = -1;
 	/**
+	 * v6 templates put a `<button>` here; only its icon should show inside the web component's button.
+	 */
+	@HostBinding("style.display") display = "contents";
+	/**
 	 * @deprecated set `buttonLabel` on `cds-toggletip`.
 	 */
 	@Input() ariaLabel = "Show information";

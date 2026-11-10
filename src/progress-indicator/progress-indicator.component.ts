@@ -30,6 +30,8 @@ import { Step } from "./progress-indicator-step.interface";
 				[description]="step.description ?? ''"
 				[disabled]="!!step.disabled"
 				[state]="state(step, i)"
+				[invalid]="!!step.invalid"
+				[iconLabel]="translations?.[step.invalid ? 'INVALID' : state(step, i).toUpperCase()]"
 				[clickable]="i !== current && !step.disabled"
 				(click)="onClick(i)" />
 		}
@@ -57,7 +59,7 @@ export class ProgressIndicator {
 	@Input() orientation: "horizontal" | "vertical" = "horizontal";
 	@Input() spacing: "default" | "equal" = "default";
 	/**
-	 * @deprecated the web component provides its own state labels.
+	 * Labels for each step's status icon (`CURRENT`, `COMPLETE`, `INCOMPLETE`, `INVALID`).
 	 */
 	@Input() translations = this.i18n.get().PROGRESS_INDICATOR;
 	/**
@@ -68,9 +70,6 @@ export class ProgressIndicator {
 	@Output() stepSelected = new EventEmitter<{ step: Step, index: number }>();
 
 	state(step: Step, index: number) {
-		if (step.invalid) {
-			return "invalid";
-		}
 		if (index === this.current) {
 			return "current";
 		}

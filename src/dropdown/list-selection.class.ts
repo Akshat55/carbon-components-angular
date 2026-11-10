@@ -29,6 +29,8 @@ export abstract class ListSelection extends WebComponentValueAccessor implements
 	@Input() set items(items: ListItem[]) {
 		this._items = items ?? [];
 		this.applyValue();
+		// Projected lists and observable item sources update outside this component's inputs.
+		this.changeDetectorRef.markForCheck();
 	}
 	get items() {
 		return this._items;
@@ -67,7 +69,9 @@ export abstract class ListSelection extends WebComponentValueAccessor implements
 	}
 
 	ngAfterContentInit() {
-		if (this.list) {
+		// The list only supplies items when it was given some; v6 combo boxes take `[items]`
+		// on the combo box and project an empty `<cds-dropdown-list />`.
+		if (this.list && this.list.items !== undefined) {
 			this.listSubscription = this.list.items$.subscribe(items => this.items = items);
 		}
 	}
@@ -91,6 +95,8 @@ export abstract class ListSelection extends WebComponentValueAccessor implements
 		this.written = model;
 		this.onChange(model);
 		this.emitSelected();
+		// v6 also emitted the selection from the projected list.
+		this.list?.select.emit(this.multiple ? this.selectedItems : { item: this.selectedItems[0], isUpdate: false });
 		this.changeDetectorRef.markForCheck();
 	}
 

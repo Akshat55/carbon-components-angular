@@ -1,11 +1,17 @@
 import {
 	ChangeDetectionStrategy,
+	ChangeDetectorRef,
 	Component,
 	CUSTOM_ELEMENTS_SCHEMA,
+	DestroyRef,
+	ElementRef,
 	Input,
+	OnInit,
+	ViewChild,
 	inject
 } from "@angular/core";
 import "@carbon/web-components/es/components/ui-shell/index.js";
+import { observeAttribute } from "carbon-components-angular/utils";
 import { I18n } from "carbon-components-angular/i18n";
 import { NavigationItem } from "../header/header-navigation-items.interface";
 import { SideNavItem } from "./sidenav-item.component";
@@ -20,6 +26,7 @@ import { SideNavMenu } from "./sidenav-menu.component";
 	selector: "cds-sidenav",
 	template: `
 		<cds-side-nav
+			#sideNav
 			[expanded]="expanded"
 			[collapseMode]="rail ? 'rail' : allowExpansion ? 'responsive' : 'fixed'"
 			[hidden]="hidden"
@@ -48,7 +55,7 @@ import { SideNavMenu } from "./sidenav-menu.component";
 	imports: [SideNavItem, SideNavMenu],
 	schemas: [CUSTOM_ELEMENTS_SCHEMA]
 })
-export class SideNav {
+export class SideNav implements OnInit {
 	i18n = inject(I18n);
 
 	@Input() ariaLabel = "Side navigation";
@@ -62,7 +69,21 @@ export class SideNav {
 	@Input() navigationItems: NavigationItem[];
 	@Input() useRouter = false;
 
+	@ViewChild("sideNav", { static: true }) sideNav: ElementRef<HTMLElement>;
+
+	protected changeDetectorRef = inject(ChangeDetectorRef);
+	protected destroyRef = inject(DestroyRef);
+
+	ngOnInit() {
+		// The hamburger (`cds-header-menu-button`) expands and collapses the web component.
+		observeAttribute(this.sideNav.nativeElement, "expanded", this.destroyRef, expanded => {
+			this.expanded = expanded;
+			this.changeDetectorRef.markForCheck();
+		});
+	}
+
 	toggle() {
 		this.expanded = !this.expanded;
+		this.changeDetectorRef.markForCheck();
 	}
 }

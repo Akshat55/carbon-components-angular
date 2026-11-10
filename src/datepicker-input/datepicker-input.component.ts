@@ -21,6 +21,11 @@ import { provideValueAccessor, TemplateContent, TemplateSlot, WebComponentValueA
 	selector: "cds-date-picker-input",
 	template: `
 		<ng-container cdsSlot="label-text" [cdsSlotTemplate]="isTemplate(label) ? label : null" />
+		@if (isTemplate(helperText)) {
+			<ng-container cdsSlot="helper-text" [cdsSlotTemplate]="helperText" />
+		} @else if (helperText) {
+			<span slot="helper-text">{{ helperText }}</span>
+		}
 		<ng-container cdsSlot="ai-label" [cdsSlotTemplate]="decorator" />
 	`,
 	host: {
@@ -32,12 +37,11 @@ import { provideValueAccessor, TemplateContent, TemplateSlot, WebComponentValueA
 		"[value]": "value",
 		"[size]": "size",
 		"[disabled]": "disabled",
-		"[readonly]": "readonly",
+		"[attr.readonly]": "readonly ? '' : null",
 		"[invalid]": "invalid",
 		"[invalidText]": "content.render('invalidText', invalidText)",
 		"[warn]": "warn",
 		"[warnText]": "content.render('warnText', warnText)",
-		"[helperText]": "content.render('helperText', helperText)",
 		"(input)": "onInput($event)"
 	},
 	providers: [provideValueAccessor(() => DatePickerInput)],

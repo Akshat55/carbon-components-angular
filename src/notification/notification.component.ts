@@ -1,5 +1,4 @@
 import {
-	ChangeDetectionStrategy,
 	Component,
 	CUSTOM_ELEMENTS_SCHEMA,
 	Input
@@ -43,7 +42,7 @@ import { NotificationContent } from "./notification-content.interface";
 	`,
 	styles: [":host { display: contents; }"],
 	providers: [NotificationDisplayService],
-	changeDetection: ChangeDetectionStrategy.OnPush,
+	// Default change detection: v6 notifications re-render when `notificationObj` is mutated.
 	imports: [NgTemplateOutlet, AsyncPipe],
 	schemas: [CUSTOM_ELEMENTS_SCHEMA]
 })

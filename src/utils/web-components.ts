@@ -3,6 +3,7 @@ import {
 	ChangeDetectorRef,
 	DestroyRef,
 	Directive,
+	ElementRef,
 	EmbeddedViewRef,
 	forwardRef,
 	inject,
@@ -133,6 +134,36 @@ export class TemplateSlot implements OnChanges, OnDestroy {
 		this.viewContainer.clear();
 		this.wrapper?.remove();
 		this.wrapper = null;
+	}
+}
+
+/**
+ * Calls `onChange` when a boolean attribute the web component reflects (e.g. `open`,
+ * `expanded`) is added or removed, so the wrapper can mirror state the user changed.
+ */
+export function observeAttribute(
+	element: Element,
+	name: string,
+	destroyRef: DestroyRef,
+	onChange: (present: boolean) => void
+) {
+	const observer = new MutationObserver(() => onChange(element.hasAttribute(name)));
+	observer.observe(element, { attributes: true, attributeFilter: [name] });
+	destroyRef.onDestroy(() => observer.disconnect());
+}
+
+/**
+ * `cds-overflow-menu-body` moves itself to `document.body` (or the closest
+ * `[data-floating-menu-container]`) when it opens, so it is no longer inside the
+ * Angular view that created it. Remove it with that view, wherever it ended up.
+ */
+// eslint-disable-next-line @angular-eslint/directive-selector -- matches the web component tag
+@Directive({ selector: "cds-overflow-menu-body" })
+export class FloatingMenuCleanup implements OnDestroy {
+	private element: HTMLElement = inject(ElementRef).nativeElement;
+
+	ngOnDestroy() {
+		this.element.remove();
 	}
 }
 
