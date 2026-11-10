@@ -14,20 +14,12 @@ import { I18n } from "carbon-components-angular/i18n";
 import { FileItem } from "./file-item.interface";
 
 /**
- * A file row of `cds-file-uploader`. Renders the `<cds-file-uploader-item>` web component.
+ * Adds `fileItem` and `(remove)` to the `<cds-file-uploader-item>` web component (a file row of `cds-file-uploader`).
  */
 @Component({
-	selector: "cds-file",
+	selector: "cds-file-uploader-item",
 	template: `
-		<cds-file-uploader-item
-			[state]="fileItem.state === 'upload' ? 'uploading' : fileItem.state"
-			[size]="size"
-			[invalid]="!!fileItem.invalid"
-			[errorSubject]="fileItem.invalidTitle ?? ''"
-			[errorBody]="fileItem.invalidText ?? ''"
-			[iconDescription]="translations.REMOVE_BUTTON"
-			[title]="fileItem.file.name"
-			(cds-file-uploader-item-beingdeleted)="onDelete($event)">
+		@if (fileItem) {
 			@if (nameTpl) {
 				<ng-template [ngTemplateOutlet]="nameTpl" [ngTemplateOutletContext]="{ $implicit: fileItem }" />
 			} @else {
@@ -36,9 +28,19 @@ import { FileItem } from "./file-item.interface";
 			@if (actionsTpl && fileItem.state === 'edit') {
 				<ng-template [ngTemplateOutlet]="actionsTpl" [ngTemplateOutletContext]="{ $implicit: fileItem }" />
 			}
-		</cds-file-uploader-item>
+		}
+		<ng-content />
 	`,
-	styles: [":host { display: contents; }"],
+	host: {
+		"[state]": "fileItem?.state === 'upload' ? 'uploading' : fileItem?.state",
+		"[size]": "size",
+		"[invalid]": "!!fileItem?.invalid",
+		"[errorSubject]": "fileItem?.invalidTitle ?? ''",
+		"[errorBody]": "fileItem?.invalidText ?? ''",
+		"[iconDescription]": "translations.REMOVE_BUTTON",
+		"[title]": "fileItem?.file.name ?? ''",
+		"(cds-file-uploader-item-beingdeleted)": "onDelete($event)"
+	},
 	changeDetection: ChangeDetectionStrategy.OnPush,
 	imports: [NgTemplateOutlet],
 	schemas: [CUSTOM_ELEMENTS_SCHEMA]

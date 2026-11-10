@@ -5,7 +5,7 @@ import { FileComponent } from "../file.component";
 @Component({
 	selector: "app-basic-file",
 	imports: [FileComponent],
-	template: `<cds-file [size]="size" [fileItem]="fileItem"></cds-file>`
+	template: `<cds-file-uploader-item [size]="size" [fileItem]="fileItem"></cds-file-uploader-item>`
 })
 export class BasicFileStory {
 	@Input() size = "sm";

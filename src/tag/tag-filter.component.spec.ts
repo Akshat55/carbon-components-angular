@@ -7,7 +7,7 @@ import { TagFilter } from "./tag-filter.component";
 
 @Component({
 	template: `
-	<cds-tag-filter [disabled]="disabled">TagFilter</cds-tag-filter>`,
+	<cds-dismissible-tag text="TagFilter" [disabled]="disabled" />`,
 	imports: [TagFilter]
 })
 class TagFilterTest {
@@ -28,15 +28,15 @@ describe("TagFilter", () => {
 		fixture.componentInstance.disabled = disabled;
 		await settle(fixture);
 		tagFilter = fixture.debugElement.query(By.directive(TagFilter)).componentInstance;
-		tag = fixture.nativeElement.querySelector("cds-tag");
+		tag = fixture.nativeElement.querySelector("cds-dismissible-tag");
 		spyOn(tagFilter.click, "emit");
 		spyOn(tagFilter.close, "emit");
 	};
 
 	it("should render a filter tag", async () => {
 		await create();
-		expect(tag instanceof customElements.get("cds-tag")).toBe(true);
-		expect(tag.filter).toBe(true);
+		expect(tag instanceof customElements.get("cds-dismissible-tag")).toBe(true);
+		expect(shadow(tag, ".cds--tag__label").textContent.trim()).toBe("TagFilter");
 		expect(shadow(tag, ".cds--tag__close-icon")).toBeTruthy();
 	});
 
@@ -56,7 +56,7 @@ describe("TagFilter", () => {
 		expect(tagFilter.click.emit).toHaveBeenCalledWith({ action: "close" });
 		expect(tagFilter.click.emit).not.toHaveBeenCalledWith({ action: "click" });
 		// Angular owns the element, so it is not removed by the web component
-		expect(fixture.nativeElement.querySelector("cds-tag")).toBe(tag);
+		expect(fixture.nativeElement.querySelector("cds-dismissible-tag")).toBe(tag);
 	});
 
 	it("should not call onClick when disabled", async () => {

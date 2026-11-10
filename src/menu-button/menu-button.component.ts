@@ -13,7 +13,7 @@ import "@carbon/web-components/es/components/menu/index.js";
 type MenuButtonPlacement = "top" | "top-start" | "top-end" | "bottom" | "bottom-start" | "bottom-end";
 
 /**
- * Wraps the `<cds-menu-button>` web component. Project `cds-menu-item`s / `cds-menu-divider`s.
+ * Wraps the `<cds-menu-button>` web component. Project `cds-menu-item`s / `cds-menu-item-divider`s.
  *
  * [See demo](../../?path=/story/components-menu-button--basic)
  */

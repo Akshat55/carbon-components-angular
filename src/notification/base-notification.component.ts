@@ -1,59 +1,57 @@
 import {
-	Output,
-	EventEmitter,
-	HostBinding,
-	Component,
 	ComponentRef,
+	DestroyRef,
+	Directive,
+	EventEmitter,
+	Input,
+	Output,
 	inject
 } from "@angular/core";
-import { isObservable, Subject } from "rxjs";
+import { isObservable, of, Subject, Subscription } from "rxjs";
 import { I18n } from "carbon-components-angular/i18n";
 import { NotificationContent, NotificationType } from "./notification-content.interface";
 import { NotificationDisplayService } from "./notification-display.service";
 
 /**
- * Base class for `Notification`, `ActionableNotification`, & `Toast`
- * consisting of common functionality
- *
- * Get started with importing the component:
- *
- * ```typescript
- * import { Notification } from 'carbon-components-angular';
- * ```
+ * Base class for `Notification`, `ActionableNotification` & `Toast`: the `notificationObj`
+ * input, closing, and action handling. Each subclass sits on its web component's tag.
  *
  * [See demo](../../?path=/story/components-notification--inline-notification)
  */
-@Component({
-	template: "",
-	standalone: true
+@Directive({
+	host: {
+		"[attr.role]": "notificationObj.role",
+		"[kind]": "notificationObj.type",
+		"[lowContrast]": "!!notificationObj.lowContrast",
+		"[hideCloseButton]": "!notificationObj.showClose",
+		"[ariaLabel]": "closeLabelText",
+		"[open]": "true",
+		"(cds-notification-beingclosed)": "onBeingClosed($event)"
+	}
 })
-export class BaseNotification {
+export class BaseNotification<T extends NotificationContent = NotificationContent> {
 	/**
-	 * Set role attribute for component
-	 * `Status` is default for inline-notification & toast component
-	 * `alertdialog` is default for actionable-notification
+	 * The notification's content. Mutating it in place updates the notification.
 	 */
-	@HostBinding("attr.role") get roleAttr(): string {
-		return this._notificationObj.role;
+	@Input() set notificationObj(obj: T) {
+		this._notificationObj = Object.assign({}, this.defaultNotificationObj, obj) as T;
+		this.watchCloseLabel();
+	}
+	get notificationObj(): T {
+		return this._notificationObj;
 	}
 
-	/**
-	 * Emits on close.
-	 */
 	@Output() close: EventEmitter<any> = new EventEmitter();
 
-	// Provides access to the component instance
-	componentRef: ComponentRef<BaseNotification>;
+	/**
+	 * Set by `NotificationService` for notifications it creates.
+	 */
+	componentRef: ComponentRef<BaseNotification<any>>;
 
-	// Get icon name(value) for service based on the notification type (key)
-	readonly iconDictionary = {
-		"error": "error--filled",
-		"info": "information--filled",
-		"info-square": "information--square--filled",
-		"success": "checkmark--filled",
-		"warning": "warning--filled",
-		"warning-alt": "warning--alt--filled"
-	};
+	/**
+	 * The close button's label, resolved from `notificationObj.closeLabel` (string or observable).
+	 */
+	closeLabelText = "";
 
 	protected notificationDisplayService = inject(NotificationDisplayService);
 	protected i18n = inject(I18n);
@@ -67,24 +65,21 @@ export class BaseNotification {
 		role: "status"
 	};
 
-	protected _notificationObj: NotificationContent = Object.assign({}, this.defaultNotificationObj);
+	protected _notificationObj = Object.assign({}, this.defaultNotificationObj) as T;
+	private closeLabelSubscription: Subscription;
 
-	/** Inserted by Angular inject() migration for backwards compatibility */
-	// eslint-disable-next-line @angular-eslint/prefer-inject -- backwards-compatible DI overload until next major
-	constructor(...args: unknown[]);
+	constructor() {
+		this.watchCloseLabel();
+		inject(DestroyRef).onDestroy(() => this.closeLabelSubscription?.unsubscribe());
+	}
 
-	constructor() {}
-
-	/**
-	 * Emits close event.
-	 */
 	onClose() {
 		this.close.emit();
 	}
 
 	/**
-	 * The notification web components remove themselves on close. Angular owns the element,
-	 * so cancel that and emit `close` (the `NotificationService` destroys the component).
+	 * The web component removes itself when closed; Angular owns the element, so the
+	 * consumer (or `NotificationService`) removes it on `close` instead.
 	 */
 	onBeingClosed(event: Event) {
 		event.preventDefault();
@@ -104,5 +99,11 @@ export class BaseNotification {
 
 	destroy() {
 		this.notificationDisplayService.close(this);
+	}
+
+	private watchCloseLabel() {
+		this.closeLabelSubscription?.unsubscribe();
+		const label = this._notificationObj.closeLabel;
+		this.closeLabelSubscription = (isObservable(label) ? label : of(label ?? "")).subscribe(text => this.closeLabelText = text);
 	}
 }

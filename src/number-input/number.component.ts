@@ -8,8 +8,8 @@ import {
 	TemplateRef,
 	inject
 } from "@angular/core";
-import { AsyncPipe } from "@angular/common";
 import { Observable } from "rxjs";
+import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import "@carbon/web-components/es/components/number-input/index.js";
 import { I18n, Overridable } from "carbon-components-angular/i18n";
 import { provideValueAccessor, TemplateContent, TemplateSlot, WebComponentValueAccessor } from "carbon-components-angular/utils";
@@ -20,48 +20,47 @@ export class NumberChange {
 }
 
 /**
- * Renders the `<cds-number-input>` web component. Works with `ngModel` / reactive forms.
+ * Adds `ngModel` / reactive forms and Angular inputs to the `<cds-number-input>` web component.
  *
  * [See demo](../../?path=/story/components-number--basic)
  */
 @Component({
-	selector: "cds-number",
+	selector: "cds-number-input",
 	template: `
-		<cds-number-input
-			[id]="id"
-			[value]="value ?? ''"
-			[min]="min ?? ''"
-			[max]="max ?? ''"
-			[step]="step"
-			[label]="isTemplate(label) ? '' : label"
-			[placeholder]="placeholder"
-			[disabled]="disabled"
-			[required]="required"
-			[size]="size"
-			[hideLabel]="hideLabel"
-			[hideSteppers]="hideSteppers"
-			[allowEmpty]="true"
-			[isFluid]="fluid"
-			[inputMode]="inputMode"
-			[pattern]="pattern"
-			[helperText]="content.render('helperText', helperText)"
-			[invalid]="invalid"
-			[invalidText]="content.render('invalidText', invalidText)"
-			[warn]="warn"
-			[warnText]="content.render('warnText', warnText)"
-			[incrementButtonAssistiveText]="incrementLabelText | async"
-			[decrementButtonAssistiveText]="decrementLabelText | async"
-			[attr.aria-label]="ariaLabel"
-			(input)="onInput($event)"
-			(cds-number-input)="onInput($event)">
-			<ng-container cdsSlot="label-text" [cdsSlotTemplate]="isTemplate(label) ? label : null" />
-			<ng-container cdsSlot="ai-label" [cdsSlotTemplate]="decorator" />
-		</cds-number-input>
+		<ng-container cdsSlot="label-text" [cdsSlotTemplate]="isTemplate(label) ? label : null" />
+		<ng-container cdsSlot="ai-label" [cdsSlotTemplate]="decorator" />
 	`,
-	styles: [":host { display: block; }"],
+	host: {
+		"[id]": "id",
+		"[value]": "value ?? ''",
+		"[min]": "min ?? ''",
+		"[max]": "max ?? ''",
+		"[step]": "step",
+		"[label]": "isTemplate(label) ? '' : label",
+		"[placeholder]": "placeholder",
+		"[disabled]": "disabled",
+		"[required]": "required",
+		"[size]": "size",
+		"[hideLabel]": "hideLabel",
+		"[hideSteppers]": "hideSteppers",
+		"[allowEmpty]": "true",
+		"[isFluid]": "fluid",
+		"[inputMode]": "inputMode",
+		"[pattern]": "pattern",
+		"[helperText]": "content.render('helperText', helperText)",
+		"[invalid]": "invalid",
+		"[invalidText]": "content.render('invalidText', invalidText)",
+		"[warn]": "warn",
+		"[warnText]": "content.render('warnText', warnText)",
+		"[incrementButtonAssistiveText]": "incrementLabelText",
+		"[decrementButtonAssistiveText]": "decrementLabelText",
+		"[attr.aria-label]": "ariaLabel",
+		"(input)": "onInput()",
+		"(cds-number-input)": "onInput()"
+	},
 	providers: [provideValueAccessor(() => NumberComponent)],
 	changeDetection: ChangeDetectionStrategy.OnPush,
-	imports: [AsyncPipe, TemplateSlot],
+	imports: [TemplateSlot],
 	schemas: [CUSTOM_ELEMENTS_SCHEMA]
 })
 export class NumberComponent extends WebComponentValueAccessor<number> {
@@ -126,12 +125,19 @@ export class NumberComponent extends WebComponentValueAccessor<number> {
 	protected _value: number = null;
 	protected _decrementLabel: Overridable = this.i18n.getOverridable("NUMBER.DECREMENT");
 	protected _incrementLabel: Overridable = this.i18n.getOverridable("NUMBER.INCREMENT");
+	protected incrementLabelText = "";
+	protected decrementLabelText = "";
 
-	get decrementLabelText() {
-		return this._decrementLabel.subject;
-	}
-	get incrementLabelText() {
-		return this._incrementLabel.subject;
+	constructor() {
+		super();
+		this._incrementLabel.subject.pipe(takeUntilDestroyed()).subscribe(text => {
+			this.incrementLabelText = text;
+			this.changeDetectorRef.markForCheck();
+		});
+		this._decrementLabel.subject.pipe(takeUntilDestroyed()).subscribe(text => {
+			this.decrementLabelText = text;
+			this.changeDetectorRef.markForCheck();
+		});
 	}
 
 	writeValue(value: any) {
@@ -139,8 +145,8 @@ export class NumberComponent extends WebComponentValueAccessor<number> {
 		this.changeDetectorRef.markForCheck();
 	}
 
-	onInput(event: Event) {
-		const raw = (event.target as HTMLInputElement).value;
+	onInput() {
+		const raw = this.element.value;
 		let value = raw === "" ? null : Number(raw);
 		if (value !== null && this.precision !== undefined) {
 			value = Number(value.toFixed(this.precision));

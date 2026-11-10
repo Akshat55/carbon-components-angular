@@ -39,6 +39,9 @@ export { DocumentService } from "./document.service";
 export {
 	FloatingMenuCleanup,
 	observeAttribute,
+	observeChildren,
+	registerWrapper,
+	wrapperOf,
 	TemplateContent,
 	TemplateSlot,
 	WebComponentValueAccessor,

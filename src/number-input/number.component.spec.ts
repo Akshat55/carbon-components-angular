@@ -8,7 +8,7 @@ import { Number } from "./number.component";
 
 @Component({
 	template: `
-		<cds-number
+		<cds-number-input
 			[value]="value"
 			[min]="min"
 			[max]="max"
@@ -178,8 +178,8 @@ describe("Number", () => {
 
 @Component({
 	template: `
-		<cds-number label="Model" [(ngModel)]="model" />
-		<cds-number label="Reactive" [formControl]="control" [precision]="1" />
+		<cds-number-input label="Model" [(ngModel)]="model" />
+		<cds-number-input label="Reactive" [formControl]="control" [precision]="1" />
 	`,
 	imports: [Number, FormsModule, ReactiveFormsModule]
 })

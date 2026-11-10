@@ -32,13 +32,13 @@ export default {
 const InlineTemplate = (args) => ({
 	props: args,
 	template: `
-		<cds-notification [notificationObj]="{
+		<cds-inline-notification [notificationObj]="{
 			type: type,
 			title: 'Sample notification',
 			message: 'Sample error message',
 			showClose: showClose,
 			lowContrast: lowContrast}">
-		</cds-notification>
+		</cds-inline-notification>
 	`
 });
 export const InlineNotification = InlineTemplate.bind({});
@@ -64,14 +64,14 @@ InlineNotification.argTypes = {
 const ToastTemplate = (args) => ({
 	props: args,
 	template: `
-		<cds-toast [notificationObj]="{
+		<cds-toast-notification [notificationObj]="{
 			type: type,
 			title: 'Sample toast',
 			subtitle: 'Sample subtitle message',
 			caption: 'Sample caption',
 			lowContrast: lowContrast,
 			showClose: showClose
-		}"></cds-toast>
+		}"></cds-toast-notification>
 	`
 });
 export const BasicToastStory = ToastTemplate.bind({});
@@ -163,7 +163,7 @@ export const DynamicInline = DynamicInlineTemplate.bind({});
 const CustomTemplate = (args) => ({
 	props: args,
 	template: `
-		<cds-toast [notificationObj]="{
+		<cds-toast-notification [notificationObj]="{
 			type: 'error',
 			template: customToastContent,
 			title: 'Sample title',
@@ -173,8 +173,8 @@ const CustomTemplate = (args) => ({
 			myCaption: 'Sample custom caption',
 			showClose: showClose
 		}">
-		</cds-toast>
-		<cds-notification [notificationObj]="{
+		</cds-toast-notification>
+		<cds-inline-notification [notificationObj]="{
 			type: 'warning',
 			template: customNotificationContent,
 			title: 'Sample notification',
@@ -183,7 +183,7 @@ const CustomTemplate = (args) => ({
 			},
 			showClose: showClose
 		}">
-		</cds-notification>
+		</cds-inline-notification>
 		<cds-actionable-notification [notificationObj]="{
 			type: 'success',
 			template: customActionableContent,
@@ -219,12 +219,12 @@ const CustomTemplate = (args) => ({
 	`,
 	encapsulation: ViewEncapsulation.None,
 	styles: [`
-		cds-toast {
+		cds-toast-notification {
 			width: 450px;
 			margin-bottom: 1rem;
 		}
 
-		cds-notification {
+		cds-inline-notification {
 			margin-bottom: 1rem;
 		}
 

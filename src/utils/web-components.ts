@@ -137,6 +137,49 @@ export class TemplateSlot implements OnChanges, OnDestroy {
 	}
 }
 
+const wrappers = new WeakMap<Element, unknown>();
+
+/**
+ * Links a web component element to the Angular wrapper that renders it.
+ *
+ * Parents find their children through the DOM (see `observeChildren`) instead of
+ * `@ContentChildren`, which never sees components created with `createComponent` or
+ * `ViewContainerRef`. `wrapperOf` then gives the Angular instance, when there is one.
+ */
+export function registerWrapper(element: Element, instance: unknown) {
+	wrappers.set(element, instance);
+}
+
+/**
+ * The Angular wrapper of `element`, if it is one of `type`.
+ */
+export function wrapperOf<T>(element: Element, type: abstract new (...args: any[]) => T): T | null {
+	const instance = wrappers.get(element);
+	return instance instanceof type ? instance : null;
+}
+
+/**
+ * Calls `onChange` (at most once per microtask) whenever descendants of `element` are
+ * added or removed, however they were created: templates, `@for`, `createComponent`, or
+ * plain DOM. Also calls it once right away (in a microtask).
+ */
+export function observeChildren(element: Element, destroyRef: DestroyRef, onChange: () => void) {
+	let scheduled = false;
+	const schedule = () => {
+		if (!scheduled) {
+			scheduled = true;
+			queueMicrotask(() => {
+				scheduled = false;
+				onChange();
+			});
+		}
+	};
+	const observer = new MutationObserver(schedule);
+	observer.observe(element, { childList: true, subtree: true });
+	destroyRef.onDestroy(() => observer.disconnect());
+	schedule();
+}
+
 /**
  * Calls `onChange` when a boolean attribute the web component reflects (e.g. `open`,
  * `expanded`) is added or removed, so the wrapper can mirror state the user changed.
@@ -193,6 +236,10 @@ export abstract class WebComponentValueAccessor<T = any> implements ControlValue
 		return this._disabled;
 	}
 
+	/**
+	 * The web component this class is on.
+	 */
+	protected element: any = inject(ElementRef).nativeElement;
 	protected changeDetectorRef = inject(ChangeDetectorRef);
 	protected _disabled = false;
 

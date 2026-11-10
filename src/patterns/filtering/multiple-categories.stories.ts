@@ -36,20 +36,20 @@ import { FormsModule } from "@angular/forms";
 				<button cdsButton (click)="resetFilters()" class="reset-button">Reset Filters</button>
 				<fieldset class="cds--fieldset">
 					<legend class="cds--label">Radio button label</legend>
-					<cds-radio-group
+					<cds-radio-button-group
 						aria-label="radiogroup"
 						orientation="vertical"
 						labelPlacement="right"
 						[(ngModel)]="radio"
 						(change)="onRadioChange($event)">
 						@for (radio of radios; track radio) {
-							<cds-radio
+							<cds-radio-button
 								[value]="radio.color"
 								[disabled]="radio.disabled">
 								{{radio.color}}
-							</cds-radio>
+							</cds-radio-button>
 						}
-					</cds-radio-group>
+					</cds-radio-button-group>
 				</fieldset>
 				<fieldset class="cds--fieldset">
 					<div cdsRow>
@@ -58,9 +58,7 @@ import { FormsModule } from "@angular/forms";
 						</div>
 						<div cdsCol [columnNumbers]="{'lg': 2, 'md': 2, 'sm': 1}">
 							@if (checkBoxFilters.size > 0) {
-								<cds-tag-filter (close)="resetCheckboxList()">
-									{{checkBoxFilters.size}}
-								</cds-tag-filter>
+								<cds-dismissible-tag [text]="'' + checkBoxFilters.size" (close)="resetCheckboxList()" />
 							}
 						</div>
 					</div>

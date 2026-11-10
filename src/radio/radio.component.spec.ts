@@ -1,7 +1,7 @@
 import { ComponentFixture, TestBed, waitForAsync } from "@angular/core/testing";
 import { By } from "@angular/platform-browser";
 import { FormControl, FormsModule, ReactiveFormsModule } from "@angular/forms";
-import { Component } from "@angular/core";
+import { ApplicationRef, Component, createComponent, EnvironmentInjector } from "@angular/core";
 
 import { settle, shadow } from "../test-helpers/web-components";
 import { Radio } from "./radio.component";
@@ -10,13 +10,13 @@ import { RadioGroup } from "./radio-group.component";
 @Component({
 	selector: "test-component",
 	template: `
-		<cds-radio-group [(ngModel)]="radio" [disabled]="disabled" [name]="name">
+		<cds-radio-button-group [(ngModel)]="radio" [disabled]="disabled" [name]="name">
 			@for (one of manyRadios; track one) {
-				<cds-radio [value]="one" class="indent">
+				<cds-radio-button [value]="one" class="indent">
 					Radio {{one}}
-				</cds-radio>
+				</cds-radio-button>
 			}
-		</cds-radio-group>
+		</cds-radio-button-group>
 		`,
 	imports: [Radio, RadioGroup, FormsModule]
 })
@@ -125,10 +125,10 @@ describe("RadioGroup", () => {
 
 @Component({
 	template: `
-		<cds-radio-group legend="Size" [formControl]="control" (change)="onChange($event)">
-			<cds-radio [value]="1">Small</cds-radio>
-			<cds-radio [value]="2">Large</cds-radio>
-		</cds-radio-group>
+		<cds-radio-button-group legend="Size" [formControl]="control" (change)="onChange($event)">
+			<cds-radio-button [value]="1">Small</cds-radio-button>
+			<cds-radio-button [value]="2">Large</cds-radio-button>
+		</cds-radio-button-group>
 	`,
 	imports: [Radio, RadioGroup, ReactiveFormsModule]
 })
@@ -171,24 +171,29 @@ describe("RadioGroup with reactive forms", () => {
 	});
 });
 
-describe("RadioComponent", () => {
-	let component: Radio;
-	let fixture: ComponentFixture<Radio>;
+describe("Radio created dynamically", () => {
+	it("should create the web component and work inside a group", async () => {
+		const fixture = TestBed.createComponent(RadioTest);
+		await settle(fixture);
+		const group = fixture.nativeElement.querySelector("cds-radio-button-group");
 
-	beforeEach(waitForAsync(() => {
-		TestBed.configureTestingModule({
-			imports: [Radio]
-		}).compileComponents();
-	}));
+		const ref = createComponent(Radio, {
+			environmentInjector: TestBed.inject(EnvironmentInjector),
+			projectableNodes: [[document.createTextNode("Dynamic")]]
+		});
+		ref.setInput("value", { id: 3 });
+		TestBed.inject(ApplicationRef).attachView(ref.hostView);
+		group.appendChild(ref.location.nativeElement);
+		await settle(fixture);
 
-	beforeEach(() => {
-		fixture = TestBed.createComponent(Radio);
-		component = fixture.componentInstance;
-	});
+		const element = ref.location.nativeElement;
+		expect(element instanceof customElements.get("cds-radio-button")).toBe(true);
+		expect(element.textContent).toContain("Dynamic");
+		expect(element.name).toBe(group.name);
 
-	it("should work", () => {
-		expect(component instanceof Radio).toBe(true);
-		fixture.detectChanges();
-		expect(fixture.nativeElement.querySelector("cds-radio-button") instanceof customElements.get("cds-radio-button")).toBe(true);
+		element.click();
+		await settle(fixture);
+		expect(fixture.debugElement.query(By.directive(RadioGroup)).componentInstance.value).toEqual({ id: 3 });
+		ref.destroy();
 	});
 });

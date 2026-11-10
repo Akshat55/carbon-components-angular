@@ -2,7 +2,6 @@ import {
 	ChangeDetectionStrategy,
 	CUSTOM_ELEMENTS_SCHEMA,
 	Component,
-	ElementRef,
 	EventEmitter,
 	Input,
 	Output,
@@ -130,7 +129,6 @@ export class Checkbox extends WebComponentValueAccessor<boolean> {
 	protected content = new TemplateContent();
 	private hostGroup = inject(CHECKBOX_GROUP_HOST, { optional: true });
 
-	private element = inject(ElementRef).nativeElement;
 
 	constructor() {
 		super();

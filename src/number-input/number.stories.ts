@@ -50,7 +50,7 @@ export default {
 const Template = (args) => ({
 	props: args,
 	template: `
-		<cds-number
+		<cds-number-input
 			[label]="label"
 			[helperText]="[helperText]"
 			[theme]="theme"
@@ -68,7 +68,7 @@ const Template = (args) => ({
 			[hideLabel]="hideLabel"
 			[hideSteppers]="hideSteppers"
 			(change)="change($event)">
-		</cds-number>
+		</cds-number-input>
 	`
 });
 export const Basic = Template.bind({});
@@ -81,7 +81,7 @@ Fluid.args = {
 const ModelTemplate = (args) => ({
 	props: args,
 	template: `
-		<cds-number
+		<cds-number-input
 			[label]="label"
 			[helperText]="[helperText]"
 			[theme]="theme"
@@ -100,7 +100,7 @@ const ModelTemplate = (args) => ({
 			[hideLabel]="hideLabel"
 			[hideSteppers]="hideSteppers"
 			(change)="change($event)">
-		</cds-number>
+		</cds-number-input>
 		{{ value }}
 	`
 });
@@ -110,12 +110,12 @@ NgModel.story = "ngModel";
 const SkeletonTemplate = (args) => ({
 	props: args,
 	template: `
-		<cds-number
+		<cds-number-input
 			label="Number input label"
 			skeleton="true"
 			[fluid]="fluid"
 			(change)="change($event)">
-		</cds-number>
+		</cds-number-input>
 	`
 });
 export const Skeleton = SkeletonTemplate.bind({});
@@ -123,12 +123,12 @@ export const Skeleton = SkeletonTemplate.bind({});
 export const withAILabel = () => ({
 	styles: AI_LABEL_STORY_STYLES,
 	template: `
-		<cds-number
+		<cds-number-input
 			label="Number"
 			[decorator]="decoratorTpl"
 			[min]="0"
 			[max]="100">
-		</cds-number>
+		</cds-number-input>
 		<ng-template #decoratorTpl>
 			<cds-ai-label
 				class="ai-label-container"

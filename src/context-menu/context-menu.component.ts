@@ -14,7 +14,7 @@ import "@carbon/web-components/es/components/menu/index.js";
  * ```html
  * <cds-menu [open]="open" [position]="{ left: x, top: y }">
  * 	<cds-menu-item label="Copy" (itemClick)="copy()" />
- * 	<cds-menu-divider />
+ * 	<cds-menu-item-divider />
  * 	<cds-menu-item label="Delete" kind="danger" />
  * </cds-menu>
  * ```

@@ -111,7 +111,7 @@ const cases: FormCase[] = [
 	{
 		name: "TimePicker",
 		imports: [TimePicker],
-		template: `<cds-timepicker label="Time" [formControl]="control" />`,
+		template: `<cds-time-picker label="Time" [formControl]="control" />`,
 		initial: "10:30",
 		tag: "cds-time-picker",
 		read: element => element.value,
@@ -161,7 +161,7 @@ const cases: FormCase[] = [
 	{
 		name: "Number",
 		imports: [NumberComponent],
-		template: `<cds-number label="Count" [formControl]="control" />`,
+		template: `<cds-number-input label="Count" [formControl]="control" />`,
 		initial: 3,
 		tag: "cds-number-input",
 		read: element => Number(element.value),
@@ -213,10 +213,10 @@ const cases: FormCase[] = [
 		name: "RadioGroup",
 		imports: [RadioGroup, Radio],
 		template: `
-			<cds-radio-group legend="Pick" [formControl]="control">
-				<cds-radio [value]="1">One</cds-radio>
-				<cds-radio [value]="2">Two</cds-radio>
-			</cds-radio-group>`,
+			<cds-radio-button-group legend="Pick" [formControl]="control">
+				<cds-radio-button [value]="1">One</cds-radio-button>
+				<cds-radio-button [value]="2">Two</cds-radio-button>
+			</cds-radio-button-group>`,
 		initial: 1,
 		tag: "cds-radio-button",
 		read: element => element.checked ? 1 : null,

@@ -13,26 +13,26 @@ import { ContextMenuSelectionService } from "./context-menu-selection.service";
 	template: `
 		<cds-menu [open]="open">
 			<cds-menu-item label="Option with icon" icon="calendar" />
-			<cds-menu-divider />
+			<cds-menu-item-divider />
 			<cds-menu-item type="checkbox" label="Enable magic" />
-			<cds-menu-divider />
-			<cds-menu-group
+			<cds-menu-item-divider />
+			<cds-menu-item-group
 				type="checkbox"
 				label="Selection group"
 				[value]="checkboxGroupValue">
 				<cds-menu-item type="checkbox" label="Blue" value="blue"></cds-menu-item>
 				<cds-menu-item type="checkbox" label="Red" value="red" [checked]="true"></cds-menu-item>
-			</cds-menu-group>
-			<cds-menu-divider />
+			</cds-menu-item-group>
+			<cds-menu-item-divider />
 			<cds-menu-item label="Radio flyout">
 				<cds-menu>
-					<cds-menu-group
+					<cds-menu-item-group
 						type="radio"
 						[value]="radioGroupValue"
 						(valueChange)="onRadioChange($event)">
 						<cds-menu-item type="radio" label="Radio one" value="one" />
 						<cds-menu-item type="radio" label="Radio two" value="two" />
-					</cds-menu-group>
+					</cds-menu-item-group>
 				</cds-menu>
 			</cds-menu-item>
 		</cds-menu>
@@ -104,7 +104,7 @@ describe("Menu", () => {
 	});
 
 	it("should check the radio item the selection service selects", async () => {
-		const group = fixture.debugElement.query(By.css("cds-menu-group[type='radio']"));
+		const group = fixture.debugElement.query(By.css("cds-menu-item-group[type='radio']"));
 		group.injector.get(ContextMenuSelectionService).selectRadio("two");
 		await settle(fixture);
 
@@ -124,7 +124,7 @@ describe("Menu", () => {
 	});
 
 	it("should check every checkbox item the selection service selects", async () => {
-		const group = fixture.debugElement.query(By.css("cds-menu-group[type='checkbox']"));
+		const group = fixture.debugElement.query(By.css("cds-menu-item-group[type='checkbox']"));
 		group.injector.get(ContextMenuSelectionService).selectCheckboxes(["blue", "red"]);
 		await settle(fixture);
 
@@ -137,7 +137,7 @@ describe("Menu", () => {
 	});
 
 	it("should render the divider web component", () => {
-		const divider = fixture.nativeElement.querySelector("cds-menu-divider cds-menu-item-divider");
+		const divider = fixture.nativeElement.querySelector("cds-menu-item-divider");
 		expect(divider instanceof customElements.get("cds-menu-item-divider")).toBe(true);
 	});
 

@@ -49,7 +49,7 @@ import { FileItem } from "./file-item.interface";
 			</cds-file-uploader-button>
 		}
 		@for (fileItem of files; track fileItem) {
-			<cds-file
+			<cds-file-uploader-item
 				[fileItem]="fileItem"
 				[nameTpl]="fileNameTpl"
 				[actionsTpl]="fileActionsTpl"

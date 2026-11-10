@@ -1,8 +1,8 @@
 import {
 	ChangeDetectionStrategy,
-	ChangeDetectorRef,
 	Component,
 	CUSTOM_ELEMENTS_SCHEMA,
+	ElementRef,
 	EventEmitter,
 	Input,
 	Output,
@@ -10,33 +10,34 @@ import {
 	inject
 } from "@angular/core";
 import "@carbon/web-components/es/components/radio-button/index.js";
-import { TemplateSlot } from "carbon-components-angular/utils";
+import { registerWrapper, TemplateSlot } from "carbon-components-angular/utils";
 import { RadioChange } from "./radio-change.class";
 
 /**
- * Renders the `<cds-radio-button>` web component. Use inside `cds-radio-group`.
+ * Adds Angular inputs/outputs to the `<cds-radio-button>` web component.
+ * Use inside `<cds-radio-button-group>`, which sets `name`, `checked` and its `disabled` state.
+ *
+ * `value` can be any value; non-primitive values get a generated string for the web component.
  *
  * [See demo](../../?path=/story/components-radio--basic)
  */
 @Component({
-	selector: "cds-radio",
+	selector: "cds-radio-button",
 	template: `
-		<cds-radio-button
-			[id]="id"
-			[checked]="checked"
-			[disabled]="disabled || disabledFromGroup"
-			[name]="name"
-			[required]="required"
-			[value]="stringValue"
-			[labelPosition]="labelPlacement"
-			[attr.aria-label]="ariaLabel || null"
-			[attr.aria-labelledby]="ariaLabelledby || null"
-			(cds-radio-button-changed)="onChanged($event)">
-			<ng-content />
-			<ng-container cdsSlot="ai-label" [cdsSlotTemplate]="decorator" />
-		</cds-radio-button>
+		<ng-content />
+		<ng-container cdsSlot="ai-label" [cdsSlotTemplate]="decorator" />
 	`,
-	styles: [":host { display: contents; }"],
+	host: {
+		"[id]": "id",
+		"[checked]": "checked",
+		"[disabled]": "disabled",
+		"[required]": "required",
+		"[value]": "stringValue",
+		"[labelPosition]": "labelPlacement",
+		"[attr.aria-label]": "ariaLabel || null",
+		"[attr.aria-labelledby]": "ariaLabelledby || null",
+		"(cds-radio-button-changed)": "onChanged()"
+	},
 	changeDetection: ChangeDetectionStrategy.OnPush,
 	imports: [TemplateSlot],
 	schemas: [CUSTOM_ELEMENTS_SCHEMA]
@@ -44,55 +45,39 @@ import { RadioChange } from "./radio-change.class";
 export class Radio {
 	static radioCount = 0;
 
-	@Input() set checked(value: boolean) {
-		this._checked = value;
-		this.changeDetectorRef.markForCheck();
-	}
-	get checked() {
-		return this._checked;
-	}
-	@Input() set name(value: string) {
-		this._name = value;
-		this.changeDetectorRef.markForCheck();
-	}
-	get name() {
-		return this._name;
-	}
+	@Input() checked = false;
 	@Input() disabled = false;
 	@Input() labelPlacement: "right" | "left" = "right";
 	@Input() ariaLabelledby: string;
 	@Input() ariaLabel: string;
 	@Input() required = false;
-	/**
-	 * Any value; the web component receives it as a string.
-	 */
-	@Input() value: any;
 	@Input() id = `radio-${Radio.radioCount++}`;
+	@Input() set value(value: any) {
+		this._value = value;
+		const primitive = value === null || value === undefined || typeof value !== "object";
+		this.stringValue = primitive ? String(value ?? "") : `${this.id}-value`;
+	}
+	get value() {
+		return this._value;
+	}
 	@Input() decorator: TemplateRef<any>;
-	/**
-	 * @deprecated use `<cds-radio-button-skeleton>` instead.
-	 */
-	@Input() skeleton = false;
 
 	// eslint-disable-next-line @angular-eslint/no-output-native
 	@Output() change = new EventEmitter<RadioChange>();
 
-	disabledFromGroup = false;
-	protected changeDetectorRef = inject(ChangeDetectorRef);
-	protected _checked = false;
-	protected _name = "";
+	/**
+	 * The value given to the web component.
+	 */
+	stringValue = "";
+	protected _value: any;
+	protected element = inject(ElementRef).nativeElement;
 
-	get stringValue() {
-		return this.value === undefined || this.value === null ? "" : String(this.value);
+	constructor() {
+		registerWrapper(this.element, this);
 	}
 
-	setDisabledFromGroup(disabled: boolean) {
-		this.disabledFromGroup = disabled;
-		this.changeDetectorRef.markForCheck();
-	}
-
-	onChanged(event: Event) {
-		this.checked = (event.target as any).checked;
+	onChanged() {
+		this.checked = this.element.checked;
 		if (this.checked) {
 			this.change.emit(new RadioChange(this, this.value));
 		}

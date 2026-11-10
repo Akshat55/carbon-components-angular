@@ -9,12 +9,12 @@ import { FileComponent } from "../file.component";
 	selector: "app-custom-file",
 	imports: [FileComponent, Link, Button, IconDirective],
 	template: `
-		<cds-file
+		<cds-file-uploader-item
 			[size]="size"
 			[fileItem]="fileItem"
 			[nameTpl]="nameTpl"
 			[actionsTpl]="actionsTpl">
-		</cds-file>
+		</cds-file-uploader-item>
 
 		<ng-template #nameTpl let-fileItem>
 			<a href="#" cdsLink>{{ fileItem.file.name }}</a>

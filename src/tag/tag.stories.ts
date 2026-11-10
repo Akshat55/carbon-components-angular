@@ -73,17 +73,16 @@ export const Basic = Template.bind({});
 const FilteredTemplate = (args) => ({
 	props: args,
 	template: `
-		<cds-tag-filter
+		<cds-dismissible-tag
+			text="Filtered"
 			[type]="type"
 			[size]="size"
-			[skeleton]="skeleton"
 			title="Filter"
 			closeButtonLabel="Clear">
 			<div cdsTagIcon>
 				<svg ibmIcon="settings" size="16"></svg>
 			</div>
-			Filtered
-		</cds-tag-filter>
+		</cds-dismissible-tag>
 	`
 });
 export const Filter = FilteredTemplate.bind({});
@@ -91,17 +90,16 @@ export const Filter = FilteredTemplate.bind({});
 const SelectedTagTemplate = (args) => ({
 	props: args,
 	template: `
-		<cds-tag-selectable
+		<cds-selectable-tag
+			text="Selectable"
 			[size]="size"
-			[skeleton]="skeleton"
 			[selected]="selected"
 			(selectedChange)="selectedChange($event)"
 			(click)="onClick($event)">
 			<div cdsTagIcon>
 				<svg ibmIcon="settings" size="16"></svg>
 			</div>
-			Selectable
-		</cds-tag-selectable>
+		</cds-selectable-tag>
 	`
 });
 export const SelectedTag = SelectedTagTemplate.bind({});
@@ -116,31 +114,29 @@ SelectedTag.argTypes = {
 const OperationalTagTemplate = (args) => ({
 	props: args,
 	template: `
-		<cds-tag-operational
+		<cds-operational-tag
+			text="Operational"
 			type="cyan"
 			[size]="size"
-			[skeleton]="skeleton"
 			(click)="onClick($event)">
 			<div cdsTagIcon>
 				<svg ibmIcon="settings" size="16"></svg>
 			</div>
-			Operational
-		</cds-tag-operational>
+		</cds-operational-tag>
 
 
 		<cds-popover
 			[isOpen]="isOpen"
 			[highContrast]="true">
-			<cds-tag-operational
+			<cds-operational-tag
+				text="Operational w/ popover"
 				[type]="type"
 				[size]="size"
-				[skeleton]="skeleton"
 				(click)="isOpen = !isOpen">
 				<div cdsTagIcon>
 					<svg ibmIcon="settings" size="16"></svg>
 				</div>
-				Operational w/ popover
-			</cds-tag-operational>
+			</cds-operational-tag>
 			<cds-popover-content>
 				<div class="popover-content">
 					Tag 1 name <br>

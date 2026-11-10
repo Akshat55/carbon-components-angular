@@ -12,10 +12,10 @@ import { ContextMenuDividerComponent, ContextMenuItemComponent } from "../contex
 			<cds-menu-item label="First action with a long label description" />
 			<cds-menu-item label="Second action" />
 			<cds-menu-item label="Third action" [disabled]="true" />
-			<cds-menu-divider />
+			<cds-menu-item-divider />
 			<cds-menu-item label="Cut" info="⌘X" />
 			<cds-menu-item label="Option with icon" icon="calendar" />
-			<cds-menu-divider />
+			<cds-menu-item-divider />
 			<cds-menu-item label="Danger action" kind="danger" />
 		</cds-combo-button>
 	`,

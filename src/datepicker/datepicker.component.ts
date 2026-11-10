@@ -3,7 +3,6 @@ import {
 	ChangeDetectionStrategy,
 	Component,
 	CUSTOM_ELEMENTS_SCHEMA,
-	ElementRef,
 	EventEmitter,
 	Input,
 	Output,
@@ -161,7 +160,6 @@ export class DatePicker extends WebComponentValueAccessor<Date[] | Date> impleme
 
 	protected content = new TemplateContent();
 	protected _value: (Date | string)[] = [];
-	private element = inject(ElementRef).nativeElement;
 
 	get locale() {
 		const all = languages as any;

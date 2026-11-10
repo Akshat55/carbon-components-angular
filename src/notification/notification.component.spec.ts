@@ -7,7 +7,7 @@ import { Notification, NotificationDisplayService } from "./index";
 import { NotificationContent } from "./notification-content.interface";
 
 @Component({
-	template: `<cds-notification [notificationObj]="notificationObj" (close)="closed()" />`,
+	template: `<cds-inline-notification [notificationObj]="notificationObj" (close)="closed()" />`,
 	imports: [Notification]
 })
 class NotificationTest {

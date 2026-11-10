@@ -19,7 +19,7 @@ import { ReplacePipe } from "carbon-components-angular/i18n";
 	selector: "[cdsTableRadio], [ibmTableRadio]",
 	template: `
 		@if (!skeleton) {
-			<cds-radio
+			<cds-radio-button
 				[attr.aria-label]="getLabel() | i18nReplace:getSelectionLabelValue(row) | async"
 				[ariaLabel]="getLabel() | i18nReplace:getSelectionLabelValue(row) | async"
 				[checked]="selected"

@@ -26,7 +26,7 @@ import {
 	ClickableTile,
 	ExpandableTile,
 	ExpandableTileAboveFoldDirective,
-	SelectionTile,
+	RadioTile,
 	Tile,
 	TileGroup
 } from "carbon-components-angular/tiles";
@@ -67,23 +67,23 @@ const cases: SmokeCase[] = [
 	{
 		name: "TagFilter",
 		imports: [TagFilter],
-		template: `<cds-tag-filter type="blue" title="Filter">Label</cds-tag-filter>`,
-		tag: "cds-tag",
-		props: { filter: true, type: "blue", title: "Filter" }
+		template: `<cds-dismissible-tag text="Label" type="blue" title="Filter" />`,
+		tag: "cds-dismissible-tag",
+		props: { text: "Label", type: "blue", tagTitle: "Filter" }
 	},
 	{
 		name: "TagSelectable",
 		imports: [TagSelectableComponent],
-		template: `<cds-tag-selectable [selected]="true">Label</cds-tag-selectable>`,
+		template: `<cds-selectable-tag text="Label" [selected]="true" />`,
 		tag: "cds-selectable-tag",
-		props: { selected: true }
+		props: { text: "Label", selected: true }
 	},
 	{
 		name: "TagOperational",
 		imports: [TagOperationalComponent],
-		template: `<cds-tag-operational type="green">Label</cds-tag-operational>`,
+		template: `<cds-operational-tag text="Label" type="green" />`,
 		tag: "cds-operational-tag",
-		props: { type: "green" }
+		props: { text: "Label", type: "green" }
 	},
 	{
 		name: "CdsLink",
@@ -198,8 +198,8 @@ const cases: SmokeCase[] = [
 	},
 	{
 		name: "TileGroup (single select)",
-		imports: [TileGroup, SelectionTile],
-		template: `<cds-tile-group legend="Pick"><cds-selection-tile value="a" [selected]="true">A</cds-selection-tile></cds-tile-group>`,
+		imports: [TileGroup, RadioTile],
+		template: `<cds-tile-group legend="Pick"><cds-radio-tile value="a" [selected]="true">A</cds-radio-tile></cds-tile-group>`,
 		tag: "cds-tile-group",
 		check: element => expect(element.querySelector("cds-radio-tile").selected).toBe(true)
 	},
@@ -228,7 +228,7 @@ const cases: SmokeCase[] = [
 	{
 		name: "TimePicker with TimePickerSelect",
 		imports: [TimePicker, TimePickerSelect],
-		template: `<cds-timepicker label="Time"><cds-timepicker-select><option value="AM">AM</option><option value="PM">PM</option></cds-timepicker-select></cds-timepicker>`,
+		template: `<cds-time-picker label="Time"><cds-time-picker-select><cds-select-item value="AM">AM</cds-select-item><cds-select-item value="PM">PM</cds-select-item></cds-time-picker-select></cds-time-picker>`,
 		tag: "cds-time-picker",
 		check: element => {
 			const items = element.querySelectorAll("cds-time-picker-select cds-select-item");

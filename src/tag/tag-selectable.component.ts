@@ -9,30 +9,30 @@ import {
 import "@carbon/web-components/es/components/tag/index.js";
 
 /**
- * Wraps the `<cds-selectable-tag>` web component. Supports `[(selected)]`.
+ * Adds Angular inputs and `[(selected)]` to the `<cds-selectable-tag>` web component.
+ *
+ * ```html
+ * <cds-selectable-tag text="Tag" [(selected)]="selected" />
+ * ```
  *
  * [See demo](../../?path=/story/components-tag--selectable)
  */
 @Component({
-	selector: "cds-tag-selectable",
-	template: `
-		<cds-selectable-tag
-			[size]="size"
-			[disabled]="disabled"
-			[selected]="selected"
-			(cds-selectable-tag-selected)="onSelected($event)">
-			@if (!skeleton) {
-				<ng-content />
-			}
-		</cds-selectable-tag>
-	`,
-	styles: [":host { display: contents; }"],
+	selector: "cds-selectable-tag",
+	template: "<ng-content />",
+	host: {
+		"[text]": "text",
+		"[size]": "size",
+		"[disabled]": "disabled",
+		"[selected]": "selected",
+		"(cds-selectable-tag-selected)": "onSelected($event)"
+	},
 	changeDetection: ChangeDetectionStrategy.OnPush,
 	schemas: [CUSTOM_ELEMENTS_SCHEMA]
 })
 export class TagSelectableComponent {
+	@Input() text = "";
 	@Input() size: "sm" | "md" | "lg" = "md";
-	@Input() skeleton = false;
 	@Input() disabled = false;
 	@Input() selected = false;
 

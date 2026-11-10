@@ -15,10 +15,10 @@ import { OverflowMenuOption } from "./overflow-menu-option.component";
 			[buttonLabel]="buttonLabel"
 			[customTrigger]="useCustomTrigger ? customTrigger : null"
 			(openChange)="onOpenChange($event)">
-			<cds-overflow-menu-option (selected)="onSelected()">Option one</cds-overflow-menu-option>
-			<cds-overflow-menu-option [disabled]="secondDisabled">Option two</cds-overflow-menu-option>
-			<cds-overflow-menu-option href="https://carbondesignsystem.com/">Option three</cds-overflow-menu-option>
-			<cds-overflow-menu-option type="danger">Delete</cds-overflow-menu-option>
+			<cds-overflow-menu-item (selected)="onSelected()">Option one</cds-overflow-menu-item>
+			<cds-overflow-menu-item [disabled]="secondDisabled">Option two</cds-overflow-menu-item>
+			<cds-overflow-menu-item href="https://carbondesignsystem.com/">Option three</cds-overflow-menu-item>
+			<cds-overflow-menu-item type="danger">Delete</cds-overflow-menu-item>
 		</cds-overflow-menu>
 		<ng-template #customTrigger><span class="custom-trigger">Custom</span></ng-template>
 	`,

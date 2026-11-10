@@ -7,10 +7,10 @@ import { TimePickerSelect } from "./timepicker-select.component";
 
 @Component({
 	template: `
-	<cds-timepicker-select (valueChange)="onChange($event)">
-		<option class="test" selected value="AM">AM</option>
-		<option class="test2" value="PM">PM</option>
-	</cds-timepicker-select>
+	<cds-time-picker-select (valueChange)="onChange($event)">
+		<cds-select-item class="test" selected value="AM">AM</cds-select-item>
+		<cds-select-item class="test2" value="PM">PM</cds-select-item>
+	</cds-time-picker-select>
 	`,
 	imports: [TimePickerSelect]
 })
@@ -66,7 +66,7 @@ describe("TimePickerSelect", () => {
 	it("should set label to test-label", async () => {
 		fixture = TestBed.overrideComponent(TimePickerSelectTest, {
 			set: {
-				template: `<cds-timepicker-select label="test-label"></cds-timepicker-select>`
+				template: `<cds-time-picker-select label="test-label"></cds-time-picker-select>`
 			}
 		}).createComponent(TimePickerSelectTest);
 		await settle(fixture);
@@ -78,7 +78,7 @@ describe("TimePickerSelect", () => {
 	it("should set disabled on the underlying select to true", async () => {
 		fixture = TestBed.overrideComponent(TimePickerSelectTest, {
 			set: {
-				template: `<cds-timepicker-select [disabled]="true"></cds-timepicker-select>`
+				template: `<cds-time-picker-select [disabled]="true"></cds-time-picker-select>`
 			}
 		}).createComponent(TimePickerSelectTest);
 		await settle(fixture);

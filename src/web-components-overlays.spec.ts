@@ -146,7 +146,7 @@ describe("NotificationService", () => {
 		element.dispatchEvent(event);
 		expect(event.defaultPrevented).toBe(true);
 		tick(500);
-		expect(document.querySelector(".notification-overlay cds-toast")).toBeNull();
+		expect(document.querySelector(".notification-overlay cds-toast-notification")).toBeNull();
 	}));
 
 	it("should show an inline notification with actions", () => {
@@ -172,11 +172,11 @@ describe("Context menu", () => {
 		const host = { value: "b", onValue: jasmine.createSpy("value"), onItem: jasmine.createSpy("item") };
 		const fixture = render(`
 			<cds-menu [open]="true">
-				<cds-menu-group type="radio" [value]="value" (valueChange)="onValue($event)">
+				<cds-menu-item-group type="radio" [value]="value" (valueChange)="onValue($event)">
 					<cds-menu-item label="A" type="radio" value="a" (itemClick)="onItem($event)" />
 					<cds-menu-item label="B" type="radio" value="b" />
-				</cds-menu-group>
-				<cds-menu-divider />
+				</cds-menu-item-group>
+				<cds-menu-item-divider />
 				<cds-menu-item label="More"><cds-menu><cds-menu-item label="Child" /></cds-menu></cds-menu-item>
 			</cds-menu>`,
 		[ContextMenuComponent, ContextMenuGroupComponent, ContextMenuItemComponent, ContextMenuDividerComponent], host);
@@ -235,7 +235,7 @@ describe("Overlay and menu wrappers", () => {
 	});
 
 	it("TooltipDefinition renders the definition slot", () => {
-		const fixture = render(`<cds-tooltip-definition description="Uniform Resource Locator">URL</cds-tooltip-definition>`, [TooltipDefinition]);
+		const fixture = render(`<cds-definition-tooltip description="Uniform Resource Locator">URL</cds-definition-tooltip>`, [TooltipDefinition]);
 		const tooltip: any = fixture.nativeElement.querySelector("cds-definition-tooltip");
 		expect(tooltip instanceof customElements.get("cds-definition-tooltip")).toBe(true);
 		expect(tooltip.querySelector("[slot='definition']").textContent.trim()).toBe("Uniform Resource Locator");
@@ -287,8 +287,8 @@ describe("Overlay and menu wrappers", () => {
 		const host = { onSelected: jasmine.createSpy("selected") };
 		const fixture = render(`
 			<cds-overflow-menu description="Options">
-				<cds-overflow-menu-option (selected)="onSelected()">Edit</cds-overflow-menu-option>
-				<cds-overflow-menu-option type="danger">Delete</cds-overflow-menu-option>
+				<cds-overflow-menu-item (selected)="onSelected()">Edit</cds-overflow-menu-item>
+				<cds-overflow-menu-item type="danger">Delete</cds-overflow-menu-item>
 			</cds-overflow-menu>`, [OverflowMenu, OverflowMenuOption], host);
 		const menu: any = fixture.nativeElement.querySelector("cds-overflow-menu");
 		expect(menu instanceof customElements.get("cds-overflow-menu")).toBe(true);

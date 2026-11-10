@@ -16,15 +16,15 @@ import { OverflowMenu, OverflowMenuOption } from "../../dialog";
 	template: `
 		<ng-template #overflowMenuItemTemplate let-data="data">
 			<cds-overflow-menu>
-				<cds-overflow-menu-option>
+				<cds-overflow-menu-item>
 					First Option
-				</cds-overflow-menu-option>
-				<cds-overflow-menu-option>
+				</cds-overflow-menu-item>
+				<cds-overflow-menu-item>
 					Second Option
-				</cds-overflow-menu-option>
-				<cds-overflow-menu-option>
+				</cds-overflow-menu-item>
+				<cds-overflow-menu-item>
 					Third Option
-				</cds-overflow-menu-option>
+				</cds-overflow-menu-item>
 			</cds-overflow-menu>
 		</ng-template>
 

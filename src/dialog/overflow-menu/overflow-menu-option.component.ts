@@ -19,23 +19,20 @@ export enum Target {
 }
 
 /**
- * An option of `cds-overflow-menu`. Renders the `<cds-overflow-menu-item>` web component.
+ * Adds Angular inputs and `(selected)` to the `<cds-overflow-menu-item>` web component.
+ * Use inside `cds-overflow-menu`.
  */
 @Component({
-	selector: "cds-overflow-menu-option",
-	template: `
-		<cds-overflow-menu-item
-			[danger]="type === 'danger'"
-			[disabled]="disabled"
-			[divider]="divider"
-			[href]="href ?? ''"
-			[attr.target]="target"
-			[class]="innerClass"
-			(click)="onClick($event)">
-			<ng-content />
-		</cds-overflow-menu-item>
-	`,
-	styles: [":host { display: contents; }"],
+	selector: "cds-overflow-menu-item",
+	template: "<ng-content />",
+	host: {
+		"[danger]": "type === 'danger'",
+		"[disabled]": "disabled",
+		"[divider]": "divider",
+		"[href]": "href ?? ''",
+		"[attr.target]": "target",
+		"(click)": "onClick($event)"
+	},
 	changeDetection: ChangeDetectionStrategy.OnPush,
 	schemas: [CUSTOM_ELEMENTS_SCHEMA]
 })
@@ -51,7 +48,6 @@ export class OverflowMenuOption {
 	 * Draws a divider above the option.
 	 */
 	@Input() divider = false;
-	@Input() innerClass = "";
 
 	/**
 	 * Emits when the option is chosen.

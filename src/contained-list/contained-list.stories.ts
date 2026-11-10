@@ -95,9 +95,9 @@ const usageExamplesTemplate = () => ({
 					[customTrigger]="customTrigger"
 					triggerClass="cds--toolbar-action"
 					[offset]="{ x: 0, y: 0 }">
-					<cds-overflow-menu-option>View details</cds-overflow-menu-option>
-					<cds-overflow-menu-option>Edit</cds-overflow-menu-option>
-					<cds-overflow-menu-option [divider]="true" type="danger">Remove</cds-overflow-menu-option>
+					<cds-overflow-menu-item>View details</cds-overflow-menu-item>
+					<cds-overflow-menu-item>Edit</cds-overflow-menu-item>
+					<cds-overflow-menu-item [divider]="true" type="danger">Remove</cds-overflow-menu-item>
 				</cds-overflow-menu>
 			</cds-tooltip>
 		</ng-template>

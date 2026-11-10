@@ -1,63 +1,42 @@
 import {
 	Component,
-	CUSTOM_ELEMENTS_SCHEMA,
-	Input
+	CUSTOM_ELEMENTS_SCHEMA
 } from "@angular/core";
-import { AsyncPipe, NgTemplateOutlet } from "@angular/common";
-import { isObservable, of } from "rxjs";
+import { NgTemplateOutlet } from "@angular/common";
 import "@carbon/web-components/es/components/notification/index.js";
 import { BaseNotification } from "./base-notification.component";
 import { NotificationDisplayService } from "./notification-display.service";
-import { NotificationContent } from "./notification-content.interface";
 
 /**
- * Renders the `<cds-inline-notification>` web component from `notificationObj`.
+ * Adds `notificationObj` and `(close)` to the `<cds-inline-notification>` web component.
  *
  * ```html
- * <cds-notification [notificationObj]="{ type: 'info', title: 'Title', message: 'Message' }" />
+ * <cds-inline-notification [notificationObj]="{ type: 'info', title: 'Title', message: 'Message' }" />
  * ```
  *
+ * Without `notificationObj`, use the web component's own attributes and slots.
  * Use `NotificationService.showNotification()` to create one dynamically.
  *
- * [See demo](../../?path=/story/components-notification--basic)
+ * [See demo](../../?path=/story/components-notification--inline-notification)
  */
 @Component({
-	selector: "cds-notification",
+	selector: "cds-inline-notification",
 	template: `
-		<cds-inline-notification
-			[id]="notificationID"
-			[kind]="notificationObj.type"
-			[lowContrast]="!!notificationObj.lowContrast"
-			[hideCloseButton]="!notificationObj.showClose"
-			[attr.aria-label]="notificationObj.closeLabel | async"
-			open
-			(cds-notification-beingclosed)="onBeingClosed($event)">
-			@if (notificationObj.template) {
-				<ng-container *ngTemplateOutlet="notificationObj.template; context: { $implicit: notificationObj }" />
-			} @else {
+		@if (notificationObj.template) {
+			<ng-container *ngTemplateOutlet="notificationObj.template; context: { $implicit: notificationObj }" />
+		} @else {
+			@if (notificationObj.title) {
 				<span slot="title" [innerHTML]="notificationObj.title"></span>
+			}
+			@if (notificationObj.message) {
 				<span slot="subtitle" [innerHTML]="notificationObj.message"></span>
 			}
-		</cds-inline-notification>
+		}
+		<ng-content />
 	`,
-	styles: [":host { display: contents; }"],
 	providers: [NotificationDisplayService],
-	// Default change detection: v6 notifications re-render when `notificationObj` is mutated.
-	imports: [NgTemplateOutlet, AsyncPipe],
+	// Default change detection: notifications re-render when `notificationObj` is mutated.
+	imports: [NgTemplateOutlet],
 	schemas: [CUSTOM_ELEMENTS_SCHEMA]
 })
-export class Notification extends BaseNotification {
-	static notificationCount = 0;
-
-	notificationID = `notification-${Notification.notificationCount++}`;
-
-	@Input() get notificationObj(): NotificationContent {
-		return this._notificationObj;
-	}
-	set notificationObj(obj: NotificationContent) {
-		if (obj.closeLabel && !isObservable(obj.closeLabel)) {
-			obj.closeLabel = of(obj.closeLabel);
-		}
-		this._notificationObj = Object.assign({}, this.defaultNotificationObj, obj);
-	}
-}
+export class Notification extends BaseNotification {}

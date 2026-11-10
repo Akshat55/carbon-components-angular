@@ -19,21 +19,21 @@ import { RadioGroup } from "../radio-group.component";
 	imports: [RadioGroup, Radio, ReactiveFormsModule],
 	template: `
 		<form [formGroup]="formGroup">
-			<cds-radio-group
+			<cds-radio-button-group
 				aria-label="radiogroup"
 				formControlName="radioGroup">
-				<cds-radio
+				<cds-radio-button
 					value="radio">
 					zero
-				</cds-radio>
+				</cds-radio-button>
 				@for (radio of manyRadios; track radio) {
-					<cds-radio
+					<cds-radio-button
 						[value]="radio.num"
 						[disabled]="radio.disabled">
 						{{radio.num}}
-					</cds-radio>
+					</cds-radio-button>
 				}
-			</cds-radio-group>
+			</cds-radio-button-group>
 		</form>
 		<button (click)="changeSelected()">Set selected to three</button>
 		<button (click)="disableGroup()">Set group disabled</button>

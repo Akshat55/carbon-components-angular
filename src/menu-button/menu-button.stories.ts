@@ -33,10 +33,10 @@ const Template = (args) => ({
 			<cds-menu-item label="First action with a long label description"></cds-menu-item>
 			<cds-menu-item label="Second action" (click)="onClick($event)"></cds-menu-item>
 			<cds-menu-item label="Third action" [disabled]="true"></cds-menu-item>
-			<cds-menu-divider></cds-menu-divider>
+			<cds-menu-item-divider></cds-menu-item-divider>
 			<cds-menu-item label="Cut" info="⌘X"></cds-menu-item>
 			<cds-menu-item label="Option with icon" icon="calendar"></cds-menu-item>
-			<cds-menu-divider></cds-menu-divider>
+			<cds-menu-item-divider></cds-menu-item-divider>
 			<cds-menu-item label="Danger action" [danger]="true"></cds-menu-item>
 		</cds-menu-button>
 	`

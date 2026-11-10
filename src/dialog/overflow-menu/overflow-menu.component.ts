@@ -18,12 +18,12 @@ import { I18n } from "carbon-components-angular/i18n";
 import { FloatingMenuCleanup } from "carbon-components-angular/utils";
 
 /**
- * Wraps the `<cds-overflow-menu>` web component. Project `cds-overflow-menu-option`s.
+ * Wraps the `<cds-overflow-menu>` web component. Project `cds-overflow-menu-item`s.
  *
  * ```html
  * <cds-overflow-menu description="Options">
- * 	<cds-overflow-menu-option (selected)="edit()">Edit</cds-overflow-menu-option>
- * 	<cds-overflow-menu-option type="danger">Delete</cds-overflow-menu-option>
+ * 	<cds-overflow-menu-item (selected)="edit()">Edit</cds-overflow-menu-item>
+ * 	<cds-overflow-menu-item type="danger">Delete</cds-overflow-menu-item>
  * </cds-overflow-menu>
  * ```
  *

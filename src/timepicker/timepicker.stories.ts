@@ -20,30 +20,30 @@ export default {
 const Template = (args) => ({
 	props: args,
 	template: `
-		<cds-timepicker
+		<cds-time-picker
 			(valueChange)="timePickerChange($event)"
 			[(ngModel)]="model"
 			[disabled]="disableTime"
 			[invalid]="invalid"
 			[invalidText]="invalidText"
 			label="Select a time">
-			<cds-timepicker-select
+			<cds-time-picker-select
 				(valueChange)="timePickerSelectChange($event)"
 				[disabled]="disabledSelect"
 				[(ngModel)]="period"
 				ariaLabel="Open list of options">
-				<option selected value="AM">AM</option>
-				<option value="PM">PM</option>
-			</cds-timepicker-select>
-			<cds-timepicker-select
+				<cds-select-item selected value="AM">AM</cds-select-item>
+				<cds-select-item value="PM">PM</cds-select-item>
+			</cds-time-picker-select>
+			<cds-time-picker-select
 				(valueChange)="timePickerSelectChange($event)"
 				[disabled]="disabledSelect"
 				[(ngModel)]="timeZone"
 				ariaLabel="Open list of options">
-				<option selected value="Time Zone 1">Time Zone 1</option>
-				<option value="Time Zone 2">Time Zone 2</option>
-			</cds-timepicker-select>
-		</cds-timepicker>
+				<cds-select-item selected value="Time Zone 1">Time Zone 1</cds-select-item>
+				<cds-select-item value="Time Zone 2">Time Zone 2</cds-select-item>
+			</cds-time-picker-select>
+		</cds-time-picker>
 		<br>
 		<p> Input: {{model}} </p>
 		<p> Period: {{period}} </p>

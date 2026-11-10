@@ -11,32 +11,31 @@ import "@carbon/web-components/es/components/time-picker/index.js";
 import { provideValueAccessor, TemplateContent, TemplateSlot, WebComponentValueAccessor } from "carbon-components-angular/utils";
 
 /**
- * Renders the `<cds-time-picker>` web component. Project `cds-timepicker-select`s for AM/PM etc.
- * Works with `ngModel` / reactive forms.
+ * Adds `ngModel` / reactive forms to the `<cds-time-picker>` web component. Project `cds-time-picker-select`s for AM/PM etc.
+ *
  *
  * [See demo](../../?path=/story/components-time-picker--basic)
  */
 @Component({
-	selector: "cds-timepicker",
+	selector: "cds-time-picker",
 	template: `
-		<cds-time-picker
-			[id]="id"
-			[value]="value ?? ''"
-			[labelText]="isTemplate(label) ? '' : label"
-			[hideLabel]="hideLabel"
-			[placeholder]="placeholder"
-			[pattern]="pattern"
-			[maxLength]="maxLength"
-			[size]="size"
-			[disabled]="disabled"
-			[invalid]="invalid"
-			[invalidText]="content.render('invalidText', invalidText)"
-			(input)="onInput($event)">
-			<ng-container cdsSlot="label-text" [cdsSlotTemplate]="isTemplate(label) ? label : null" />
-			<ng-content />
-		</cds-time-picker>
+		<ng-container cdsSlot="label-text" [cdsSlotTemplate]="isTemplate(label) ? label : null" />
+		<ng-content />
 	`,
-	styles: [":host { display: block; }"],
+	host: {
+		"[id]": "id",
+		"[value]": "value ?? ''",
+		"[labelText]": "isTemplate(label) ? '' : label",
+		"[hideLabel]": "hideLabel",
+		"[placeholder]": "placeholder",
+		"[pattern]": "pattern",
+		"[maxLength]": "maxLength",
+		"[size]": "size",
+		"[disabled]": "disabled",
+		"[invalid]": "invalid",
+		"[invalidText]": "content.render('invalidText', invalidText)",
+		"(input)": "onInput()"
+	},
 	providers: [provideValueAccessor(() => TimePicker)],
 	changeDetection: ChangeDetectionStrategy.OnPush,
 	imports: [TemplateSlot],
@@ -68,13 +67,21 @@ export class TimePicker extends WebComponentValueAccessor<string> {
 
 	protected content = new TemplateContent();
 
+	constructor() {
+		super();
+		// The web component uses its host's whole `className` as one class token, which throws
+		// once the host has several classes (e.g. Angular forms' `ng-untouched ng-pristine`).
+		// Host classes mean nothing inside its shadow root, so hide them from it.
+		Object.defineProperty(this.element, "className", { get: () => "", configurable: true });
+	}
+
 	writeValue(value: string) {
 		this.value = value;
 		this.changeDetectorRef.markForCheck();
 	}
 
-	onInput(event: Event) {
-		this.value = (event.target as HTMLInputElement).value;
+	onInput() {
+		this.value = this.element.value;
 		this.onChange(this.value);
 		this.valueChange.emit(this.value);
 	}

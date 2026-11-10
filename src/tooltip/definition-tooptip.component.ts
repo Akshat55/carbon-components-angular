@@ -7,34 +7,27 @@ import {
 	EventEmitter,
 	Input,
 	Output,
-	OnInit,
 	TemplateRef,
-	ViewChild,
 	inject
 } from "@angular/core";
 import { NgTemplateOutlet } from "@angular/common";
 import "@carbon/web-components/es/components/tooltip/index.js";
 
 /**
- * Renders the `<cds-definition-tooltip>` web component. The term goes in the default slot.
+ * Adds Angular inputs and `[(isOpen)]` to the `<cds-definition-tooltip>` web component.
+ * The term goes in the default slot; `description` fills the `definition` slot.
  *
  * ```html
- * <cds-tooltip-definition description="Uniform Resource Locator">URL</cds-tooltip-definition>
+ * <cds-definition-tooltip description="Uniform Resource Locator">URL</cds-definition-tooltip>
  * ```
  *
  * [See demo](../../?path=/story/components-tooltip-definition--basic)
  */
 @Component({
-	selector: "cds-tooltip-definition",
+	selector: "cds-definition-tooltip",
 	template: `
-		<cds-definition-tooltip
-			#tooltip
-			[id]="id"
-			[align]="align"
-			[autoalign]="autoAlign"
-			[openOnHover]="openOnHover"
-			[open]="isOpen">
-			<ng-content />
+		<ng-content />
+		@if (description) {
 			<span slot="definition">
 				@if (isTemplate(description)) {
 					<ng-template [ngTemplateOutlet]="description" [ngTemplateOutletContext]="{ $implicit: templateContext }" />
@@ -42,14 +35,20 @@ import "@carbon/web-components/es/components/tooltip/index.js";
 					{{ description }}
 				}
 			</span>
-		</cds-definition-tooltip>
+		}
 	`,
-	styles: [":host { display: inline; }"],
+	host: {
+		"[id]": "id",
+		"[align]": "align",
+		"[autoalign]": "autoAlign",
+		"[openOnHover]": "openOnHover",
+		"[open]": "isOpen"
+	},
 	changeDetection: ChangeDetectionStrategy.OnPush,
 	imports: [NgTemplateOutlet],
 	schemas: [CUSTOM_ELEMENTS_SCHEMA]
 })
-export class TooltipDefinition implements OnInit {
+export class TooltipDefinition {
 	static tooltipCount = 0;
 
 	@Input() id = `tooltip-definition-${TooltipDefinition.tooltipCount++}`;
@@ -58,9 +57,6 @@ export class TooltipDefinition implements OnInit {
 	@Input() openOnHover = false;
 	@Input() align = "bottom";
 	@Input() autoAlign = false;
-	/**
-	 * Initial open state.
-	 */
 	@Input() isOpen = false;
 
 	// eslint-disable-next-line @angular-eslint/no-output-on-prefix
@@ -69,25 +65,21 @@ export class TooltipDefinition implements OnInit {
 	@Output() onOpen: EventEmitter<Event> = new EventEmitter();
 	@Output() isOpenChange = new EventEmitter<boolean>();
 
-	@ViewChild("tooltip", { static: true }) tooltip: ElementRef;
-
+	protected element = inject(ElementRef).nativeElement;
 	protected changeDetectorRef = inject(ChangeDetectorRef);
 
-	ngOnInit() {
-		// Capture, as the web component stops some events (e.g. Escape) inside its shadow root.
+	constructor() {
+		// The web component keeps `open` as internal state; read it back after each interaction.
+		// Capture, as it stops some events (e.g. Escape) inside its shadow root.
 		["mousedown", "keydown", "focusin", "focusout", "mouseenter", "mouseleave"].forEach(type =>
-			this.tooltip.nativeElement.addEventListener(type, () => this.syncOpen(), { capture: true })
+			this.element.addEventListener(type, () => this.syncOpen(), { capture: true })
 		);
 	}
 
-	/**
-	 * The web component keeps `open` as internal state; read it back after each interaction.
-	 */
 	async syncOpen() {
-		const element = this.tooltip.nativeElement;
-		await element.updateComplete;
-		if (element.open !== this.isOpen) {
-			this.isOpen = element.open;
+		await this.element.updateComplete;
+		if (this.element.open !== this.isOpen) {
+			this.isOpen = this.element.open;
 			this.isOpenChange.emit(this.isOpen);
 			(this.isOpen ? this.onOpen : this.onClose).emit();
 			this.changeDetectorRef.markForCheck();

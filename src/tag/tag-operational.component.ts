@@ -8,26 +8,29 @@ import "@carbon/web-components/es/components/tag/index.js";
 import { TagType } from "./tag.component";
 
 /**
- * Wraps the `<cds-operational-tag>` web component.
+ * Adds Angular inputs to the `<cds-operational-tag>` web component.
+ *
+ * ```html
+ * <cds-operational-tag text="Tag" type="blue" />
+ * ```
  *
  * [See demo](../../?path=/story/components-tag--operational)
  */
 @Component({
-	selector: "cds-tag-operational",
-	template: `
-		<cds-operational-tag [type]="type" [size]="size" [disabled]="disabled">
-			@if (!skeleton) {
-				<ng-content />
-			}
-		</cds-operational-tag>
-	`,
-	styles: [":host { display: contents; }"],
+	selector: "cds-operational-tag",
+	template: "<ng-content />",
+	host: {
+		"[text]": "text",
+		"[type]": "type",
+		"[size]": "size",
+		"[disabled]": "disabled"
+	},
 	changeDetection: ChangeDetectionStrategy.OnPush,
 	schemas: [CUSTOM_ELEMENTS_SCHEMA]
 })
 export class TagOperationalComponent {
+	@Input() text = "";
 	@Input() type: TagType = "gray";
 	@Input() size: "sm" | "md" | "lg" = "md";
-	@Input() skeleton = false;
 	@Input() disabled = false;
 }

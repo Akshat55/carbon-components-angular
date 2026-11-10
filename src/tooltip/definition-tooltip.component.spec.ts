@@ -7,12 +7,12 @@ import { TooltipDefinition } from ".";
 
 @Component({
 	template: `
-		<cds-tooltip-definition
+		<cds-definition-tooltip
 			[(isOpen)]="isOpen"
 			[description]="description"
 			[autoAlign]="autoAlign">
 			definition
-		</cds-tooltip-definition>
+		</cds-definition-tooltip>
 		`,
 	imports: [TooltipDefinition]
 })
@@ -37,7 +37,7 @@ describe("Definition tooltip", () => {
 		fixture = TestBed.createComponent(TestTTDefinitionComponent);
 		component = fixture.componentInstance;
 		await settle(fixture);
-		tooltipEl = fixture.debugElement.query(By.css("cds-tooltip-definition"));
+		tooltipEl = fixture.debugElement.query(By.css("cds-definition-tooltip"));
 		element = fixture.nativeElement.querySelector("cds-definition-tooltip");
 	});
 

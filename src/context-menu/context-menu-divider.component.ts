@@ -6,12 +6,11 @@ import {
 import "@carbon/web-components/es/components/menu/index.js";
 
 /**
- * A menu divider. Renders the `<cds-menu-item-divider>` web component.
+ * The `<cds-menu-item-divider>` web component. Importing it (or its module) registers the element.
  */
 @Component({
-	selector: "cds-menu-divider",
-	template: "<cds-menu-item-divider />",
-	styles: [":host { display: contents; }"],
+	selector: "cds-menu-item-divider",
+	template: "",
 	changeDetection: ChangeDetectionStrategy.OnPush,
 	schemas: [CUSTOM_ELEMENTS_SCHEMA]
 })

@@ -5,7 +5,7 @@ import { settle, shadow } from "../test-helpers/web-components";
 import { Toast } from "./toast.component";
 
 @Component({
-	template: `<cds-toast [notificationObj]="notificationObj" (close)="closed()"></cds-toast>`,
+	template: `<cds-toast-notification [notificationObj]="notificationObj" (close)="closed()"></cds-toast-notification>`,
 	imports: [Toast]
 })
 class ToastTest {

@@ -1,103 +1,77 @@
 import {
-	AfterContentInit,
 	ChangeDetectionStrategy,
 	Component,
-	ContentChildren,
 	CUSTOM_ELEMENTS_SCHEMA,
+	DestroyRef,
 	EventEmitter,
-	forwardRef,
 	Input,
-	OnDestroy,
 	Output,
-	QueryList,
-	TemplateRef
+	TemplateRef,
+	inject
 } from "@angular/core";
-import { Subscription } from "rxjs";
 import "@carbon/web-components/es/components/radio-button/index.js";
-import { provideValueAccessor, TemplateContent, TemplateSlot, WebComponentValueAccessor } from "carbon-components-angular/utils";
+import {
+	observeChildren,
+	provideValueAccessor,
+	TemplateContent,
+	TemplateSlot,
+	WebComponentValueAccessor,
+	wrapperOf
+} from "carbon-components-angular/utils";
 import { Radio } from "./radio.component";
 import { RadioChange } from "./radio-change.class";
 
 /**
- * Renders the `<cds-radio-button-group>` web component around projected `cds-radio`s.
- * Works with `ngModel` / reactive forms; the value is the selected radio's `value`.
+ * Adds `ngModel` / reactive forms and Angular outputs to the `<cds-radio-button-group>`
+ * web component. The value is the selected radio's `value` (any type for `cds-radio-button`s
+ * with the Angular `value` input).
+ *
+ * The radios are read from the DOM, so radios from templates, `@for`, `createComponent`
+ * or plain markup all work.
  *
  * [See demo](../../?path=/story/components-radio--basic)
  */
 @Component({
-	selector: "cds-radio-group",
+	selector: "cds-radio-button-group",
 	template: `
-		<cds-radio-button-group
-			[name]="name"
-			[value]="selected?.stringValue ?? ''"
-			[disabled]="disabled"
-			[orientation]="orientation"
-			[labelPosition]="labelPlacement"
-			[legendText]="isTemplate(legend) ? '' : legend"
-			[helperText]="content.render('helperText', helperText)"
-			[invalid]="invalid"
-			[invalidText]="content.render('invalidText', invalidText)"
-			[warn]="warn"
-			[warnText]="content.render('warnText', warnText)"
-			[attr.aria-label]="ariaLabel || null"
-			[attr.aria-labelledby]="ariaLabelledby || null"
-			(cds-radio-button-group-changed)="onGroupChanged($event)">
-			<ng-container cdsSlot="ai-label" [cdsSlotTemplate]="decorator" />
-			<ng-content />
-		</cds-radio-button-group>
+		<ng-container cdsSlot="ai-label" [cdsSlotTemplate]="decorator" />
+		<ng-content />
 	`,
-	styles: [":host { display: block; }"],
+	host: {
+		"[name]": "name",
+		"[disabled]": "disabled",
+		"[orientation]": "orientation",
+		"[labelPosition]": "labelPlacement",
+		"[legendText]": "legend",
+		"[helperText]": "content.render('helperText', helperText)",
+		"[invalid]": "invalid",
+		"[invalidText]": "content.render('invalidText', invalidText)",
+		"[warn]": "warn",
+		"[warnText]": "content.render('warnText', warnText)",
+		"(cds-radio-button-group-changed)": "onGroupChanged()"
+	},
 	providers: [provideValueAccessor(() => RadioGroup)],
 	changeDetection: ChangeDetectionStrategy.OnPush,
 	imports: [TemplateSlot],
 	schemas: [CUSTOM_ELEMENTS_SCHEMA]
 })
-export class RadioGroup extends WebComponentValueAccessor implements AfterContentInit, OnDestroy {
+export class RadioGroup extends WebComponentValueAccessor {
 	static radioGroupCount = 0;
-
-	/**
-	 * The selected `Radio`.
-	 */
-	@Input() set selected(selected: Radio | null) {
-		this.value = selected ? selected.value : null;
-	}
-	get selected(): Radio | null {
-		return this.radios?.find(radio => radio.value === this._value) ?? null;
-	}
 
 	@Input() set value(value: any) {
 		this._value = value;
-		this.updateRadios();
+		this.hasValue = true;
+		this.sync();
 	}
 	get value() {
 		return this._value;
 	}
 
-	@Input() set name(name: string) {
-		this._name = name;
-		this.updateRadios();
-	}
-	get name() {
-		return this._name;
-	}
-
-	@Input() set skeleton(value: boolean) {
-		this._skeleton = value;
-		this.radios?.forEach(radio => radio.skeleton = value);
-	}
-	get skeleton() {
-		return this._skeleton;
-	}
-
+	@Input() name = `radio-group-${RadioGroup.radioGroupCount++}`;
 	@Input() orientation: "horizontal" | "vertical" = "horizontal";
 	@Input() labelPlacement: "right" | "left" = "right";
-	/**
-	 * Legend text. A `TemplateRef` is not supported by the web component and renders nothing.
-	 */
-	@Input() legend: string | TemplateRef<any>;
+	@Input() legend: string;
 	@Input() decorator: TemplateRef<any>;
-	@Input() ariaLabel: string;
-	@Input() ariaLabelledby: string;
 	@Input() helperText: string | TemplateRef<any>;
 	@Input() invalid = false;
 	@Input() invalidText: string | TemplateRef<any>;
@@ -107,58 +81,80 @@ export class RadioGroup extends WebComponentValueAccessor implements AfterConten
 	// eslint-disable-next-line @angular-eslint/no-output-native
 	@Output() change = new EventEmitter<RadioChange>();
 
-	@ContentChildren(forwardRef(() => Radio)) radios: QueryList<Radio>;
+	/**
+	 * The selected `Radio` (`null` when nothing is selected or it has no Angular instance).
+	 */
+	get selected(): Radio | null {
+		const element = this.radios().find(radio => radio.checked);
+		return element ? wrapperOf(element, Radio) : null;
+	}
 
 	protected content = new TemplateContent();
 	protected _value: any = null;
-	protected _name = `radio-group-${RadioGroup.radioGroupCount++}`;
-	protected _skeleton = false;
-	private subscription = new Subscription();
+	/**
+	 * `false` until a value is set; until then a pre-checked radio provides it.
+	 */
+	protected hasValue = false;
 
-	ngAfterContentInit() {
-		// A pre-checked radio sets the initial value.
-		if (this._value === null || this._value === undefined) {
-			this._value = this.radios.find(radio => radio.checked)?.value ?? null;
-		}
-		this.updateRadios();
-		// Keep the selection when the radios change (e.g. `@for` re-renders).
-		this.subscription.add(this.radios.changes.subscribe(() => this.updateRadios()));
-	}
-
-	ngOnDestroy() {
-		this.subscription.unsubscribe();
+	constructor() {
+		super();
+		// The web component only updates the radios it has when its own properties change.
+		observeChildren(this.element, inject(DestroyRef), () => this.sync());
 	}
 
 	writeValue(value: any) {
 		this.value = value;
 	}
 
-	onGroupChanged(event: Event) {
-		const value = (event as CustomEvent<{ value: string }>).detail.value;
-		const radio = this.radios.find(r => r.stringValue === value);
-		if (!radio) {
+	onGroupChanged() {
+		const element = this.radios().find(radio => radio.checked);
+		if (!element) {
 			return;
 		}
-		this.value = radio.value;
-		this.change.emit(new RadioChange(radio, radio.value));
-		this.onChange(radio.value);
+		this._value = this.valueOf(element);
+		this.hasValue = true;
+		this.change.emit(new RadioChange(wrapperOf(element, Radio), this._value));
+		this.onChange(this._value);
 		this.onTouched();
 	}
 
-	isTemplate(value: unknown): value is TemplateRef<any> {
-		return value instanceof TemplateRef;
-	}
-
 	protected onDisabledChange() {
-		this.updateRadios();
+		this.sync();
 	}
 
-	protected updateRadios() {
-		this.radios?.forEach(radio => {
+	protected radios(): any[] {
+		return Array.from(this.element.querySelectorAll("cds-radio-button"));
+	}
+
+	protected valueOf(element: any) {
+		const radio = wrapperOf(element, Radio);
+		return radio ? radio.value : element.value;
+	}
+
+	/**
+	 * Pushes the group's state to every radio, including ones added after the group rendered.
+	 */
+	protected sync() {
+		const radios = this.radios();
+		if (!this.hasValue) {
+			const checked = radios.find(radio => radio.checked);
+			if (checked) {
+				this._value = this.valueOf(checked);
+				this.hasValue = true;
+			}
+		}
+		for (const radio of radios) {
 			radio.name = this.name;
-			radio.checked = radio.value === this._value;
-			radio.setDisabledFromGroup(this.disabled);
-		});
-		this.changeDetectorRef.markForCheck();
+			radio.checked = this.hasValue && this.valueOf(radio) === this._value;
+			// Remember which radios the group disabled, so enabling the group restores the rest.
+			if (this.disabled && !radio.disabled) {
+				radio.disabled = true;
+				radio.toggleAttribute("data-group-disabled", true);
+			} else if (!this.disabled && radio.hasAttribute("data-group-disabled")) {
+				radio.disabled = false;
+				radio.removeAttribute("data-group-disabled");
+			}
+		}
+		this.element.value = radios.find(radio => radio.checked)?.value ?? "";
 	}
 }

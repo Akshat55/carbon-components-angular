@@ -9,7 +9,7 @@ import { TimePickerSelect } from "../timepicker-select/timepicker-select.compone
 
 @Component({
 	template: `
-		<cds-timepicker
+		<cds-time-picker
 			theme="dark"
 			(valueChange)="onChange()"
 			[(value)]="value"
@@ -46,28 +46,28 @@ describe("TimePicker", () => {
 	it("should set label to test", async () => {
 		fixture = TestBed.createComponent(TimePickerTest);
 		await settle(fixture);
-		element = fixture.debugElement.query(By.css("cds-timepicker")).nativeElement;
+		element = fixture.debugElement.query(By.css("cds-time-picker")).nativeElement;
 		expect(element.getAttribute("label")).toEqual("test");
-		expect(shadow(element.querySelector("cds-time-picker"), ".cds--label").textContent.trim()).toEqual("test");
+		expect(shadow(element, ".cds--label").textContent.trim()).toEqual("test");
 	});
 
 	it("should set theme to dark", () => {
 		fixture = TestBed.createComponent(TimePickerTest);
-		element = fixture.debugElement.query(By.css("cds-timepicker")).nativeElement;
+		element = fixture.debugElement.query(By.css("cds-time-picker")).nativeElement;
 		expect(element.getAttribute("theme")).toEqual("dark");
 	});
 
 	it("should set size to large", async () => {
 		fixture = TestBed.createComponent(TimePickerTest);
 		await settle(fixture);
-		element = fixture.debugElement.query(By.css("cds-timepicker")).nativeElement;
+		element = fixture.debugElement.query(By.css("cds-time-picker")).nativeElement;
 		expect(element.getAttribute("size")).toEqual("lg");
-		expect(element.querySelector("cds-time-picker").size).toEqual("lg");
+		expect(element.size).toEqual("lg");
 	});
 
 	it("should set disabled to false", () => {
 		fixture = TestBed.createComponent(TimePickerTest);
-		element = fixture.debugElement.query(By.css("cds-timepicker")).nativeElement;
+		element = fixture.debugElement.query(By.css("cds-time-picker")).nativeElement;
 		expect(element.getAttribute("disabled")).toEqual("false");
 	});
 
@@ -91,7 +91,7 @@ describe("TimePicker", () => {
 	it("should disable input", async () => {
 		fixture = TestBed.overrideComponent(TimePickerTest, {
 			set: {
-				template: `<cds-timepicker disabled="true"></cds-timepicker>`
+				template: `<cds-time-picker disabled="true"></cds-time-picker>`
 			}
 		}).createComponent(TimePickerTest);
 		await settle(fixture);
@@ -101,12 +101,12 @@ describe("TimePicker", () => {
 
 @Component({
 	template: `
-		<cds-timepicker label="Time" [formControl]="time">
-			<cds-timepicker-select [formControl]="period">
-				<option value="AM">AM</option>
-				<option value="PM">PM</option>
-			</cds-timepicker-select>
-		</cds-timepicker>
+		<cds-time-picker label="Time" [formControl]="time">
+			<cds-time-picker-select [formControl]="period">
+				<cds-select-item value="AM">AM</cds-select-item>
+				<cds-select-item value="PM">PM</cds-select-item>
+			</cds-time-picker-select>
+		</cds-time-picker>
 	`,
 	imports: [TimePicker, TimePickerSelect, ReactiveFormsModule]
 })

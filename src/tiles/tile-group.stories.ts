@@ -1,6 +1,6 @@
 import { moduleMetadata, Meta } from "@storybook/angular";
 import { LayerDirective } from "../layer";
-import { TileGroup, SelectionTile } from "./";
+import { TileGroup, RadioTile, SelectableTile } from "./";
 import { AILabelModule } from "../ai-label";
 import { ButtonModule } from "../button";
 import { IconModule } from "../icon";
@@ -10,28 +10,24 @@ export default {
 	title: "Components/Tiles/Grouped",
 	decorators: [
 		moduleMetadata({
-			imports: [TileGroup, SelectionTile, LayerDirective, AILabelModule, ButtonModule, IconModule]
+			imports: [TileGroup, RadioTile, SelectableTile, LayerDirective, AILabelModule, ButtonModule, IconModule]
 		})
 	],
-	argTypes: {
-		multiple: {
-			control: false
-		}
-	},
 	component: TileGroup,
 	subcomponents: {
 		TileGroup,
-		SelectionTile
+		RadioTile,
+		SelectableTile
 	}
 } as Meta;
 
 const SelectableTemplate = (args) => ({
 	props: args,
 	template: `
-		<cds-tile-group (selected)="selected($event)" [multiple]="false">
-			<cds-selection-tile value="tile1" [selected]="true">Selectable Tile</cds-selection-tile>
-			<cds-selection-tile value="tile2">Selectable Tile</cds-selection-tile>
-			<cds-selection-tile value="tile3">Selectable Tile</cds-selection-tile>
+		<cds-tile-group (selected)="selected($event)">
+			<cds-radio-tile value="tile1" [selected]="true">Selectable Tile</cds-radio-tile>
+			<cds-radio-tile value="tile2">Selectable Tile</cds-radio-tile>
+			<cds-radio-tile value="tile3">Selectable Tile</cds-radio-tile>
 		</cds-tile-group>
 	`
 });
@@ -46,9 +42,9 @@ const withAILabelTemplate = (args) => ({
 	props: args,
 	styles: AI_LABEL_STORY_STYLES,
 	template: `
-		<cds-tile-group (selected)="selected($event)" [multiple]="false">
-			<cds-selection-tile value="t1" [decorator]="decoratorTpl">Tile with decorator</cds-selection-tile>
-			<cds-selection-tile value="t2">Plain tile</cds-selection-tile>
+		<cds-tile-group (selected)="selected($event)">
+			<cds-radio-tile value="t1" [decorator]="decoratorTpl">Tile with decorator</cds-radio-tile>
+			<cds-radio-tile value="t2">Plain tile</cds-radio-tile>
 		</cds-tile-group>
 		<ng-template #decoratorTpl>
 			<cds-ai-label
@@ -74,10 +70,10 @@ withAILabel.argTypes = {
 const MultiTemplate = (args) => ({
 	props: args,
 	template: `
-		<cds-tile-group (selected)="selected($event)" [multiple]="true">
-			<cds-selection-tile value="tile1" [selected]="true">Selectable Tile</cds-selection-tile>
-			<cds-selection-tile value="tile2">Selectable Tile</cds-selection-tile>
-			<cds-selection-tile value="tile3">Selectable Tile</cds-selection-tile>
+		<cds-tile-group (selected)="selected($event)">
+			<cds-selectable-tile value="tile1" [selected]="true">Selectable Tile</cds-selectable-tile>
+			<cds-selectable-tile value="tile2">Selectable Tile</cds-selectable-tile>
+			<cds-selectable-tile value="tile3">Selectable Tile</cds-selectable-tile>
 		</cds-tile-group>
 	`
 });
@@ -91,19 +87,19 @@ Multiselect.argTypes = {
 const LayerTemplate = (args) => ({
 	props: args,
 	template: `
-		<cds-tile-group (selected)="selected($event)" [multiple]="false">
-			<cds-selection-tile value="tile1" [selected]="true">First Layer</cds-selection-tile>
-			<cds-selection-tile value="tile2">First Layer</cds-selection-tile>
+		<cds-tile-group (selected)="selected($event)">
+			<cds-radio-tile value="tile1" [selected]="true">First Layer</cds-radio-tile>
+			<cds-radio-tile value="tile2">First Layer</cds-radio-tile>
 		</cds-tile-group>
 		<div cdsLayer>
-			<cds-tile-group (selected)="selected($event)" [multiple]="false">
-				<cds-selection-tile value="tile1" [selected]="true">Second Layer</cds-selection-tile>
-				<cds-selection-tile value="tile2">Second Layer</cds-selection-tile>
+			<cds-tile-group (selected)="selected($event)">
+				<cds-radio-tile value="tile1" [selected]="true">Second Layer</cds-radio-tile>
+				<cds-radio-tile value="tile2">Second Layer</cds-radio-tile>
 			</cds-tile-group>
 			<div cdsLayer>
-				<cds-tile-group (selected)="selected($event)" [multiple]="false">
-					<cds-selection-tile value="tile1" [selected]="true">Third Layer</cds-selection-tile>
-					<cds-selection-tile value="tile2">Third Layer</cds-selection-tile>
+				<cds-tile-group (selected)="selected($event)">
+					<cds-radio-tile value="tile1" [selected]="true">Third Layer</cds-radio-tile>
+					<cds-radio-tile value="tile2">Third Layer</cds-radio-tile>
 				</cds-tile-group>
 			</div>
 		</div>

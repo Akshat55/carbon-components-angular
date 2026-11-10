@@ -16,17 +16,15 @@ import "@carbon/web-components/es/components/menu/index.js";
 import { ContextMenuSelectionService } from "./context-menu-selection.service";
 
 /**
- * A group of menu items. Renders the `<cds-menu-item-group>` web component. With `type`,
+ * Adds Angular selection handling to the `<cds-menu-item-group>` web component. With `type`,
  * its `checkbox` / `radio` items share one selection (`value` / `valueChange`).
  */
 @Component({
-	selector: "cds-menu-group",
-	template: `
-		<cds-menu-item-group [label]="label">
-			<ng-content />
-		</cds-menu-item-group>
-	`,
-	styles: [":host { display: contents; }"],
+	selector: "cds-menu-item-group",
+	template: "<ng-content />",
+	host: {
+		"[label]": "label"
+	},
 	providers: [ContextMenuSelectionService],
 	changeDetection: ChangeDetectionStrategy.OnPush,
 	schemas: [CUSTOM_ELEMENTS_SCHEMA]

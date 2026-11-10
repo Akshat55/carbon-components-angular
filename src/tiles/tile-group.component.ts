@@ -1,26 +1,32 @@
 import {
-	AfterContentInit,
 	ChangeDetectionStrategy,
 	Component,
-	ContentChildren,
 	CUSTOM_ELEMENTS_SCHEMA,
+	DestroyRef,
 	EventEmitter,
 	Input,
-	OnDestroy,
 	Output,
-	QueryList,
-	TemplateRef
+	TemplateRef,
+	inject
 } from "@angular/core";
-import { Subject } from "rxjs";
-import { takeUntil } from "rxjs/operators";
 import "@carbon/web-components/es/components/tile/index.js";
-import { provideValueAccessor, TemplateSlot, WebComponentValueAccessor } from "carbon-components-angular/utils";
-import { SelectionTile } from "./selection-tile.component";
+import {
+	observeChildren,
+	provideValueAccessor,
+	TemplateSlot,
+	WebComponentValueAccessor,
+	wrapperOf
+} from "carbon-components-angular/utils";
+import { BaseSelectionTile } from "./selection-tile.component";
 import { TileSelection } from "./tile-selection.interface";
 
 /**
- * Wraps the `<cds-tile-group>` web component. Works with `ngModel` / reactive forms;
- * the value is the selected tile's `value`.
+ * Adds `ngModel` / reactive forms to the `<cds-tile-group>` web component.
+ *
+ * - With `cds-radio-tile`s one tile is selected; the value is its `value`.
+ * - With `cds-selectable-tile`s any number are; the value is an array of their `value`s.
+ *
+ * The tiles are read from the DOM, so tiles from templates, `@for` or `createComponent` all work.
  *
  * [See demo](../../?path=/story/components-tiles-grouped--selectable)
  */
@@ -34,65 +40,85 @@ import { TileSelection } from "./tile-selection.interface";
 		}
 		<ng-content />
 	`,
+	host: {
+		"(cds-radio-tile-selected)": "onTileChange($event)",
+		"(cds-selectable-tile-changed)": "onTileChange($event)"
+	},
 	providers: [provideValueAccessor(() => TileGroup)],
 	changeDetection: ChangeDetectionStrategy.OnPush,
 	imports: [TemplateSlot],
 	schemas: [CUSTOM_ELEMENTS_SCHEMA]
 })
-export class TileGroup extends WebComponentValueAccessor implements AfterContentInit, OnDestroy {
+export class TileGroup extends WebComponentValueAccessor {
 	static tileGroupCount = 0;
 
 	@Input() name = `tile-group-${TileGroup.tileGroupCount++}`;
-	/**
-	 * Allows selecting more than one tile (checkbox tiles instead of radio tiles).
-	 */
-	@Input() multiple = false;
 	@Input() legend: string | TemplateRef<any>;
 
 	@Output() selected: EventEmitter<TileSelection> = new EventEmitter();
 
-	@ContentChildren(SelectionTile) selectionTiles: QueryList<SelectionTile>;
+	protected value: any;
 
-	protected unsubscribe$ = new Subject<void>();
-	protected unsubscribeTiles$ = new Subject<void>();
-	private value: any;
-
-	ngAfterContentInit() {
-		this.updateTiles();
-		this.selectionTiles.changes.pipe(takeUntil(this.unsubscribe$)).subscribe(() => this.updateTiles());
-	}
-
-	ngOnDestroy() {
-		this.unsubscribe$.next();
-		this.unsubscribe$.complete();
-		this.unsubscribeTiles$.next();
-		this.unsubscribeTiles$.complete();
+	constructor() {
+		super();
+		observeChildren(this.element, inject(DestroyRef), () => this.sync());
 	}
 
 	writeValue(value: any) {
 		this.value = value;
-		this.selectionTiles?.forEach(tile => tile.selected = tile.value === value);
+		this.sync();
+	}
+
+	onTileChange(event: Event) {
+		const tile = event.target as any;
+		const radio = this.isRadio(tile);
+		if (radio && tile.selected) {
+			// The web component group misses tiles added after it rendered; deselect the others here.
+			this.tiles().filter(other => other !== tile && this.isRadio(other)).forEach(other => this.select(other, false));
+		}
+		this.value = radio ? tile.value : this.tiles().filter(other => other.selected).map(other => other.value);
+		this.selected.emit({ value: tile.value, selected: tile.selected, name: this.name });
+		this.onChange(this.value);
+		this.onTouched();
 	}
 
 	isTemplate(value: unknown): value is TemplateRef<any> {
 		return value instanceof TemplateRef;
 	}
 
-	protected updateTiles() {
-		this.unsubscribeTiles$.next();
-		this.selectionTiles.forEach(tile => {
-			tile.name = this.name;
-			tile.multiple = this.multiple;
-			tile.change.pipe(takeUntil(this.unsubscribeTiles$)).subscribe(() => {
-				if (!this.multiple) {
-					this.selectionTiles.forEach(other => other.selected = other === tile);
-				}
-				this.selected.emit({ value: tile.value, selected: tile.selected, name: this.name });
-				this.onChange(tile.value);
-			});
-		});
-		if (this.value !== undefined) {
-			this.writeValue(this.value);
+	protected tiles(): any[] {
+		return Array.from(this.element.querySelectorAll("cds-radio-tile, cds-selectable-tile"));
+	}
+
+	protected isRadio(tile: Element) {
+		return tile.tagName === "CDS-RADIO-TILE";
+	}
+
+	/**
+	 * Sets a tile's selected state, through its Angular instance when it has one.
+	 */
+	protected select(tile: any, selected: boolean) {
+		const instance = wrapperOf(tile, BaseSelectionTile);
+		if (instance) {
+			instance.selected = selected;
 		}
+		tile.selected = selected;
+	}
+
+	protected sync() {
+		const values = Array.isArray(this.value) ? this.value : [this.value];
+		for (const tile of this.tiles()) {
+			tile.name = this.name;
+			if (this.value !== undefined) {
+				this.select(tile, values.includes(tile.value));
+			}
+			if (this.disabled) {
+				tile.disabled = true;
+			}
+		}
+	}
+
+	protected onDisabledChange() {
+		this.sync();
 	}
 }

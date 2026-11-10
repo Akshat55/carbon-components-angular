@@ -19,14 +19,14 @@ const Template = (args) => ({
 	template: `
 		<div class="cds--form-item">
 			<div class="cds--time-picker">
-				<cds-timepicker-select>
-					<option selected value="AM">AM</option>
-					<option value="PM">PM</option>
-				</cds-timepicker-select>
-				<cds-timepicker-select>
-					<option selected value="Time Zone 1">Time Zone 1</option>
-					<option value="Time Zone 2">Time Zone 2</option>
-				</cds-timepicker-select>
+				<cds-time-picker-select>
+					<cds-select-item selected value="AM">AM</cds-select-item>
+					<cds-select-item value="PM">PM</cds-select-item>
+				</cds-time-picker-select>
+				<cds-time-picker-select>
+					<cds-select-item selected value="Time Zone 1">Time Zone 1</cds-select-item>
+					<cds-select-item value="Time Zone 2">Time Zone 2</cds-select-item>
+				</cds-time-picker-select>
 			</div>
 		</div>
 	`

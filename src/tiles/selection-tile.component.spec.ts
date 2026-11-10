@@ -2,45 +2,50 @@ import { Component, ViewChild } from "@angular/core";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 
 import { settle, shadow } from "../test-helpers/web-components";
-import { SelectionTile } from "./selection-tile.component";
+import { RadioTile, SelectableTile } from "./selection-tile.component";
 
 @Component({
-	template: `<cds-selection-tile value="a">Tile</cds-selection-tile>`,
-	imports: [SelectionTile]
+	template: `
+		<cds-selectable-tile value="a" [(selected)]="selected">Tile</cds-selectable-tile>
+		<cds-radio-tile value="b">Radio</cds-radio-tile>
+	`,
+	imports: [SelectableTile, RadioTile]
 })
 class SelectionTileTest {
-	@ViewChild(SelectionTile) tile: SelectionTile;
+	@ViewChild(SelectableTile) tile: SelectableTile;
+	@ViewChild(RadioTile) radio: RadioTile;
+	selected = false;
 }
 
-describe("SelectionTile", () => {
+describe("SelectableTile and RadioTile", () => {
 	let fixture: ComponentFixture<SelectionTileTest>;
-	let component: SelectionTile;
 	const webComponent = (): any => fixture.nativeElement.querySelector("cds-selectable-tile");
 
 	beforeEach(async () => {
 		fixture = TestBed.createComponent(SelectionTileTest);
 		await settle(fixture);
-		component = fixture.componentInstance.tile;
 	});
 
-	it("marks for check when selected is changed programmatically", async () => {
-		// The tile is OnPush; a programmatic change must still reach the web component.
-		component.selected = true;
+	it("should sit on the web components", () => {
+		expect(fixture.componentInstance.tile instanceof SelectableTile).toBe(true);
+		expect(webComponent() instanceof customElements.get("cds-selectable-tile")).toBe(true);
+		expect(fixture.componentInstance.radio instanceof RadioTile).toBe(true);
+		expect(fixture.nativeElement.querySelector("cds-radio-tile") instanceof customElements.get("cds-radio-tile")).toBe(true);
+	});
+
+	it("should select the tile from the host", async () => {
+		fixture.componentInstance.selected = true;
 		await settle(fixture);
 
-		expect(component.selected).toBeTrue();
 		expect(webComponent().selected).toBeTrue();
 		expect(shadow(webComponent(), ".cds--tile--is-selected")).toBeTruthy();
 	});
 
-	it("emits change and updates selected when the user selects the tile", async () => {
-		const change = jasmine.createSpy("change");
-		component.change.subscribe(change);
-
+	it("should update [(selected)] when the user selects the tile", async () => {
 		shadow<HTMLElement>(webComponent(), "[role=checkbox]").click();
 		await settle(fixture);
 
-		expect(change).toHaveBeenCalled();
-		expect(component.selected).toBeTrue();
+		expect(fixture.componentInstance.tile.selected).toBeTrue();
+		expect(fixture.componentInstance.selected).toBeTrue();
 	});
 });

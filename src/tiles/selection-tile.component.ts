@@ -1,111 +1,92 @@
 import {
 	ChangeDetectionStrategy,
-	ChangeDetectorRef,
 	Component,
 	CUSTOM_ELEMENTS_SCHEMA,
+	Directive,
+	ElementRef,
 	EventEmitter,
 	Input,
 	Output,
 	TemplateRef,
 	inject
 } from "@angular/core";
-import { NgTemplateOutlet } from "@angular/common";
 import "@carbon/web-components/es/components/tile/index.js";
-import { TemplateSlot } from "carbon-components-angular/utils";
+import { registerWrapper, TemplateSlot } from "carbon-components-angular/utils";
 
 /**
- * A selectable tile. Renders `<cds-selectable-tile>` (checkbox) or, inside a single-select
- * `cds-tile-group`, `<cds-radio-tile>`.
+ * Inputs and `[(selected)]` shared by `SelectableTile` and `RadioTile`.
+ */
+@Directive({
+	host: {
+		"[id]": "id",
+		"[value]": "value",
+		"[selected]": "selected",
+		"[disabled]": "disabled",
+		"[colorScheme]": "theme === 'light' ? 'light' : ''",
+		"[hasRoundedCorners]": "hasRoundedCorners"
+	}
+})
+export abstract class BaseSelectionTile {
+	static tileCount = 0;
+
+	@Input() id = `tile-${BaseSelectionTile.tileCount++}`;
+	@Input() value: string;
+	@Input() selected = false;
+	@Input() disabled = false;
+	@Input() theme: "light" | "dark" = "dark";
+	@Input() decorator: TemplateRef<any>;
+	@Input() hasRoundedCorners = false;
+
+	@Output() selectedChange = new EventEmitter<boolean>();
+
+	constructor() {
+		registerWrapper(inject(ElementRef).nativeElement, this);
+	}
+
+	onSelected(event: Event) {
+		this.selected = (event as CustomEvent<{ selected: boolean }>).detail.selected;
+		this.selectedChange.emit(this.selected);
+	}
+}
+
+/**
+ * Adds Angular inputs and `[(selected)]` to the `<cds-selectable-tile>` web component
+ * (a tile that toggles like a checkbox). Put several in a `cds-tile-group` for a form value.
  *
  * [See demo](../../?path=/story/components-tiles-grouped--selectable)
  */
 @Component({
-	selector: "cds-selection-tile",
+	selector: "cds-selectable-tile",
 	template: `
-		<ng-template #content>
-			<ng-content />
-			<ng-container cdsSlot="decorator" [cdsSlotTemplate]="decorator" />
-		</ng-template>
-		@if (multiple) {
-			<cds-selectable-tile
-				[id]="id"
-				[name]="name"
-				[value]="value"
-				[selected]="selected"
-				[disabled]="disabled"
-				[colorScheme]="theme === 'light' ? 'light' : ''"
-				[hasRoundedCorners]="hasRoundedCorners"
-				(cds-selectable-tile-changed)="onChange($event)">
-				<ng-container *ngTemplateOutlet="content" />
-			</cds-selectable-tile>
-		} @else {
-			<cds-radio-tile
-				[id]="id"
-				[name]="name"
-				[value]="value"
-				[selected]="selected"
-				[disabled]="disabled"
-				[colorScheme]="theme === 'light' ? 'light' : ''"
-				[hasRoundedCorners]="hasRoundedCorners"
-				(cds-radio-tile-selected)="onChange($event)">
-				<ng-container *ngTemplateOutlet="content" />
-			</cds-radio-tile>
-		}
+		<ng-content />
+		<ng-container cdsSlot="decorator" [cdsSlotTemplate]="decorator" />
 	`,
-	styles: [":host { display: contents; }"],
+	host: {
+		"(cds-selectable-tile-changed)": "onSelected($event)"
+	},
 	changeDetection: ChangeDetectionStrategy.OnPush,
-	imports: [NgTemplateOutlet, TemplateSlot],
+	imports: [TemplateSlot],
 	schemas: [CUSTOM_ELEMENTS_SCHEMA]
 })
-export class SelectionTile {
-	static tileCount = 0;
+export class SelectableTile extends BaseSelectionTile {}
 
-	@Input() theme: "light" | "dark" = "dark";
-	@Input() id = `tile-${SelectionTile.tileCount++}`;
-	@Input() set selected(value: boolean) {
-		this._selected = !!value;
-		this.changeDetectorRef.markForCheck();
-	}
-	get selected() {
-		return this._selected;
-	}
-	@Input() value: string;
-	@Input() disabled = false;
-	@Input() decorator: TemplateRef<any>;
-	@Input() hasRoundedCorners = false;
-
-	// eslint-disable-next-line @angular-eslint/no-output-native
-	@Output() change: EventEmitter<Event> = new EventEmitter();
-
-	/**
-	 * Set by the parent `cds-tile-group`.
-	 */
-	set name(value: string) {
-		this._name = value;
-		this.changeDetectorRef.markForCheck();
-	}
-	get name() {
-		return this._name;
-	}
-
-	/**
-	 * Set by the parent `cds-tile-group`; `false` renders a radio tile.
-	 */
-	set multiple(value: boolean) {
-		this._multiple = value;
-		this.changeDetectorRef.markForCheck();
-	}
-	get multiple() {
-		return this._multiple;
-	}
-
-	protected changeDetectorRef = inject(ChangeDetectorRef);
-	protected _selected = false;
-	protected _name = "tile-group-unbound";
-	protected _multiple = true;
-
-	onChange(event: Event) {
-		this.selected = (event as CustomEvent<{ selected: boolean }>).detail.selected;
-		this.change.emit(event);
-	}
-}
+/**
+ * Adds Angular inputs and `[(selected)]` to the `<cds-radio-tile>` web component
+ * (one selected per group). Put several in a `cds-tile-group`.
+ *
+ * [See demo](../../?path=/story/components-tiles-grouped--radio)
+ */
+@Component({
+	selector: "cds-radio-tile",
+	template: `
+		<ng-content />
+		<ng-container cdsSlot="decorator" [cdsSlotTemplate]="decorator" />
+	`,
+	host: {
+		"(cds-radio-tile-selected)": "onSelected($event)"
+	},
+	changeDetection: ChangeDetectionStrategy.OnPush,
+	imports: [TemplateSlot],
+	schemas: [CUSTOM_ELEMENTS_SCHEMA]
+})
+export class RadioTile extends BaseSelectionTile {}

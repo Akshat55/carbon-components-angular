@@ -59,7 +59,7 @@ const Template = (args) => ({
 			Scrolling will update the position of the popover:
 			<div style="position: absolute; top: 500px; left: 500px;">
 				<p>Custom domains direct requests for your apps in this Cloud Foundry organization to a
-				<cds-tooltip-definition
+				<cds-definition-tooltip
 					[isOpen]="isOpen"
 					[openOnHover]="openOnHover"
 					[caret]="caret"
@@ -69,7 +69,7 @@ const Template = (args) => ({
 					(isOpenChange)="isOpenChange($event)"
 					[description]="description">
 					URL
-				</cds-tooltip-definition>
+				</cds-definition-tooltip>
 				that you own. A custom domain can be a shared domain, a shared subdomain, or a shared domain and host.</p>
 			</div>
 		</div>
@@ -99,7 +99,7 @@ const AutoAlignTemplate = (args) => ({
 			Scrolling will update the position of the popover:
 			<div style="position: absolute; top: 500px; left: 500px;">
 				<p>Custom domains direct requests for your apps in this Cloud Foundry organization to a
-				<cds-tooltip-definition
+				<cds-definition-tooltip
 					[isOpen]="isOpen"
 					[openOnHover]="openOnHover"
 					[caret]="caret"
@@ -110,7 +110,7 @@ const AutoAlignTemplate = (args) => ({
 					(isOpenChange)="isOpenChange($event)"
 					[description]="description">
 					URL
-				</cds-tooltip-definition>
+				</cds-definition-tooltip>
 				that you own. A custom domain can be a shared domain, a shared subdomain, or a shared domain and host.</p>
 			</div>
 		</div>

@@ -31,7 +31,7 @@ export default {
 const Template = (args) => ({
 	props: args,
 	template: `
-		<cds-radio-group
+		<cds-radio-button-group
 			[legend]="label"
 			[disabled]="disabled"
 			[helperText]="helperText"
@@ -43,14 +43,14 @@ const Template = (args) => ({
 			[orientation]="orientation"
 			[labelPlacement]="labelPlacement"
 			(change)="onChange($event)">
-			<cds-radio value="Zero" [checked]="true">
+			<cds-radio-button value="Zero" [checked]="true">
 				Zero
-			</cds-radio>
-			<cds-radio [value]="One">One</cds-radio>
-			<cds-radio [value]="Two">Two</cds-radio>
-			<cds-radio [value]="Three">Three</cds-radio>
-			<cds-radio [value]="Four" [disabled]="true">Four</cds-radio>
-		</cds-radio-group>
+			</cds-radio-button>
+			<cds-radio-button [value]="One">One</cds-radio-button>
+			<cds-radio-button [value]="Two">Two</cds-radio-button>
+			<cds-radio-button [value]="Three">Three</cds-radio-button>
+			<cds-radio-button [value]="Four" [disabled]="true">Four</cds-radio-button>
+		</cds-radio-button-group>
 	`
 });
 export const Basic = Template.bind({});
@@ -81,9 +81,9 @@ Basic.argTypes = {
 const SkeletonTemplate = (args) => ({
 	props: args,
 	template: `
-		<cds-radio-group skeleton="true">
-			<cds-radio></cds-radio>
-		</cds-radio-group>
+		<cds-radio-button-group skeleton="true">
+			<cds-radio-button></cds-radio-button>
+		</cds-radio-button-group>
 	`
 });
 export const Skeleton = SkeletonTemplate.bind({});
@@ -111,7 +111,7 @@ const withAILabelTemplate = (args) => ({
 	styles: AI_LABEL_STORY_STYLES,
 	template: `
 		<div class="ai-label-check-radio-container">
-			<cds-radio-group
+			<cds-radio-button-group
 				legend="Group label"
 				orientation="vertical"
 				[decorator]="aiLabelDefaultTpl"
@@ -120,12 +120,12 @@ const withAILabelTemplate = (args) => ({
 				[invalidText]="invalidText"
 				[warn]="warn"
 				[warnText]="warnText">
-				<cds-radio value="radio-1" id="radio-1" [checked]="true">Radio button label</cds-radio>
-				<cds-radio value="radio-2" id="radio-2">Radio button label</cds-radio>
-				<cds-radio value="radio-3" id="radio-3">Radio button label</cds-radio>
-			</cds-radio-group>
+				<cds-radio-button value="radio-1" id="radio-1" [checked]="true">Radio button label</cds-radio-button>
+				<cds-radio-button value="radio-2" id="radio-2">Radio button label</cds-radio-button>
+				<cds-radio-button value="radio-3" id="radio-3">Radio button label</cds-radio-button>
+			</cds-radio-button-group>
 
-			<cds-radio-group
+			<cds-radio-button-group
 				legend="Group label"
 				orientation="vertical"
 				ariaLabel="radiogroup"
@@ -133,12 +133,12 @@ const withAILabelTemplate = (args) => ({
 				[invalidText]="invalidText"
 				[warn]="warn"
 				[warnText]="warnText">
-				<cds-radio value="radio-4" id="radio-4" [checked]="true" [decorator]="aiLabelDefaultTpl">Radio button label</cds-radio>
-				<cds-radio value="radio-5" id="radio-5" [decorator]="aiLabelDefaultTpl">Radio button label</cds-radio>
-				<cds-radio value="radio-6" id="radio-6">Radio button label</cds-radio>
-			</cds-radio-group>
+				<cds-radio-button value="radio-4" id="radio-4" [checked]="true" [decorator]="aiLabelDefaultTpl">Radio button label</cds-radio-button>
+				<cds-radio-button value="radio-5" id="radio-5" [decorator]="aiLabelDefaultTpl">Radio button label</cds-radio-button>
+				<cds-radio-button value="radio-6" id="radio-6">Radio button label</cds-radio-button>
+			</cds-radio-button-group>
 
-			<cds-radio-group
+			<cds-radio-button-group
 				legend="Group label"
 				orientation="vertical"
 				ariaLabel="radiogroup"
@@ -146,10 +146,10 @@ const withAILabelTemplate = (args) => ({
 				[invalidText]="invalidText"
 				[warn]="warn"
 				[warnText]="warnText">
-				<cds-radio value="radio-7" id="radio-7" [checked]="true" [decorator]="aiLabelInlineTpl">Radio button label</cds-radio>
-				<cds-radio value="radio-8" id="radio-8" [decorator]="aiLabelInlineTpl">Radio button label</cds-radio>
-				<cds-radio value="radio-9" id="radio-9">Radio button label</cds-radio>
-			</cds-radio-group>
+				<cds-radio-button value="radio-7" id="radio-7" [checked]="true" [decorator]="aiLabelInlineTpl">Radio button label</cds-radio-button>
+				<cds-radio-button value="radio-8" id="radio-8" [decorator]="aiLabelInlineTpl">Radio button label</cds-radio-button>
+				<cds-radio-button value="radio-9" id="radio-9">Radio button label</cds-radio-button>
+			</cds-radio-button-group>
 		</div>
 
 		<ng-template #aiLabelDefaultTpl>
