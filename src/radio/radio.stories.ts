@@ -1,6 +1,6 @@
 import { FormsModule, ReactiveFormsModule } from "@angular/forms";
 import { moduleMetadata, Meta } from "@storybook/angular";
-import { RadioGroup, Radio } from "./";
+import { RadioGroup, Radio, RadioSkeleton } from "./";
 
 import { ReactiveFormsStory } from "./stories";
 import { AILabelModule } from "../ai-label";
@@ -16,6 +16,7 @@ export default {
 				FormsModule,
 				ReactiveFormsModule,
 				Radio,
+				RadioSkeleton,
 				RadioGroup,
 				AILabelModule,
 				ButtonModule,
@@ -81,9 +82,7 @@ Basic.argTypes = {
 const SkeletonTemplate = (args) => ({
 	props: args,
 	template: `
-		<cds-radio-button-group skeleton="true">
-			<cds-radio-button></cds-radio-button>
-		</cds-radio-button-group>
+		<cds-radio-button-skeleton />
 	`
 });
 export const Skeleton = SkeletonTemplate.bind({});

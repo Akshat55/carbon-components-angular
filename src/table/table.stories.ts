@@ -247,12 +247,13 @@ const ToolbarTemplate = (args) => ({
 					<cds-overflow-menu
 						triggerClass="cds--toolbar-action"
 						[customTrigger]="customTrigger"
-						placement="bottom"
 						[offset]="size === 'sm' ? null : offset">
-						<cds-overflow-menu-item>Option 1</cds-overflow-menu-item>
-						<cds-overflow-menu-item>Option 2</cds-overflow-menu-item>
-						<cds-overflow-menu-item disabled="true">Disabled</cds-overflow-menu-item>
-						<cds-overflow-menu-item type="danger">Danger option</cds-overflow-menu-item>
+						<cds-overflow-menu-body direction="bottom">
+							<cds-overflow-menu-item>Option 1</cds-overflow-menu-item>
+							<cds-overflow-menu-item>Option 2</cds-overflow-menu-item>
+							<cds-overflow-menu-item disabled="true">Disabled</cds-overflow-menu-item>
+							<cds-overflow-menu-item type="danger">Danger option</cds-overflow-menu-item>
+						</cds-overflow-menu-body>
 					</cds-overflow-menu>
 					<button cdsButton="primary" size="sm" [tabindex]="toolbar.selected ? -1 : 0">
 						Primary button<svg cdsIcon="add" size="20" class="cds--btn__icon"></svg>

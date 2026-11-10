@@ -13,17 +13,21 @@ import "@carbon/web-components/es/components/menu/index.js";
 type MenuButtonPlacement = "top" | "top-start" | "top-end" | "bottom" | "bottom-start" | "bottom-end";
 
 /**
- * Wraps the `<cds-menu-button>` web component. Project `cds-menu-item`s / `cds-menu-item-divider`s.
+ * Adds Angular inputs and `[open]` to the `<cds-menu-button>` web component. Put its items in a `cds-menu`.
+ *
+ * ```html
+ * <cds-menu-button label="Actions">
+ * 	<cds-menu>
+ * 		<cds-menu-item label="Edit" />
+ * 	</cds-menu>
+ * </cds-menu-button>
+ * ```
  *
  * [See demo](../../?path=/story/components-menu-button--basic)
  */
 @Component({
 	selector: "cds-menu-button",
-	template: `
-		<cds-menu [id]="menuId" [size]="size">
-			<ng-content />
-		</cds-menu>
-	`,
+	template: "<ng-content />",
 	host: {
 		"[label]": "label",
 		"[kind]": "kind",
@@ -37,9 +41,6 @@ type MenuButtonPlacement = "top" | "top-start" | "top-end" | "bottom" | "bottom-
 	schemas: [CUSTOM_ELEMENTS_SCHEMA]
 })
 export class MenuButtonComponent {
-	static menuButtonCounter = 0;
-
-	@Input() menuId = `menu-button-${MenuButtonComponent.menuButtonCounter++}`;
 	@Input() kind: "primary" | "tertiary" | "ghost" = "primary";
 	@Input() size: "xs" | "sm" | "md" | "lg" = "lg";
 	@Input() menuAlignment: MenuButtonPlacement = "bottom";

@@ -1,62 +1,68 @@
 import {
 	ChangeDetectionStrategy,
-	ChangeDetectorRef,
 	Component,
 	CUSTOM_ELEMENTS_SCHEMA,
+	ElementRef,
 	EventEmitter,
 	Input,
 	Output,
 	inject
 } from "@angular/core";
 import "@carbon/web-components/es/components/structured-list/index.js";
+import { registerWrapper } from "carbon-components-angular/utils";
 
 /**
- * A structured list row. Renders `<cds-structured-list-row>`; in a selectable list,
- * clicking it selects it and emits `change`.
+ * Adds Angular inputs to the `<cds-structured-list-row>` web component. `value` can be any
+ * value; it becomes the list's form value when the row is selected.
  */
 @Component({
-	selector: "cds-list-row",
-	template: `
-		<cds-structured-list-row
-			[selected]="selected"
-			[selectionValue]="value"
-			[attr.aria-label]="label"
-			(click)="onClick($event)">
-			<ng-content />
-		</cds-structured-list-row>
-	`,
-	styles: [":host { display: contents; }"],
+	selector: "cds-structured-list-row",
+	template: "<ng-content />",
+	host: {
+		"[selected]": "selected",
+		"[selectionValue]": "selectionValue",
+		"[attr.aria-label]": "label"
+	},
 	changeDetection: ChangeDetectionStrategy.OnPush,
 	schemas: [CUSTOM_ELEMENTS_SCHEMA]
 })
 export class ListRow {
-	@Input() set selected(value: boolean) {
-		this._selected = value;
-		this.changeDetectorRef.markForCheck();
-	}
-	get selected() {
-		return this._selected;
-	}
+	static rowCount = 0;
 
+	@Input() selected = false;
 	@Input() label: string;
-	@Input() value: any;
-
-	// eslint-disable-next-line @angular-eslint/no-output-native
-	@Output() change: EventEmitter<Event> = new EventEmitter();
+	@Input() set value(value: any) {
+		this._value = value;
+		const primitive = value === null || value === undefined || typeof value !== "object";
+		this.selectionValue = primitive ? String(value ?? "") : `structured-list-row-${ListRow.rowCount++}`;
+	}
+	get value() {
+		return this._value;
+	}
 
 	/**
-	 * Set by the parent `cds-structured-list`.
+	 * Emits when the user selects the row (in a list with `selection`).
 	 */
-	selection = false;
-	name = "list";
+	@Output() selectedChange = new EventEmitter<boolean>();
 
-	protected changeDetectorRef = inject(ChangeDetectorRef);
-	protected _selected = false;
+	/**
+	 * The value given to the web component.
+	 */
+	selectionValue = "";
+	protected _value: any;
 
-	onClick(event: Event) {
-		if (this.selection) {
-			this.selected = true;
-			this.change.emit(event);
-		}
+	constructor() {
+		registerWrapper(inject(ElementRef).nativeElement, this);
 	}
 }
+
+/**
+ * The `<cds-structured-list-body>` web component.
+ */
+@Component({
+	selector: "cds-structured-list-body",
+	template: "<ng-content />",
+	changeDetection: ChangeDetectionStrategy.OnPush,
+	schemas: [CUSTOM_ELEMENTS_SCHEMA]
+})
+export class ListBody {}

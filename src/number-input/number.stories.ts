@@ -1,6 +1,6 @@
 import { moduleMetadata, Meta } from "@storybook/angular";
 import { FormsModule } from "@angular/forms";
-import { NumberComponent } from "./";
+import { NumberComponent, NumberSkeleton } from "./";
 import { AILabelModule } from "../ai-label";
 import { ButtonModule } from "../button";
 import { IconModule } from "../icon";
@@ -10,7 +10,7 @@ export default {
 	title: "Components/Number Input",
 	decorators: [
 		moduleMetadata({
-			imports: [NumberComponent, FormsModule, AILabelModule, ButtonModule, IconModule]
+			imports: [NumberComponent, NumberSkeleton, FormsModule, AILabelModule, ButtonModule, IconModule]
 		})
 	],
 	args: {
@@ -110,12 +110,7 @@ NgModel.story = "ngModel";
 const SkeletonTemplate = (args) => ({
 	props: args,
 	template: `
-		<cds-number-input
-			label="Number input label"
-			skeleton="true"
-			[fluid]="fluid"
-			(change)="change($event)">
-		</cds-number-input>
+		<cds-number-input-skeleton />
 	`
 });
 export const Skeleton = SkeletonTemplate.bind({});

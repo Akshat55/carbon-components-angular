@@ -85,25 +85,25 @@ const HeaderTemplate = (args) => ({
 		<div [cdsTheme]="theme">
 			<cds-header name="[Platform]">
 				@if (hasHamburger) {
-					<cds-hamburger (click)="expanded($event)"></cds-hamburger>
+					<cds-header-menu-button (click)="expanded($event)"></cds-header-menu-button>
 				}
-				<cds-header-navigation>
-					<cds-header-item>Catalog</cds-header-item>
-					<cds-header-item isCurrentPage="true">Docs</cds-header-item>
-					<cds-header-item>Support</cds-header-item>
+				<cds-header-nav>
+					<cds-header-nav-item>Catalog</cds-header-nav-item>
+					<cds-header-nav-item isCurrentPage="true">Docs</cds-header-nav-item>
+					<cds-header-nav-item>Support</cds-header-nav-item>
 					<cds-header-menu title="Manage">
-						<cds-header-item>Link 1</cds-header-item>
-						<cds-header-item>Link 2</cds-header-item>
-						<cds-header-item>Link 3</cds-header-item>
+						<cds-header-menu-item>Link 1</cds-header-menu-item>
+						<cds-header-menu-item>Link 2</cds-header-menu-item>
+						<cds-header-menu-item>Link 3</cds-header-menu-item>
 					</cds-header-menu>
-				</cds-header-navigation>
+				</cds-header-nav>
 				<cds-header-global>
-					<cds-header-action description="action">
+					<cds-header-global-action description="action">
 						<svg cdsIcon="fade" size="20"></svg>
-					</cds-header-action>
-					<cds-header-action description="action">
+					</cds-header-global-action>
+					<cds-header-global-action description="action">
 						<svg cdsIcon="fade" size="20"></svg>
-					</cds-header-action>
+					</cds-header-global-action>
 				</cds-header-global>
 			</cds-header>
 		</div>
@@ -184,25 +184,25 @@ const HeaderWithTemplate = (args) => ({
 		<div [cdsTheme]="theme">
 			<cds-header name="[Platform]" [brand]="brandTemplate">
 				@if (hasHamburger) {
-					<cds-hamburger (click)="expanded($event)"></cds-hamburger>
+					<cds-header-menu-button (click)="expanded($event)"></cds-header-menu-button>
 				}
-				<cds-header-navigation>
-					<cds-header-item>Catalog</cds-header-item>
-					<cds-header-item>Docs</cds-header-item>
-					<cds-header-item>Support</cds-header-item>
+				<cds-header-nav>
+					<cds-header-nav-item>Catalog</cds-header-nav-item>
+					<cds-header-nav-item>Docs</cds-header-nav-item>
+					<cds-header-nav-item>Support</cds-header-nav-item>
 					<cds-header-menu title="Manage">
-						<cds-header-item>Link 1</cds-header-item>
-						<cds-header-item>Link 2</cds-header-item>
-						<cds-header-item>Link 3</cds-header-item>
+						<cds-header-menu-item>Link 1</cds-header-menu-item>
+						<cds-header-menu-item>Link 2</cds-header-menu-item>
+						<cds-header-menu-item>Link 3</cds-header-menu-item>
 					</cds-header-menu>
-				</cds-header-navigation>
+				</cds-header-nav>
 				<cds-header-global>
-					<cds-header-action description="action">
+					<cds-header-global-action description="action">
 						<svg cdsIcon="fade" size="20"></svg>
-					</cds-header-action>
-					<cds-header-action description="action">
+					</cds-header-global-action>
+					<cds-header-global-action description="action">
 						<svg cdsIcon="fade" size="20"></svg>
-					</cds-header-action>
+					</cds-header-global-action>
 				</cds-header-global>
 			</cds-header>
 		</div>
@@ -231,16 +231,16 @@ const HeaderRouterTemplate = (args) => ({
 	template: `
 		<div [cdsTheme]="theme">
 			<cds-header name="[Platform]" [route]="['bar']">
-				<cds-header-navigation>
-					<cds-header-item [route]="['foo']">Catalog</cds-header-item>
-					<cds-header-item [route]="['bar']">Docs</cds-header-item>
-					<cds-header-item [route]="['foo']">Support</cds-header-item>
+				<cds-header-nav>
+					<cds-header-nav-item [route]="['foo']">Catalog</cds-header-nav-item>
+					<cds-header-nav-item [route]="['bar']">Docs</cds-header-nav-item>
+					<cds-header-nav-item [route]="['foo']">Support</cds-header-nav-item>
 					<cds-header-menu title="Manage">
-						<cds-header-item [route]="['foo']">Link 1</cds-header-item>
-						<cds-header-item [route]="['bar']">Link 2</cds-header-item>
-						<cds-header-item [route]="['foo']">Link 3</cds-header-item>
+						<cds-header-menu-item [route]="['foo']">Link 1</cds-header-menu-item>
+						<cds-header-menu-item [route]="['bar']">Link 2</cds-header-menu-item>
+						<cds-header-menu-item [route]="['foo']">Link 3</cds-header-menu-item>
 					</cds-header-menu>
-				</cds-header-navigation>
+				</cds-header-nav>
 			</cds-header>
 		</div>
 		<div style="margin-top: 2rem">
@@ -259,21 +259,21 @@ const SideNavigationTemplate = (args) => ({
 	props: args,
 	template: `
 		<div [cdsTheme]="theme">
-			<cds-sidenav>
-				<cds-sidenav-item [active]="true">
+			<cds-side-nav><cds-side-nav-items>
+				<cds-side-nav-link [active]="true">
 					Link
-				</cds-sidenav-item>
-				<cds-sidenav-item>
-					<svg cdsIcon="fade" size="16"></svg>
+				</cds-side-nav-link>
+				<cds-side-nav-link>
+					<svg slot="title-icon" cdsIcon="fade" size="16"></svg>
 					Link
-				</cds-sidenav-item>
-				<cds-sidenav-menu title="Category title">
-					<svg cdsIcon="fade" icon size="16"></svg>
-					<cds-sidenav-item>Link</cds-sidenav-item>
-					<cds-sidenav-item>Link</cds-sidenav-item>
-					<cds-sidenav-item>Link</cds-sidenav-item>
-				</cds-sidenav-menu>
-			</cds-sidenav>
+				</cds-side-nav-link>
+				<cds-side-nav-menu title="Category title">
+					<svg slot="title-icon" cdsIcon="fade" size="16"></svg>
+					<cds-side-nav-menu-item>Link</cds-side-nav-menu-item>
+					<cds-side-nav-menu-item>Link</cds-side-nav-menu-item>
+					<cds-side-nav-menu-item>Link</cds-side-nav-menu-item>
+				</cds-side-nav-menu>
+			</cds-side-nav-items></cds-side-nav>
 		</div>
 	`
 });
@@ -304,22 +304,22 @@ const SideNavigationRouterTemplate = (args) => ({
 	props: args,
 	template: `
 		<div [cdsTheme]="theme">
-			<cds-sidenav>
-				<cds-sidenav-item [route]="['foo']">
-					<svg cdsIcon="fade" size="16"></svg>
+			<cds-side-nav><cds-side-nav-items>
+				<cds-side-nav-link [route]="['foo']">
+					<svg slot="title-icon" cdsIcon="fade" size="16"></svg>
 					Link
-				</cds-sidenav-item>
-				<cds-sidenav-item [route]="['bar']">
-					<svg cdsIcon="fade" size="16"></svg>
+				</cds-side-nav-link>
+				<cds-side-nav-link [route]="['bar']">
+					<svg slot="title-icon" cdsIcon="fade" size="16"></svg>
 					Link
-				</cds-sidenav-item>
-				<cds-sidenav-menu title="Category title">
-					<svg cdsIcon="fade" icon size="16"></svg>
-					<cds-sidenav-item [route]="['foo']">Link</cds-sidenav-item>
-					<cds-sidenav-item [route]="['bar']">Link</cds-sidenav-item>
-					<cds-sidenav-item [route]="['foo']">Link</cds-sidenav-item>
-				</cds-sidenav-menu>
-			</cds-sidenav>
+				</cds-side-nav-link>
+				<cds-side-nav-menu title="Category title">
+					<svg slot="title-icon" cdsIcon="fade" size="16"></svg>
+					<cds-side-nav-menu-item [route]="['foo']">Link</cds-side-nav-menu-item>
+					<cds-side-nav-menu-item [route]="['bar']">Link</cds-side-nav-menu-item>
+					<cds-side-nav-menu-item [route]="['foo']">Link</cds-side-nav-menu-item>
+				</cds-side-nav-menu>
+			</cds-side-nav-items></cds-side-nav>
 		</div>
 		<div style="margin-left: 18rem">
 			<router-outlet></router-outlet>
@@ -334,22 +334,22 @@ const SideNavigationUseRouterTemplate = (args) => ({
 	props: args,
 	template: `
 		<div [cdsTheme]="theme">
-			<cds-sidenav>
-				<cds-sidenav-item [route]="['foo']" [useRouter]="true">
-					<svg cdsIcon="fade" size="16"></svg>
+			<cds-side-nav><cds-side-nav-items>
+				<cds-side-nav-link [route]="['foo']" [useRouter]="true">
+					<svg slot="title-icon" cdsIcon="fade" size="16"></svg>
 					Link
-				</cds-sidenav-item>
-				<cds-sidenav-item [route]="['bar']" [useRouter]="true" [routeExtras]="routeExtras">
-					<svg cdsIcon="fade" size="16"></svg>
+				</cds-side-nav-link>
+				<cds-side-nav-link [route]="['bar']" [useRouter]="true" [routeExtras]="routeExtras">
+					<svg slot="title-icon" cdsIcon="fade" size="16"></svg>
 					Link with query params
-				</cds-sidenav-item>
-				<cds-sidenav-menu title="Category title">
-					<svg cdsIcon="fade" icon size="16"></svg>
-					<cds-sidenav-item [route]="['foo']" [useRouter]="true">Link</cds-sidenav-item>
-					<cds-sidenav-item [route]="['bar']" [useRouter]="true">Link</cds-sidenav-item>
-					<cds-sidenav-item [route]="['foo']" [useRouter]="true">Link</cds-sidenav-item>
-				</cds-sidenav-menu>
-			</cds-sidenav>
+				</cds-side-nav-link>
+				<cds-side-nav-menu title="Category title">
+					<svg slot="title-icon" cdsIcon="fade" size="16"></svg>
+					<cds-side-nav-menu-item [route]="['foo']" [useRouter]="true">Link</cds-side-nav-menu-item>
+					<cds-side-nav-menu-item [route]="['bar']" [useRouter]="true">Link</cds-side-nav-menu-item>
+					<cds-side-nav-menu-item [route]="['foo']" [useRouter]="true">Link</cds-side-nav-menu-item>
+				</cds-side-nav-menu>
+			</cds-side-nav-items></cds-side-nav>
 		</div>
 		<div style="margin-left: 256px">
 			<router-outlet></router-outlet>
@@ -370,14 +370,14 @@ const SidePanelTemplate = (args) => ({
 	props: args,
 	template: `
 		<div [cdsTheme]="theme">
-			<cds-panel expanded="true">
-				<cds-switcher-list>
-					<cds-switcher-list-item [route]="['foo']">Switcher item one</cds-switcher-list-item>
-					<cds-switcher-list-item [route]="['bar']">Switcher item two</cds-switcher-list-item>
-					<cds-switcher-list-item [route]="['foo']">Switcher item three</cds-switcher-list-item>
-					<cds-switcher-list-item [route]="['bar']">Switcher item four</cds-switcher-list-item>
-				</cds-switcher-list>
-			</cds-panel>
+			<cds-header-panel expanded="true">
+				<cds-switcher>
+					<cds-switcher-item [route]="['foo']">Switcher item one</cds-switcher-item>
+					<cds-switcher-item [route]="['bar']">Switcher item two</cds-switcher-item>
+					<cds-switcher-item [route]="['foo']">Switcher item three</cds-switcher-item>
+					<cds-switcher-item [route]="['bar']">Switcher item four</cds-switcher-item>
+				</cds-switcher>
+			</cds-header-panel>
 		</div>
 		<div>
 			<router-outlet></router-outlet>
@@ -393,52 +393,52 @@ const TogetherTemplate = (args) => ({
 		<div>
 			<cds-header name="[Platform]">
 				@if (hasHamburger) {
-					<cds-hamburger [active]="active" (selected)="active = !active"></cds-hamburger>
+					<cds-header-menu-button [active]="active" (selected)="active = !active"></cds-header-menu-button>
 				}
-				<cds-header-navigation>
-					<cds-header-item>Catalog</cds-header-item>
-					<cds-header-item>Docs</cds-header-item>
-					<cds-header-item>Support</cds-header-item>
+				<cds-header-nav>
+					<cds-header-nav-item>Catalog</cds-header-nav-item>
+					<cds-header-nav-item>Docs</cds-header-nav-item>
+					<cds-header-nav-item>Support</cds-header-nav-item>
 					<cds-header-menu title="Manage">
-						<cds-header-item>Link 1</cds-header-item>
-						<cds-header-item>Link 2</cds-header-item>
-						<cds-header-item>Link 3</cds-header-item>
+						<cds-header-menu-item>Link 1</cds-header-menu-item>
+						<cds-header-menu-item>Link 2</cds-header-menu-item>
+						<cds-header-menu-item>Link 3</cds-header-menu-item>
 					</cds-header-menu>
-				</cds-header-navigation>
+				</cds-header-nav>
 				<cds-header-global>
-					<cds-header-action #firstAction description="action">
+					<cds-header-global-action #firstAction description="action">
 						<svg cdsIcon="fade" size="20"></svg>
-					</cds-header-action>
-					<cds-header-action [(active)]="secondAction" description="action">
+					</cds-header-global-action>
+					<cds-header-global-action [(active)]="secondAction" description="action">
 						<svg cdsIcon="fade" size="20"></svg>
-					</cds-header-action>
+					</cds-header-global-action>
 				</cds-header-global>
 			</cds-header>
-			<cds-sidenav [expanded]="active" style="margin-top: 3rem">
-				<cds-sidenav-item>
-					<svg cdsIcon="fade" size="16"></svg>
+			<cds-side-nav [expanded]="active" style="margin-top: 3rem"><cds-side-nav-items>
+				<cds-side-nav-link>
+					<svg slot="title-icon" cdsIcon="fade" size="16"></svg>
 					Link
-				</cds-sidenav-item>
-				<cds-sidenav-item>
-					<svg cdsIcon="fade" size="16"></svg>
+				</cds-side-nav-link>
+				<cds-side-nav-link>
+					<svg slot="title-icon" cdsIcon="fade" size="16"></svg>
 					Link
-				</cds-sidenav-item>
-				<cds-sidenav-menu title="Category title">
-					<svg cdsIcon="fade" size="16"></svg>
-					<cds-sidenav-item>Link</cds-sidenav-item>
-					<cds-sidenav-item [active]="hasActiveChild">Link</cds-sidenav-item>
-					<cds-sidenav-item>Link</cds-sidenav-item>
-				</cds-sidenav-menu>
-			</cds-sidenav>
-			<cds-panel [expanded]="firstAction.active"></cds-panel>
-			<cds-panel [expanded]="secondAction">
-				<cds-switcher-list>
-					<cds-switcher-list-item active="true">Switcher item one</cds-switcher-list-item>
-					<cds-switcher-list-item>Switcher item two</cds-switcher-list-item>
-					<cds-switcher-list-item>Switcher item three</cds-switcher-list-item>
-					<cds-switcher-list-item>Switcher item four</cds-switcher-list-item>
-				</cds-switcher-list>
-			</cds-panel>
+				</cds-side-nav-link>
+				<cds-side-nav-menu title="Category title">
+					<svg slot="title-icon" cdsIcon="fade" size="16"></svg>
+					<cds-side-nav-menu-item>Link</cds-side-nav-menu-item>
+					<cds-side-nav-menu-item [active]="hasActiveChild">Link</cds-side-nav-menu-item>
+					<cds-side-nav-menu-item>Link</cds-side-nav-menu-item>
+				</cds-side-nav-menu>
+			</cds-side-nav-items></cds-side-nav>
+			<cds-header-panel [expanded]="firstAction.active"></cds-header-panel>
+			<cds-header-panel [expanded]="secondAction">
+				<cds-switcher>
+					<cds-switcher-item active="true">Switcher item one</cds-switcher-item>
+					<cds-switcher-item>Switcher item two</cds-switcher-item>
+					<cds-switcher-item>Switcher item three</cds-switcher-item>
+					<cds-switcher-item>Switcher item four</cds-switcher-item>
+				</cds-switcher>
+			</cds-header-panel>
 		</div>
 	`
 });
@@ -473,22 +473,22 @@ const SideNavigationRailTemplate = (args) => ({
 	props: args,
 	template: `
 		<div [cdsTheme]="theme">
-			<cds-sidenav rail="true" [expanded]="false">
-				<cds-sidenav-item>
-					<svg cdsIcon="fade" size="16"></svg>
+			<cds-side-nav rail="true" [expanded]="false"><cds-side-nav-items>
+				<cds-side-nav-link>
+					<svg slot="title-icon" cdsIcon="fade" size="16"></svg>
 					Link
-				</cds-sidenav-item>
-				<cds-sidenav-item>
-					<svg cdsIcon="fade" size="16"></svg>
+				</cds-side-nav-link>
+				<cds-side-nav-link>
+					<svg slot="title-icon" cdsIcon="fade" size="16"></svg>
 					Link
-				</cds-sidenav-item>
-				<cds-sidenav-menu title="Category title">
-					<svg cdsIcon="fade" icon size="16"></svg>
-					<cds-sidenav-item>Link</cds-sidenav-item>
-					<cds-sidenav-item>Link</cds-sidenav-item>
-					<cds-sidenav-item>Link</cds-sidenav-item>
-				</cds-sidenav-menu>
-			</cds-sidenav>
+				</cds-side-nav-link>
+				<cds-side-nav-menu title="Category title">
+					<svg slot="title-icon" cdsIcon="fade" size="16"></svg>
+					<cds-side-nav-menu-item>Link</cds-side-nav-menu-item>
+					<cds-side-nav-menu-item>Link</cds-side-nav-menu-item>
+					<cds-side-nav-menu-item>Link</cds-side-nav-menu-item>
+				</cds-side-nav-menu>
+			</cds-side-nav-items></cds-side-nav>
 		</div>
 	`
 });
@@ -521,12 +521,12 @@ const ModelTemplate = (args) => ({
 		<div [cdsTheme]="theme">
 			<cds-header name="[Platform]">
 				@if (hasHamburger) {
-					<cds-hamburger [active]="active" (selected)="active = !active"></cds-hamburger>
+					<cds-header-menu-button [active]="active" (selected)="active = !active"></cds-header-menu-button>
 				}
-				<cds-header-navigation [navigationItems]="headerItems">
-				</cds-header-navigation>
+				<cds-header-nav [navigationItems]="headerItems">
+				</cds-header-nav>
 				<cds-header-global>
-					<cds-header-action #firstAction description="action">
+					<cds-header-global-action #firstAction description="action">
 						<svg
 							width="20"
 							height="20"
@@ -541,8 +541,8 @@ const ModelTemplate = (args) => ({
 								10L3.86 9a13.89 13.89 0 0 0-1.64 4.54l2 .35A11.9 11.9 0 0 1 5.59
 								10zM16 2v2a12 12 0 0 1 0 24v2a14 14 0 0 0 0-28z" />
 						</svg>
-					</cds-header-action>
-					<cds-header-action #secondAction description="action">
+					</cds-header-global-action>
+					<cds-header-global-action #secondAction description="action">
 						<svg
 							width="20"
 							height="20"
@@ -557,12 +557,12 @@ const ModelTemplate = (args) => ({
 								10L3.86 9a13.89 13.89 0 0 0-1.64 4.54l2 .35A11.9 11.9 0 0 1 5.59
 								10zM16 2v2a12 12 0 0 1 0 24v2a14 14 0 0 0 0-28z" />
 						</svg>
-					</cds-header-action>
+					</cds-header-global-action>
 				</cds-header-global>
 			</cds-header>
-			<cds-sidenav [navigationItems]="headerItems" style="margin-top: 3rem">
-				<cds-sidenav-menu title="Category title">
-					<svg icon width="20" height="20" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" aria-hidden="true">
+			<cds-side-nav [navigationItems]="headerItems" style="margin-top: 3rem"><cds-side-nav-items>
+				<cds-side-nav-menu title="Category title">
+					<svg slot="title-icon" width="20" height="20" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" aria-hidden="true">
 						<path
 							d="M8.24 25.14L7 26.67a14 14 0 0 0 4.18 2.44l.68-1.88a12
 							12 0 0 1-3.62-2.09zm-4.05-7.07l-2 .35A13.89 13.89 0 0 0 3.86
@@ -571,20 +571,20 @@ const ModelTemplate = (args) => ({
 							10L3.86 9a13.89 13.89 0 0 0-1.64 4.54l2 .35A11.9 11.9 0 0 1 5.59
 							10zM16 2v2a12 12 0 0 1 0 24v2a14 14 0 0 0 0-28z" />
 					</svg>
-					<cds-sidenav-item>Link</cds-sidenav-item>
-					<cds-sidenav-item>Link</cds-sidenav-item>
-					<cds-sidenav-item>Link</cds-sidenav-item>
-				</cds-sidenav-menu>
-			</cds-sidenav>
-			<cds-panel [expanded]="firstAction.active"></cds-panel>
-			<cds-panel [expanded]="secondAction.active">
-				<cds-switcher-list>
-					<cds-switcher-list-item active="true">Switcher item one</cds-switcher-list-item>
-					<cds-switcher-list-item>Switcher item two</cds-switcher-list-item>
-					<cds-switcher-list-item>Switcher item three</cds-switcher-list-item>
-					<cds-switcher-list-item>Switcher item four</cds-switcher-list-item>
-				</cds-switcher-list>
-			</cds-panel>
+					<cds-side-nav-menu-item>Link</cds-side-nav-menu-item>
+					<cds-side-nav-menu-item>Link</cds-side-nav-menu-item>
+					<cds-side-nav-menu-item>Link</cds-side-nav-menu-item>
+				</cds-side-nav-menu>
+			</cds-side-nav-items></cds-side-nav>
+			<cds-header-panel [expanded]="firstAction.active"></cds-header-panel>
+			<cds-header-panel [expanded]="secondAction.active">
+				<cds-switcher>
+					<cds-switcher-item active="true">Switcher item one</cds-switcher-item>
+					<cds-switcher-item>Switcher item two</cds-switcher-item>
+					<cds-switcher-item>Switcher item three</cds-switcher-item>
+					<cds-switcher-item>Switcher item four</cds-switcher-item>
+				</cds-switcher>
+			</cds-header-panel>
 		</div>
 		<router-outlet></router-outlet>
 	`
@@ -651,22 +651,22 @@ const AngularRoutingTemplate = (args) => ({
 	props: args,
 	template: `
 		<div [cdsTheme]="theme">
-			<cds-sidenav rail="true" [expanded]="false">
-				<cds-sidenav-item>
-					<svg cdsIcon="fade" size="16"></svg>
+			<cds-side-nav rail="true" [expanded]="false"><cds-side-nav-items>
+				<cds-side-nav-link>
+					<svg slot="title-icon" cdsIcon="fade" size="16"></svg>
 					Link
-				</cds-sidenav-item>
-				<cds-sidenav-item>
-					<svg cdsIcon="fade" size="16"></svg>
+				</cds-side-nav-link>
+				<cds-side-nav-link>
+					<svg slot="title-icon" cdsIcon="fade" size="16"></svg>
 					Link
-				</cds-sidenav-item>
-				<cds-sidenav-menu title="Category title">
-					<svg cdsIcon="fade" icon size="16"></svg>
-					<cds-sidenav-item>Link</cds-sidenav-item>
-					<cds-sidenav-item>Link</cds-sidenav-item>
-					<cds-sidenav-item>Link</cds-sidenav-item>
-				</cds-sidenav-menu>
-			</cds-sidenav>
+				</cds-side-nav-link>
+				<cds-side-nav-menu title="Category title">
+					<svg slot="title-icon" cdsIcon="fade" size="16"></svg>
+					<cds-side-nav-menu-item>Link</cds-side-nav-menu-item>
+					<cds-side-nav-menu-item>Link</cds-side-nav-menu-item>
+					<cds-side-nav-menu-item>Link</cds-side-nav-menu-item>
+				</cds-side-nav-menu>
+			</cds-side-nav-items></cds-side-nav>
 		<div>
 	`
 });

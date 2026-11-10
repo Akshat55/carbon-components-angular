@@ -17,8 +17,8 @@ import { ShellLink } from "../shell-link.class";
  *
  * ```html
  * <cds-header name="Platform" skipTo="main">
- * 	<cds-hamburger />
- * 	<cds-header-navigation>...</cds-header-navigation>
+ * 	<cds-header-menu-button />
+ * 	<cds-header-nav>...</cds-header-nav>
  * 	<cds-header-global>...</cds-header-global>
  * </cds-header>
  * ```
@@ -31,7 +31,7 @@ import { ShellLink } from "../shell-link.class";
 		@if (skipTo) {
 			<cds-skip-to-content [href]="'#' + skipTo">{{ i18n.get().UI_SHELL.SKIP_TO }}</cds-skip-to-content>
 		}
-		<ng-content select="cds-hamburger" />
+		<ng-content select="cds-header-menu-button" />
 		<cds-header-name [href]="href ?? ''" [prefix]="isTemplate(brand) ? '' : brand" (click)="navigate($event)">
 			@if (isTemplate(brand)) {
 				<ng-template [ngTemplateOutlet]="brand" />

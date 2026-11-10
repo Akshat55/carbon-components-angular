@@ -4,14 +4,14 @@ import { RouterModule } from "@angular/router";
 
 import { I18nModule } from "carbon-components-angular/i18n";
 
-import { SideNav } from "./sidenav.component";
-import { SideNavItem } from "./sidenav-item.component";
+import { SideNav, SideNavItems } from "./sidenav.component";
+import { SideNavItem, SideNavMenuItem } from "./sidenav-item.component";
 import { SideNavMenu } from "./sidenav-menu.component";
 import { RouterLinkExtendedDirective } from "./routerlink-extended.directive";
 
 export { SideNavItemInterface } from "./sidenav-item.interface";
 
-export { SideNav, SideNavItem, SideNavMenu };
+export { SideNav, SideNavItems, SideNavItem, SideNavMenuItem, SideNavMenu };
 
 @NgModule({
 	imports: [
@@ -19,13 +19,17 @@ export { SideNav, SideNavItem, SideNavMenu };
 		I18nModule,
 		RouterModule,
 		SideNav,
+		SideNavItems,
 		SideNavItem,
+		SideNavMenuItem,
 		SideNavMenu,
 		RouterLinkExtendedDirective
 	],
 	exports: [
 		SideNav,
+		SideNavItems,
 		SideNavItem,
+		SideNavMenuItem,
 		SideNavMenu
 	]
 })

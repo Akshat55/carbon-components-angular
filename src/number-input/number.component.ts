@@ -164,4 +164,15 @@ export class NumberComponent extends WebComponentValueAccessor<number> {
 	}
 }
 
+/**
+ * The `<cds-number-input-skeleton>` web component.
+ */
+@Component({
+	selector: "cds-number-input-skeleton",
+	template: "",
+	changeDetection: ChangeDetectionStrategy.OnPush,
+	schemas: [CUSTOM_ELEMENTS_SCHEMA]
+})
+export class NumberSkeleton {}
+
 export { NumberComponent as Number };

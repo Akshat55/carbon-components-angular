@@ -7,6 +7,7 @@ export { OverflowMenuPane } from "./overflow-menu/overflow-menu-pane.component";
 export { OverflowMenuCustomPane } from "./overflow-menu/overflow-menu-custom-pane.component";
 export { OverflowMenuDirective } from "./overflow-menu/overflow-menu.directive";
 export { OverflowMenuOption } from "./overflow-menu/overflow-menu-option.component";
+export { OverflowMenuBody } from "./overflow-menu/overflow-menu-body.component";
 
 export { DialogConfig, CloseMeta, CloseReasons } from "./dialog-config.interface";
 

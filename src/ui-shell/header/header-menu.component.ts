@@ -11,20 +11,19 @@ import {
 } from "@angular/core";
 import "@carbon/web-components/es/components/ui-shell/index.js";
 import { observeAttribute } from "carbon-components-angular/utils";
-import { HeaderItem } from "./header-item.component";
+import { HeaderMenuItem } from "./header-item.component";
 import { HeaderItemInterface } from "./header-navigation-items.interface";
-import { HEADER_MENU } from "./header-menu.token";
 
 /**
- * Wraps the `<cds-header-menu>` web component. Project `cds-header-item`s or pass `headerItems`.
+ * Wraps the `<cds-header-menu>` web component. Project `cds-header-nav-item`s or pass `headerItems`.
  */
 @Component({
 	selector: "cds-header-menu",
 	template: `
 		@for (item of headerItems; track item) {
-			<cds-header-item [href]="item.href" [route]="item.route" [routeExtras]="item.routeExtras" [useRouter]="useRouter">
+			<cds-header-menu-item [href]="item.href" [route]="item.route" [routeExtras]="item.routeExtras" [useRouter]="useRouter">
 				{{ item.content }}
-			</cds-header-item>
+			</cds-header-menu-item>
 		}
 		<ng-content />
 	`,
@@ -35,9 +34,8 @@ import { HEADER_MENU } from "./header-menu.token";
 		"(mouseover)": "trigger === 'mouseover' && (expanded = true)",
 		"(mouseout)": "trigger === 'mouseover' && (expanded = false)"
 	},
-	providers: [{ provide: HEADER_MENU, useValue: true }],
 	changeDetection: ChangeDetectionStrategy.OnPush,
-	imports: [HeaderItem],
+	imports: [HeaderMenuItem],
 	schemas: [CUSTOM_ELEMENTS_SCHEMA]
 })
 export class HeaderMenu {

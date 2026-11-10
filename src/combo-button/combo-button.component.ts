@@ -15,18 +15,14 @@ import "@carbon/web-components/es/components/menu/index.js";
 type ComboButtonPlacement = "top" | "top-start" | "top-end" | "bottom" | "bottom-start" | "bottom-end";
 
 /**
- * Wraps the `<cds-combo-button>` web component: a primary action plus a menu of
- * `cds-menu-item`s. `actionClick` emits for the primary action.
+ * Adds Angular inputs, `[open]` and `(actionClick)` to the `<cds-combo-button>` web component:
+ * a primary action plus a menu. Put its items in a `cds-menu`.
  *
  * [See demo](../../?path=/story/components-combo-button--basic)
  */
 @Component({
 	selector: "cds-combo-button",
-	template: `
-		<cds-menu [id]="comboId" [size]="size">
-			<ng-content />
-		</cds-menu>
-	`,
+	template: "<ng-content />",
 	host: {
 		"[label]": "label",
 		"[size]": "size",
@@ -40,9 +36,6 @@ type ComboButtonPlacement = "top" | "top-start" | "top-end" | "bottom" | "bottom
 	schemas: [CUSTOM_ELEMENTS_SCHEMA]
 })
 export class ComboButtonComponent {
-	static comboButtonCounter = 0;
-
-	@Input() comboId = `combo-button-${ComboButtonComponent.comboButtonCounter++}`;
 	@Input() size: "xs" | "sm" | "md" | "lg" = "lg";
 	@Input() label: string;
 	@Input() disabled = false;

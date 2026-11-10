@@ -8,16 +8,17 @@ import "@carbon/web-components/es/components/ui-shell/index.js";
 import { ShellLink } from "../shell-link.class";
 
 /**
- * A product switcher item. Renders the `<cds-switcher-item>` web component.
+ * Adds router navigation and `active` to the `<cds-switcher-item>` web component.
  */
 @Component({
-	selector: "cds-switcher-list-item",
-	template: `
-		<cds-switcher-item [href]="href ?? ''" [selected]="active" [attr.target]="target" (click)="navigate($event)">
-			<ng-content />
-		</cds-switcher-item>
-	`,
-	styles: [":host { display: contents; }"],
+	selector: "cds-switcher-item",
+	template: "<ng-content />",
+	host: {
+		"[href]": "href ?? ''",
+		"[selected]": "active",
+		"[attr.target]": "target",
+		"(click)": "navigate($event)"
+	},
 	changeDetection: ChangeDetectionStrategy.OnPush,
 	schemas: [CUSTOM_ELEMENTS_SCHEMA]
 })

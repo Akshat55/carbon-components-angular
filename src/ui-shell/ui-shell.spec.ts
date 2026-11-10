@@ -1,4 +1,4 @@
-import { Component, CUSTOM_ELEMENTS_SCHEMA } from "@angular/core";
+import { Component } from "@angular/core";
 import { TestBed } from "@angular/core/testing";
 import { provideRouter, Router } from "@angular/router";
 
@@ -9,10 +9,13 @@ import {
 	HeaderGlobal,
 	HeaderItem,
 	HeaderMenu,
+	HeaderMenuItem,
 	HeaderNavigation,
 	Panel,
 	SideNav,
 	SideNavItem,
+	SideNavItems,
+	SideNavMenuItem,
 	SideNavMenu,
 	SwitcherList,
 	SwitcherListItem
@@ -24,34 +27,33 @@ class Page {}
 @Component({
 	template: `
 		<cds-header name="Platform" skipTo="main">
-			<cds-hamburger />
-			<cds-header-navigation ariaLabel="Main">
-				<cds-header-item href="/docs" [isCurrentPage]="true">Docs</cds-header-item>
+			<cds-header-menu-button />
+			<cds-header-nav ariaLabel="Main">
+				<cds-header-nav-item href="/docs" [isCurrentPage]="true">Docs</cds-header-nav-item>
 				<cds-header-menu title="More">
-					<cds-header-item [route]="['page']">Page</cds-header-item>
+					<cds-header-menu-item [route]="['page']">Page</cds-header-menu-item>
 				</cds-header-menu>
-			</cds-header-navigation>
+			</cds-header-nav>
 			<cds-header-global>
-				<cds-header-action description="Switch" ariaLabel="Switcher" [(active)]="switcherOpen"><svg></svg></cds-header-action>
+				<cds-header-global-action description="Switch" ariaLabel="Switcher" [(active)]="switcherOpen"><svg></svg></cds-header-global-action>
 			</cds-header-global>
-			<cds-panel [expanded]="switcherOpen">
-				<cds-switcher-list>
-					<cds-switcher-list-item href="/app" [active]="true">App</cds-switcher-list-item>
-				</cds-switcher-list>
-			</cds-panel>
+			<cds-header-panel [expanded]="switcherOpen">
+				<cds-switcher>
+					<cds-switcher-item href="/app" [active]="true">App</cds-switcher-item>
+				</cds-switcher>
+			</cds-header-panel>
 		</cds-header>
-		<cds-sidenav [rail]="true">
-			<cds-sidenav-item href="/home" [active]="true"><svg></svg>Home</cds-sidenav-item>
-			<cds-sidenav-menu title="Settings">
-				<cds-sidenav-item [route]="['page']">Profile</cds-sidenav-item>
-			</cds-sidenav-menu>
-		</cds-sidenav>
+		<cds-side-nav [rail]="true"><cds-side-nav-items>
+			<cds-side-nav-link href="/home" [active]="true"><svg slot="title-icon"></svg>Home</cds-side-nav-link>
+			<cds-side-nav-menu title="Settings">
+				<cds-side-nav-menu-item [route]="['page']">Profile</cds-side-nav-menu-item>
+			</cds-side-nav-menu>
+		</cds-side-nav-items></cds-side-nav>
 	`,
 	imports: [
-		Header, Hamburger, HeaderNavigation, HeaderItem, HeaderMenu, HeaderGlobal, HeaderAction,
-		Panel, SwitcherList, SwitcherListItem, SideNav, SideNavItem, SideNavMenu
-	],
-	schemas: [CUSTOM_ELEMENTS_SCHEMA]
+		Header, Hamburger, HeaderNavigation, HeaderItem, HeaderMenu, HeaderMenuItem, HeaderGlobal, HeaderAction,
+		Panel, SwitcherList, SwitcherListItem, SideNav, SideNavItems, SideNavItem, SideNavMenu, SideNavMenuItem
+	]
 })
 class ShellTest {
 	switcherOpen = false;
@@ -78,7 +80,7 @@ describe("UI shell", () => {
 	});
 
 	it("should render header items as nav items, or menu items inside a menu", () => {
-		const navItem: any = root.querySelector("cds-header-nav > cds-header-item > cds-header-nav-item");
+		const navItem: any = root.querySelector("cds-header-nav > cds-header-nav-item");
 		expect(navItem.href).toBe("/docs");
 		expect(navItem.isActive).toBe(true);
 		const menu: any = root.querySelector("cds-header-menu");
@@ -107,10 +109,10 @@ describe("UI shell", () => {
 		const sideNav: any = root.querySelector("cds-side-nav");
 		expect(sideNav instanceof customElements.get("cds-side-nav")).toBe(true);
 		expect(sideNav.collapseMode).toBe("rail");
-		const link: any = sideNav.querySelector("cds-side-nav-items > cds-sidenav-item > cds-side-nav-link");
+		const link: any = sideNav.querySelector("cds-side-nav-items > cds-side-nav-link");
 		expect(link.href).toBe("/home");
 		expect(link.active).toBe(true);
-		expect(link.querySelector("[slot='title-icon'] svg")).toBeTruthy();
+		expect(link.querySelector("svg[slot='title-icon']")).toBeTruthy();
 		const menu: any = sideNav.querySelector("cds-side-nav-menu");
 		expect(menu.title).toBe("Settings");
 		expect(menu.querySelector("cds-side-nav-menu-item").textContent).toContain("Profile");

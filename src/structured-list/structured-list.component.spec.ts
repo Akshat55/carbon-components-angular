@@ -4,10 +4,9 @@ import { By } from "@angular/platform-browser";
 import { FormControl, FormsModule, ReactiveFormsModule } from "@angular/forms";
 
 import { settle, shadow } from "../test-helpers/web-components";
-import { ListColumn } from "./list-column.component";
-import { ListHeader } from "./list-header.component";
 import { ListRow } from "./list-row.component";
 import { StructuredList } from "./structured-list.component";
+import { StructuredListModule } from "./structured-list.module";
 
 @Component({
 	template: `
@@ -17,28 +16,25 @@ import { StructuredList } from "./structured-list.component";
 			selection="true"
 			[(ngModel)]="valueSelected"
 			(selected)="onSelected()">
-			<cds-list-header>
-				<cds-list-column nowrap="true">Column 1</cds-list-column>
-				<cds-list-column nowrap="true">Column 2</cds-list-column>
-				<cds-list-column>Column 3</cds-list-column>
-			</cds-list-header>
-			<cds-list-row value="row1">
-				<cds-list-column>Row 1</cds-list-column>
-				<cds-list-column nowrap="true">Row One</cds-list-column>
-				<cds-list-column>Test</cds-list-column>
-			</cds-list-row>
-			<cds-list-row value="row2">
-				<cds-list-column>Row 2</cds-list-column>
-				<cds-list-column nowrap="true">Row Two</cds-list-column>
-				<cds-list-column>Test</cds-list-column>
-			</cds-list-row>
-		</cds-structured-list>
+			<cds-structured-list-head><cds-structured-list-header-row>
+				<cds-structured-list-header-cell nowrap="true">Column 1</cds-structured-list-header-cell>
+				<cds-structured-list-header-cell nowrap="true">Column 2</cds-structured-list-header-cell>
+				<cds-structured-list-header-cell>Column 3</cds-structured-list-header-cell>
+			</cds-structured-list-header-row></cds-structured-list-head><cds-structured-list-body>
+			<cds-structured-list-row value="row1">
+				<cds-structured-list-cell>Row 1</cds-structured-list-cell>
+				<cds-structured-list-cell nowrap="true">Row One</cds-structured-list-cell>
+				<cds-structured-list-cell>Test</cds-structured-list-cell>
+			</cds-structured-list-row>
+			<cds-structured-list-row value="row2">
+				<cds-structured-list-cell>Row 2</cds-structured-list-cell>
+				<cds-structured-list-cell nowrap="true">Row Two</cds-structured-list-cell>
+				<cds-structured-list-cell>Test</cds-structured-list-cell>
+			</cds-structured-list-row>
+		</cds-structured-list-body></cds-structured-list>
 	`,
 	imports: [
-		ListRow,
-		ListHeader,
-		ListColumn,
-		StructuredList,
+		StructuredListModule,
 		FormsModule
 	]
 })
@@ -130,12 +126,12 @@ describe("StructuredList", () => {
 
 @Component({
 	template: `
-		<cds-structured-list [selection]="true" [formControl]="control">
-			<cds-list-row value="a"><cds-list-column>A</cds-list-column></cds-list-row>
-			<cds-list-row value="b"><cds-list-column>B</cds-list-column></cds-list-row>
-		</cds-structured-list>
+		<cds-structured-list [selection]="true" [formControl]="control"><cds-structured-list-body>
+			<cds-structured-list-row value="a"><cds-structured-list-cell>A</cds-structured-list-cell></cds-structured-list-row>
+			<cds-structured-list-row value="b"><cds-structured-list-cell>B</cds-structured-list-cell></cds-structured-list-row>
+		</cds-structured-list-body></cds-structured-list>
 	`,
-	imports: [StructuredList, ListRow, ListColumn, ReactiveFormsModule]
+	imports: [StructuredListModule, ReactiveFormsModule]
 })
 class ReactiveStructuredListTest {
 	control = new FormControl("b");

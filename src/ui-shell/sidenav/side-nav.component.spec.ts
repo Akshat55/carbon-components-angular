@@ -16,18 +16,18 @@ class FooComponent {}
 
 @Component({
 	template: `
-		<cds-sidenav [allowExpansion]="allowExpansion" [hidden]="hidden">
-			<cds-sidenav-item
+		<cds-side-nav [allowExpansion]="allowExpansion" [hidden]="hidden"><cds-side-nav-items>
+			<cds-side-nav-link
 				[route]="route"
 				[useRouter]="useRouter"
 				(navigation)="onNavigation($event)">
 				Link
-			</cds-sidenav-item>
-			<cds-sidenav-menu title="Example Title">
-				<cds-sidenav-item [active]="firstItemActive">One</cds-sidenav-item>
-				<cds-sidenav-item [active]="secondItemActive">Two</cds-sidenav-item>
-			</cds-sidenav-menu>
-		</cds-sidenav>
+			</cds-side-nav-link>
+			<cds-side-nav-menu title="Example Title">
+				<cds-side-nav-menu-item [active]="firstItemActive">One</cds-side-nav-menu-item>
+				<cds-side-nav-menu-item [active]="secondItemActive">Two</cds-side-nav-menu-item>
+			</cds-side-nav-menu>
+		</cds-side-nav-items></cds-side-nav>
 	`,
 	imports: [SideNav, SideNavItem, SideNavMenu, RouterModule]
 })

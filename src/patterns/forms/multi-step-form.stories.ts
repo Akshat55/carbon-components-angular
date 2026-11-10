@@ -26,7 +26,7 @@ import { Label, TextArea, TextInput } from "../../input";
 		<div cdsGrid>
 			<div cdsRow class="header">
 				<cds-header name="Patterns">
-					<cds-hamburger></cds-hamburger>
+					<cds-header-menu-button></cds-header-menu-button>
 				</cds-header>
 			</div>
 			<div cdsRow>

@@ -12,7 +12,7 @@ import { Search } from "carbon-components-angular/search";
 import { Slider } from "carbon-components-angular/slider";
 import { TimePicker } from "carbon-components-angular/timepicker";
 import { Select } from "carbon-components-angular/select";
-import { ListColumn, ListRow, StructuredList } from "carbon-components-angular/structured-list";
+import { StructuredListModule } from "carbon-components-angular/structured-list";
 import { Toggle } from "carbon-components-angular/toggle";
 
 /**
@@ -229,12 +229,12 @@ const cases: FormCase[] = [
 	},
 	{
 		name: "StructuredList (selection)",
-		imports: [StructuredList, ListRow, ListColumn],
+		imports: [StructuredListModule],
 		template: `
-			<cds-structured-list [selection]="true" [formControl]="control">
-				<cds-list-row value="a"><cds-list-column>A</cds-list-column></cds-list-row>
-				<cds-list-row value="b"><cds-list-column>B</cds-list-column></cds-list-row>
-			</cds-structured-list>`,
+			<cds-structured-list [selection]="true" [formControl]="control"><cds-structured-list-body>
+				<cds-structured-list-row value="a"><cds-structured-list-cell>A</cds-structured-list-cell></cds-structured-list-row>
+				<cds-structured-list-row value="b"><cds-structured-list-cell>B</cds-structured-list-cell></cds-structured-list-row>
+			</cds-structured-list-body></cds-structured-list>`,
 		initial: "a",
 		tag: "cds-structured-list-row",
 		read: element => element.selected ? "a" : null,

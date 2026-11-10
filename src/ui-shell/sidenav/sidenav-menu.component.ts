@@ -6,89 +6,75 @@ import {
 	DestroyRef,
 	ElementRef,
 	Input,
-	OnInit,
-	ViewChild,
 	inject
 } from "@angular/core";
 import "@carbon/web-components/es/components/ui-shell/index.js";
 import { observeAttribute } from "carbon-components-angular/utils";
-import { SideNavItem } from "./sidenav-item.component";
+import { SideNavMenuItem } from "./sidenav-item.component";
 import { SideNavItemInterface } from "./sidenav-item.interface";
-import { SIDE_NAV_MENU } from "./sidenav-menu.token";
 
 /**
- * A collapsible side navigation menu. Renders the `<cds-side-nav-menu>` web component.
+ * Adds `menuItems`, `[expanded]` and active-child tracking to the `<cds-side-nav-menu>`
+ * web component. Project `cds-side-nav-menu-item`s or pass `menuItems`.
+ *
+ * The menu is highlighted while one of its items is `active`; items are read from the DOM,
+ * so items created any way (templates, `@for`, `createComponent`) count.
  */
 @Component({
-	selector: "cds-sidenav-menu",
+	selector: "cds-side-nav-menu",
 	template: `
-		<cds-side-nav-menu #menu [title]="title" [expanded]="expanded" [active]="hasActiveChild">
-			<span slot="title-icon"><ng-content select="svg, [icon]" /></span>
-			@for (item of menuItems; track item) {
-				<cds-sidenav-item
-					[href]="item.href"
-					[route]="item.route"
-					[routeExtras]="item.routeExtras"
-					[active]="!!item.active"
-					[useRouter]="useRouter">
-					{{ item.content }}
-				</cds-sidenav-item>
-			}
-			<ng-content />
-		</cds-side-nav-menu>
+		@for (item of menuItems; track item) {
+			<cds-side-nav-menu-item
+				[href]="item.href"
+				[route]="item.route"
+				[routeExtras]="item.routeExtras"
+				[active]="!!item.active"
+				[useRouter]="useRouter">
+				{{ item.content }}
+			</cds-side-nav-menu-item>
+		}
+		<ng-content />
 	`,
-	styles: [":host { display: contents; }"],
-	providers: [{ provide: SIDE_NAV_MENU, useExisting: SideNavMenu }],
+	host: {
+		"[title]": "title",
+		"[expanded]": "expanded",
+		"[active]": "hasActiveChild"
+	},
 	changeDetection: ChangeDetectionStrategy.OnPush,
-	imports: [SideNavItem],
+	imports: [SideNavMenuItem],
 	schemas: [CUSTOM_ELEMENTS_SCHEMA]
 })
-export class SideNavMenu implements OnInit {
+export class SideNavMenu {
 	@Input() title: string;
 	@Input() expanded = false;
-	/**
-	 * Highlights the menu while one of its items is active.
-	 */
-	@Input() hasActiveChild = false;
 	@Input() menuItems: SideNavItemInterface[];
 	@Input() useRouter = false;
 
-	@ViewChild("menu", { static: true }) menu: ElementRef<HTMLElement>;
+	/**
+	 * `true` while one of the menu's items is active.
+	 */
+	hasActiveChild = false;
 
-	protected items = new Set<SideNavItem>();
+	protected element: HTMLElement = inject(ElementRef).nativeElement;
 	protected changeDetectorRef = inject(ChangeDetectorRef);
-	protected destroyRef = inject(DestroyRef);
 
-	ngOnInit() {
-		observeAttribute(this.menu.nativeElement, "expanded", this.destroyRef, expanded => {
+	constructor() {
+		const destroyRef = inject(DestroyRef);
+		observeAttribute(this.element, "expanded", destroyRef, expanded => {
 			this.expanded = expanded;
 			this.changeDetectorRef.markForCheck();
 		});
+		// Items reflect `active`; watch them (and items being added or removed).
+		const observer = new MutationObserver(() => this.updateActiveChild());
+		observer.observe(this.element, { childList: true, subtree: true, attributes: true, attributeFilter: ["active"] });
+		destroyRef.onDestroy(() => observer.disconnect());
 	}
 
-	/**
-	 * Called by the menu's items when they are created and destroyed.
-	 */
-	register(item: SideNavItem, registered = true) {
-		if (registered) {
-			this.items.add(item);
-		} else {
-			this.items.delete(item);
+	protected updateActiveChild() {
+		const hasActiveChild = !!this.element.querySelector("cds-side-nav-menu-item[active]");
+		if (hasActiveChild !== this.hasActiveChild) {
+			this.hasActiveChild = hasActiveChild;
+			this.changeDetectorRef.markForCheck();
 		}
-		this.updateActiveChild();
-	}
-
-	/**
-	 * Highlights the menu while one of its items is active.
-	 */
-	updateActiveChild() {
-		// Deferred: items update while this menu's view is being checked.
-		Promise.resolve().then(() => {
-			const hasActiveChild = [...this.items].some(item => item.isActive);
-			if (hasActiveChild !== this.hasActiveChild) {
-				this.hasActiveChild = hasActiveChild;
-				this.changeDetectorRef.markForCheck();
-			}
-		});
 	}
 }

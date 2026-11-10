@@ -14,7 +14,7 @@ import { CdsLink, Link, LinkIconDirective } from "carbon-components-angular/link
 import { Loading } from "carbon-components-angular/loading";
 import { ProgressBar } from "carbon-components-angular/progress-bar";
 import { SkeletonIcon, SkeletonPlaceholder, SkeletonText } from "carbon-components-angular/skeleton";
-import { ListColumn, ListHeader, ListRow, StructuredList } from "carbon-components-angular/structured-list";
+import { StructuredListModule } from "carbon-components-angular/structured-list";
 import {
 	Tag,
 	TagFilter,
@@ -165,12 +165,12 @@ const cases: SmokeCase[] = [
 	},
 	{
 		name: "StructuredList",
-		imports: [StructuredList, ListHeader, ListRow, ListColumn],
+		imports: [StructuredListModule],
 		template: `
 			<cds-structured-list [selection]="true" [condensed]="true">
-				<cds-list-header><cds-list-column>Head</cds-list-column></cds-list-header>
-				<cds-list-row value="a"><cds-list-column>A</cds-list-column></cds-list-row>
-			</cds-structured-list>`,
+				<cds-structured-list-head><cds-structured-list-header-row><cds-structured-list-header-cell>Head</cds-structured-list-header-cell></cds-structured-list-header-row></cds-structured-list-head><cds-structured-list-body>
+				<cds-structured-list-row value="a"><cds-structured-list-cell>A</cds-structured-list-cell></cds-structured-list-row>
+			</cds-structured-list-body></cds-structured-list>`,
 		tag: "cds-structured-list",
 		check: element => {
 			expect(element.condensed).toBe(true);

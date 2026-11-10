@@ -11,6 +11,7 @@ import { OverflowMenu } from "./overflow-menu/overflow-menu.component";
 import { OverflowMenuPane } from "./overflow-menu/overflow-menu-pane.component";
 import { OverflowMenuDirective } from "./overflow-menu/overflow-menu.directive";
 import { OverflowMenuOption } from "./overflow-menu/overflow-menu-option.component";
+import { OverflowMenuBody } from "./overflow-menu/overflow-menu-body.component";
 import { I18nModule } from "carbon-components-angular/i18n";
 import { Placeholder } from "carbon-components-angular/placeholder";
 import { ExperimentalModule } from "carbon-components-angular/experimental";
@@ -26,7 +27,8 @@ import { IconDirective } from "carbon-components-angular/icon";
 		OverflowMenuPane,
 		DialogDirective,
 		OverflowMenuDirective,
-		OverflowMenuOption
+		OverflowMenuOption,
+		OverflowMenuBody
 	],
 	providers: [DialogService],
 	imports: [
@@ -41,7 +43,8 @@ import { IconDirective } from "carbon-components-angular/icon";
 		OverflowMenuPane,
 		DialogDirective,
 		OverflowMenuDirective,
-		OverflowMenuOption
+		OverflowMenuOption,
+		OverflowMenuBody
 	]
 })
 export class DialogModule {}

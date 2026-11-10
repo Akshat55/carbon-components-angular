@@ -9,7 +9,7 @@ import { Hamburger } from "../index";
 @Component({
 	template: `
 		<cds-header [brand]="brand" [name]="name" skipTo="main">
-			<cds-hamburger />
+			<cds-header-menu-button />
 		</cds-header>
 	`,
 	imports: [Header, Hamburger]

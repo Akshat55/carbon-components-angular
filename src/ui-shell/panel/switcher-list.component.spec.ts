@@ -10,10 +10,10 @@ import { SwitcherListItem } from "./switcher-list-item.component";
 
 @Component({
 	template: `
-		<cds-switcher-list>
-			<cds-switcher-list-item [active]="firstActive" href="#one">Product one</cds-switcher-list-item>
-			<cds-switcher-list-item [active]="secondActive" href="#two">Product two</cds-switcher-list-item>
-		</cds-switcher-list>
+		<cds-switcher>
+			<cds-switcher-item [active]="firstActive" href="#one">Product one</cds-switcher-item>
+			<cds-switcher-item [active]="secondActive" href="#two">Product two</cds-switcher-item>
+		</cds-switcher>
 	`,
 	imports: [UIShellModule]
 })

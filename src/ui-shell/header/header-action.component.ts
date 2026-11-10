@@ -12,31 +12,30 @@ import "@carbon/web-components/es/components/ui-shell/index.js";
 import { BaseIconButton } from "carbon-components-angular/button";
 
 /**
- * A header global action. Renders the `<cds-header-global-action>` web component; project the icon.
+ * Adds `[(active)]` and a `description` tooltip to the `<cds-header-global-action>` web component; project the icon.
  * Supports `[(active)]`.
  */
 @Component({
-	selector: "cds-header-action",
+	selector: "cds-header-global-action",
 	template: `
-		<cds-header-global-action
-			[active]="active"
-			[attr.aria-label]="ariaLabel"
-			[buttonLabelActive]="ariaLabel"
-			[buttonLabelInactive]="ariaLabel"
-			(click)="onClick()">
-			<ng-content />
-			@if (description) {
-				<span slot="tooltip-content">
-					@if (isTemplate(description)) {
-						<ng-template [ngTemplateOutlet]="description" />
-					} @else {
-						{{ description }}
-					}
-				</span>
-			}
-		</cds-header-global-action>
+		<ng-content />
+		@if (description) {
+			<span slot="tooltip-content">
+				@if (isTemplate(description)) {
+					<ng-template [ngTemplateOutlet]="description" />
+				} @else {
+					{{ description }}
+				}
+			</span>
+		}
 	`,
-	styles: [":host { display: contents; }"],
+	host: {
+		"[active]": "active",
+		"[attr.aria-label]": "ariaLabel",
+		"[buttonLabelActive]": "ariaLabel",
+		"[buttonLabelInactive]": "ariaLabel",
+		"(click)": "onClick()"
+	},
 	changeDetection: ChangeDetectionStrategy.OnPush,
 	imports: [NgTemplateOutlet],
 	schemas: [CUSTOM_ELEMENTS_SCHEMA]

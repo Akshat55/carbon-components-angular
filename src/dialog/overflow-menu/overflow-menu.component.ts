@@ -15,15 +15,17 @@ import { NgTemplateOutlet } from "@angular/common";
 import "@carbon/web-components/es/components/overflow-menu/index.js";
 import { BaseIconButton } from "carbon-components-angular/button";
 import { I18n } from "carbon-components-angular/i18n";
-import { FloatingMenuCleanup } from "carbon-components-angular/utils";
 
 /**
- * Wraps the `<cds-overflow-menu>` web component. Project `cds-overflow-menu-item`s.
+ * Adds Angular inputs and `[(open)]` to the `<cds-overflow-menu>` web component.
+ * Put its items in a `cds-overflow-menu-body`.
  *
  * ```html
  * <cds-overflow-menu description="Options">
- * 	<cds-overflow-menu-item (selected)="edit()">Edit</cds-overflow-menu-item>
- * 	<cds-overflow-menu-item type="danger">Delete</cds-overflow-menu-item>
+ * 	<cds-overflow-menu-body>
+ * 		<cds-overflow-menu-item (selected)="edit()">Edit</cds-overflow-menu-item>
+ * 		<cds-overflow-menu-item type="danger">Delete</cds-overflow-menu-item>
+ * 	</cds-overflow-menu-body>
  * </cds-overflow-menu>
  * ```
  *
@@ -38,9 +40,7 @@ import { FloatingMenuCleanup } from "carbon-components-angular/utils";
 			<span slot="icon"><ng-template [ngTemplateOutlet]="customTrigger" /></span>
 		}
 		<span slot="tooltip-content">{{ description }}</span>
-		<cds-overflow-menu-body [flipped]="flip" [direction]="placement.startsWith('top') ? 'top' : 'bottom'">
-			<ng-content />
-		</cds-overflow-menu-body>
+		<ng-content />
 	`,
 	host: {
 		"[open]": "open",
@@ -51,7 +51,7 @@ import { FloatingMenuCleanup } from "carbon-components-angular/utils";
 		"[attr.aria-label]": "buttonLabel"
 	},
 	changeDetection: ChangeDetectionStrategy.OnPush,
-	imports: [NgTemplateOutlet, FloatingMenuCleanup],
+	imports: [NgTemplateOutlet],
 	schemas: [CUSTOM_ELEMENTS_SCHEMA]
 })
 export class OverflowMenu extends BaseIconButton {
@@ -66,7 +66,6 @@ export class OverflowMenu extends BaseIconButton {
 	 * Aligns the menu to the right edge of the trigger.
 	 */
 	@Input() flip = false;
-	@Input() placement: "bottom" | "top" | "bottom,top" | "top,bottom" = "bottom";
 	/**
 	 * Supports two-way binding with `openChange`.
 	 */

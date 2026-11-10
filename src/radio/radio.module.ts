@@ -4,13 +4,14 @@ import { FormsModule } from "@angular/forms";
 import { CommonModule } from "@angular/common";
 
 // imports
-import { Radio } from "./radio.component";
+import { Radio, RadioSkeleton } from "./radio.component";
 import { RadioGroup } from "./radio-group.component";
 import { IconDirective } from "carbon-components-angular/icon";
 
 @NgModule({
 	exports: [
 		Radio,
+		RadioSkeleton,
 		RadioGroup
 	],
 	imports: [
@@ -18,6 +19,7 @@ import { IconDirective } from "carbon-components-angular/icon";
 		FormsModule,
 		IconDirective,
 		Radio,
+		RadioSkeleton,
 		RadioGroup
 	]
 })

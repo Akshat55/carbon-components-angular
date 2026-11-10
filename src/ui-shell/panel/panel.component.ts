@@ -7,16 +7,15 @@ import {
 import "@carbon/web-components/es/components/ui-shell/index.js";
 
 /**
- * A header panel. Renders the `<cds-header-panel>` web component.
+ * Adds Angular inputs to the `<cds-header-panel>` web component.
  */
 @Component({
-	selector: "cds-panel",
-	template: `
-		<cds-header-panel [expanded]="expanded" [attr.aria-label]="ariaLabel">
-			<ng-content />
-		</cds-header-panel>
-	`,
-	styles: [":host { display: contents; }"],
+	selector: "cds-header-panel",
+	template: "<ng-content />",
+	host: {
+		"[expanded]": "expanded",
+		"[attr.aria-label]": "ariaLabel"
+	},
 	changeDetection: ChangeDetectionStrategy.OnPush,
 	schemas: [CUSTOM_ELEMENTS_SCHEMA]
 })

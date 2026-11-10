@@ -11,14 +11,14 @@ import { HeaderAction } from "./header-action.component";
 
 @Component({
 	template: `
-		<cds-header-navigation [ariaLabel]="ariaLabel" [navigationItems]="navigationItems">
-			<cds-header-item [isCurrentPage]="isCurrentPage" href="#projected">Projected item</cds-header-item>
+		<cds-header-nav [ariaLabel]="ariaLabel" [navigationItems]="navigationItems">
+			<cds-header-nav-item [isCurrentPage]="isCurrentPage" href="#projected">Projected item</cds-header-nav-item>
 			<cds-header-menu [title]="menuTitle" [trigger]="trigger">
-				<cds-header-item href="#child">Menu child</cds-header-item>
+				<cds-header-menu-item href="#child">Menu child</cds-header-menu-item>
 			</cds-header-menu>
-		</cds-header-navigation>
+		</cds-header-nav>
 		<cds-header-global>
-			<cds-header-action [(active)]="actionActive" ariaLabel="Toggle panel"></cds-header-action>
+			<cds-header-global-action [(active)]="actionActive" ariaLabel="Toggle panel"></cds-header-global-action>
 		</cds-header-global>
 	`,
 	imports: [UIShellModule]

@@ -18,7 +18,7 @@ import { TableRow } from "../../table/table-row.class";
 	<div cdsGrid>
 		<div cdsRow class="header">
 			<cds-header name="Patterns">
-				<cds-hamburger></cds-hamburger>
+				<cds-header-menu-button></cds-header-menu-button>
 			</cds-header>
 		</div>
 		<div cdsRow>

@@ -11,18 +11,17 @@ import "@carbon/web-components/es/components/ui-shell/index.js";
 import { I18n } from "carbon-components-angular/i18n";
 
 /**
- * The header menu button. Renders the `<cds-header-menu-button>` web component.
+ * Adds `active`, labels and `(selected)` to the `<cds-header-menu-button>` web component (the hamburger).
  */
 @Component({
-	selector: "cds-hamburger",
-	template: `
-		<cds-header-menu-button
-			[active]="active"
-			[buttonLabelActive]="activeTitle"
-			[buttonLabelInactive]="inactiveTitle"
-			(cds-header-menu-button-toggled)="onToggled($event)" />
-	`,
-	styles: [":host { display: contents; }"],
+	selector: "cds-header-menu-button",
+	template: "",
+	host: {
+		"[active]": "active",
+		"[buttonLabelActive]": "activeTitle",
+		"[buttonLabelInactive]": "inactiveTitle",
+		"(cds-header-menu-button-toggled)": "onToggled($event)"
+	},
 	changeDetection: ChangeDetectionStrategy.OnPush,
 	schemas: [CUSTOM_ELEMENTS_SCHEMA]
 })

@@ -28,7 +28,7 @@ import { Hamburger, Header } from "../../ui-shell";
 	<div cdsGrid>
 		<div cdsRow class="header">
 			<cds-header name="Patterns">
-				<cds-hamburger></cds-hamburger>
+				<cds-header-menu-button></cds-header-menu-button>
 			</cds-header>
 		</div>
 		<div cdsRow class="progress-indicator-wrapper">

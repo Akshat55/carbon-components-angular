@@ -6,7 +6,7 @@ import { I18nModule } from "carbon-components-angular/i18n";
 import { IconModule } from "carbon-components-angular/icon";
 
 import { Header } from "./header.component";
-import { HeaderItem } from "./header-item.component";
+import { HeaderItem, HeaderMenuItem } from "./header-item.component";
 import { HeaderMenu } from "./header-menu.component";
 import { HeaderNavigation } from "./header-navigation.component";
 import { HeaderGlobal } from "./header-global.component";
@@ -20,6 +20,7 @@ export { HeaderItemInterface, NavigationItem } from "./header-navigation-items.i
 export {
 	Header,
 	HeaderItem,
+	HeaderMenuItem,
 	HeaderMenu,
 	HeaderNavigation,
 	HeaderGlobal,
@@ -36,6 +37,7 @@ export {
 		RouterModule,
 		Header,
 		HeaderItem,
+		HeaderMenuItem,
 		HeaderMenu,
 		HeaderNavigation,
 		HeaderGlobal,
@@ -45,6 +47,7 @@ export {
 	exports: [
 		Header,
 		HeaderItem,
+		HeaderMenuItem,
 		HeaderMenu,
 		HeaderNavigation,
 		HeaderGlobal,

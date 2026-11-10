@@ -3,24 +3,27 @@ import { TestBed } from "@angular/core/testing";
 import { By } from "@angular/platform-browser";
 
 import { settle, shadow } from "../test-helpers/web-components";
-import { ContextMenuDividerComponent, ContextMenuItemComponent } from "../context-menu";
+import { ContextMenuComponent, ContextMenuDividerComponent, ContextMenuItemComponent } from "../context-menu";
 import { MenuButtonComponent } from "../menu-button";
 
 @Component({
 	template: `
 		<cds-menu-button label="Menu button" [open]="open">
-			<cds-menu-item label="First action with a long label description" />
-			<cds-menu-item label="Second action" />
-			<cds-menu-item label="Third action" [disabled]="true" />
-			<cds-menu-item-divider />
-			<cds-menu-item label="Cut" info="⌘X" />
-			<cds-menu-item label="Option with icon" icon="calendar" />
-			<cds-menu-item-divider />
-			<cds-menu-item label="Danger action" kind="danger" />
+			<cds-menu>
+				<cds-menu-item label="First action with a long label description" />
+				<cds-menu-item label="Second action" />
+				<cds-menu-item label="Third action" [disabled]="true" />
+				<cds-menu-item-divider />
+				<cds-menu-item label="Cut" info="⌘X" />
+				<cds-menu-item label="Option with icon" icon="calendar" />
+				<cds-menu-item-divider />
+				<cds-menu-item label="Danger action" kind="danger" />
+			</cds-menu>
 		</cds-menu-button>
 	`,
 	imports: [
 		MenuButtonComponent,
+		ContextMenuComponent,
 		ContextMenuItemComponent,
 		ContextMenuDividerComponent
 	]

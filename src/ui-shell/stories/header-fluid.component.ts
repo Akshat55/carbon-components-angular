@@ -23,12 +23,12 @@ export class FooComponent {}
 	selector: "app-header-fluid",
 	template: `
 		<cds-header name="[Platform]">
-			<cds-hamburger
+			<cds-header-menu-button
 				(selected)="hasHamburger = !hasHamburger"
-				class="cds--header__menu-toggle__hidden"></cds-hamburger>
-			<cds-header-navigation [navigationItems]="headerItems"></cds-header-navigation>
+				class="cds--header__menu-toggle__hidden"></cds-header-menu-button>
+			<cds-header-nav [navigationItems]="headerItems"></cds-header-nav>
 			@if (hasHamburger) {
-				<cds-sidenav [navigationItems]="headerItems" class="cds--header__menu-toggle__hidden" />
+				<cds-side-nav [navigationItems]="headerItems" class="cds--header__menu-toggle__hidden" />
 			}
 		</cds-header>
 	`,

@@ -83,3 +83,14 @@ export class Radio {
 		}
 	}
 }
+
+/**
+ * The `<cds-radio-button-skeleton>` web component.
+ */
+@Component({
+	selector: "cds-radio-button-skeleton",
+	template: "",
+	changeDetection: ChangeDetectionStrategy.OnPush,
+	schemas: [CUSTOM_ELEMENTS_SCHEMA]
+})
+export class RadioSkeleton {}

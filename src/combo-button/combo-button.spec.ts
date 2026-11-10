@@ -4,23 +4,26 @@ import { By } from "@angular/platform-browser";
 
 import { settle, shadow } from "../test-helpers/web-components";
 import { ComboButtonComponent } from "./combo-button.component";
-import { ContextMenuDividerComponent, ContextMenuItemComponent } from "../context-menu";
+import { ContextMenuComponent, ContextMenuDividerComponent, ContextMenuItemComponent } from "../context-menu";
 
 @Component({
 	template: `
 		<cds-combo-button label="Primary action" [open]="open" (actionClick)="onAction()">
-			<cds-menu-item label="First action with a long label description" />
-			<cds-menu-item label="Second action" />
-			<cds-menu-item label="Third action" [disabled]="true" />
-			<cds-menu-item-divider />
-			<cds-menu-item label="Cut" info="⌘X" />
-			<cds-menu-item label="Option with icon" icon="calendar" />
-			<cds-menu-item-divider />
-			<cds-menu-item label="Danger action" kind="danger" />
+			<cds-menu>
+				<cds-menu-item label="First action with a long label description" />
+				<cds-menu-item label="Second action" />
+				<cds-menu-item label="Third action" [disabled]="true" />
+				<cds-menu-item-divider />
+				<cds-menu-item label="Cut" info="⌘X" />
+				<cds-menu-item label="Option with icon" icon="calendar" />
+				<cds-menu-item-divider />
+				<cds-menu-item label="Danger action" kind="danger" />
+			</cds-menu>
 		</cds-combo-button>
 	`,
 	imports: [
 		ComboButtonComponent,
+		ContextMenuComponent,
 		ContextMenuItemComponent,
 		ContextMenuDividerComponent
 	]

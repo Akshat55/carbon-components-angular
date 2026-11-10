@@ -10,29 +10,30 @@ import { HeaderMenu } from "./header-menu.component";
 import { NavigationItem } from "./header-navigation-items.interface";
 
 /**
- * The header navigation. Renders the `<cds-header-nav>` web component; project items or pass `navigationItems`.
+ * Adds `navigationItems` and `ariaLabel` to the `<cds-header-nav>` web component.
+ * Project `cds-header-nav-item`s / `cds-header-menu`s, or pass `navigationItems`.
  */
 @Component({
-	selector: "cds-header-navigation",
+	selector: "cds-header-nav",
 	template: `
-		<cds-header-nav [menuBarLabel]="ariaLabel">
-			@for (item of navigationItems; track item) {
-				@if (item.type === "menu") {
-					<cds-header-menu [title]="item.title" [headerItems]="item.menuItems" />
-				} @else {
-					<cds-header-item
-						[href]="item.href"
-						[route]="item.route"
-						[routeExtras]="item.routeExtras"
-						[isCurrentPage]="!!item.isCurrentPage">
-						{{ item.content }}
-					</cds-header-item>
-				}
+		@for (item of navigationItems; track item) {
+			@if (item.type === "menu") {
+				<cds-header-menu [title]="item.title" [headerItems]="item.menuItems" />
+			} @else {
+				<cds-header-nav-item
+					[href]="item.href"
+					[route]="item.route"
+					[routeExtras]="item.routeExtras"
+					[isCurrentPage]="!!item.isCurrentPage">
+					{{ item.content }}
+				</cds-header-nav-item>
 			}
-			<ng-content />
-		</cds-header-nav>
+		}
+		<ng-content />
 	`,
-	styles: [":host { display: contents; }"],
+	host: {
+		"[menuBarLabel]": "ariaLabel"
+	},
 	changeDetection: ChangeDetectionStrategy.OnPush,
 	imports: [HeaderItem, HeaderMenu],
 	schemas: [CUSTOM_ELEMENTS_SCHEMA]

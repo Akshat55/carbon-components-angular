@@ -287,8 +287,10 @@ describe("Overlay and menu wrappers", () => {
 		const host = { onSelected: jasmine.createSpy("selected") };
 		const fixture = render(`
 			<cds-overflow-menu description="Options">
-				<cds-overflow-menu-item (selected)="onSelected()">Edit</cds-overflow-menu-item>
-				<cds-overflow-menu-item type="danger">Delete</cds-overflow-menu-item>
+				<cds-overflow-menu-body>
+					<cds-overflow-menu-item (selected)="onSelected()">Edit</cds-overflow-menu-item>
+					<cds-overflow-menu-item type="danger">Delete</cds-overflow-menu-item>
+				</cds-overflow-menu-body>
 			</cds-overflow-menu>`, [OverflowMenu, OverflowMenuOption], host);
 		const menu: any = fixture.nativeElement.querySelector("cds-overflow-menu");
 		expect(menu instanceof customElements.get("cds-overflow-menu")).toBe(true);
@@ -314,12 +316,12 @@ describe("Overlay and menu wrappers", () => {
 		expect(set.stacked).toBe(true);
 	});
 
-	it("MenuButton and ComboButton put their items in a cds-menu", () => {
+	it("MenuButton and ComboButton take their items in a cds-menu", () => {
 		const host = { onAction: jasmine.createSpy("action") };
 		const fixture = render(`
-			<cds-menu-button label="Actions"><cds-menu-item label="One" /></cds-menu-button>
-			<cds-combo-button label="Primary" (actionClick)="onAction()"><cds-menu-item label="Two" /></cds-combo-button>`,
-		[MenuButtonComponent, ComboButtonComponent, ContextMenuItemComponent], host);
+			<cds-menu-button label="Actions"><cds-menu><cds-menu-item label="One" /></cds-menu></cds-menu-button>
+			<cds-combo-button label="Primary" (actionClick)="onAction()"><cds-menu><cds-menu-item label="Two" /></cds-menu></cds-combo-button>`,
+		[MenuButtonComponent, ComboButtonComponent, ContextMenuComponent, ContextMenuItemComponent], host);
 		const menuButton: any = fixture.nativeElement.querySelector("cds-menu-button");
 		const comboButton: any = fixture.nativeElement.querySelector("cds-combo-button");
 		expect(menuButton instanceof customElements.get("cds-menu-button")).toBe(true);
