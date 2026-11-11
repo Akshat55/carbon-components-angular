@@ -18,7 +18,6 @@ export default {
 	},
 	args: {
 		isOpen: true,
-		caret: true,
 		description: "Uniform Resource Locator; the address of a resource (such as a document or website) on the Internet.",
 		align: "bottom",
 		autoAlign: false,
@@ -62,7 +61,6 @@ const Template = (args) => ({
 				<cds-definition-tooltip
 					[isOpen]="isOpen"
 					[openOnHover]="openOnHover"
-					[caret]="caret"
 					[align]="align"
 					(onOpen)="onOpen($event)"
 					(onClose)="onClose($event)"
@@ -102,7 +100,6 @@ const AutoAlignTemplate = (args) => ({
 				<cds-definition-tooltip
 					[isOpen]="isOpen"
 					[openOnHover]="openOnHover"
-					[caret]="caret"
 					[align]="align"
 					[autoAlign]="true"
 					(onOpen)="onOpen($event)"

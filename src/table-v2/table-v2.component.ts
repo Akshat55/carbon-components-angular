@@ -9,7 +9,7 @@ import {
 import "@carbon/web-components/es/components/data-table/index.js";
 
 /**
- * Wraps the `<cds-table>` web component. Tables are written as markup: use `@for` to render rows.
+ * Adds Angular inputs and outputs to the `<cds-table>` web component. Tables are written as markup: use `@for` to render rows.
  *
  * ```html
  * <cds-table [isSortable]="true" [isSelectable]="true" (sorted)="onSort($event)">

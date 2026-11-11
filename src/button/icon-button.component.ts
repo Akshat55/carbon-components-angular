@@ -11,7 +11,7 @@ import { BaseIconButton } from "./base-icon-button.component";
 import { ButtonSize, ButtonType } from "./button.types";
 
 /**
- * Wraps the `<cds-icon-button>` web component. The projected icon is placed in the icon slot and
+ * Adds Angular inputs and outputs to the `<cds-icon-button>` web component. The projected icon is placed in the icon slot and
  * `description` is shown as the tooltip. Listen to clicks with `(click)`.
  *
  * ```html

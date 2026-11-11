@@ -22,7 +22,7 @@ export type TagType = "red" |
 	"outline";
 
 /**
- * Wraps the `<cds-tag>` web component. Icons marked with `cdsTagIcon` go in the icon slot.
+ * Adds Angular inputs and outputs to the `<cds-tag>` web component. Icons marked with `cdsTagIcon` go in the icon slot.
  *
  * [See demo](../../?path=/story/components-tag--basic)
  */

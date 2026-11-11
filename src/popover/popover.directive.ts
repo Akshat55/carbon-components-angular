@@ -58,7 +58,7 @@ export abstract class PopoverBase {
 }
 
 /**
- * Wraps the `<cds-popover>` web component. Put the trigger in the default slot and the
+ * Adds Angular inputs and outputs to the `<cds-popover>` web component. Put the trigger in the default slot and the
  * content in a `cds-popover-content`.
  *
  * ```html

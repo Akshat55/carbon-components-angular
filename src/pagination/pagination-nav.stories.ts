@@ -38,7 +38,6 @@ const Template = (args) => ({
 			[totalDataLength]="totalDataLength"
 			[numOfItemsToShow]="numOfItemsToShow"
 			[loop]="loop"
-			[skeleton]="skeleton"
 			[size]="size">
 		</app-pagination>
 	`
@@ -49,6 +48,5 @@ Basic.args = {
 	totalDataLength: 10,
 	numOfItemsToShow: 4,
 	loop: true,
-	skeleton: false,
 	size: "md"
 };

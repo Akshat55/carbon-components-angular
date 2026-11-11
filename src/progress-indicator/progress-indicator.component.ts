@@ -12,7 +12,7 @@ import { I18n } from "carbon-components-angular/i18n";
 import { Step } from "./progress-indicator-step.interface";
 
 /**
- * Wraps the `<cds-progress-indicator>` web component and renders a `cds-progress-step` per step.
+ * Adds Angular inputs and outputs to the `<cds-progress-indicator>` web component and renders a `cds-progress-step` per step.
  *
  * ```html
  * <cds-progress-indicator [steps]="steps" [current]="1" (stepSelected)="go($event.index)" />

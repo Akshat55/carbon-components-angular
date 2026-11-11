@@ -14,7 +14,7 @@ import { I18n } from "carbon-components-angular/i18n";
 import { provideValueAccessor, WebComponentValueAccessor } from "carbon-components-angular/utils";
 
 /**
- * Wraps the `<cds-search>` web component. Works with `ngModel` / reactive forms.
+ * Adds Angular inputs and outputs to the `<cds-search>` web component. Works with `ngModel` / reactive forms.
  *
  * [See demo](../../?path=/story/components-search--basic)
  */

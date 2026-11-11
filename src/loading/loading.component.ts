@@ -9,7 +9,7 @@ import "@carbon/web-components/es/components/loading/index.js";
 import { I18n } from "carbon-components-angular/i18n";
 
 /**
- * Wraps the `<cds-loading>` web component.
+ * Adds Angular inputs and outputs to the `<cds-loading>` web component.
  *
  * [See demo](../../?path=/story/components-loading--basic)
  */

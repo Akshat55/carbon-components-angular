@@ -18,7 +18,7 @@ import { I18n, Overridable } from "carbon-components-angular/i18n";
 import { provideValueAccessor, TemplateContent, TemplateSlot } from "carbon-components-angular/utils";
 
 /**
- * Wraps the `<cds-combo-box>` web component (single selection with filtering).
+ * Adds Angular inputs and outputs to the `<cds-combo-box>` web component (single selection with filtering).
  * Works with `ngModel` / reactive forms.
  *
  * ```html

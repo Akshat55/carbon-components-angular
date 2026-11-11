@@ -11,7 +11,7 @@ import "@carbon/web-components/es/components/slider/index.js";
 import { provideValueAccessor, TemplateSlot, WebComponentValueAccessor } from "carbon-components-angular/utils";
 
 /**
- * Wraps the `<cds-slider>` web component. Pass a `[number, number]` value for a range slider.
+ * Adds Angular inputs and outputs to the `<cds-slider>` web component. Pass a `[number, number]` value for a range slider.
  * Works with `ngModel` / reactive forms.
  *
  * ```html

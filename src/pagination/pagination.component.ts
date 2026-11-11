@@ -26,7 +26,7 @@ export interface PaginationTranslations {
 }
 
 /**
- * Wraps the `<cds-pagination>` web component, driven by a `PaginationModel`.
+ * Adds Angular inputs and outputs to the `<cds-pagination>` web component, driven by a `PaginationModel`.
  * `selectPage` emits the page the user picked; update `model.currentPage` in response.
  *
  * ```html

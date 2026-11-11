@@ -7,7 +7,7 @@ import {
 import "@carbon/web-components/es/components/link/index.js";
 
 /**
- * Wraps the `<cds-link>` web component. Icons go in `slot="icon"` (or use `cdsLinkIcon`).
+ * Adds Angular inputs and outputs to the `<cds-link>` web component. Icons go in `slot="icon"` (or use `cdsLinkIcon`).
  *
  * ```html
  * <cds-link href="https://carbondesignsystem.com" inline>Carbon</cds-link>

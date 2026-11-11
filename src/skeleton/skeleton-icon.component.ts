@@ -7,7 +7,7 @@ import {
 import "@carbon/web-components/es/components/skeleton-icon/index.js";
 
 /**
- * Wraps the `<cds-skeleton-icon>` web component.
+ * Adds Angular inputs and outputs to the `<cds-skeleton-icon>` web component.
  */
 @Component({
 	selector: "cds-skeleton-icon",

@@ -13,9 +13,10 @@ import {
 	HeaderItem,
 	HeaderNavigation,
 	HeaderMenu,
+	HeaderMenuItem,
 	HeaderGlobal
 } from "./header";
-import { SideNav, SideNavItem, SideNavMenu } from "./sidenav";
+import { SideNav, SideNavItem, SideNavItems, SideNavMenu, SideNavMenuItem } from "./sidenav";
 import { CommonModule } from "@angular/common";
 import { Panel, SwitcherList, SwitcherListItem } from "./panel";
 
@@ -47,11 +48,14 @@ export default {
 				HeaderGlobal,
 				HeaderItem,
 				HeaderMenu,
+				HeaderMenuItem,
 				HeaderNavigation,
 				Panel,
 				SideNav,
 				SideNavMenu,
+				SideNavMenuItem,
 				SideNavItem,
+				SideNavItems,
 				SwitcherList,
 				SwitcherListItem,
 				RouterModule,

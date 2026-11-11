@@ -13,7 +13,7 @@ import { I18n } from "carbon-components-angular/i18n";
 import { TemplateSlot } from "carbon-components-angular/utils";
 
 /**
- * Wraps the `<cds-modal-header>` web component. `closeSelect` emits when the close button is clicked.
+ * Adds Angular inputs and outputs to the `<cds-modal-header>` web component. `closeSelect` emits when the close button is clicked.
  */
 @Component({
 	selector: "cds-modal-header",

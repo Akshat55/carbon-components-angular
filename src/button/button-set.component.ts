@@ -7,7 +7,7 @@ import {
 import "@carbon/web-components/es/components/button/index.js";
 
 /**
- * Wraps the `<cds-button-set>` web component. Project `<cds-button>`s.
+ * Adds Angular inputs and outputs to the `<cds-button-set>` web component. Project `<cds-button>`s.
  *
  * [See demo](../../?path=/story/components-button-button-set--basic)
  */

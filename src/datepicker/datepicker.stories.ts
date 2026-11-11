@@ -72,7 +72,6 @@ const withAILabelTemplate = (args) => ({
 			[disabled]="disabled"
 			[readonly]="readonly"
 			[size]="size"
-			[type]="'single'"
 			[invalid]="invalid"
 			[invalidText]="invalidText"
 			[warn]="warn"

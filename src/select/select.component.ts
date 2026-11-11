@@ -21,7 +21,7 @@ if (CDSSelect && !CDSSelect.selectorItem.includes("option")) {
 }
 
 /**
- * Wraps the `<cds-select>` web component. Works with `ngModel` / reactive forms.
+ * Adds Angular inputs and outputs to the `<cds-select>` web component. Works with `ngModel` / reactive forms.
  * Options can be `<option>`/`<optgroup>` or `<cds-select-item>`/`<cds-select-item-group>`.
  *
  * ```html

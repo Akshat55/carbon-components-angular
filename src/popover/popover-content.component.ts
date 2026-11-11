@@ -6,7 +6,7 @@ import {
 import "@carbon/web-components/es/components/popover/index.js";
 
 /**
- * Wraps the `<cds-popover-content>` web component. Use inside `cds-popover`.
+ * Adds Angular inputs and outputs to the `<cds-popover-content>` web component. Use inside `cds-popover`.
  */
 @Component({
 	selector: "cds-popover-content",

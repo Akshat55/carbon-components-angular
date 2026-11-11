@@ -9,7 +9,7 @@ import "@carbon/web-components/es/components/progress-bar/index.js";
 import { TemplateContent } from "carbon-components-angular/utils";
 
 /**
- * Wraps the `<cds-progress-bar>` web component. Leave `value` undefined for an indeterminate bar.
+ * Adds Angular inputs and outputs to the `<cds-progress-bar>` web component. Leave `value` undefined for an indeterminate bar.
  *
  * [See demo](../../?path=/story/components-progress-bar--basic)
  */

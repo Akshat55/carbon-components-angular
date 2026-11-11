@@ -1,13 +1,12 @@
 import {
-	AfterContentInit,
 	ChangeDetectionStrategy,
 	Component,
-	ContentChildren,
 	CUSTOM_ELEMENTS_SCHEMA,
+	DestroyRef,
+	ElementRef,
 	EventEmitter,
 	Input,
 	Output,
-	QueryList,
 	inject
 } from "@angular/core";
 import { NgTemplateOutlet } from "@angular/common";
@@ -15,14 +14,14 @@ import { Router } from "@angular/router";
 import "@carbon/web-components/es/components/breadcrumb/index.js";
 import "@carbon/web-components/es/components/overflow-menu/index.js";
 import { I18n } from "carbon-components-angular/i18n";
-import { FloatingMenuCleanup } from "carbon-components-angular/utils";
+import { FloatingMenuCleanup, observeChildren, wrapperOf } from "carbon-components-angular/utils";
 import { BreadcrumbItemComponent } from "./breadcrumb-item.component";
 import { BreadcrumbItem } from "./breadcrumb-item.interface";
 
 const MINIMUM_OVERFLOW_THRESHOLD = 4;
 
 /**
- * Wraps the `<cds-breadcrumb>` web component. Use projected `cds-breadcrumb-item`s,
+ * Adds Angular inputs and outputs to the `<cds-breadcrumb>` web component. Use projected `cds-breadcrumb-item`s,
  * or pass `items`; more than `threshold` items collapse into an overflow menu.
  *
  * [See demo](../../?path=/story/components-breadcrumb--basic)
@@ -78,11 +77,10 @@ const MINIMUM_OVERFLOW_THRESHOLD = 4;
 	imports: [BreadcrumbItemComponent, NgTemplateOutlet, FloatingMenuCleanup],
 	schemas: [CUSTOM_ELEMENTS_SCHEMA]
 })
-export class Breadcrumb implements AfterContentInit {
+export class Breadcrumb {
 	public i18n = inject(I18n);
 	public router = inject(Router, { optional: true });
 
-	@ContentChildren(BreadcrumbItemComponent) children: QueryList<BreadcrumbItemComponent>;
 
 	@Input() items: Array<BreadcrumbItem>;
 	@Input() noTrailingSlash = false;
@@ -117,6 +115,12 @@ export class Breadcrumb implements AfterContentInit {
 	protected readonly overflowMarker = {} as BreadcrumbItem;
 	protected _threshold: number;
 	protected _skeleton = false;
+	protected element: HTMLElement = inject(ElementRef).nativeElement;
+
+	constructor() {
+		// Items are read from the DOM, so items created any way get `skeleton` too.
+		observeChildren(this.element, inject(DestroyRef), () => this.updateChildren());
+	}
 
 	get shouldShowOverflow() {
 		return !!this.items && this.items.length > this.threshold;
@@ -139,10 +143,6 @@ export class Breadcrumb implements AfterContentInit {
 		return this.shouldShowOverflow ? this.items.slice(1, -2) : [];
 	}
 
-	ngAfterContentInit() {
-		this.updateChildren();
-	}
-
 	navigate(event: Event, item: BreadcrumbItem) {
 		if (this.router && item.route) {
 			event.preventDefault();
@@ -151,6 +151,11 @@ export class Breadcrumb implements AfterContentInit {
 	}
 
 	protected updateChildren() {
-		this.children?.forEach(child => child.skeleton = this.skeleton);
+		this.element?.querySelectorAll("cds-breadcrumb-item").forEach(item => {
+			const child = wrapperOf(item, BreadcrumbItemComponent);
+			if (child) {
+				child.skeleton = this.skeleton;
+			}
+		});
 	}
 }

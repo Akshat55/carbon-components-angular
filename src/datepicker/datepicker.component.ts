@@ -19,7 +19,7 @@ const toISODate = (date: Date) =>
 	`${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}-${String(date.getDate()).padStart(2, "0")}`;
 
 /**
- * Wraps the `<cds-date-picker>` web component and renders its input(s).
+ * Adds Angular inputs and outputs to the `<cds-date-picker>` web component and renders its input(s).
  * Works with `ngModel` / reactive forms; the value is an array of `Date`s.
  *
  * ```html

@@ -7,9 +7,10 @@ import {
 	inject
 } from "@angular/core";
 import "@carbon/web-components/es/components/menu/index.js";
+import { registerWrapper } from "carbon-components-angular/utils";
 
 /**
- * Wraps the `<cds-menu>` web component, used as a context menu or a submenu.
+ * Adds Angular inputs and outputs to the `<cds-menu>` web component, used as a context menu or a submenu.
  *
  * ```html
  * <cds-menu [open]="open" [position]="{ left: x, top: y }">
@@ -42,6 +43,10 @@ export class ContextMenuComponent {
 	@Input() size: "xs" | "sm" | "md" | "lg" = "lg";
 
 	elementRef = inject(ElementRef);
+
+	constructor() {
+		registerWrapper(this.elementRef.nativeElement, this);
+	}
 
 	focusMenu() {
 		this.elementRef.nativeElement.focus();

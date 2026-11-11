@@ -3,24 +3,22 @@ import {
 	ChangeDetectionStrategy,
 	ChangeDetectorRef,
 	Component,
-	ContentChild,
 	CUSTOM_ELEMENTS_SCHEMA,
+	DestroyRef,
+	ElementRef,
 	EventEmitter,
 	Input,
-	OnDestroy,
-	OnInit,
 	Output,
 	inject
 } from "@angular/core";
-import { Subscription } from "rxjs";
 import "@carbon/web-components/es/components/menu/index.js";
 import { IconDirective } from "carbon-components-angular/icon";
-import { ContextMenuSelectionService } from "./context-menu-selection.service";
+import { observeChildren, registerWrapper, wrapperOf } from "carbon-components-angular/utils";
 import { ContextMenuComponent } from "./context-menu.component";
 import { ItemClickEvent } from "./context-menu.types";
 
 /**
- * Wraps the `<cds-menu-item>` web component. A projected `cds-menu` becomes its submenu.
+ * Adds Angular inputs and outputs to the `<cds-menu-item>` web component. A projected `cds-menu` becomes its submenu.
  * `type="checkbox"` / `"radio"` items show a checkmark when `checked`.
  */
 @Component({
@@ -47,7 +45,7 @@ import { ItemClickEvent } from "./context-menu.types";
 	imports: [IconDirective],
 	schemas: [CUSTOM_ELEMENTS_SCHEMA]
 })
-export class ContextMenuItemComponent implements OnInit, AfterContentInit, OnDestroy {
+export class ContextMenuItemComponent implements AfterContentInit {
 	@Input() label = "";
 	/**
 	 * Secondary text, e.g. a keyboard shortcut.
@@ -67,45 +65,37 @@ export class ContextMenuItemComponent implements OnInit, AfterContentInit, OnDes
 	@Output() checkedChange = new EventEmitter<boolean>();
 	@Output() itemClick = new EventEmitter<ItemClickEvent>();
 
-	@ContentChild(ContextMenuComponent, { static: true }) childContextMenu: ContextMenuComponent;
+	readonly changeDetectorRef = inject(ChangeDetectorRef);
+	protected element: HTMLElement = inject(ElementRef).nativeElement;
 
-	protected contextMenuSelectionService = inject(ContextMenuSelectionService, { optional: true });
-	private changeDetectorRef = inject(ChangeDetectorRef);
-	private subscriptions = new Subscription();
-
-	ngOnInit() {
-		if (this.type && this.contextMenuSelectionService && this.value) {
-			this.subscriptions.add(this.contextMenuSelectionService.selectionObservable.subscribe(value => {
-				this.checked = this.type === "radio" ? value === this.value : value.includes(this.value);
-				this.changeDetectorRef.markForCheck();
-			}));
-		}
+	constructor() {
+		registerWrapper(this.element, this);
+		// A child `cds-menu` (however it was created) is this item's submenu.
+		observeChildren(this.element, inject(DestroyRef), () => this.slotSubmenu());
 	}
 
 	ngAfterContentInit() {
-		// A projected `cds-menu` is this item's submenu.
-		this.childContextMenu?.elementRef.nativeElement.setAttribute("slot", "submenu");
+		this.slotSubmenu();
 	}
 
-	ngOnDestroy() {
-		this.subscriptions.unsubscribe();
+	/**
+	 * The submenu (a child `cds-menu`), if any.
+	 */
+	get childContextMenu(): ContextMenuComponent | null {
+		const menu = this.element.querySelector(":scope > cds-menu");
+		return menu ? wrapperOf(menu, ContextMenuComponent) : null;
 	}
 
 	/**
 	 * The web component turns Enter / Space into a click.
 	 */
 	handleClick(event: MouseEvent & KeyboardEvent) {
-		if (this.disabled || this.childContextMenu || event.target !== event.currentTarget) {
+		if (this.disabled || this.element.querySelector(":scope > cds-menu") || event.target !== event.currentTarget) {
 			return;
 		}
 		if (this.type) {
-			this.handleSelection(!this.checked);
-		}
-		if (this.type === "radio") {
-			this.contextMenuSelectionService?.selectRadio(this.value);
-		}
-		if (this.type === "checkbox") {
-			this.contextMenuSelectionService?.selectCheckbox(this.value);
+			// A radio can't be unchecked by clicking it; a `cds-menu-item-group` unchecks the others.
+			this.handleSelection(this.type === "radio" ? true : !this.checked);
 		}
 		this.itemClick.emit({ event, label: this.label, info: this.info, value: this.value, type: this.type });
 	}
@@ -113,5 +103,10 @@ export class ContextMenuItemComponent implements OnInit, AfterContentInit, OnDes
 	handleSelection(selected: boolean) {
 		this.checked = selected;
 		this.checkedChange.emit(this.checked);
+		this.changeDetectorRef.markForCheck();
+	}
+
+	protected slotSubmenu() {
+		this.element.querySelector(":scope > cds-menu:not([slot])")?.setAttribute("slot", "submenu");
 	}
 }

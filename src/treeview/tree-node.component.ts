@@ -21,7 +21,7 @@ import { TreeViewService } from "./treeview.service";
 import { EventOnNode, Node } from "./tree-node.types";
 
 /**
- * Wraps the `<cds-tree-node>` web component. Child nodes come from `children` / `node.children`
+ * Adds Angular inputs and outputs to the `<cds-tree-node>` web component. Child nodes come from `children` / `node.children`
  * or projected `cds-tree-node`s.
  */
 @Component({

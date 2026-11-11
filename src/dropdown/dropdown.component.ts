@@ -137,7 +137,7 @@ const SLOTS = `
 const ITEM_CONTENT = `@if (listTpl) {<ng-template [ngTemplateOutlet]="listTpl" [ngTemplateOutletContext]="{ item: item }" />} @else {{{ item.content }}}`;
 
 /**
- * Wraps the `<cds-dropdown>` web component (single selection). Works with `ngModel` / reactive forms.
+ * Adds Angular inputs and outputs to the `<cds-dropdown>` web component (single selection). Works with `ngModel` / reactive forms.
  *
  * ```html
  * <cds-dropdown label="Pick one" [(ngModel)]="value" itemValueKey="id">
@@ -196,7 +196,7 @@ export class Dropdown extends BaseDropdown {
 }
 
 /**
- * Wraps the `<cds-multi-select>` web component. Works with `ngModel` / reactive forms;
+ * Adds Angular inputs and outputs to the `<cds-multi-select>` web component. Works with `ngModel` / reactive forms;
  * the value is an array. Set `filterable` for a multi-select combo box.
  *
  * ```html

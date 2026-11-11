@@ -10,13 +10,13 @@ import {
 } from "@angular/core";
 import "@carbon/web-components/es/components/checkbox/index.js";
 import {
+	provideValueAccessor,
+	registerWrapper,
 	TemplateContent,
 	TemplateSlot,
-	WebComponentValueAccessor,
-	provideValueAccessor
+	WebComponentValueAccessor
 } from "carbon-components-angular/utils";
 import { CheckboxValue } from "./checkbox.types";
-import { CHECKBOX_GROUP_HOST } from "./checkbox-group-host";
 
 /**
  * Defines the set of states for a checkbox component.
@@ -29,7 +29,7 @@ export enum CheckboxState {
 }
 
 /**
- * Wraps the `<cds-checkbox>` web component. Importing it registers the web component.
+ * Adds Angular inputs and outputs to the `<cds-checkbox>` web component. Importing it registers the web component.
  *
  * ```typescript
  * import { Checkbox } from 'carbon-components-angular';
@@ -127,18 +127,25 @@ export class Checkbox extends WebComponentValueAccessor<boolean> {
 	@Output() indeterminateChange = new EventEmitter<boolean>();
 
 	protected content = new TemplateContent();
-	private hostGroup = inject(CHECKBOX_GROUP_HOST, { optional: true });
-
 
 	constructor() {
 		super();
+		registerWrapper(this.element, this);
 		// A host `(click)` listener would also subscribe to the `click` output,
 		// so listen to the native event directly.
 		this.element.addEventListener("click", (event: MouseEvent) => this.onClick(event));
 	}
 
+	/**
+	 * The `cds-checkbox-group` this checkbox is in, if any. Found through the DOM, so it also
+	 * works for checkboxes created with `createComponent`.
+	 */
+	get hostGroup(): { readonly?: boolean, invalid?: boolean, warn?: boolean } | null {
+		return this.element.closest("cds-checkbox-group");
+	}
+
 	get effectiveReadOnly() {
-		return !!(this.readOnly ?? this.hostGroup?.readOnly);
+		return !!(this.readOnly ?? this.hostGroup?.readonly);
 	}
 
 	get effectiveInvalid() {

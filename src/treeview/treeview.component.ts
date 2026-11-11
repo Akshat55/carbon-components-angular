@@ -17,7 +17,7 @@ import { TreeViewService } from "./treeview.service";
 import { EventOnNode, Node } from "./tree-node.types";
 
 /**
- * Wraps the `<cds-tree-view>` web component. Pass `tree` or project `cds-tree-node`s.
+ * Adds Angular inputs and outputs to the `<cds-tree-view>` web component. Pass `tree` or project `cds-tree-node`s.
  *
  * ```html
  * <cds-tree-view label="Files" [tree]="nodes" (select)="onSelect($event)" />

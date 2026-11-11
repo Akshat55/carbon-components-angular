@@ -1,17 +1,19 @@
 import {
-	AfterContentInit,
 	ChangeDetectionStrategy,
 	Component,
-	ContentChildren,
 	CUSTOM_ELEMENTS_SCHEMA,
+	DestroyRef,
+	ElementRef,
 	Input,
-	QueryList
+	inject
 } from "@angular/core";
 import "@carbon/web-components/es/components/accordion/index.js";
-import { AccordionItem } from "./accordion-item.component";
+import { observeChildren } from "carbon-components-angular/utils";
 
 /**
- * Wraps the `<cds-accordion>` web component. Importing it registers the web component.
+ * Adds Angular inputs to the `<cds-accordion>` web component. Importing it registers the web component.
+ *
+ * The web component passes `size`, `align`, `isFlush` and `disabled` on to its items.
  *
  * ```typescript
  * import { Accordion, AccordionItem } from 'carbon-components-angular';
@@ -25,12 +27,13 @@ import { AccordionItem } from "./accordion-item.component";
 	host: {
 		"[alignment]": "align",
 		"[size]": "size",
-		"[isFlush]": "isFlush"
+		"[isFlush]": "isFlush",
+		"[disabled]": "disabled"
 	},
 	changeDetection: ChangeDetectionStrategy.OnPush,
 	schemas: [CUSTOM_ELEMENTS_SCHEMA]
 })
-export class Accordion implements AfterContentInit {
+export class Accordion {
 	/**
 	 * Sets the alignment of the chevron icon
 	 */
@@ -43,49 +46,17 @@ export class Accordion implements AfterContentInit {
 	 * Removes the side padding. Does not work with `align="start"`.
 	 */
 	@Input() isFlush = false;
-
-	@ContentChildren(AccordionItem) children: QueryList<AccordionItem>;
-
-	protected _skeleton = false;
-	protected _disabled = false;
-
 	/**
-	 * Sets `skeleton` on every item.
+	 * Disables every item.
 	 */
-	@Input() set skeleton(value: boolean) {
-		this._skeleton = value;
-		this.updateChildren();
-	}
+	@Input() disabled = false;
 
-	get skeleton(): boolean {
-		return this._skeleton;
-	}
-
-	/**
-	 * When `true`, all items are disabled and collapsed regardless of their own `disabled` input.
-	 * When `false`, each item uses its own `disabled` input again.
-	 */
-	@Input() set disabled(value: boolean) {
-		this._disabled = value;
-		this.updateChildren();
-	}
-
-	get disabled(): boolean {
-		return this._disabled;
-	}
-
-	ngAfterContentInit() {
-		this.updateChildren();
-		this.children.changes.subscribe(() => this.updateChildren());
-	}
-
-	protected updateChildren() {
-		this.children?.forEach(child => {
-			child.skeleton = this.skeleton;
-			child.setParentDisabled(this.disabled);
-			if (this.disabled) {
-				child.expanded = false;
-			}
+	constructor() {
+		// The web component only passes its settings to the items it has when they change;
+		// re-apply them to items added later (`@for`, `createComponent`, ...).
+		const element = inject(ElementRef).nativeElement;
+		observeChildren(element, inject(DestroyRef), () => {
+			["size", "alignment", "isFlush", "disabled"].forEach(name => element.requestUpdate?.(name, undefined));
 		});
 	}
 }

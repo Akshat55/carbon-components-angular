@@ -40,6 +40,7 @@ export class NumberChange {
 		"[placeholder]": "placeholder",
 		"[disabled]": "disabled",
 		"[required]": "required",
+		"[attr.readonly]": "readonly ? '' : null",
 		"[size]": "size",
 		"[hideLabel]": "hideLabel",
 		"[hideSteppers]": "hideSteppers",
@@ -70,6 +71,7 @@ export class NumberComponent extends WebComponentValueAccessor<number> {
 	@Input() placeholder = "";
 	@Input() size: "sm" | "md" | "lg" = "md";
 	@Input() required: boolean;
+	@Input() readonly = false;
 	@Input() set value(v: any) {
 		this._value = v === "" || v === null || v === undefined ? null : Number(v);
 	}

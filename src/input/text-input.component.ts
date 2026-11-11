@@ -75,7 +75,7 @@ export abstract class BaseTextInput extends WebComponentValueAccessor<string> {
 }
 
 /**
- * Wraps the `<cds-text-input>` web component. Works with `ngModel` / reactive forms.
+ * Adds Angular inputs and outputs to the `<cds-text-input>` web component. Works with `ngModel` / reactive forms.
  *
  * ```html
  * <cds-text-input label="Name" helperText="Your full name" [(ngModel)]="name" />
@@ -106,7 +106,7 @@ export class CdsTextInput extends BaseTextInput {
 }
 
 /**
- * Wraps the `<cds-textarea>` web component. Works with `ngModel` / reactive forms.
+ * Adds Angular inputs and outputs to the `<cds-textarea>` web component. Works with `ngModel` / reactive forms.
  *
  * [See demo](../../?path=/story/components-input-text-area--basic)
  */
@@ -131,7 +131,7 @@ export class CdsTextarea extends BaseTextInput {
 }
 
 /**
- * Wraps the `<cds-password-input>` web component. Works with `ngModel` / reactive forms.
+ * Adds Angular inputs and outputs to the `<cds-password-input>` web component. Works with `ngModel` / reactive forms.
  *
  * [See demo](../../?path=/story/components-input-password--basic)
  */

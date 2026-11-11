@@ -105,7 +105,7 @@ describe("Menu", () => {
 
 	it("should check the radio item the selection service selects", async () => {
 		const group = fixture.debugElement.query(By.css("cds-menu-item-group[type='radio']"));
-		group.injector.get(ContextMenuSelectionService).selectRadio("two");
+		group.componentInstance.contextMenuSelectionService.selectRadio("two");
 		await settle(fixture);
 
 		expect(hasCheckmark(item("[type='radio'][value='two']"))).toBeTrue();
@@ -125,7 +125,7 @@ describe("Menu", () => {
 
 	it("should check every checkbox item the selection service selects", async () => {
 		const group = fixture.debugElement.query(By.css("cds-menu-item-group[type='checkbox']"));
-		group.injector.get(ContextMenuSelectionService).selectCheckboxes(["blue", "red"]);
+		group.componentInstance.contextMenuSelectionService.selectCheckboxes(["blue", "red"]);
 		await settle(fixture);
 
 		const blue = item("[label='Blue']");

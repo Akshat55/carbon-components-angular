@@ -1,6 +1,6 @@
 import { TestBed } from "@angular/core/testing";
 import { By } from "@angular/platform-browser";
-import { Component } from "@angular/core";
+import { ApplicationRef, Component, createComponent, EnvironmentInjector } from "@angular/core";
 
 import { settle, shadow } from "../test-helpers/web-components";
 import { ContentSwitcher } from "./content-switcher.component";
@@ -96,8 +96,29 @@ describe("ContentSwitcher", () => {
 	});
 
 	it("should select the first option on init", () => {
-		expect(switcher.options.first.active).toBe(true);
+		expect(switcher.options[0].active).toBe(true);
 		expect(option("first").selected).toBe(true);
 		expect(shadow(option("first"), "button").getAttribute("tabindex")).toBe("0");
+	});
+
+	it("should select an option created dynamically and update [(selectedIndex)]", async () => {
+		const ref = createComponent(ContentSwitcherOption, {
+			environmentInjector: TestBed.inject(EnvironmentInjector),
+			projectableNodes: [[document.createTextNode("Fourth section")]]
+		});
+		ref.setInput("name", "Fourth");
+		TestBed.inject(ApplicationRef).attachView(ref.hostView);
+		ref.location.nativeElement.id = "fourth";
+		element.appendChild(ref.location.nativeElement);
+		await settle(fixture);
+		const indexes = [];
+		switcher.selectedIndexChange.subscribe(index => indexes.push(index));
+
+		await choose("fourth");
+
+		expect(wrapper.selectedValue).toBe("Fourth");
+		expect(indexes).toEqual([3]);
+		expect(switcher.options.map(o => o.active)).toEqual([false, false, false, true]);
+		ref.destroy();
 	});
 });

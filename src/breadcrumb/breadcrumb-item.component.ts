@@ -3,6 +3,7 @@ import {
 	ChangeDetectorRef,
 	Component,
 	CUSTOM_ELEMENTS_SCHEMA,
+	ElementRef,
 	EventEmitter,
 	Input,
 	Output,
@@ -11,9 +12,10 @@ import {
 import { NgTemplateOutlet } from "@angular/common";
 import { Router } from "@angular/router";
 import "@carbon/web-components/es/components/breadcrumb/index.js";
+import { registerWrapper } from "carbon-components-angular/utils";
 
 /**
- * Wraps the `<cds-breadcrumb-item>` web component. With `href` or `route` the content is
+ * Adds Angular inputs and outputs to the `<cds-breadcrumb-item>` web component. With `href` or `route` the content is
  * rendered inside a `<cds-breadcrumb-link>`; `route` navigates with the Angular router.
  *
  * [See demo](../../?path=/story/components-breadcrumb--basic)
@@ -64,6 +66,10 @@ export class BreadcrumbItemComponent {
 	protected changeDetectorRef = inject(ChangeDetectorRef);
 	protected router = inject(Router, { optional: true });
 	protected _skeleton = false;
+
+	constructor() {
+		registerWrapper(inject(ElementRef).nativeElement, this);
+	}
 
 	useLink() {
 		return this.skeleton || this.href || this.route;

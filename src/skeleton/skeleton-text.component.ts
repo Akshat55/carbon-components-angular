@@ -7,7 +7,7 @@ import {
 import "@carbon/web-components/es/components/skeleton-text/index.js";
 
 /**
- * Wraps the `<cds-skeleton-text>` web component.
+ * Adds Angular inputs and outputs to the `<cds-skeleton-text>` web component.
  *
  * [See demo](../../?path=/story/components-skeleton--basic)
  */

@@ -10,7 +10,7 @@ import { TemplateSlot } from "carbon-components-angular/utils";
 import { ContainedListKind, ContainedListSize } from "./contained-list.enums";
 
 /**
- * Wraps the `<cds-contained-list>` web component.
+ * Adds Angular inputs and outputs to the `<cds-contained-list>` web component.
  *
  * [See demo](../../?path=/story/components-contained-list--basic)
  */

@@ -13,7 +13,7 @@ import { I18n } from "carbon-components-angular/i18n";
 import { ShellLink } from "../shell-link.class";
 
 /**
- * Wraps the `<cds-header>` web component and renders the product name.
+ * Adds Angular inputs and outputs to the `<cds-header>` web component and renders the product name.
  *
  * ```html
  * <cds-header name="Platform" skipTo="main">

@@ -10,16 +10,17 @@ import {
 	inject
 } from "@angular/core";
 import "@carbon/web-components/es/components/content-switcher/index.js";
+import { registerWrapper } from "carbon-components-angular/utils";
 
 /**
- * Wraps the `<cds-content-switcher-item>` web component.
+ * Adds Angular inputs and outputs to the `<cds-content-switcher-item>` web component.
  */
 @Component({
 	selector: "cds-content-switcher-item",
 	template: "<ng-content />",
 	host: {
 		"[value]": "name",
-		"[selected]": "active",
+		"[selected]": "_active",
 		"[disabled]": "disabled",
 		"(click)": "onClick.emit($event)",
 		"(focus)": "onFocus.emit($event)"
@@ -32,8 +33,11 @@ export class ContentSwitcherOption {
 		this._active = value;
 		this.changeDetectorRef.markForCheck();
 	}
+	/**
+	 * Whether the option is selected (the web component also selects options itself).
+	 */
 	get active() {
-		return this._active;
+		return (this.element as any).selected ?? this._active;
 	}
 	/**
 	 * Value of the option.
@@ -50,4 +54,8 @@ export class ContentSwitcherOption {
 	readonly element: HTMLElement = inject(ElementRef).nativeElement;
 	protected changeDetectorRef = inject(ChangeDetectorRef);
 	protected _active = false;
+
+	constructor() {
+		registerWrapper(this.element, this);
+	}
 }

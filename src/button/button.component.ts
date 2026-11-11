@@ -8,7 +8,7 @@ import "@carbon/web-components/es/components/button/index.js";
 import { ButtonSize, ButtonType } from "./button.types";
 
 /**
- * Wraps the `<cds-button>` web component. Importing it registers the web component.
+ * Adds Angular inputs and outputs to the `<cds-button>` web component. Importing it registers the web component.
  *
  * ```html
  * <cds-button>Primary</cds-button>

@@ -8,7 +8,7 @@ import "@carbon/web-components/es/components/toggle-tip/index.js";
 import { PopoverBase } from "carbon-components-angular/popover";
 
 /**
- * Wraps the `<cds-toggletip>` web component.
+ * Adds Angular inputs and outputs to the `<cds-toggletip>` web component.
  *
  * ```html
  * <cds-toggletip>

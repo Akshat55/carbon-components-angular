@@ -10,7 +10,7 @@ import { IconDirective } from "carbon-components-angular/icon";
 import { TemplateSlot } from "carbon-components-angular/utils";
 
 /**
- * Wraps the `<cds-contained-list-item>` web component. Listen to clicks on `clickable` items with `(click)`.
+ * Adds Angular inputs and outputs to the `<cds-contained-list-item>` web component. Listen to clicks on `clickable` items with `(click)`.
  *
  * [See demo](../../?path=/story/components-contained-list--basic)
  */

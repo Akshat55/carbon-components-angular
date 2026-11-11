@@ -1,6 +1,6 @@
 import { FormsModule, ReactiveFormsModule } from "@angular/forms";
 import { moduleMetadata, Meta } from "@storybook/angular";
-import { Checkbox } from "./";
+import { Checkbox, CheckboxGroup } from "./";
 import { ReactiveFormsStory } from "./stories";
 import { AILabelModule } from "../ai-label";
 import { ButtonModule } from "../button";
@@ -15,6 +15,7 @@ export default {
 				FormsModule,
 				ReactiveFormsModule,
 				Checkbox,
+				CheckboxGroup,
 				ButtonModule,
 				AILabelModule,
 				IconModule,

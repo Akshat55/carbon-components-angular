@@ -91,7 +91,7 @@ const Template = (args) => ({
 			<cds-menu-item-divider></cds-menu-item-divider>
 			<cds-menu-item
 				label="Delete"
-				[danger]="true"
+				kind="danger"
 				dangerDescription="Permanently removes the selection">
 			</cds-menu-item>
 		</cds-menu>

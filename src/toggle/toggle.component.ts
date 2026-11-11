@@ -16,7 +16,7 @@ import { I18n } from "carbon-components-angular/i18n";
 import { provideValueAccessor, TemplateSlot, WebComponentValueAccessor } from "carbon-components-angular/utils";
 
 /**
- * Wraps the `<cds-toggle>` web component. Supports `[(checked)]` and `ngModel` / reactive forms.
+ * Adds Angular inputs and outputs to the `<cds-toggle>` web component. Supports `[(checked)]` and `ngModel` / reactive forms.
  *
  * [See demo](../../?path=/story/components-toggle--basic)
  */

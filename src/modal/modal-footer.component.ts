@@ -6,7 +6,7 @@ import {
 import "@carbon/web-components/es/components/modal/index.js";
 
 /**
- * Wraps the `<cds-modal-footer>` web component. Project the footer buttons.
+ * Adds Angular inputs and outputs to the `<cds-modal-footer>` web component. Project the footer buttons.
  */
 @Component({
 	selector: "cds-modal-footer",

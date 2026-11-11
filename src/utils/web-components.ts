@@ -19,12 +19,17 @@ import {
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from "@angular/forms";
 
 /*
- * Wrapping a web component
- * ------------------------
- * - Use a `@Component` whose selector is the web component's tag, with `<ng-content />` as the
- *   template, and import the web component file so it registers itself.
+ * Adding Angular to a web component
+ * ---------------------------------
+ * - Never wrap a web component in another element. Use a `@Component` whose selector is the
+ *   web component's own tag, with `<ng-content />` as the template (plus children rendered
+ *   from data inputs, if any), and import the web component file so it registers itself.
+ * - Every web component tag consumers write gets such a class (even an empty one), so their
+ *   templates compile without `CUSTOM_ELEMENTS_SCHEMA` and importing the class registers it.
  * - Pass inputs with `host` property bindings and add `schemas: [CUSTOM_ELEMENTS_SCHEMA]`
- *   to the wrapper (consumers don't need it).
+ *   to the class (consumers don't need it).
+ * - Parents find their children through the DOM (`observeChildren`, `wrapperOf`), never
+ *   `@ContentChildren`, so children created with `createComponent` or `@for` work alike.
  * - Angular rewrites `[readonly]`, `[tabindex]`, `[for]` and `[class]` to the DOM properties
  *   `readOnly`, `tabIndex`, `htmlFor` and `className`, so bind those as attributes instead:
  *   `"[attr.readonly]": "readOnly ? '' : null"`.

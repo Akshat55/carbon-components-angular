@@ -1,19 +1,19 @@
 import {
-	AfterContentInit,
 	ChangeDetectionStrategy,
 	Component,
-	ContentChildren,
 	CUSTOM_ELEMENTS_SCHEMA,
+	ElementRef,
 	EventEmitter,
 	Input,
 	Output,
-	QueryList
+	inject
 } from "@angular/core";
 import "@carbon/web-components/es/components/content-switcher/index.js";
+import { wrapperOf } from "carbon-components-angular/utils";
 import { ContentSwitcherOption } from "./content-switcher-option.directive";
 
 /**
- * Wraps the `<cds-content-switcher>` web component. Project `cds-content-switcher-item`s.
+ * Adds Angular inputs and outputs to the `<cds-content-switcher>` web component. Project `cds-content-switcher-item`s.
  *
  * ```html
  * <cds-content-switcher (selected)="onSelected($event)">
@@ -22,7 +22,8 @@ import { ContentSwitcherOption } from "./content-switcher-option.directive";
  * </cds-content-switcher>
  * ```
  *
- * v6 `<button cdsContentOption>` options must become `<cds-content-switcher-item>`.
+ * The options are read from the DOM, so options created any way (templates, `@for`,
+ * `createComponent`) work. `[(selectedIndex)]` tracks the selection.
  *
  * [See demo](../../?path=/story/components-content-switcher--basic)
  */
@@ -40,35 +41,40 @@ import { ContentSwitcherOption } from "./content-switcher-option.directive";
 	changeDetection: ChangeDetectionStrategy.OnPush,
 	schemas: [CUSTOM_ELEMENTS_SCHEMA]
 })
-export class ContentSwitcher implements AfterContentInit {
+export class ContentSwitcher {
 	@Input() ariaLabel = "content switcher";
 	@Input() size: "sm" | "md" | "lg" = "md";
 	@Input() lowContrast = false;
 	@Input() selectionMode: "automatic" | "manual" = "automatic";
 	/**
-	 * Index of the selected option.
+	 * Index of the selected option. Without it, an option marked `active` (or the first) is selected.
 	 */
 	@Input() selectedIndex: number | undefined;
 
 	/**
-	 * Emits the selected option.
+	 * Emits the selected option (`null` if it has no Angular instance).
 	 */
-	@Output() selected = new EventEmitter<ContentSwitcherOption>();
+	@Output() selected = new EventEmitter<ContentSwitcherOption | null>();
+	@Output() selectedIndexChange = new EventEmitter<number>();
 
-	@ContentChildren(ContentSwitcherOption) options: QueryList<ContentSwitcherOption>;
+	protected element: HTMLElement = inject(ElementRef).nativeElement;
 
-	ngAfterContentInit() {
-		const index = this.selectedIndex ?? this.options.toArray().findIndex(option => option.active);
-		this.options.forEach((option, i) => option.active = i === Math.max(index, 0));
+	/**
+	 * The Angular options, in DOM order.
+	 */
+	get options(): ContentSwitcherOption[] {
+		return Array.from(this.element.querySelectorAll("cds-content-switcher-item"))
+			.map(item => wrapperOf(item, ContentSwitcherOption))
+			.filter(option => !!option);
 	}
 
 	onSelected(event: Event) {
-		const element = (event as CustomEvent<{ item: Element }>).detail.item;
-		const option = this.options.find(o => o.element === element);
-		if (option) {
-			this.options.forEach(o => o.active = o === option);
-			option.selected.emit(true);
-			this.selected.emit(option);
-		}
+		const { item, index } = (event as CustomEvent<{ item: Element, index: number }>).detail;
+		this.options.forEach(option => option.active = option.element === item);
+		const option = wrapperOf(item, ContentSwitcherOption);
+		option?.selected.emit(true);
+		this.selectedIndex = index;
+		this.selectedIndexChange.emit(index);
+		this.selected.emit(option);
 	}
 }

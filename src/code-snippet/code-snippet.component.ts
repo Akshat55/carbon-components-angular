@@ -16,7 +16,7 @@ export enum SnippetType {
 }
 
 /**
- * Wraps the `<cds-code-snippet>` web component. The code goes in the default slot.
+ * Adds Angular inputs and outputs to the `<cds-code-snippet>` web component. The code goes in the default slot.
  *
  * ```html
  * <cds-code-snippet display="multi">{{ code }}</cds-code-snippet>

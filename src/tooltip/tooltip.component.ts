@@ -10,7 +10,7 @@ import "@carbon/web-components/es/components/tooltip/index.js";
 import { PopoverBase } from "carbon-components-angular/popover";
 
 /**
- * Wraps the `<cds-tooltip>` web component. The trigger goes in the default slot.
+ * Adds Angular inputs and outputs to the `<cds-tooltip>` web component. The trigger goes in the default slot.
  *
  * ```html
  * <cds-tooltip description="Copy to clipboard" align="top">
@@ -24,15 +24,15 @@ import { PopoverBase } from "carbon-components-angular/popover";
 	selector: "cds-tooltip",
 	template: `
 		<ng-content />
-		@if (description && !disabled) {
-			<cds-tooltip-content [id]="id">
-				@if (isTemplate(description)) {
-					<ng-template [ngTemplateOutlet]="description" [ngTemplateOutletContext]="{ $implicit: templateContext }" />
-				} @else {
-					{{ description }}
-				}
-			</cds-tooltip-content>
-		}
+		<!-- Always present: the web component updates its content element without a null check.
+			It is hidden without a description, and comes after any cds-tooltip-content you project. -->
+		<cds-tooltip-content [id]="id" [hidden]="!description || disabled">
+			@if (isTemplate(description)) {
+				<ng-template [ngTemplateOutlet]="description" [ngTemplateOutletContext]="{ $implicit: templateContext }" />
+			} @else {
+				{{ description }}
+			}
+		</cds-tooltip-content>
 	`,
 	host: {
 		"[defaultOpen]": "isOpen",

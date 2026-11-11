@@ -11,7 +11,7 @@ import "@carbon/web-components/es/components/date-picker/index.js";
 import { provideValueAccessor, TemplateContent, TemplateSlot, WebComponentValueAccessor } from "carbon-components-angular/utils";
 
 /**
- * Wraps the `<cds-date-picker-input>` web component. On its own (`type="simple"`) it is a
+ * Adds Angular inputs and outputs to the `<cds-date-picker-input>` web component. On its own (`type="simple"`) it is a
  * date text input without a calendar; `cds-date-picker` renders its own inputs.
  * Works with `ngModel` / reactive forms (the value is the typed text).
  *

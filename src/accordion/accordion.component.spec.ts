@@ -1,4 +1,4 @@
-import { Component, TemplateRef, ViewChild } from "@angular/core";
+import { ApplicationRef, Component, createComponent, EnvironmentInjector, TemplateRef, ViewChild } from "@angular/core";
 import { TestBed } from "@angular/core/testing";
 
 import { Accordion } from "./accordion.component";
@@ -9,11 +9,12 @@ const heading = (item: HTMLElement) => item.shadowRoot.querySelector<HTMLButtonE
 
 @Component({
 	template: `
-		<cds-accordion [size]="size" align="start" [disabled]="accordionDisabled" [skeleton]="skeleton">
+		<cds-accordion [size]="size" align="start" [disabled]="accordionDisabled">
 			<cds-accordion-item
 				[title]="title"
 				[context]="{ name: 'context' }"
 				[disabled]="disabled"
+				[skeleton]="skeleton"
 				[(expanded)]="expanded"
 				(selected)="onSelected($event)">
 				<p class="content">test-content</p>
@@ -103,12 +104,6 @@ describe("Accordion", () => {
 		expect(item.disabled).toBe(true);
 	});
 
-	it("should collapse items when the accordion is disabled", async () => {
-		await update({ expanded: true });
-		await update({ accordionDisabled: true });
-		expect(item.open).toBe(false);
-	});
-
 	it("should render a TemplateRef title with context in the title slot", async () => {
 		await update({ title: wrapper.titleTemplate });
 		const title = item.querySelector(".title");
@@ -125,5 +120,21 @@ describe("Accordion", () => {
 		heading(item).click();
 		await update();
 		expect(item.open).toBe(false);
+	});
+
+	it("should disable an item created dynamically in a disabled accordion", async () => {
+		await update({ accordionDisabled: true });
+		const ref = createComponent(AccordionItem, {
+			environmentInjector: TestBed.inject(EnvironmentInjector),
+			projectableNodes: [[document.createTextNode("Dynamic")]]
+		});
+		ref.setInput("title", "Dynamic");
+		TestBed.inject(ApplicationRef).attachView(ref.hostView);
+		accordion.appendChild(ref.location.nativeElement);
+		await update();
+
+		expect(ref.location.nativeElement.disabled).toBe(true);
+		expect(ref.location.nativeElement.getAttribute("alignment")).toBe("start");
+		ref.destroy();
 	});
 });

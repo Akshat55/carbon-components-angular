@@ -17,7 +17,7 @@ export interface PaginationNavTranslations {
 }
 
 /**
- * Wraps the `<cds-pagination-nav>` web component, driven by a `PaginationModel`
+ * Adds Angular inputs and outputs to the `<cds-pagination-nav>` web component, driven by a `PaginationModel`
  * (`currentPage` starts at 1; `totalDataLength` is the number of pages).
  *
  * [See demo](../../?path=/story/components-pagination-nav--basic)

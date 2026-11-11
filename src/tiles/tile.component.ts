@@ -9,7 +9,7 @@ import "@carbon/web-components/es/components/tile/index.js";
 import { TemplateSlot } from "carbon-components-angular/utils";
 
 /**
- * Wraps the `<cds-tile>` web component.
+ * Adds Angular inputs and outputs to the `<cds-tile>` web component.
  *
  * [See demo](../../?path=/story/components-tiles--basic)
  */

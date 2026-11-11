@@ -10,7 +10,7 @@ import "@carbon/web-components/es/components/ai-label/index.js";
 import { PopoverBase } from "carbon-components-angular/popover";
 
 /**
- * Wraps the `<cds-ai-label>` web component. Put the explanation in a `cdsAILabelContent`
+ * Adds Angular inputs and outputs to the `<cds-ai-label>` web component. Put the explanation in a `cdsAILabelContent`
  * element and actions in a `cdsAILabelActions` element.
  *
  * ```html

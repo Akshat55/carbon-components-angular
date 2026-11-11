@@ -13,7 +13,7 @@ import "@carbon/web-components/es/components/tile/index.js";
 import { TemplateSlot } from "carbon-components-angular/utils";
 
 /**
- * Wraps the `<cds-clickable-tile>` web component. `route` navigates with the Angular router.
+ * Adds Angular inputs and outputs to the `<cds-clickable-tile>` web component. `route` navigates with the Angular router.
  *
  * [See demo](../../?path=/story/components-tiles-clickable--basic)
  */

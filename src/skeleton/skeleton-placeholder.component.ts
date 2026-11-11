@@ -7,7 +7,7 @@ import {
 import "@carbon/web-components/es/components/skeleton-placeholder/index.js";
 
 /**
- * Wraps the `<cds-skeleton-placeholder>` web component.
+ * Adds Angular inputs and outputs to the `<cds-skeleton-placeholder>` web component.
  */
 @Component({
 	selector: "cds-skeleton-placeholder",

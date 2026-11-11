@@ -3,6 +3,7 @@ import {
 	ChangeDetectorRef,
 	Component,
 	CUSTOM_ELEMENTS_SCHEMA,
+	ElementRef,
 	EventEmitter,
 	Input,
 	Output,
@@ -14,7 +15,7 @@ import "@carbon/web-components/es/components/skeleton-text/index.js";
 import { TemplateSlot } from "carbon-components-angular/utils";
 
 /**
- * Wraps the `<cds-accordion-item>` web component.
+ * Adds Angular inputs and outputs to the `<cds-accordion-item>` web component.
  *
  * [See demo](../../?path=/story/components-accordion--basic)
  */
@@ -56,16 +57,7 @@ export class AccordionItem {
 	 */
 	@Input() expanded = false;
 
-	/**
-	 * Disabled when either this item or the parent `cds-accordion` is disabled.
-	 */
-	@Input() set disabled(value: boolean) {
-		this._itemDisabled = value;
-	}
-
-	get disabled(): boolean {
-		return this._parentDisabled || this._itemDisabled;
-	}
+	@Input() disabled = false;
 
 	/**
 	 * Emits `{ id, expanded }` after the item is toggled.
@@ -73,24 +65,15 @@ export class AccordionItem {
 	@Output() selected = new EventEmitter<{ id: string, expanded: boolean }>();
 	@Output() expandedChange = new EventEmitter<boolean>();
 
-	protected _itemDisabled = false;
-	protected _parentDisabled = false;
-
 	private changeDetector = inject(ChangeDetectorRef);
-
-	/**
-	 * Called by `Accordion` to cascade `disabled` without overwriting this item's own input.
-	 */
-	setParentDisabled(value: boolean) {
-		this._parentDisabled = value;
-		this.changeDetector.markForCheck();
-	}
+	private element = inject(ElementRef).nativeElement;
 
 	/**
 	 * Toggles the item, the same as a user click.
 	 */
 	toggleExpanded() {
-		if (!this.skeleton && !this.disabled) {
+		// The element is also disabled when its `cds-accordion` is.
+		if (!this.skeleton && !this.element.disabled) {
 			this.setExpanded(!this.expanded);
 		}
 	}

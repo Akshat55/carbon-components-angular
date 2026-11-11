@@ -16,7 +16,7 @@ import { FileComponent } from "./file.component";
 import { FileItem } from "./file-item.interface";
 
 /**
- * Wraps the `<cds-file-uploader>` web component. The value (`files` / `ngModel`) is a `Set<FileItem>`;
+ * Adds Angular inputs and outputs to the `<cds-file-uploader>` web component. The value (`files` / `ngModel`) is a `Set<FileItem>`;
  * update an item's `state` to `"upload"` or `"complete"` to show progress.
  *
  * [See demo](../../?path=/story/components-file-uploader--basic)

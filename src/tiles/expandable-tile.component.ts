@@ -16,7 +16,7 @@ export interface ExpandableTileTranslations {
 }
 
 /**
- * Wraps the `<cds-expandable-tile>` web component. Mark the always-visible content with
+ * Adds Angular inputs and outputs to the `<cds-expandable-tile>` web component. Mark the always-visible content with
  * `cdsAboveFold`; everything else is shown when expanded. Supports `[(expanded)]`.
  *
  * [See demo](../../?path=/story/components-tiles-expandable--basic)

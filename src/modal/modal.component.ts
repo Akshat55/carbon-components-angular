@@ -17,7 +17,7 @@ import { PLACEHOLDER_SERVICE_PROVIDER } from "carbon-components-angular/placehol
 import { BaseModalService } from "./base-modal.service";
 
 /**
- * Wraps the `<cds-modal>` web component. Angular controls `open`: the modal emits `close`
+ * Adds Angular inputs and outputs to the `<cds-modal>` web component. Angular controls `open`: the modal emits `close`
  * (Escape), `overlaySelected` (click outside) and the header emits `closeSelect`, and you
  * set `open` to `false` (or call `closeModal()` in a `BaseModal` created by `ModalService`).
  *

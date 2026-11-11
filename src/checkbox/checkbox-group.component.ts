@@ -2,22 +2,19 @@ import {
 	ChangeDetectionStrategy,
 	CUSTOM_ELEMENTS_SCHEMA,
 	Component,
-	ContentChildren,
+	DestroyRef,
 	ElementRef,
-	forwardRef,
 	Input,
 	OnChanges,
-	QueryList,
 	TemplateRef,
 	inject
 } from "@angular/core";
 import "@carbon/web-components/es/components/checkbox/index.js";
-import { TemplateContent, TemplateSlot } from "carbon-components-angular/utils";
+import { observeChildren, TemplateContent, TemplateSlot, wrapperOf } from "carbon-components-angular/utils";
 import { Checkbox } from "./checkbox.component";
-import { CHECKBOX_GROUP_HOST, CheckboxGroupHost } from "./checkbox-group-host";
 
 /**
- * Wraps the `<cds-checkbox-group>` web component. Child `cds-checkbox` elements inherit
+ * Adds Angular inputs and outputs to the `<cds-checkbox-group>` web component. Child `cds-checkbox` elements inherit
  * `readOnly`, `invalid` and `warn` unless they set their own.
  *
  * [See demo](../../?path=/story/components-checkbox--group)
@@ -40,14 +37,11 @@ import { CHECKBOX_GROUP_HOST, CheckboxGroupHost } from "./checkbox-group-host";
 		"[warnText]": "content.render('warnText', warnText)",
 		"[attr.readonly]": "readOnly ? '' : null"
 	},
-	providers: [{ provide: CHECKBOX_GROUP_HOST, useExisting: CheckboxGroup }],
 	changeDetection: ChangeDetectionStrategy.OnPush,
 	imports: [TemplateSlot],
 	schemas: [CUSTOM_ELEMENTS_SCHEMA]
 })
-export class CheckboxGroup implements CheckboxGroupHost, OnChanges {
-	@ContentChildren(forwardRef(() => Checkbox), { descendants: true }) checkboxes: QueryList<Checkbox>;
-
+export class CheckboxGroup implements OnChanges {
 	@Input() legend: string | TemplateRef<any>;
 	@Input() legendId: string;
 	@Input() fieldsetAriaLabelledby: string;
@@ -66,11 +60,21 @@ export class CheckboxGroup implements CheckboxGroupHost, OnChanges {
 	protected content = new TemplateContent();
 	private element = inject(ElementRef).nativeElement;
 
+	constructor() {
+		observeChildren(this.element, inject(DestroyRef), () => this.refreshCheckboxes());
+	}
+
 	ngOnChanges() {
-		// Child checkboxes read inherited state from this group. Refresh them once the
-		// web component group has rendered (it copies `readonly` onto every child).
+		this.refreshCheckboxes();
+	}
+
+	/**
+	 * Child checkboxes read inherited state from this group (found through the DOM). Refresh
+	 * them once the web component group has rendered (it copies `readonly` onto every child).
+	 */
+	protected refreshCheckboxes() {
 		Promise.resolve().then(() => this.element.updateComplete).then(() => {
-			this.checkboxes?.forEach(checkbox => checkbox.markForCheckFromGroup());
+			this.element.querySelectorAll("cds-checkbox").forEach(element => wrapperOf(element, Checkbox)?.markForCheckFromGroup());
 		});
 	}
 }

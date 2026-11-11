@@ -22,7 +22,7 @@ export enum InlineLoadingState {
 }
 
 /**
- * Wraps the `<cds-inline-loading>` web component.
+ * Adds Angular inputs and outputs to the `<cds-inline-loading>` web component.
  *
  * [See demo](../../?path=/story/components-inline-loading--basic)
  */

@@ -15,7 +15,7 @@ import { HeaderMenuItem } from "./header-item.component";
 import { HeaderItemInterface } from "./header-navigation-items.interface";
 
 /**
- * Wraps the `<cds-header-menu>` web component. Project `cds-header-nav-item`s or pass `headerItems`.
+ * Adds Angular inputs and outputs to the `<cds-header-menu>` web component. Project `cds-header-menu-item`s or pass `headerItems`.
  */
 @Component({
 	selector: "cds-header-menu",
