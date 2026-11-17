@@ -1,4 +1,5 @@
 import {
+	booleanAttribute,
 	ChangeDetectionStrategy,
 	Component,
 	CUSTOM_ELEMENTS_SCHEMA,
@@ -35,10 +36,10 @@ export class Loading {
 	/**
 	 * Set to `false` to stop the animation.
 	 */
-	@Input() isActive = true;
+	@Input({ transform: booleanAttribute }) isActive = true;
 	@Input() size: "normal" | "sm" = "normal";
 	/**
 	 * Shows the loading indicator over the whole page.
 	 */
-	@Input() overlay = false;
+	@Input({ transform: booleanAttribute }) overlay = false;
 }

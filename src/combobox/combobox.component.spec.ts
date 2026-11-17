@@ -6,6 +6,7 @@ import { FormControl, FormsModule, ReactiveFormsModule } from "@angular/forms";
 import { DropdownList, ListItem, MultiSelect } from "carbon-components-angular/dropdown";
 import { settle, shadow, typeInto } from "../test-helpers/web-components";
 import { ComboBox } from "./combobox.component";
+import { ComboBoxItem } from "./combobox-item.component";
 
 @Component({
 	template: `
@@ -320,5 +321,76 @@ describe("Combo box with forms", () => {
 		fixture.componentInstance.control.disable();
 		await settle(fixture);
 		expect(input(combo).disabled).toBe(true);
+	});
+});
+
+@Component({
+	template: `
+		<cds-combo-box label="Native" [(ngModel)]="model" (selected)="selected = $event">
+			<cds-combo-box-item value="apple">Apple</cds-combo-box-item>
+			<cds-combo-box-item value="pear">Pear</cds-combo-box-item>
+		</cds-combo-box>`,
+	imports: [ComboBox, ComboBoxItem, FormsModule]
+})
+class NativeComboBoxTest {
+	model = "pear";
+	selected: any;
+}
+
+describe("ComboBox with child options", () => {
+	let fixture, element;
+	const option = (value: string): any =>
+		Array.from<any>(element.querySelectorAll("cds-combo-box-item")).find(item => item.value === value);
+
+	beforeEach(async () => {
+		TestBed.configureTestingModule({ imports: [NativeComboBoxTest] });
+		fixture = TestBed.createComponent(NativeComboBoxTest);
+		await settle(fixture);
+		element = fixture.nativeElement.querySelector("cds-combo-box");
+	});
+
+	it("should register the child option web component", () => {
+		expect(option("apple") instanceof customElements.get("cds-combo-box-item")).toBe(true);
+	});
+
+	it("should select the option matching the model", () => {
+		expect(element.value).toBe("pear");
+		expect(option("pear").selected).toBe(true);
+	});
+
+	it("should update the model with the picked option's value", async () => {
+		option("apple").click();
+		await settle(fixture);
+		expect(fixture.componentInstance.model).toBe("apple");
+		expect(fixture.componentInstance.selected).toEqual(jasmine.objectContaining({ content: "Apple", value: "apple" }));
+	});
+});
+
+@Component({
+	template: `
+		<cds-combo-box label="Plain">
+			<cds-combo-box-item value="a">Apple</cds-combo-box-item>
+			<cds-combo-box-item value="b">Banana</cds-combo-box-item>
+		</cds-combo-box>
+	`,
+	imports: [ComboBox, ComboBoxItem]
+})
+class PlainComboBoxTest {}
+
+describe("ComboBox defaults", () => {
+	it("should keep the web component's defaults and its own selection state", async () => {
+		const fixture = TestBed.createComponent(PlainComboBoxTest);
+		await settle(fixture);
+		const element = fixture.nativeElement.querySelector("cds-combo-box");
+		expect(element.size).toBe("md");
+		expect(element.direction).toBe("bottom");
+		expect(element.readOnly).toBe(false);
+		expect(element.disabled).toBe(false);
+
+		const [apple, banana] = fixture.nativeElement.querySelectorAll("cds-combo-box-item");
+		banana.selected = true;
+		await settle(fixture);
+		expect(banana.selected).toBe(true);
+		expect(apple.selected).toBe(false);
 	});
 });

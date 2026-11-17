@@ -1,13 +1,13 @@
 import { Component, Input } from "@angular/core";
 import { FormsModule } from "@angular/forms";
 
-import { Button } from "carbon-components-angular/button";
+import { CdsButton } from "carbon-components-angular/button";
 import { FileItem } from "../";
 import { FileUploader } from "../file-uploader.component";
 
 @Component({
 	selector: "app-ngmodel-file-uploader",
-	imports: [FileUploader, Button, FormsModule],
+	imports: [CdsButton, FileUploader, FormsModule],
 	template: `
 		<cds-file-uploader
 			[title]="title"
@@ -22,14 +22,13 @@ import { FileUploader } from "../file-uploader.component";
 			[disabled]="disabled">
 		</cds-file-uploader>
 		@if (model && model.size > 0) {
-			<button
-				cdsButton
+			<cds-button
 				(click)="onUpload()"
 				style="margin-top:20px">
 				Upload
-			</button>
+			</cds-button>
 		}
-		<button cdsButton (click)="removeFiles()">Remove all</button>
+		<cds-button (click)="removeFiles()">Remove all</cds-button>
 	`
 })
 export class NgModelFileUploaderStory {

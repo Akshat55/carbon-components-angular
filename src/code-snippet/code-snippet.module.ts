@@ -8,10 +8,12 @@ import { UtilsModule } from "carbon-components-angular/utils";
 
 // imports
 import { CodeSnippet } from "./code-snippet.component";
+import { CodeSnippetSkeleton } from "./code-snippet-skeleton.component";
 
 @NgModule({
 	exports: [
-		CodeSnippet
+		CodeSnippet,
+		CodeSnippetSkeleton
 	],
 	imports: [
 		CodeSnippet,
@@ -19,7 +21,8 @@ import { CodeSnippet } from "./code-snippet.component";
 		ButtonModule,
 		I18nModule,
 		UtilsModule,
-		IconModule
+		IconModule,
+		CodeSnippetSkeleton
 	]
 })
 export class CodeSnippetModule {}

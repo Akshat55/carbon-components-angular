@@ -64,3 +64,22 @@ describe("CdsButton", () => {
 		expect(fixture.nativeElement.querySelector("button.cds--btn--secondary")).toBeTruthy();
 	});
 });
+
+@Component({
+	template: `<cds-button>Plain</cds-button>`,
+	imports: [CdsButton]
+})
+class PlainButtonTest {}
+
+describe("CdsButton defaults", () => {
+	it("should keep the web component's defaults when inputs are unset", async () => {
+		const fixture = TestBed.createComponent(PlainButtonTest);
+		fixture.detectChanges();
+		const element = fixture.nativeElement.querySelector("cds-button");
+		await rendered(element);
+		expect(element.kind).toBe("primary");
+		expect(element.size).toBe("lg");
+		expect(element.type).toBe("button");
+		expect(element.disabled).toBe(false);
+	});
+});

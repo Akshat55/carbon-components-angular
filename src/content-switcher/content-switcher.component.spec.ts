@@ -18,14 +18,16 @@ import { ContentSwitcherOption } from "./index";
 })
 class ContentSwitcherTest {
 	selectedValue = null;
-	selected(event) {
-		this.selectedValue = event.name;
+	selected(item: HTMLElement & { value: string }) {
+		this.selectedValue = item.value;
 	}
 }
 
 describe("ContentSwitcher", () => {
 	let fixture, wrapper, element, switcher: ContentSwitcher;
 	const option = (id: string): any => element.querySelector(`#${id}`);
+	const options = (): ContentSwitcherOption[] =>
+		fixture.debugElement.queryAll(By.directive(ContentSwitcherOption)).map(debug => debug.componentInstance);
 	/** Clicks the option the way a user would: on its inner button. */
 	const choose = async (id: string) => {
 		shadow<HTMLButtonElement>(option(id), "button").click();
@@ -53,8 +55,7 @@ describe("ContentSwitcher", () => {
 	});
 
 	it("should set all options in the content switcher component", () => {
-		expect(switcher.options.length).toBe(3);
-		switcher.options.forEach(o => expect(o instanceof ContentSwitcherOption).toBe(true));
+		expect(options().length).toBe(3);
 	});
 
 	it("should emit the correct value according to which option is clicked", async () => {
@@ -78,10 +79,10 @@ describe("ContentSwitcher", () => {
 
 	it("should unselect all other options when an option is chosen", async () => {
 		await choose("second");
-		switcher.options.forEach(o => expect(o.active).toBe(o.name === "Second"));
+		options().forEach(o => expect(o.active).toBe(o.name === "Second"));
 
 		await choose("third");
-		switcher.options.forEach(o => expect(o.active).toBe(o.name === "Third"));
+		options().forEach(o => expect(o.active).toBe(o.name === "Third"));
 	});
 
 	it("should move the selected state and aria state to the chosen option", async () => {
@@ -96,7 +97,7 @@ describe("ContentSwitcher", () => {
 	});
 
 	it("should select the first option on init", () => {
-		expect(switcher.options[0].active).toBe(true);
+		expect(options()[0].active).toBe(true);
 		expect(option("first").selected).toBe(true);
 		expect(shadow(option("first"), "button").getAttribute("tabindex")).toBe("0");
 	});
@@ -118,7 +119,33 @@ describe("ContentSwitcher", () => {
 
 		expect(wrapper.selectedValue).toBe("Fourth");
 		expect(indexes).toEqual([3]);
-		expect(switcher.options.map(o => o.active)).toEqual([false, false, false, true]);
+		expect(options().map(o => o.active)).toEqual([false, false, false]);
+		expect(ref.instance.active).toBe(true);
 		ref.destroy();
+	});
+});
+
+@Component({
+	template: `
+		<cds-content-switcher>
+			<cds-content-switcher-item>One</cds-content-switcher-item>
+			<cds-content-switcher-item [active]="true">Two</cds-content-switcher-item>
+		</cds-content-switcher>
+	`,
+	imports: [ContentSwitcher, ContentSwitcherOption]
+})
+class PlainContentSwitcherTest {}
+
+describe("ContentSwitcher defaults", () => {
+	it("should keep the web component's defaults and select the active option first", async () => {
+		const fixture = TestBed.createComponent(PlainContentSwitcherTest);
+		await settle(fixture);
+		const element = fixture.nativeElement.querySelector("cds-content-switcher");
+		const items = Array.from<any>(fixture.nativeElement.querySelectorAll("cds-content-switcher-item"));
+		expect(element.size).toBe("");
+		expect(element.selectionMode).toBe("automatic");
+		expect(items[0].value).not.toBe(items[1].value);
+		expect(items.map(item => item.selected)).toEqual([false, true]);
+		expect(items.every(item => item.getAttribute("size") === "md")).toBe(true);
 	});
 });

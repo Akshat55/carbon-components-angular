@@ -91,3 +91,30 @@ describe("CodeSnippet", () => {
 		expect(shadow(element, "pre[aria-multiline=true]")).toBeTruthy();
 	});
 });
+
+@Component({
+	template: `<cds-code-snippet [copyText]="copyText" [hideCopyButton]="hideCopyButton">npm install</cds-code-snippet>`,
+	imports: [CodeSnippetModule]
+})
+class CodeSnippetInputsTest {
+	copyText: string | undefined;
+	hideCopyButton = false;
+}
+
+describe("CodeSnippet inputs", () => {
+	it("should keep the web component's defaults and pass inputs through", async () => {
+		const fixture = TestBed.createComponent(CodeSnippetInputsTest);
+		await settle(fixture);
+		const element = fixture.nativeElement.querySelector("cds-code-snippet");
+		expect(element.type).toBe("single");
+		expect(element.feedbackTimeout).toBe(2000);
+		expect(element.maxCollapsedNumberOfRows).toBe(15);
+		expect(element.minExpandedNumberOfRows).toBe(16);
+
+		fixture.componentInstance.copyText = "custom";
+		fixture.componentInstance.hideCopyButton = true;
+		await settle(fixture);
+		expect(element.copyText).toBe("custom");
+		expect(element.hideCopyButton).toBe(true);
+	});
+});

@@ -1,4 +1,5 @@
 import {
+	booleanAttribute,
 	ChangeDetectionStrategy,
 	Component,
 	CUSTOM_ELEMENTS_SCHEMA,
@@ -44,10 +45,10 @@ import { provideValueAccessor, TemplateContent, TemplateSlot, WebComponentValueA
 export class TimePicker extends WebComponentValueAccessor<string> {
 	static timePickerCount = 0;
 
-	@Input() invalid = false;
+	@Input({ transform: booleanAttribute }) invalid = false;
 	@Input() invalidText: string | TemplateRef<any>;
 	@Input() label: string | TemplateRef<any>;
-	@Input() hideLabel = false;
+	@Input({ transform: booleanAttribute }) hideLabel = false;
 	@Input() placeholder = "hh:mm";
 	@Input() pattern = "(1[012]|[0-9]):[0-5][0-9]";
 	@Input() id = `timepicker-${TimePicker.timePickerCount++}`;
@@ -57,7 +58,7 @@ export class TimePicker extends WebComponentValueAccessor<string> {
 	/**
 	 * @deprecated use `<cds-time-picker-skeleton>` instead.
 	 */
-	@Input() skeleton = false;
+	@Input({ transform: booleanAttribute }) skeleton = false;
 	/**
 	 * @deprecated the web component follows the surrounding theme / layer.
 	 */

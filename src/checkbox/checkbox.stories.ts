@@ -5,7 +5,7 @@ import { ReactiveFormsStory } from "./stories";
 import { AILabelModule } from "../ai-label";
 import { ButtonModule } from "../button";
 import { IconModule } from "../icon";
-import { AI_LABEL_INNER, AI_LABEL_STORY_STYLES } from "../storybook/ai-label-story-shared";
+import { AI_LABEL_INNER } from "../storybook/ai-label-story-shared";
 
 export default {
 	title: "Components/Checkbox",
@@ -29,8 +29,7 @@ export default {
 const Template = (args) => ({
 	props: args,
 	template: `
-		<fieldset class="cds--fieldset">
-			<legend class="cds--label">{{label}}</legend>
+		<cds-checkbox-group [legend]="label">
 			<cds-checkbox
 				[disabled]="disabled"
 				[indeterminate]="indeterminate"
@@ -40,7 +39,7 @@ const Template = (args) => ({
 				(indeterminateChange)="onIndeterminateChange($event)">
 				Indeterminate checkbox
 			</cds-checkbox>
-		</fieldset>
+		</cds-checkbox-group>
 	`
 });
 export const Basic = Template.bind({});
@@ -142,13 +141,13 @@ const groupStatePropagationTemplate = (args) => ({
 				[warnText]="groupWarnText">
 				<cds-checkbox id="group-inherit-1">Inherits from group</cds-checkbox>
 				<cds-checkbox id="group-inherit-2">Inherits from group</cds-checkbox>
-				<cds-checkbox id="group-override-invalid" [invalid]="false">
-					Explicit invalid false (overrides group invalid)
+				<cds-checkbox id="group-override-readonly" [readOnly]="false">
+					Explicit readOnly false (overrides group readOnly)
 				</cds-checkbox>
 			</cds-checkbox-group>
 
 
-			<p class="cds--label-01" style="margin-bottom: 1rem; margin-top: 2rem;">
+			<p style="margin-bottom: 1rem; margin-top: 2rem;">
 				Checkbox sets its own invalid message:
 			</p>
 			<cds-checkbox-group
@@ -178,9 +177,8 @@ GroupStatePropagation.args = {
 
 const withAILabelTemplate = (args) => ({
 	props: args,
-	styles: AI_LABEL_STORY_STYLES,
 	template: `
-		<div class="ai-label-check-radio-container">
+		<div style="display: flex; flex-direction: column; gap: 2rem">
 			<cds-checkbox-group
 				legend="Group Label"
 				[decorator]="decoratorDefaultTpl"

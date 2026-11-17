@@ -1,4 +1,5 @@
 import {
+	booleanAttribute,
 	ChangeDetectionStrategy,
 	Component,
 	CUSTOM_ELEMENTS_SCHEMA,
@@ -33,9 +34,9 @@ export class SkeletonText {
 	 * Line width in pixels.
 	 */
 	@Input() maxLineWidth = 300;
-	@Input() heading = false;
+	@Input({ transform: booleanAttribute }) heading = false;
 	/**
 	 * @deprecated not supported by the web component.
 	 */
-	@Input() ai = false;
+	@Input({ transform: booleanAttribute }) ai = false;
 }

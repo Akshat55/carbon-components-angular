@@ -1,4 +1,5 @@
 import {
+	booleanAttribute,
 	ChangeDetectionStrategy,
 	ChangeDetectorRef,
 	Component,
@@ -12,7 +13,7 @@ import {
 } from "@angular/core";
 import "@carbon/web-components/es/components/accordion/index.js";
 import "@carbon/web-components/es/components/skeleton-text/index.js";
-import { TemplateSlot } from "carbon-components-angular/utils";
+import { observeAttributes, TemplateSlot } from "carbon-components-angular/utils";
 
 /**
  * Adds Angular inputs and outputs to the `<cds-accordion-item>` web component.
@@ -32,11 +33,10 @@ import { TemplateSlot } from "carbon-components-angular/utils";
 	`,
 	host: {
 		"[id]": "id",
-		"[title]": "isTemplate(title) || skeleton ? '' : title",
-		"[open]": "expanded",
-		"[disabled]": "disabled",
-		"(cds-accordion-item-beingtoggled)": "onBeforeToggle($event)",
-		"(cds-accordion-item-toggled)": "onToggled($event)"
+		"[title]": "isTemplate(title) || skeleton ? '' : (title ?? element.title)",
+		"[open]": "expanded ?? element.open",
+		"[disabled]": "disabled ?? element.disabled",
+		"(cds-accordion-item-beingtoggled)": "onBeforeToggle($event)"
 	},
 	changeDetection: ChangeDetectionStrategy.OnPush,
 	imports: [TemplateSlot],
@@ -51,13 +51,19 @@ export class AccordionItem {
 	@Input() title: string | TemplateRef<any>;
 	@Input() context: object | null = null;
 	@Input() id = `accordion-item-${AccordionItem.accordionItemCount++}`;
-	@Input() skeleton = false;
 	/**
-	 * Supports two-way binding with `expandedChange`.
+	 * Shows skeleton text instead of the title and content.
 	 */
-	@Input() expanded = false;
+	@Input({ transform: booleanAttribute }) skeleton = false;
+	/**
+	 * Supports two-way binding with `expandedChange`. Unset, the web component keeps its own state.
+	 */
+	@Input({ transform: booleanAttribute }) expanded?: boolean;
 
-	@Input() disabled = false;
+	/**
+	 * Unset, the item follows its `cds-accordion`'s `disabled`.
+	 */
+	@Input({ transform: booleanAttribute }) disabled?: boolean;
 
 	/**
 	 * Emits `{ id, expanded }` after the item is toggled.
@@ -65,8 +71,21 @@ export class AccordionItem {
 	@Output() selected = new EventEmitter<{ id: string, expanded: boolean }>();
 	@Output() expandedChange = new EventEmitter<boolean>();
 
+	protected element = inject(ElementRef).nativeElement;
 	private changeDetector = inject(ChangeDetectorRef);
-	private element = inject(ElementRef).nativeElement;
+
+	constructor() {
+		// The web component reflects `open`, whoever toggles it.
+		observeAttributes(this.element, ["open"], () => {
+			const expanded = this.element.open;
+			if (expanded !== !!this.expanded) {
+				this.expanded = expanded;
+				this.expandedChange.emit(expanded);
+				this.selected.emit({ id: this.id, expanded });
+				this.changeDetector.markForCheck();
+			}
+		});
+	}
 
 	/**
 	 * Toggles the item, the same as a user click.
@@ -74,7 +93,7 @@ export class AccordionItem {
 	toggleExpanded() {
 		// The element is also disabled when its `cds-accordion` is.
 		if (!this.skeleton && !this.element.disabled) {
-			this.setExpanded(!this.expanded);
+			this.element.open = !this.element.open;
 		}
 	}
 
@@ -84,18 +103,7 @@ export class AccordionItem {
 		}
 	}
 
-	onToggled(event: Event) {
-		this.setExpanded((event as CustomEvent<{ open: boolean }>).detail.open);
-	}
-
 	isTemplate(value: unknown): value is TemplateRef<any> {
 		return value instanceof TemplateRef;
-	}
-
-	private setExpanded(expanded: boolean) {
-		this.expanded = expanded;
-		this.expandedChange.emit(expanded);
-		this.selected.emit({ id: this.id, expanded });
-		this.changeDetector.markForCheck();
 	}
 }

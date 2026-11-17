@@ -1,4 +1,5 @@
 import {
+	booleanAttribute,
 	ChangeDetectionStrategy,
 	Component,
 	CUSTOM_ELEMENTS_SCHEMA,
@@ -41,9 +42,9 @@ export class ClickableTile {
 	@Input() href = "#";
 	@Input() target: string;
 	@Input() rel: string;
-	@Input() disabled = false;
+	@Input({ transform: booleanAttribute }) disabled = false;
 	@Input() decorator: TemplateRef<any>;
-	@Input() hasRoundedCorners = false;
+	@Input({ transform: booleanAttribute }) hasRoundedCorners = false;
 	/**
 	 * Angular router commands, used instead of `href`.
 	 */

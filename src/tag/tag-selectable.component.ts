@@ -1,4 +1,5 @@
 import {
+	booleanAttribute,
 	ChangeDetectionStrategy,
 	Component,
 	CUSTOM_ELEMENTS_SCHEMA,
@@ -33,8 +34,8 @@ import "@carbon/web-components/es/components/tag/index.js";
 export class TagSelectableComponent {
 	@Input() text = "";
 	@Input() size: "sm" | "md" | "lg" = "md";
-	@Input() disabled = false;
-	@Input() selected = false;
+	@Input({ transform: booleanAttribute }) disabled = false;
+	@Input({ transform: booleanAttribute }) selected = false;
 
 	@Output() selectedChange = new EventEmitter<boolean>();
 

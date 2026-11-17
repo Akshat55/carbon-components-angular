@@ -38,10 +38,8 @@ export { EventHandler } from "./types";
 export { DocumentService } from "./document.service";
 export {
 	FloatingMenuCleanup,
-	observeAttribute,
+	observeAttributes,
 	observeChildren,
-	registerWrapper,
-	wrapperOf,
 	TemplateContent,
 	TemplateSlot,
 	WebComponentValueAccessor,

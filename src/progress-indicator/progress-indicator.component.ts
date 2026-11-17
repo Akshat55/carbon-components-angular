@@ -1,7 +1,10 @@
 import {
+	booleanAttribute,
 	ChangeDetectionStrategy,
 	Component,
 	CUSTOM_ELEMENTS_SCHEMA,
+	DoCheck,
+	ElementRef,
 	EventEmitter,
 	Input,
 	Output,
@@ -10,6 +13,9 @@ import {
 import "@carbon/web-components/es/components/progress-indicator/index.js";
 import { I18n } from "carbon-components-angular/i18n";
 import { Step } from "./progress-indicator-step.interface";
+import { ProgressStep } from "./progress-step.component";
+
+const noop = () => {};
 
 /**
  * Adds Angular inputs and outputs to the `<cds-progress-indicator>` web component and renders a `cds-progress-step` per step.
@@ -23,28 +29,32 @@ import { Step } from "./progress-indicator-step.interface";
 @Component({
 	selector: "cds-progress-indicator",
 	template: `
+		<ng-content />
 		@for (step of steps; track $index; let i = $index) {
 			<cds-progress-step
+				[attr.data-step-index]="i"
 				[label]="step.label"
 				[secondaryLabel]="step.secondaryLabel ?? ''"
 				[description]="step.description ?? ''"
 				[disabled]="!!step.disabled"
 				[state]="state(step, i)"
 				[invalid]="!!step.invalid"
+				[clickable]="stepSelected.observed"
 				[iconLabel]="translations?.[step.invalid ? 'INVALID' : state(step, i).toUpperCase()]"
-				[clickable]="i !== current && !step.disabled"
 				(click)="onClick(i)" />
 		}
 	`,
 	host: {
 		"[vertical]": "orientation === 'vertical'",
 		"[spaceEqually]": "spacing === 'equal'",
-		"[currentIndex]": "current"
+		"[currentIndex]": "current",
+		"(cds-progress-step-click)": "onChildClick($event)"
 	},
 	changeDetection: ChangeDetectionStrategy.OnPush,
+	imports: [ProgressStep],
 	schemas: [CUSTOM_ELEMENTS_SCHEMA]
 })
-export class ProgressIndicator {
+export class ProgressIndicator implements DoCheck {
 	static skeletonSteps(stepCount: number) {
 		return Array.from({ length: stepCount }, () => ({ complete: false }));
 	}
@@ -65,15 +75,46 @@ export class ProgressIndicator {
 	/**
 	 * @deprecated use `<cds-progress-indicator-skeleton>` instead.
 	 */
-	@Input() skeleton = false;
+	@Input({ transform: booleanAttribute }) skeleton = false;
 
 	@Output() stepSelected = new EventEmitter<{ step: Step, index: number }>();
+
+	protected element: HTMLElement = inject(ElementRef).nativeElement;
+
+	ngDoCheck() {
+		// With an `onChange` the web component makes its `cds-progress-step` children
+		// clickable. Angular doesn't allow binding `on*` properties, so set it here.
+		const onChange = this.stepSelected.observed ? noop : undefined;
+		if ((this.element as any).onChange !== onChange) {
+			(this.element as any).onChange = onChange;
+		}
+	}
 
 	state(step: Step, index: number) {
 		if (index === this.current) {
 			return "current";
 		}
 		return step.complete ? "complete" : "incomplete";
+	}
+
+	/**
+	 * Emits `stepSelected` for clickable steps written as children (`cds-progress-step`).
+	 */
+	onChildClick(event: Event) {
+		const element = event.target as HTMLElement & { label: string, secondaryLabel: string, description: string, invalid: boolean };
+		if (this.skeleton || element.hasAttribute("data-step-index")) {
+			return;
+		}
+		const index = Array.from(this.element.querySelectorAll("cds-progress-step")).indexOf(element);
+		this.stepSelected.emit({
+			step: {
+				label: element.label,
+				secondaryLabel: element.secondaryLabel,
+				description: element.description,
+				invalid: element.invalid
+			} as Step,
+			index
+		});
 	}
 
 	onClick(index: number) {

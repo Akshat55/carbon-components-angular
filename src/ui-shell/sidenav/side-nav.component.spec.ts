@@ -23,7 +23,7 @@ class FooComponent {}
 				(navigation)="onNavigation($event)">
 				Link
 			</cds-side-nav-link>
-			<cds-side-nav-menu title="Example Title">
+			<cds-side-nav-menu title="Example Title" [active]="menuActive">
 				<cds-side-nav-menu-item [active]="firstItemActive">One</cds-side-nav-menu-item>
 				<cds-side-nav-menu-item [active]="secondItemActive">Two</cds-side-nav-menu-item>
 			</cds-side-nav-menu>
@@ -39,6 +39,7 @@ class SideNavTest {
 	useRouter = false;
 	firstItemActive = false;
 	secondItemActive = false;
+	menuActive = false;
 	onNavigation(event) {
 		this.statusPromise = event;
 	}
@@ -138,26 +139,13 @@ describe("SideNav", () => {
 		expect(component.expanded).toBe(false);
 	});
 
-	it("should mark the menu active when one of its items is selected", async () => {
+	it("should pass active to the menu", async () => {
 		await create();
-		expect(menu().hasActiveChild).toBe(false);
 		expect(menuElement().active).toBe(false);
 
-		wrapper.secondItemActive = true;
+		wrapper.menuActive = true;
 		await settle(fixture);
 
-		expect(menu().hasActiveChild).toBe(true);
 		expect(menuElement().active).toBe(true);
-	});
-
-	it("should clear the active menu when the item is deselected", async () => {
-		await create({ firstItemActive: true });
-		expect(menuElement().active).toBe(true);
-
-		wrapper.firstItemActive = false;
-		await settle(fixture);
-
-		expect(menu().hasActiveChild).toBe(false);
-		expect(menuElement().active).toBe(false);
 	});
 });

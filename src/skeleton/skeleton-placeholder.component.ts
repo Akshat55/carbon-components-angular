@@ -1,4 +1,5 @@
 import {
+	booleanAttribute,
 	ChangeDetectionStrategy,
 	Component,
 	CUSTOM_ELEMENTS_SCHEMA,
@@ -19,5 +20,5 @@ export class SkeletonPlaceholder {
 	/**
 	 * @deprecated not supported by the web component.
 	 */
-	@Input() ai = false;
+	@Input({ transform: booleanAttribute }) ai = false;
 }

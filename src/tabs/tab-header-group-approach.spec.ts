@@ -1,433 +1,113 @@
-import { Component, Type } from "@angular/core";
-import { TestBed, fakeAsync, tick } from "@angular/core/testing";
+import { ApplicationRef, Component, createComponent, EnvironmentInjector } from "@angular/core";
+import { TestBed } from "@angular/core/testing";
 import { By } from "@angular/platform-browser";
 
-import { I18nModule } from "../i18n";
-import { UtilsModule } from "../utils";
+import { settle } from "../test-helpers/web-components";
 import { TabsModule } from "./tabs.module";
-import { IconModule } from "../icon";
+import { Tab } from "./tab.component";
+import { Tabs } from "./tabs.component";
 
-// Shared deps for standalone tab test hosts
-const tabsTestDeps = [
-	TabsModule,
-	UtilsModule,
-	I18nModule,
-	IconModule
-];
-
-describe("Tabs — Tab header group approach", () => {
-	function configureTestHosts(components: Array<Type<unknown>>) {
-		TestBed.configureTestingModule({
-			imports: components
-		});
-	}
-
-	function tabButtons(root: HTMLElement) {
-		return Array.from(root.querySelectorAll<HTMLElement>("[role='tab']"));
-	}
-
+/**
+ * Ported from the v6 "tab header group approach" specs: headers rendered apart from their
+ * panels. That is how v7 tabs always work, so these cover panels placed anywhere and tabs
+ * created dynamically.
+ */
+describe("Tabs — headers apart from panels", () => {
 	beforeEach(() => {
-		configureTestHosts([
-			HGInitialSelectionSecondTest,
-			HGCustomClassOnTabHostTest,
-			HGConditionalTabTest,
-			HGSecondaryLabelContainedTest,
-			HGContentProjectionLabeledIconTabTest,
-			HGIconTabBadgeTest,
-			HGDismissableTabsTest,
-			HGKeyboardNavigationTest,
-			HGManualActivationTest,
-			HGTabPanelVisibilityTest,
-			HGSelectedOutputTest,
-			HGFullWidthContainedTest,
-			TabHeaderGroupPaneRefSwitchTest
-		]);
+		TestBed.configureTestingModule({ imports: [TabsModule] });
 	});
 
-	it("should use the tab marked `active` as the initial selection", fakeAsync(() => {
-		const fixture = TestBed.createComponent(HGInitialSelectionSecondTest);
-		fixture.detectChanges();
-		tick();
-		fixture.detectChanges();
-		const buttons = tabButtons(fixture.nativeElement);
-		expect(buttons[0].getAttribute("aria-selected")).toBe("false");
-		expect(buttons[1].getAttribute("aria-selected")).toBe("true");
-	}));
+	it("should toggle panels placed anywhere in the document", async () => {
+		const fixture = TestBed.createComponent(DistantPanelsTest);
+		await settle(fixture);
+		const panel = (id: string) => fixture.nativeElement.querySelector(`#${id}`) as HTMLElement;
+		expect(panel("far-one").hidden).toBe(false);
+		expect(panel("far-two").hidden).toBe(true);
 
-	it("should allow a custom class on the tab panel host", () => {
-		const fixture = TestBed.createComponent(HGCustomClassOnTabHostTest);
-		fixture.detectChanges();
-		const panel = fixture.debugElement.query(By.css(".my-panel"));
-		expect(panel).toBeTruthy();
-		expect(panel.nativeElement).toHaveClass("custom-class");
+		(fixture.nativeElement.querySelectorAll("cds-tab")[1] as HTMLElement).click();
+		await settle(fixture);
+		expect(panel("far-one").hidden).toBe(true);
+		expect(panel("far-two").hidden).toBe(false);
 	});
 
-	it("should not render tabs excluded with @if", () => {
-		const fixture = TestBed.createComponent(HGConditionalTabTest);
-		fixture.detectChanges();
-		const buttons = tabButtons(fixture.nativeElement);
-		expect(buttons.length).toBe(2);
+	it("should support tabs and panels rendered with @for", async () => {
+		const fixture = TestBed.createComponent(ForTabsTest);
+		await settle(fixture);
+		const tabs = () => fixture.nativeElement.querySelectorAll("cds-tab");
+		expect(tabs().length).toBe(3);
+
+		fixture.componentInstance.items = ["a", "b"];
+		await settle(fixture);
+		expect(tabs().length).toBe(2);
+
+		(fixture.nativeElement.querySelector("#tab-b") as HTMLElement).click();
+		await settle(fixture);
+		expect(fixture.componentInstance.value).toBe("b");
+		expect((fixture.nativeElement.querySelector("#for-panel-b") as HTMLElement).hidden).toBe(false);
 	});
 
-	it("should show `secondaryLabel` when parent tabs use `type=contained`", () => {
-		const fixture = TestBed.createComponent(HGSecondaryLabelContainedTest);
-		fixture.detectChanges();
-		expect(
-			(fixture.nativeElement as HTMLElement).textContent
-		).toContain("test-secondary");
+	it("should default each tab's value to its id so every tab can be selected", async () => {
+		const fixture = TestBed.createComponent(ForTabsTest);
+		fixture.componentInstance.useValues = false;
+		await settle(fixture);
+		const tabs = Array.from(fixture.nativeElement.querySelectorAll("cds-tab")) as any[];
+		tabs[1].click();
+		await settle(fixture);
+		expect(fixture.componentInstance.value).toBe("tab-b");
+		tabs[2].click();
+		await settle(fixture);
+		expect(fixture.componentInstance.value).toBe("tab-c");
 	});
 
-	it("should render a labeled tab's `icon` template in the tab list", () => {
-		const fixture = TestBed.createComponent(HGContentProjectionLabeledIconTabTest);
-		fixture.detectChanges();
-		const el = fixture.nativeElement as HTMLElement;
-		const iconHost = el.querySelector(".cds--tabs__nav-item--icon");
-		expect(iconHost).toBeTruthy();
-		expect(el.querySelector(".hg-projection-icon")).not.toBeNull();
+	it("should emit `selected` for tabs created with createComponent", async () => {
+		const fixture = TestBed.createComponent(DistantPanelsTest);
+		await settle(fixture);
+		const ref = createComponent(Tab, { environmentInjector: TestBed.inject(EnvironmentInjector) });
+		let emitted = false;
+		ref.instance.selected.subscribe(() => emitted = true);
+		TestBed.inject(ApplicationRef).attachView(ref.hostView);
+		fixture.nativeElement.querySelector("cds-tabs").append(ref.location.nativeElement);
+		await settle(fixture);
+
+		ref.location.nativeElement.click();
+		await settle(fixture);
+		expect(emitted).toBe(true);
+		expect(ref.instance.active).toBe(true);
+		ref.destroy();
 	});
-
-	it("should render a badge node on an icon tab when `badgeIndicator` is true", () => {
-		const fixture = TestBed.createComponent(HGIconTabBadgeTest);
-		fixture.detectChanges();
-		const badge = fixture.nativeElement.querySelector(".cds--badge-indicator");
-		expect(badge).not.toBeNull();
-	});
-
-	it("should emit tab index when a dismissable close control is used", () => {
-		const fixture = TestBed.createComponent(HGDismissableTabsTest);
-		const comp = fixture.componentInstance;
-		spyOn(comp, "onTabClose");
-		fixture.detectChanges();
-		const closeBtn = (fixture.nativeElement as HTMLElement).querySelector(
-			".cds--tabs__nav-item--close-icon"
-		) as HTMLButtonElement;
-		expect(closeBtn).toBeTruthy();
-		closeBtn.click();
-		expect(comp.onTabClose).toHaveBeenCalledWith(0);
-	});
-
-	it("should move selection with ArrowLeft / ArrowRight / Home / End (automatic activation)", fakeAsync(() => {
-		const fixture = TestBed.createComponent(HGKeyboardNavigationTest);
-		fixture.detectChanges();
-		tick();
-		fixture.detectChanges();
-		const host = fixture.debugElement.query(By.css("cds-tab-header-group"));
-		const t = tabButtons(fixture.nativeElement);
-		t[0].focus();
-
-		const nav = (key: string) => {
-			host.nativeElement.dispatchEvent(
-				new KeyboardEvent("keydown", { key, bubbles: true, cancelable: true })
-			);
-			fixture.detectChanges();
-		};
-
-		expect(t[0].getAttribute("aria-selected")).toBe("true");
-
-		nav("ArrowRight");
-		expect(t[1].getAttribute("aria-selected")).toBe("true");
-
-		nav("ArrowLeft");
-		expect(t[0].getAttribute("aria-selected")).toBe("true");
-
-		nav("End");
-		expect(t[2].getAttribute("aria-selected")).toBe("true");
-
-		nav("Home");
-		expect(t[0].getAttribute("aria-selected")).toBe("true");
-	}));
-
-	it("with followFocus false, should activate the focused tab on Space", fakeAsync(() => {
-		const fixture = TestBed.createComponent(HGManualActivationTest);
-		fixture.detectChanges();
-		tick();
-		fixture.detectChanges();
-		const host = fixture.debugElement.query(By.css("cds-tab-header-group"));
-		const t = tabButtons(fixture.nativeElement);
-		t[0].focus();
-		host.nativeElement.dispatchEvent(
-			new KeyboardEvent("keydown", { key: "ArrowRight", bubbles: true, cancelable: true })
-		);
-		fixture.detectChanges();
-		expect(t[0].getAttribute("aria-selected")).toBe("true");
-		expect(t[1].getAttribute("aria-selected")).toBe("false");
-		t[1].dispatchEvent(
-			new KeyboardEvent("keydown", { key: " ", bubbles: true, cancelable: true })
-		);
-		fixture.detectChanges();
-		expect(t[1].getAttribute("aria-selected")).toBe("true");
-	}));
-
-	it("should only expose the active panel to accessibility as the visible tabpanel", fakeAsync(() => {
-		const fixture = TestBed.createComponent(HGTabPanelVisibilityTest);
-		fixture.detectChanges();
-		tick();
-		fixture.detectChanges();
-		const visible = visibleTabpanels(fixture.nativeElement);
-		expect(visible.length).toBe(1);
-		expect(visible[0].textContent).toContain("One content");
-	}));
-
-	it("should emit `selected` when a non-disabled tab header is activated", () => {
-		const fixture = TestBed.createComponent(HGSelectedOutputTest);
-		const comp = fixture.componentInstance;
-		spyOn(comp, "onFirstSelected");
-		fixture.detectChanges();
-		tabButtons(fixture.nativeElement)[0].click();
-		expect(comp.onFirstSelected).toHaveBeenCalled();
-	});
-
-	it("should add full-width class on contained `cds-tab-header-group` when `fullWidth` is true", () => {
-		const fixture = TestBed.createComponent(HGFullWidthContainedTest);
-		fixture.detectChanges();
-		const tabsHost = fixture.debugElement.query(By.css(".cds--tabs"));
-		expect(tabsHost.nativeElement).toHaveClass("cds--tabs--full-width");
-	});
-
-	it("should show the matching tab body when a tab header is selected", fakeAsync(() => {
-		const fixture = TestBed.createComponent(TabHeaderGroupPaneRefSwitchTest);
-		fixture.detectChanges();
-		tick();
-		fixture.detectChanges();
-		const buttons = tabButtons(fixture.nativeElement);
-		expect(buttons[0].getAttribute("aria-selected")).toBe("true");
-		let visible = visibleTabpanels(fixture.nativeElement);
-		expect(visible.length).toBe(1);
-		expect(visible[0].textContent).toContain("First body");
-
-		buttons[1].click();
-		fixture.detectChanges();
-		expect(buttons[1].getAttribute("aria-selected")).toBe("true");
-		visible = visibleTabpanels(fixture.nativeElement);
-		expect(visible.length).toBe(1);
-		expect(visible[0].textContent).toContain("Second body");
-	}));
 });
 
-function visibleTabpanels(root: HTMLElement): HTMLElement[] {
-	return Array.from(root.querySelectorAll<HTMLElement>("[role='tabpanel']")).filter(
-		(el: HTMLElement) => el.getAttribute("hidden") == null
-	);
-}
-
 @Component({
-	imports: tabsTestDeps,
 	template: `
-		<cds-tab-header-group [ariaLabel]="'List of tabs'">
-			<cds-tab-header [paneReference]="t1">Tab Label 1</cds-tab-header>
-			<cds-tab-header [paneReference]="t2">Tab Label 2</cds-tab-header>
-			<cds-tab-header [paneReference]="t3">Tab Label 3</cds-tab-header>
-		</cds-tab-header-group>
-		<cds-tab #t1>Panel 1</cds-tab>
-		<cds-tab #t2 [active]="true">Panel 2</cds-tab>
-		<cds-tab #t3>Panel 3</cds-tab>
-	`
-
+		<cds-tabs>
+			<cds-tab target="far-one">One</cds-tab>
+			<cds-tab target="far-two">Two</cds-tab>
+		</cds-tabs>
+		<section>
+			<p>Content between the tabs and their panels</p>
+			<div id="far-one" role="tabpanel">One</div>
+			<div id="far-two" role="tabpanel" hidden>Two</div>
+		</section>
+	`,
+	imports: [TabsModule]
 })
-class HGInitialSelectionSecondTest {}
+class DistantPanelsTest {}
 
 @Component({
-	imports: tabsTestDeps,
 	template: `
-		<cds-tab-header-group [ariaLabel]="'List of tabs'">
-			<cds-tab-header [paneReference]="p1">One</cds-tab-header>
-			<cds-tab-header [paneReference]="p2">Two</cds-tab-header>
-		</cds-tab-header-group>
-		<cds-tab #p1 class="my-panel custom-class">Tab Panel 1</cds-tab>
-		<cds-tab #p2>Tab Panel 2</cds-tab>
-	`
-
-})
-class HGCustomClassOnTabHostTest {}
-
-@Component({
-	imports: tabsTestDeps,
-	template: `
-		<cds-tab-header-group [ariaLabel]="'List of tabs'">
-			<cds-tab-header [paneReference]="t1">One</cds-tab-header>
-			@if (false) {
-				<cds-tab-header [paneReference]="excluded">Excluded</cds-tab-header>
+		<cds-tabs [(value)]="value">
+			@for (item of items; track item) {
+				<cds-tab [id]="'tab-' + item" [value]="useValues ? item : undefined" [target]="'for-panel-' + item">{{item}}</cds-tab>
 			}
-			<cds-tab-header [paneReference]="t2">Two</cds-tab-header>
-		</cds-tab-header-group>
-		<cds-tab #t1>A</cds-tab>
-		@if (false) {
-			<cds-tab #excluded>X</cds-tab>
+		</cds-tabs>
+		@for (item of items; track item) {
+			<div [id]="'for-panel-' + item" role="tabpanel" hidden>{{item}}</div>
 		}
-		<cds-tab #t2>B</cds-tab>
-	`
-
+	`,
+	imports: [TabsModule]
 })
-class HGConditionalTabTest {}
-
-@Component({
-	imports: tabsTestDeps,
-	template: `
-		<cds-tab-header-group [type]="'contained'" [ariaLabel]="'List of tabs'">
-			<cds-tab-header [paneReference]="s1" [secondaryLabel]="'test-secondary'">One</cds-tab-header>
-			<cds-tab-header [paneReference]="s2">Two</cds-tab-header>
-		</cds-tab-header-group>
-		<cds-tab #s1>A</cds-tab>
-		<cds-tab #s2>B</cds-tab>
-	`
-
-})
-class HGSecondaryLabelContainedTest {}
-
-@Component({
-	imports: tabsTestDeps,
-	template: `
-		<ng-template #iconTpl>
-			<svg
-				class="hg-projection-icon"
-				aria-hidden="true"
-				ibmIcon="bee"
-				size="16">
-			</svg>
-		</ng-template>
-		<cds-tab-header-group [cacheActive]="true" [ariaLabel]="'List of tabs'">
-			<cds-tab-header [paneReference]="p1" [icon]="iconTpl" title="First">First</cds-tab-header>
-			<cds-tab-header [paneReference]="p2" title="Second">Second</cds-tab-header>
-		</cds-tab-header-group>
-		<cds-tab #p1>First body</cds-tab>
-		<cds-tab #p2>Second body</cds-tab>
-	`
-
-})
-class HGContentProjectionLabeledIconTabTest {}
-
-@Component({
-	imports: tabsTestDeps,
-	template: `
-		<ng-template #iconTpl>
-			<svg
-				class="hg-icononly-icon"
-				aria-hidden="true"
-				ibmIcon="bee"
-				size="16">
-			</svg>
-		</ng-template>
-		<cds-tab-header-group [cacheActive]="true" [iconSize]="'lg'" [ariaLabel]="'List of tabs'">
-			<cds-tab-header
-				[paneReference]="only1"
-				[icon]="iconTpl"
-				[iconOnly]="true"
-				iconLabel="Notifications"
-				[badgeIndicator]="true" />
-		</cds-tab-header-group>
-		<cds-tab #only1>Icon-only body</cds-tab>
-	`
-
-})
-class HGIconTabBadgeTest {}
-
-@Component({
-	imports: tabsTestDeps,
-	template: `
-		<cds-tab-header-group [cacheActive]="true" [ariaLabel]="'List of tabs'">
-			<cds-tab-header [paneReference]="a">One</cds-tab-header>
-			<cds-tab-header [paneReference]="b">Two</cds-tab-header>
-		</cds-tab-header-group>
-		<cds-tab #a>First body</cds-tab>
-		<cds-tab #b>Second body</cds-tab>
-	`
-
-})
-class TabHeaderGroupPaneRefSwitchTest {}
-
-@Component({
-	imports: tabsTestDeps,
-	template: `
-		<cds-tab-header-group
-			[dismissable]="true"
-			[ariaLabel]="'List of tabs'"
-			(tabClose)="onTabClose($event)">
-			<cds-tab-header [paneReference]="d1" [dismissable]="true" title="Tab Label 1" />
-			<cds-tab-header [paneReference]="d2" [dismissable]="true" title="Tab Label 2" />
-		</cds-tab-header-group>
-		<cds-tab #d1>P1</cds-tab>
-		<cds-tab #d2>P2</cds-tab>
-	`
-
-})
-class HGDismissableTabsTest {
-	onTabClose(_: number) {}
+class ForTabsTest {
+	items = ["a", "b", "c"];
+	useValues = true;
+	value: string;
 }
-
-@Component({
-	imports: tabsTestDeps,
-	template: `
-		<cds-tab-header-group [followFocus]="true" [ariaLabel]="'List of tabs'">
-			<cds-tab-header [paneReference]="k1">Tab Label 1</cds-tab-header>
-			<cds-tab-header [paneReference]="k2">Tab Label 2</cds-tab-header>
-			<cds-tab-header [paneReference]="k3">Tab Label 3</cds-tab-header>
-		</cds-tab-header-group>
-		<cds-tab #k1>P1</cds-tab>
-		<cds-tab #k2>P2</cds-tab>
-		<cds-tab #k3>P3</cds-tab>
-	`
-
-})
-class HGKeyboardNavigationTest {}
-
-@Component({
-	imports: tabsTestDeps,
-	template: `
-		<cds-tab-header-group [followFocus]="false" [ariaLabel]="'List of tabs'">
-			<cds-tab-header [paneReference]="m1">Tab Label 1</cds-tab-header>
-			<cds-tab-header [paneReference]="m2">Tab Label 2</cds-tab-header>
-			<cds-tab-header [paneReference]="m3">Tab Label 3</cds-tab-header>
-		</cds-tab-header-group>
-		<cds-tab #m1>P1</cds-tab>
-		<cds-tab #m2>P2</cds-tab>
-		<cds-tab #m3>P3</cds-tab>
-	`
-
-})
-class HGManualActivationTest {}
-
-@Component({
-	imports: tabsTestDeps,
-	template: `
-		<cds-tab-header-group [ariaLabel]="'List of tabs'">
-			<cds-tab-header [paneReference]="v1">One</cds-tab-header>
-			<cds-tab-header [paneReference]="v2">Two</cds-tab-header>
-		</cds-tab-header-group>
-		<cds-tab #v1>One content</cds-tab>
-		<cds-tab #v2>Two content</cds-tab>
-	`
-
-})
-class HGTabPanelVisibilityTest {}
-
-@Component({
-	imports: tabsTestDeps,
-	template: `
-		<cds-tab-header-group [ariaLabel]="'List of tabs'">
-			<cds-tab-header [paneReference]="so1" (selected)="onFirstSelected()">One</cds-tab-header>
-			<cds-tab-header [paneReference]="so2">Two</cds-tab-header>
-		</cds-tab-header-group>
-		<cds-tab #so1>A</cds-tab>
-		<cds-tab #so2>B</cds-tab>
-	`
-
-})
-class HGSelectedOutputTest {
-	onFirstSelected() {}
-}
-
-@Component({
-	imports: tabsTestDeps,
-	template: `
-		<cds-tab-header-group [type]="'contained'" [fullWidth]="true" [ariaLabel]="'List of tabs'">
-			<cds-tab-header [paneReference]="fw1">One</cds-tab-header>
-			<cds-tab-header [paneReference]="fw2">Two</cds-tab-header>
-			<cds-tab-header [paneReference]="fw3">Three</cds-tab-header>
-		</cds-tab-header-group>
-		<cds-tab #fw1>A</cds-tab>
-		<cds-tab #fw2>B</cds-tab>
-		<cds-tab #fw3>C</cds-tab>
-	`
-
-})
-class HGFullWidthContainedTest {}

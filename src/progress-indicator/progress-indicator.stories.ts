@@ -1,11 +1,11 @@
 import { moduleMetadata, Meta } from "@storybook/angular";
-import { ProgressIndicator } from "./";
+import { ProgressIndicator, ProgressIndicatorSkeleton, ProgressStep, ProgressStepSkeleton } from "./";
 
 export default {
 	title: "Components/Progress Indicator",
 	decorators: [
 		moduleMetadata({
-			imports: [ProgressIndicator]
+			imports: [ProgressIndicator, ProgressStep, ProgressIndicatorSkeleton, ProgressStepSkeleton]
 		})
 	],
 	component: ProgressIndicator
@@ -76,3 +76,28 @@ Basic.argTypes = {
 		control: "radio"
 	}
 };
+
+const ChildStepsTemplate = (args) => ({
+	props: { current: 1, ...args },
+	template: `
+		<!-- Steps written as children, like the web component -->
+		<cds-progress-indicator [current]="current" (stepSelected)="current = $event.index">
+			<cds-progress-step label="First step" secondaryLabel="Optional label" description="Step 1: Getting started" />
+			<cds-progress-step label="Second step" description="Step 2: Getting started" />
+			<cds-progress-step label="Third step" description="Step 3: Getting started" invalid />
+			<cds-progress-step label="Fourth step" description="Step 4: Getting started" [disabled]="true" />
+		</cds-progress-indicator>
+	`
+});
+export const ChildSteps = ChildStepsTemplate.bind({});
+
+const SkeletonTemplate = () => ({
+	template: `
+		<cds-progress-indicator-skeleton>
+			<cds-progress-step-skeleton />
+			<cds-progress-step-skeleton />
+			<cds-progress-step-skeleton />
+		</cds-progress-indicator-skeleton>
+	`
+});
+export const Skeleton = SkeletonTemplate.bind({});

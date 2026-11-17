@@ -8,7 +8,7 @@ import { MenuButtonComponent } from "../menu-button";
 
 @Component({
 	template: `
-		<cds-menu-button label="Menu button" [open]="open">
+		<cds-menu-button label="Menu button" [(open)]="open">
 			<cds-menu>
 				<cds-menu-item label="First action with a long label description" />
 				<cds-menu-item label="Second action" />
@@ -66,11 +66,20 @@ describe("Menu button", () => {
 		trigger().click();
 		await settle(fixture);
 		expect(menuButton.open).toBeTrue();
+		expect(wrapper.open).toBeTrue();
 
 		trigger().click();
 		await settle(fixture);
 		expect(menuButton.open).toBeFalse();
+		expect(wrapper.open).toBeFalse();
 		expect(menu.open).toBeFalse();
+	});
+
+	it("should keep the web component's defaults when inputs are unset", () => {
+		const element = fixture.nativeElement.querySelector("cds-menu-button");
+		expect(element.kind).toBe("primary");
+		expect(element.size).toBe("lg");
+		expect(element.menuAlignment).toBe("bottom");
 	});
 
 	it("should open the menu when the host sets open", async () => {

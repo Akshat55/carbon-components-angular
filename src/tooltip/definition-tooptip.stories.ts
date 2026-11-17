@@ -1,11 +1,11 @@
 import { moduleMetadata, Meta } from "@storybook/angular";
-import { Tooltip, TooltipDefinition } from "./";
+import { TooltipDefinition } from "./";
 
 export default {
 	title: "Components/Definition Tooltip",
 	decorators: [
 		moduleMetadata({
-			imports: [Tooltip]
+			imports: [TooltipDefinition]
 		})
 	],
 	parameters: {
@@ -71,22 +71,7 @@ const Template = (args) => ({
 				that you own. A custom domain can be a shared domain, a shared subdomain, or a shared domain and host.</p>
 			</div>
 		</div>
-	`,
-	styles: [`
-		.tooltip-trigger {
-			box-sizing: border-box;
-			margin: 0;
-			display: flex;
-			align-items: center;
-			justify-content: center;
-			width: 2rem;
-			height: 2rem;
-			background: white;
-			border: 1px solid var(--cds-border-subtle);
-			cursor: pointer;
-		}
-		svg { fill: var(--cds-background-inverse); }
-	`]
+	`
 });
 export const Basic = Template.bind({});
 
@@ -111,22 +96,7 @@ const AutoAlignTemplate = (args) => ({
 				that you own. A custom domain can be a shared domain, a shared subdomain, or a shared domain and host.</p>
 			</div>
 		</div>
-	`,
-	styles: [`
-		.tooltip-trigger {
-			box-sizing: border-box;
-			margin: 0;
-			display: flex;
-			align-items: center;
-			justify-content: center;
-			width: 2rem;
-			height: 2rem;
-			background: white;
-			border: 1px solid var(--cds-border-subtle);
-			cursor: pointer;
-		}
-		svg { fill: var(--cds-background-inverse); }
-	`]
+	`
 });
 export const WithAutoAlign = AutoAlignTemplate.bind({});
 WithAutoAlign.args = {

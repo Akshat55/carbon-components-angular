@@ -4,7 +4,6 @@ import { CommonModule } from "@angular/common";
 import { FormsModule } from "@angular/forms";
 
 // internal module imports
-import { Dialog } from "carbon-components-angular/dialog";
 
 import { Search } from "carbon-components-angular/search";
 import { IconDirective } from "carbon-components-angular/icon";
@@ -80,7 +79,6 @@ export * from "./data-grid-interaction-model.class";
 	imports: [
 		CommonModule,
 		FormsModule,
-		Dialog,
 		Search,
 		I18nModule,
 		IconDirective,

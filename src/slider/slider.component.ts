@@ -1,4 +1,5 @@
 import {
+	booleanAttribute,
 	ChangeDetectionStrategy,
 	Component,
 	CUSTOM_ELEMENTS_SCHEMA,
@@ -85,16 +86,16 @@ export class Slider extends WebComponentValueAccessor<number | number[]> {
 	 */
 	@Input() shiftMultiplier = 4;
 	@Input() label: string | TemplateRef<any>;
-	@Input() readonly = false;
-	@Input() hideTextInput = false;
+	@Input({ transform: booleanAttribute }) readonly = false;
+	@Input({ transform: booleanAttribute }) hideTextInput = false;
 	/**
 	 * @deprecated use `<cds-slider-skeleton>` instead.
 	 */
-	@Input() skeleton = false;
+	@Input({ transform: booleanAttribute }) skeleton = false;
 	/**
 	 * @deprecated the web component always supports arrow keys.
 	 */
-	@Input() disableArrowKeys = false;
+	@Input({ transform: booleanAttribute }) disableArrowKeys = false;
 
 	@Output() valueChange: EventEmitter<number | number[]> = new EventEmitter();
 

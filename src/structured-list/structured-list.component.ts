@@ -1,25 +1,19 @@
 import {
+	booleanAttribute,
 	ChangeDetectionStrategy,
 	Component,
 	CUSTOM_ELEMENTS_SCHEMA,
-	DestroyRef,
 	EventEmitter,
 	Input,
-	Output,
-	inject
+	Output
 } from "@angular/core";
 import "@carbon/web-components/es/components/structured-list/index.js";
-import {
-	observeChildren,
-	provideValueAccessor,
-	WebComponentValueAccessor,
-	wrapperOf
-} from "carbon-components-angular/utils";
-import { ListRow } from "./list-row.component";
+import { provideValueAccessor, WebComponentValueAccessor } from "carbon-components-angular/utils";
 
 /**
  * Adds `ngModel` / reactive forms to the `<cds-structured-list>` web component.
  * With `selection`, rows behave like radio buttons; the value is the selected row's `value`.
+ * The web component passes `selectionName`, `condensed` and `flush` on to its rows.
  *
  * ```html
  * <cds-structured-list [selection]="true" [(ngModel)]="selected">
@@ -33,8 +27,6 @@ import { ListRow } from "./list-row.component";
  * 	</cds-structured-list-body>
  * </cds-structured-list>
  * ```
- *
- * The rows are read from the DOM, so rows from templates, `@for` or `createComponent` all work.
  *
  * [See demo](../../?path=/story/components-structured-list--basic)
  */
@@ -56,44 +48,33 @@ import { ListRow } from "./list-row.component";
 export class StructuredList extends WebComponentValueAccessor {
 	static listCount = 0;
 
-	@Input() selection = false;
-	@Input() flushed = false;
-	@Input() condensed = false;
+	@Input({ transform: booleanAttribute }) selection = false;
+	@Input({ transform: booleanAttribute }) flushed = false;
+	@Input({ transform: booleanAttribute }) condensed = false;
 	@Input() name = `structured-list-${StructuredList.listCount++}`;
 	@Input() ariaLabel = "Structured list section";
 
 	@Output() selected = new EventEmitter<{ value: any, selected: boolean, name: string }>();
 
-	protected value: any;
-	protected hasValue = false;
+	protected value: string;
 
-	constructor() {
-		super();
-		// The web component only names the rows it has when `selectionName` changes.
-		observeChildren(this.element, inject(DestroyRef), () => this.sync());
-	}
-
-	writeValue(value: any) {
+	writeValue(value: string) {
 		this.value = value;
-		this.hasValue = true;
-		this.sync();
+		// Forms write the first value before the rows' own bindings (e.g. `[value]`) ran.
+		queueMicrotask(() => this.rows().forEach(row => row.selected = row.selectionValue === value));
 	}
 
-	/**
-	 * The web component selects rows itself without an event; read the selection back.
-	 */
 	onUserSelect() {
 		if (!this.selection) {
 			return;
 		}
+		// The row selects itself after the event.
 		queueMicrotask(() => {
 			const row = this.rows().find(element => element.selected);
-			if (!row || (this.hasValue && this.valueOf(row) === this.value)) {
+			if (!row || row.selectionValue === this.value) {
 				return;
 			}
-			this.value = this.valueOf(row);
-			this.hasValue = true;
-			this.sync();
+			this.value = row.selectionValue;
 			this.selected.emit({ value: this.value, selected: true, name: this.name });
 			this.onChange(this.value);
 			this.onTouched();
@@ -102,25 +83,5 @@ export class StructuredList extends WebComponentValueAccessor {
 
 	protected rows(): any[] {
 		return Array.from(this.element.querySelectorAll("cds-structured-list-row"));
-	}
-
-	protected valueOf(row: any) {
-		const instance = wrapperOf(row, ListRow);
-		return instance ? instance.value : row.selectionValue;
-	}
-
-	protected sync() {
-		for (const row of this.rows()) {
-			row.selectionName = this.selection ? this.name : "";
-			if (this.hasValue) {
-				const selected = this.valueOf(row) === this.value;
-				const instance = wrapperOf(row, ListRow);
-				if (instance && instance.selected !== selected) {
-					instance.selected = selected;
-					instance.selectedChange.emit(selected);
-				}
-				row.selected = selected;
-			}
-		}
 	}
 }

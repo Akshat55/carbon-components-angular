@@ -1,4 +1,5 @@
 import {
+	booleanAttribute,
 	ChangeDetectionStrategy,
 	Component,
 	CUSTOM_ELEMENTS_SCHEMA,
@@ -61,7 +62,7 @@ export class TreeViewComponent implements OnInit, OnDestroy {
 	 * Tree label. A `TemplateRef` is not supported by the web component and renders nothing.
 	 */
 	@Input() label: string | TemplateRef<any>;
-	@Input() hideLabel = false;
+	@Input({ transform: booleanAttribute }) hideLabel = false;
 	@Input() labelContext: any;
 	@Input() size: "xs" | "sm" = "sm";
 	@Input() set isMultiSelect(isMulti: boolean) {

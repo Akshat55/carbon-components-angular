@@ -1,137 +1,117 @@
-import { Component, CUSTOM_ELEMENTS_SCHEMA, DebugElement, ViewChild } from "@angular/core";
-import { ComponentFixture, fakeAsync, TestBed } from "@angular/core/testing";
+import { Component } from "@angular/core";
+import { TestBed } from "@angular/core/testing";
 import { By } from "@angular/platform-browser";
-import { CommonModule } from "@angular/common";
 
-import { I18nModule } from "../i18n";
-import { UtilsModule } from "../utils";
-import { Tab } from "./tab.component";
-import { TabsVertical } from "./tabs-vertical.component";
-import { TabsVerticalGrouped } from "./tabs-vertical-grouped.component";
-import { TabHeadersVertical } from "./tab-headers-vertical.component";
-import { TabSkeleton } from "./tab-skeleton.component";
+import { settle } from "../test-helpers/web-components";
 import { TabsModule } from "./tabs.module";
-import { advancedFakeAsync } from "../test-helpers/change-detection";
+import { TabsVertical } from "./tabs-vertical.component";
+import { TabSkeleton } from "./tab-skeleton.component";
 
 @Component({
 	template: `
-		<cds-tabs-vertical [followFocus]="followFocus" [cacheActive]="cacheActive">
-			<cds-tab heading="one">Vertical content 1</cds-tab>
-			<cds-tab heading="two">Vertical content 2</cds-tab>
-			<cds-tab heading="three">Vertical content 3</cds-tab>
+		<cds-tabs-vertical height="300px">
+			<cds-tabs slot="tabs">
+				<cds-tab target="v-one">One</cds-tab>
+				<cds-tab target="v-two">Two</cds-tab>
+				<cds-tab target="v-three">Three</cds-tab>
+			</cds-tabs>
+			<div slot="panel" id="v-one" role="tabpanel">One</div>
+			<div slot="panel" id="v-two" role="tabpanel" hidden>Two</div>
+			<div slot="panel" id="v-three" role="tabpanel" hidden>Three</div>
 		</cds-tabs-vertical>
 	`,
-	imports: [UtilsModule, I18nModule, TabsModule]
+	imports: [TabsModule]
 })
-class TabsVerticalTest {
-	@ViewChild(TabsVertical) tabs: TabsVertical;
-	followFocus = true;
-	cacheActive = false;
-}
+class TabsVerticalTest {}
 
 describe("TabsVertical", () => {
-	let fixture: ComponentFixture<TabsVerticalTest>;
+	let fixture, element;
+	const tabs = (): any[] => Array.from(element.querySelectorAll("cds-tab"));
+	const panels = (): HTMLElement[] => Array.from(element.querySelectorAll("[role='tabpanel']"));
 
-	function build(): DebugElement[] {
+	beforeEach(async () => {
+		TestBed.configureTestingModule({ imports: [TabsVerticalTest] });
 		fixture = TestBed.createComponent(TabsVerticalTest);
-		fixture.detectChanges();
-		return fixture.debugElement.queryAll(By.directive(Tab));
-	}
-
-	beforeEach(() => {
-		TestBed.configureTestingModule({
-			imports: [TabsVerticalTest],
-			schemas: [CUSTOM_ELEMENTS_SCHEMA]
-		});
+		await settle(fixture);
+		element = fixture.nativeElement.querySelector("cds-tabs-vertical");
 	});
 
 	it("should work", () => {
-		build();
-		expect(fixture.componentInstance.tabs instanceof TabsVertical).toBe(true);
+		expect(fixture.debugElement.query(By.directive(TabsVertical)).componentInstance instanceof TabsVertical).toBe(true);
+		expect(element instanceof customElements.get("cds-tabs-vertical")).toBe(true);
 	});
 
-	it("should render a vertical header row", () => {
-		build();
-		expect(fixture.debugElement.query(By.directive(TabHeadersVertical))).toBeTruthy();
-		expect(fixture.nativeElement.querySelectorAll(".cds--tabs__nav-item").length).toBe(3);
+	it("should render vertical tabs", () => {
+		expect(element.querySelector("cds-tabs").vertical).toBe(true);
+		tabs().forEach(tab => expect(tab.vertical).toBe(true));
 	});
 
-	it("should activate the first tab on init", fakeAsync(() => {
-		const tabElements = build();
-		expect(tabElements[0].componentInstance.active).toBe(false);
+	it("should pass `height` on as the web component's custom height", () => {
+		expect(element.customHeight).toBe("300px");
+	});
 
-		advancedFakeAsync(fixture);
+	it("should activate the first tab on init", () => {
+		expect(tabs()[0].selected).toBe(true);
+	});
 
-		expect(tabElements[0].componentInstance.active).toBe(true);
-		expect(tabElements[0].nativeElement.getAttribute("hidden")).toBeNull();
-		expect(tabElements[0].nativeElement.textContent.trim()).toBe("Vertical content 1");
-	}));
+	it("should keep the other panels hidden", () => {
+		expect(panels().map(panel => panel.hidden)).toEqual([false, true, true]);
+	});
 
-	it("should keep the other tabs hidden", fakeAsync(() => {
-		const tabElements = build();
-		advancedFakeAsync(fixture);
-
-		expect(tabElements[1].nativeElement.getAttribute("hidden")).toBe("");
-		expect(tabElements[2].nativeElement.getAttribute("hidden")).toBe("");
-	}));
-
-	it("should move the active state between tabs when a header is clicked", fakeAsync(() => {
-		const tabElements = build();
-		advancedFakeAsync(fixture);
-
-		fixture.nativeElement.querySelectorAll(".cds--tabs__nav-item")[2].click();
-		advancedFakeAsync(fixture);
-
-		expect(tabElements[0].componentInstance.active).toBe(false);
-		expect(tabElements[2].componentInstance.active).toBe(true);
-		expect(tabElements[2].nativeElement.getAttribute("hidden")).toBeNull();
-	}));
-
+	it("should move the active state between tabs when a tab is clicked", async () => {
+		tabs()[1].click();
+		await settle(fixture);
+		expect(tabs()[1].selected).toBe(true);
+		expect(tabs()[0].selected).toBe(false);
+		expect(panels().map(panel => panel.hidden)).toEqual([true, false, true]);
+	});
 });
 
 @Component({
 	template: `
-		<cds-tabs-vertical-grouped>
-			<cds-tabs-vertical [skeleton]="skeleton">
-				<cds-tab heading="one">content</cds-tab>
-			</cds-tabs-vertical>
-		</cds-tabs-vertical-grouped>
+		@if (skeleton) {
+			<cds-tabs-skeleton [numOfTabs]="4" [contained]="true" />
+		} @else {
+			<cds-tabs>
+				<cds-tab>One</cds-tab>
+			</cds-tabs>
+		}
 	`,
-	imports: [UtilsModule, I18nModule, TabsModule]
+	imports: [TabsModule]
 })
-class TabsVerticalGroupedTest {
-	@ViewChild(TabsVerticalGrouped) grouped: TabsVerticalGrouped;
-	skeleton = false;
+class TabSkeletonTest {
+	skeleton = true;
 }
 
-describe("TabsVerticalGrouped", () => {
-	let fixture: ComponentFixture<TabsVerticalGroupedTest>;
+describe("TabSkeleton", () => {
+	let fixture;
 
-	beforeEach(() => {
-		TestBed.configureTestingModule({
-			imports: [TabsVerticalGroupedTest],
-			schemas: [CUSTOM_ELEMENTS_SCHEMA]
-		});
-
-		fixture = TestBed.createComponent(TabsVerticalGroupedTest);
-		fixture.detectChanges();
+	beforeEach(async () => {
+		TestBed.configureTestingModule({ imports: [TabSkeletonTest] });
+		fixture = TestBed.createComponent(TabSkeletonTest);
+		await settle(fixture);
 	});
 
 	it("should work", () => {
-		expect(fixture.componentInstance.grouped instanceof TabsVerticalGrouped).toBe(true);
+		const skeleton = fixture.debugElement.query(By.directive(TabSkeleton));
+		expect(skeleton.componentInstance instanceof TabSkeleton).toBe(true);
+		expect(skeleton.nativeElement instanceof customElements.get("cds-tabs-skeleton")).toBe(true);
 	});
 
-	it("should project its content", () => {
-		expect(fixture.debugElement.query(By.directive(TabsVertical))).toBeTruthy();
+	it("should render `numOfTabs` tab skeletons", () => {
+		const tabs = fixture.nativeElement.querySelectorAll("cds-tab-skeleton");
+		expect(tabs.length).toBe(4);
+		expect(tabs[0] instanceof customElements.get("cds-tab-skeleton")).toBe(true);
 	});
 
-	it("should swap between the skeleton and the real headers", () => {
-		expect(fixture.debugElement.query(By.directive(TabSkeleton))).toBeFalsy();
+	it("should pass `contained` on", () => {
+		expect(fixture.nativeElement.querySelector("cds-tabs-skeleton").contained).toBe(true);
+	});
 
-		fixture.componentInstance.skeleton = true;
-		fixture.detectChanges();
-
-		expect(fixture.debugElement.query(By.directive(TabSkeleton))).toBeTruthy();
-		expect(fixture.nativeElement.querySelectorAll(".cds--tabs__nav-item").length).toBeGreaterThan(0);
+	it("should swap between the skeleton and the real tabs", async () => {
+		fixture.componentInstance.skeleton = false;
+		await settle(fixture);
+		expect(fixture.nativeElement.querySelector("cds-tabs-skeleton")).toBeNull();
+		expect(fixture.nativeElement.querySelector("cds-tab")).not.toBeNull();
 	});
 });

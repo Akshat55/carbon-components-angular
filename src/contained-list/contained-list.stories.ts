@@ -5,7 +5,7 @@ import { IconModule } from "../icon";
 import { LayerModule } from "../layer";
 import { LayoutModule } from "../layout";
 import { TagModule } from "../tag";
-import { DialogModule } from "../dialog";
+import { OverflowMenuModule } from "../overflow-menu";
 import { TooltipModule } from "../tooltip";
 import { SearchModule } from "../search";
 import { ContainedListKind, ContainedListSize } from "./contained-list.enums";
@@ -25,7 +25,7 @@ export default {
 				ContainedListStoryModule,
 				IconModule,
 				LayerModule,
-				DialogModule,
+				OverflowMenuModule,
 				LayoutModule,
 				SearchModule,
 				TagModule,
@@ -85,23 +85,17 @@ const usageExamplesTemplate = () => ({
 				kind="primary"
 				align="left"
 				description="Add">
-				<svg class="cds--btn__icon" ibmIcon="add" size="16"></svg>
+				<svg cdsIcon="add" size="16"></svg>
 			</cds-icon-button>
 		</ng-template>
 		<ng-template #overflowMenu let-item>
-			<cds-tooltip class="cds--icon-tooltip" description="Options" align="left">
-				<cds-overflow-menu
-					[flip]="true"
-					[customTrigger]="customTrigger"
-					triggerClass="cds--toolbar-action"
-					[offset]="{ x: 0, y: 0 }">
-					<cds-overflow-menu-body [flipped]="true">
-						<cds-overflow-menu-item>View details</cds-overflow-menu-item>
-						<cds-overflow-menu-item>Edit</cds-overflow-menu-item>
-						<cds-overflow-menu-item [divider]="true" type="danger">Remove</cds-overflow-menu-item>
-					</cds-overflow-menu-body>
-				</cds-overflow-menu>
-			</cds-tooltip>
+			<cds-overflow-menu description="Options" [flip]="true">
+				<cds-overflow-menu-body [flipped]="true">
+					<cds-overflow-menu-item>View details</cds-overflow-menu-item>
+					<cds-overflow-menu-item>Edit</cds-overflow-menu-item>
+					<cds-overflow-menu-item [divider]="true" type="danger">Remove</cds-overflow-menu-item>
+				</cds-overflow-menu-body>
+			</cds-overflow-menu>
 		</ng-template>
 		<cds-contained-list label="List title" [action]="add">
 			<cds-contained-list-item [action]="overflowMenu">List item</cds-contained-list-item>
@@ -115,30 +109,21 @@ const usageExamplesTemplate = () => ({
 				kind="ghost"
 				align="left"
 				description="Add">
-				<svg class="cds--btn__icon" ibmIcon="add" size="16"></svg>
+				<svg cdsIcon="add" size="16"></svg>
 			</cds-icon-button>
 		</ng-template>
 		<cds-contained-list label="List title" [action]="addGhost">
 			<cds-contained-list-item>
 				List item
-				<br />
-				<span class="cds--label cds--label--no-margin">
-					Description text
-				</span>
+				<cds-contained-list-description>Description text</cds-contained-list-description>
 			</cds-contained-list-item>
 			<cds-contained-list-item>
 				List item
-				<br />
-				<span class="cds--label cds--label--no-margin">
-					Description text
-				</span>
+				<cds-contained-list-description>Description text</cds-contained-list-description>
 			</cds-contained-list-item>
 			<cds-contained-list-item>
 				List item
-				<br />
-				<span class="cds--label cds--label--no-margin">
-					Description text
-				</span>
+				<cds-contained-list-description>Description text</cds-contained-list-description>
 			</cds-contained-list-item>
 		</cds-contained-list>
 
@@ -190,12 +175,9 @@ export const disclosed = disclosedTemplate.bind({});
 const withActionsTemplate = () => ({
 	template: `
 		<ng-template #action let-item>
-			<button
-				ibmButton="ghost"
-				aria-label="Action"
-				iconOnly="true">
-				<svg ibmIcon="subtract--alt" size="16" class="cds--btn__icon"></svg>
-			</button>
+			<cds-icon-button kind="ghost" description="Action">
+				<svg cdsIcon="subtract--alt" size="16"></svg>
+			</cds-icon-button>
 		</ng-template>
 
 		<cds-contained-list label="List title" [size]="size">
@@ -236,13 +218,9 @@ export const withActionsAndContextData = (args) => {
 		props: args,
 		template: `
 			<ng-template #actionWithClick let-actionData>
-				<button
-					ibmButton="ghost"
-					aria-label="Action"
-					iconOnly="true"
-					(click)="onActionClick(actionData)">
-					<svg ibmIcon="add" size="16" class="cds--btn__icon"></svg>
-				</button>
+				<cds-icon-button kind="ghost" description="Action" (click)="onActionClick(actionData)">
+				<svg cdsIcon="add" size="16"></svg>
+			</cds-icon-button>
 			</ng-template>
 			<cds-contained-list label="List title" [size]="size">
 				@for (item of items; track item.id) {
@@ -260,11 +238,11 @@ export const withActionsAndContextData = (args) => {
 const withIconsTemplate = () => ({
 	template: `
 		<ng-template #apple let-icon>
-			<svg ibmIcon="apple" size="16"></svg>
+			<svg cdsIcon="apple" size="16"></svg>
 		</ng-template>
 
 		<ng-template #wheat let-icon>
-			<svg ibmIcon="wheat" size="16"></svg>
+			<svg cdsIcon="wheat" size="16"></svg>
 		</ng-template>
 
 		<cds-contained-list label="List title">
@@ -281,16 +259,16 @@ const withInteractiveItemsTemplate = () => ({
 	template: `
 		<cds-contained-list label="List title">
 			<cds-contained-list-item [clickable]="true">
-				<ng-container ibmContainedListItemButton>List item</ng-container>
+				List item
 			</cds-contained-list-item>
 			<cds-contained-list-item [clickable]="true" [disabled]="true">
-				<ng-container ibmContainedListItemButton>List item</ng-container>
+				List item
 			</cds-contained-list-item>
 			<cds-contained-list-item [clickable]="true">
-				<ng-container ibmContainedListItemButton>List item</ng-container>
+				List item
 			</cds-contained-list-item>
 			<cds-contained-list-item [clickable]="true">
-				<ng-container ibmContainedListItemButton>List item</ng-container>
+				List item
 			</cds-contained-list-item>
 		</cds-contained-list>
 	`
@@ -300,28 +278,25 @@ export const withInteractiveItems = withInteractiveItemsTemplate.bind({});
 const withInteractiveItemsAndActionsTemplate = () => ({
 	template: `
 		<ng-template #action let-item>
-			<button
-				aria-label="Action"
-				ibmButton="ghost"
-				iconOnly="true">
-				<svg ibmIcon="subtract--alt" size="16" class="cds--btn__icon"></svg>
-			</button>
+			<cds-icon-button kind="ghost" description="Action">
+				<svg cdsIcon="subtract--alt" size="16"></svg>
+			</cds-icon-button>
 		</ng-template>
 		<ng-template #search>
 			<cds-search [expandable]="true" size="lg"></cds-search>
 		</ng-template>
 		<cds-contained-list label="List title" [action]="search">
 			<cds-contained-list-item [clickable]="true" [action]="action">
-				<ng-container ibmContainedListItemButton>List item</ng-container>
+				List item
 			</cds-contained-list-item>
 			<cds-contained-list-item [clickable]="true" [action]="action">
-				<ng-container ibmContainedListItemButton>List item</ng-container>
+				List item
 			</cds-contained-list-item>
 			<cds-contained-list-item [clickable]="true" [action]="action">
-				<ng-container ibmContainedListItemButton>List item</ng-container>
+				List item
 			</cds-contained-list-item>
 			<cds-contained-list-item [clickable]="true" [action]="action">
-				<ng-container ibmContainedListItemButton>List item</ng-container>
+				List item
 			</cds-contained-list-item>
 		</cds-contained-list>
 	`
@@ -330,27 +305,27 @@ export const withInteractiveItemsAndActions = withInteractiveItemsAndActionsTemp
 
 const withLayerTemplate = () => ({
 	template: `
-		<div ibmStack="vertical" [gap]="5">
+		<div cdsStack="vertical" [gap]="5">
 			<cds-contained-list label="List title">
 				<cds-contained-list-item>List item</cds-contained-list-item>
 				<cds-contained-list-item>List item</cds-contained-list-item>
 				<cds-contained-list-item>List item</cds-contained-list-item>
 				<cds-contained-list-item>List item</cds-contained-list-item>
 			</cds-contained-list>
-			<div [ibmLayer]="1">
-				<div ibmStack="vertical" [gap]="5">
+			<cds-layer>
+				<div cdsStack="vertical" [gap]="5">
 					<cds-contained-list label="List title">
 						<cds-contained-list-item>List item</cds-contained-list-item>
 						<cds-contained-list-item>List item</cds-contained-list-item>
 					</cds-contained-list>
-					<div [ibmLayer]="2">
+					<cds-layer>
 						<cds-contained-list label="List title">
 							<cds-contained-list-item>List item</cds-contained-list-item>
 							<cds-contained-list-item>List item</cds-contained-list-item>
 						</cds-contained-list>
-					</div>
+					</cds-layer>
 				</div>
-			</div>
+			</cds-layer>
 		</div>
 	`
 });

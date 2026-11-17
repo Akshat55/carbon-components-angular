@@ -1,4 +1,5 @@
 import {
+	booleanAttribute,
 	ChangeDetectionStrategy,
 	Component,
 	CUSTOM_ELEMENTS_SCHEMA,
@@ -44,7 +45,7 @@ export class PaginationNav {
 	public i18n = inject(I18n);
 
 	@Input() model: PaginationModel;
-	@Input() disabled = false;
+	@Input({ transform: booleanAttribute }) disabled = false;
 	/**
 	 * Number of page buttons shown.
 	 */
@@ -52,7 +53,7 @@ export class PaginationNav {
 	/**
 	 * Wraps from the last page to the first.
 	 */
-	@Input() loop = false;
+	@Input({ transform: booleanAttribute }) loop = false;
 	@Input() size: "sm" | "md" | "lg" = "lg";
 	/**
 	 * Labels for the previous / next buttons. Defaults to the `PAGINATION` i18n values.

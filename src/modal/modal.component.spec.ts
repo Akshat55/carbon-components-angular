@@ -8,6 +8,7 @@ import { BaseModalService } from "./base-modal.service";
 import { ModalModule } from "./modal.module";
 import { ModalHeader } from "./modal-header.component";
 import { ModalFooter } from "./modal-footer.component";
+import { AlertModal } from "./alert-modal.component";
 
 @Component({
 	template: `
@@ -171,5 +172,59 @@ describe("ModalHeader and ModalFooter", () => {
 		await settle(fixture);
 
 		expect(fixture.nativeElement.textContent).toContain("Updated heading");
+	});
+});
+
+describe("AlertModal", () => {
+	let fixture: ComponentFixture<AlertModal>;
+	let clicked: boolean;
+	const query = (selector: string): any => fixture.nativeElement.querySelector(selector);
+
+	beforeEach(async () => {
+		clicked = false;
+		TestBed.configureTestingModule({
+			imports: [AlertModal],
+			providers: [
+				{ provide: "label", useValue: "Label" },
+				{ provide: "title", useValue: "Title" },
+				{ provide: "content", useValue: "Some <b>content</b>" },
+				{ provide: "type", useValue: "danger" },
+				{
+					provide: "buttons",
+					useValue: [
+						{ text: "Cancel", type: "secondary" },
+						{ text: "Delete", type: "danger--primary", click: () => clicked = true }
+					]
+				}
+			]
+		});
+		fixture = TestBed.createComponent(AlertModal);
+		await settle(fixture);
+	});
+
+	it("should render the web component modal parts", () => {
+		expect(query("cds-modal-label").textContent).toContain("Label");
+		expect(query("cds-modal-heading").textContent).toContain("Title");
+		expect(query("cds-modal-body cds-modal-body-content b").textContent).toBe("content");
+		expect(query("cds-modal-body") instanceof customElements.get("cds-modal-body")).toBe(true);
+	});
+
+	it("should render the buttons as footer buttons", () => {
+		const buttons = fixture.nativeElement.querySelectorAll("cds-modal-footer-button");
+		expect(buttons.length).toBe(2);
+		expect(buttons[0].kind).toBe("secondary");
+		expect(buttons[1].kind).toBe("danger");
+		expect(buttons[1].hasAttribute("data-modal-primary-focus")).toBe(true);
+		expect(buttons[0].hasAttribute("data-modal-primary-focus")).toBe(false);
+	});
+
+	it("should call the button's click handler", async () => {
+		fixture.nativeElement.querySelectorAll("cds-modal-footer-button")[1].click();
+		await settle(fixture);
+		expect(clicked).toBe(true);
+	});
+
+	it("should be a danger modal", () => {
+		expect(query("cds-modal").alert).toBe(true);
 	});
 });

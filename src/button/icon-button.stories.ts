@@ -85,7 +85,7 @@ const Template = (args) => ({
 			(mouseleave)="onMouseLeave($event)"
 			(focus)="onFocus($event)"
 			(blur)="onBlur($event)">
-			<svg class="cds--btn__icon" cdsIcon="copy" size="16"></svg>
+			<svg cdsIcon="copy" size="16"></svg>
 		</cds-icon-button>
 	`
 });
@@ -122,7 +122,7 @@ const AutoAlignTemplate = (args) => ({
 					(mouseleave)="onMouseLeave($event)"
 					(focus)="onFocus($event)"
 					(blur)="onBlur($event)">
-					<svg class="cds--btn__icon" cdsIcon="copy" size="16"></svg>
+					<svg cdsIcon="copy" size="16"></svg>
 				</cds-icon-button>
 			</div>
 		</div>

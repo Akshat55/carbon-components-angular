@@ -1,4 +1,5 @@
 import {
+	booleanAttribute,
 	AfterViewInit,
 	ChangeDetectionStrategy,
 	Component,
@@ -57,12 +58,12 @@ export class Modal implements AfterViewInit, OnChanges {
 	@Input() size: "xs" | "sm" | "md" | "lg" = "md";
 	@Input() theme: "default" | "danger" = "default";
 	@Input() ariaLabel = "default";
-	@Input() isFullWidth = false;
-	@Input() open = false;
+	@Input({ transform: booleanAttribute }) isFullWidth = false;
+	@Input({ transform: booleanAttribute }) open = false;
 	/**
-	 * Element to focus when the modal closes.
+	 * Element to focus when the modal closes: an element, or a component with `focus()` such as a `cds-button`.
 	 */
-	@Input() trigger: HTMLElement;
+	@Input() trigger: HTMLElement | { focus(): void };
 	@Input() hasScrollingContent: boolean = null;
 	/**
 	 * Selector of the element to focus when the modal opens.

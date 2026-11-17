@@ -1,15 +1,15 @@
 import { Component, Input } from "@angular/core";
 import { JsonPipe } from "@angular/common";
 
-import { Button } from "carbon-components-angular/button";
+import { CdsButton, IconButton } from "carbon-components-angular/button";
 import { IconDirective } from "carbon-components-angular/icon";
-import { Link } from "carbon-components-angular/link";
+import { CdsLink } from "carbon-components-angular/link";
 import { FileItem } from "../";
 import { FileUploader } from "../file-uploader.component";
 
 @Component({
 	selector: "app-file-uploader-with-custom-file",
-	imports: [FileUploader, Button, Link, IconDirective, JsonPipe],
+	imports: [CdsLink, IconButton, CdsButton, FileUploader, IconDirective, JsonPipe],
 	template: `
 		@if (lastViewedFile) {
 			<p>Last viewed file: {{ lastViewedFile | json }}</p>
@@ -33,35 +33,24 @@ import { FileUploader } from "../file-uploader.component";
 			[fileActionsTpl]="actionsTpl">
 		</cds-file-uploader>
 		@if (files && files.size > 0) {
-			<button
-				cdsButton
+			<cds-button
 				(click)="onUpload()"
 				style="margin-top:20px">
 				Upload
-			</button>
+			</cds-button>
 		}
 
 		<ng-template #nameTpl let-fileItem>
-			<a href="#" cdsLink>{{ fileItem.file.name }}</a>
+			<cds-link href="#">{{ fileItem.file.name }}</cds-link>
 		</ng-template>
 
 		<ng-template #actionsTpl let-fileItem>
-			<button
-				ibmButton="ghost"
-				iconOnly="true"
-				aria-label="View"
-				[size]="fileItemSize"
-				(click)="onViewClick(fileItem)">
-				<svg ibmIcon="view" size="16"></svg>
-			</button>
-			<button
-				ibmButton="ghost"
-				iconOnly="true"
-				aria-label="Download"
-				[size]="fileItemSize"
-				(click)="onDownloadClick(fileItem)">
-				<svg ibmIcon="download" size="16"></svg>
-			</button>
+			<cds-icon-button kind="ghost" description="View" [size]="fileItemSize" (click)="onViewClick(fileItem)">
+				<svg cdsIcon="view" size="16"></svg>
+			</cds-icon-button>
+			<cds-icon-button kind="ghost" description="Download" [size]="fileItemSize" (click)="onDownloadClick(fileItem)">
+				<svg cdsIcon="download" size="16"></svg>
+			</cds-icon-button>
 		</ng-template>
 	`
 })

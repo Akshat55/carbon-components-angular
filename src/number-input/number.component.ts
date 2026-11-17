@@ -1,4 +1,5 @@
 import {
+	booleanAttribute,
 	ChangeDetectionStrategy,
 	Component,
 	CUSTOM_ELEMENTS_SCHEMA,
@@ -70,8 +71,8 @@ export class NumberComponent extends WebComponentValueAccessor<number> {
 	@Input() id = `number-${NumberComponent.numberCount++}`;
 	@Input() placeholder = "";
 	@Input() size: "sm" | "md" | "lg" = "md";
-	@Input() required: boolean;
-	@Input() readonly = false;
+	@Input({ transform: booleanAttribute }) required: boolean;
+	@Input({ transform: booleanAttribute }) readonly = false;
 	@Input() set value(v: any) {
 		this._value = v === "" || v === null || v === undefined ? null : Number(v);
 	}
@@ -88,16 +89,16 @@ export class NumberComponent extends WebComponentValueAccessor<number> {
 	@Input() label: string | TemplateRef<any>;
 	@Input() decorator: TemplateRef<any>;
 	@Input() helperText: string | TemplateRef<any>;
-	@Input() invalid = false;
+	@Input({ transform: booleanAttribute }) invalid = false;
 	@Input() invalidText: string | TemplateRef<any>;
-	@Input() warn = false;
+	@Input({ transform: booleanAttribute }) warn = false;
 	@Input() warnText: string | TemplateRef<any>;
 	@Input() ariaLabel: string;
-	@Input() hideLabel = false;
-	@Input() hideSteppers = false;
+	@Input({ transform: booleanAttribute }) hideLabel = false;
+	@Input({ transform: booleanAttribute }) hideSteppers = false;
 	@Input() inputMode: any = "decimal";
 	@Input() pattern: string;
-	@Input() fluid = false;
+	@Input({ transform: booleanAttribute }) fluid = false;
 	/**
 	 * @deprecated the web component follows the surrounding theme / layer.
 	 */
@@ -105,7 +106,7 @@ export class NumberComponent extends WebComponentValueAccessor<number> {
 	/**
 	 * @deprecated use `<cds-number-input-skeleton>` instead.
 	 */
-	@Input() skeleton = false;
+	@Input({ transform: booleanAttribute }) skeleton = false;
 
 	@Input() set decrementLabel(value: string | Observable<string>) {
 		this._decrementLabel.override(value);

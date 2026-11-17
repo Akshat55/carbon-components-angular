@@ -1,11 +1,14 @@
 import {
+	booleanAttribute,
 	AfterViewInit,
 	ChangeDetectionStrategy,
 	Component,
 	CUSTOM_ELEMENTS_SCHEMA,
 	EventEmitter,
 	Input,
+	OnChanges,
 	Output,
+	SimpleChanges,
 	TemplateRef,
 	inject
 } from "@angular/core";
@@ -13,7 +16,13 @@ import flatpickr from "flatpickr";
 import * as languages from "flatpickr/dist/l10n/index";
 import { Options } from "flatpickr/dist/types/options";
 import "@carbon/web-components/es/components/date-picker/index.js";
-import { provideValueAccessor, TemplateContent, TemplateSlot, WebComponentValueAccessor } from "carbon-components-angular/utils";
+import {
+	observeChildren,
+	provideValueAccessor,
+	TemplateContent,
+	TemplateSlot,
+	WebComponentValueAccessor
+} from "carbon-components-angular/utils";
 
 const toISODate = (date: Date) =>
 	`${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}-${String(date.getDate()).padStart(2, "0")}`;
@@ -27,23 +36,33 @@ const toISODate = (date: Date) =>
  * <cds-date-picker label="Start" rangeLabel="End" [range]="true" [(ngModel)]="range" />
  * ```
  *
+ * The inputs can also be written as `cds-date-picker-input` children, as with the web component;
+ * the inputs rendered from `label`, `range` etc. are then left out.
+ *
+ * ```html
+ * <cds-date-picker [(ngModel)]="dates">
+ * 	<cds-date-picker-input kind="single" labelText="Date" />
+ * </cds-date-picker>
+ * ```
+ *
  * [See demo](../../?path=/story/components-date-picker--single)
  */
 @Component({
 	selector: "cds-date-picker",
 	template: `
+		<ng-content />
+		@if (!hasOwnInputs) {
 		<cds-date-picker-input
+			data-cds-generated
 			[kind]="range ? 'from' : 'single'"
 			[id]="id"
 			[labelText]="isTemplate(label) ? '' : label"
 			[placeholder]="placeholder"
 			[pattern]="inputPattern"
-			[size]="size"
-			[disabled]="disabled"
-			[attr.readonly]="readonly ? '' : null"
-			[invalid]="invalid"
+			[size]="size || 'md'"
+			[invalid]="!!invalid"
 			[invalidText]="content.render('invalidText', invalidText)"
-			[warn]="warn"
+			[warn]="!!warn"
 			[warnText]="content.render('warnText', warnText)">
 			@if (isTemplate(helperText)) {
 				<ng-container cdsSlot="helper-text" [cdsSlotTemplate]="helperText" />
@@ -55,17 +74,16 @@ const toISODate = (date: Date) =>
 		</cds-date-picker-input>
 		@if (range) {
 			<cds-date-picker-input
+				data-cds-generated
 				kind="to"
 				[id]="id + '-rangeInput'"
 				[labelText]="rangeLabel"
 				[placeholder]="placeholder"
 				[pattern]="inputPattern"
-				[size]="size"
-				[disabled]="disabled"
-				[attr.readonly]="readonly ? '' : null"
-				[invalid]="rangeInvalid"
+				[size]="size || 'md'"
+				[invalid]="!!rangeInvalid"
 				[invalidText]="content.render('rangeInvalidText', rangeInvalidText)"
-				[warn]="rangeWarn"
+				[warn]="!!rangeWarn"
 				[warnText]="content.render('rangeWarnText', rangeWarnText)">
 				@if (isTemplate(rangeHelperText)) {
 					<ng-container cdsSlot="helper-text" [cdsSlotTemplate]="rangeHelperText" />
@@ -75,16 +93,16 @@ const toISODate = (date: Date) =>
 				<ng-container cdsSlot="ai-label" [cdsSlotTemplate]="rangeDecorator" />
 			</cds-date-picker-input>
 		}
+		}
 	`,
 	host: {
 		"[value]": "isoValue",
-		"[dateFormat]": "dateFormat",
+		"[dateFormat]": "dateFormat ?? element.dateFormat",
 		"[locale]": "locale",
 		"[minDate]": "flatpickrOptions?.minDate ?? ''",
 		"[maxDate]": "flatpickrOptions?.maxDate ?? ''",
-		"[disabled]": "disabled",
-		"[allowInput]": "!readonly",
-		"[attr.readonly]": "readonly ? '' : null",
+		"[disabled]": "disabled ?? element.disabled",
+		"[allowInput]": "readonly === undefined ? element.allowInput : !readonly",
 		"[attr.aria-label]": "ariaLabel",
 		"(cds-date-picker-changed)": "onDatesChanged($event)"
 	},
@@ -93,17 +111,20 @@ const toISODate = (date: Date) =>
 	imports: [TemplateSlot],
 	schemas: [CUSTOM_ELEMENTS_SCHEMA]
 })
-export class DatePicker extends WebComponentValueAccessor<Date[] | Date> implements AfterViewInit {
+export class DatePicker extends WebComponentValueAccessor<Date[] | Date> implements AfterViewInit, OnChanges {
 	static datePickerCount = 0;
 
 	/**
 	 * Select a range of dates (two inputs).
 	 */
-	@Input() range = false;
+	@Input({ transform: booleanAttribute }) range = false;
 	/**
 	 * flatpickr date format, e.g. `m/d/Y`.
 	 */
-	@Input() dateFormat = "m/d/Y";
+	/**
+	 * The web component's default is `"m/d/Y"`.
+	 */
+	@Input() dateFormat?: string;
 	/**
 	 * flatpickr locale key, e.g. `en`, `fr`.
 	 */
@@ -127,15 +148,18 @@ export class DatePicker extends WebComponentValueAccessor<Date[] | Date> impleme
 	get value(): any {
 		return this._value;
 	}
-	@Input() readonly = false;
-	@Input() invalid = false;
+	/**
+	 * The web component passes it on to its inputs.
+	 */
+	@Input({ transform: booleanAttribute }) readonly?: boolean;
+	@Input({ transform: booleanAttribute }) invalid = false;
 	@Input() invalidText: string | TemplateRef<any>;
-	@Input() warn = false;
+	@Input({ transform: booleanAttribute }) warn = false;
 	@Input() warnText: string | TemplateRef<any>;
 	@Input() size: "sm" | "md" | "lg" = "md";
-	@Input() rangeInvalid = false;
+	@Input({ transform: booleanAttribute }) rangeInvalid = false;
 	@Input() rangeInvalidText: string | TemplateRef<any>;
-	@Input() rangeWarn = false;
+	@Input({ transform: booleanAttribute }) rangeWarn = false;
 	@Input() rangeWarnText: string | TemplateRef<any>;
 	/**
 	 * Only `minDate` and `maxDate` are passed to the web component.
@@ -152,12 +176,17 @@ export class DatePicker extends WebComponentValueAccessor<Date[] | Date> impleme
 	/**
 	 * @deprecated use `<cds-date-picker-input-skeleton>` instead.
 	 */
-	@Input() skeleton = false;
+	@Input({ transform: booleanAttribute }) skeleton = false;
 
 	@Output() valueChange: EventEmitter<any> = new EventEmitter();
 	// eslint-disable-next-line @angular-eslint/no-output-on-prefix -- existing output name
 	@Output() onClose: EventEmitter<any> = new EventEmitter();
 
+	/**
+	 * Whether the consumer wrote its own `cds-date-picker-input`s. The rendered inputs are only
+	 * removed once that's known: the web component needs its inputs from the first render.
+	 */
+	protected hasOwnInputs = false;
 	protected content = new TemplateContent();
 	protected _value: (Date | string)[] = [];
 
@@ -171,10 +200,29 @@ export class DatePicker extends WebComponentValueAccessor<Date[] | Date> impleme
 	 */
 	get isoValue() {
 		return this._value
-			.map(date => date instanceof Date ? date : flatpickr.parseDate(date, this.dateFormat))
+			.map(date => date instanceof Date ? date : flatpickr.parseDate(date, this.dateFormat ?? this.element.dateFormat ?? "m/d/Y"))
 			.filter(Boolean)
 			.map(toISODate)
 			.join("/");
+	}
+
+	constructor() {
+		super();
+		observeChildren(this.element, () => {
+			const hasOwnInputs = Array.from<Element>(this.element.children)
+				.some(child => child.localName === "cds-date-picker-input" && !child.hasAttribute("data-cds-generated"));
+			if (hasOwnInputs !== this.hasOwnInputs) {
+				this.hasOwnInputs = hasOwnInputs;
+				this.changeDetectorRef.markForCheck();
+			}
+		});
+	}
+
+	ngOnChanges(changes: SimpleChanges) {
+		// Angular would bind `[readonly]` to the `readOnly` DOM property; the web component's is `readonly`.
+		if (changes["readonly"] && this.readonly !== undefined) {
+			this.element.readonly = this.readonly;
+		}
 	}
 
 	async ngAfterViewInit() {

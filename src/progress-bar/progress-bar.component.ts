@@ -1,4 +1,5 @@
 import {
+	booleanAttribute,
 	ChangeDetectionStrategy,
 	Component,
 	CUSTOM_ELEMENTS_SCHEMA,
@@ -44,7 +45,7 @@ export class ProgressBar {
 	@Input() type: "default" | "inline" | "indented" = "default";
 	@Input() status: "active" | "finished" | "error" = "active";
 	@Input() size: "small" | "big" = "big";
-	@Input() hideLabel = false;
+	@Input({ transform: booleanAttribute }) hideLabel = false;
 
 	protected content = new TemplateContent();
 }

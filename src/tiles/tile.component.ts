@@ -1,4 +1,5 @@
 import {
+	booleanAttribute,
 	ChangeDetectionStrategy,
 	Component,
 	CUSTOM_ELEMENTS_SCHEMA,
@@ -32,6 +33,6 @@ export class Tile {
 	 * Optional `TemplateRef` (e.g. AI label) rendered in the decorator slot.
 	 */
 	@Input() decorator: TemplateRef<any>;
-	@Input() hasRoundedCorners = false;
+	@Input({ transform: booleanAttribute }) hasRoundedCorners = false;
 	@Input() theme: "light" | "dark" = "dark";
 }

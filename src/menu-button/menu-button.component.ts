@@ -1,10 +1,13 @@
 import {
+	booleanAttribute,
 	ChangeDetectionStrategy,
 	ChangeDetectorRef,
 	Component,
 	CUSTOM_ELEMENTS_SCHEMA,
 	ElementRef,
+	EventEmitter,
 	Input,
+	Output,
 	inject
 } from "@angular/core";
 import "@carbon/web-components/es/components/menu-button/index.js";
@@ -29,30 +32,46 @@ type MenuButtonPlacement = "top" | "top-start" | "top-end" | "bottom" | "bottom-
 	selector: "cds-menu-button",
 	template: "<ng-content />",
 	host: {
-		"[label]": "label",
-		"[kind]": "kind",
-		"[size]": "size",
-		"[menuAlignment]": "menuAlignment",
-		"[disabled]": "disabled",
-		"[tabIndex]": "buttonTabIndex",
-		"[_open]": "open"
+		"[label]": "label ?? element.label",
+		"[kind]": "kind ?? element.kind",
+		"[size]": "size ?? element.size",
+		"[menuAlignment]": "menuAlignment ?? element.menuAlignment",
+		"[disabled]": "disabled ?? element.disabled",
+		"[tabIndex]": "buttonTabIndex ?? element.tabIndex",
+		"[_open]": "open ?? element._open"
 	},
 	changeDetection: ChangeDetectionStrategy.OnPush,
 	schemas: [CUSTOM_ELEMENTS_SCHEMA]
 })
 export class MenuButtonComponent {
-	@Input() kind: "primary" | "tertiary" | "ghost" = "primary";
-	@Input() size: "xs" | "sm" | "md" | "lg" = "lg";
-	@Input() menuAlignment: MenuButtonPlacement = "bottom";
-	@Input() buttonTabIndex: "0" | "1" | "-1" | string = "0";
-	@Input() disabled = false;
+	/**
+	 * @deprecated the web component doesn't link its trigger to the menu by id.
+	 */
+	@Input() menuId?: string;
+	/**
+	 * The web component's default is `"primary"`.
+	 */
+	@Input() kind?: "primary" | "tertiary" | "ghost";
+	/**
+	 * The web component's default is `"lg"`.
+	 */
+	@Input() size?: "xs" | "sm" | "md" | "lg";
+	/**
+	 * The web component's default is `"bottom"`.
+	 */
+	@Input() menuAlignment?: MenuButtonPlacement;
+	@Input() buttonTabIndex?: "0" | "1" | "-1" | string;
+	@Input({ transform: booleanAttribute }) disabled?: boolean;
 	@Input() label: string;
 	/**
-	 * Whether the menu is open. Kept in sync when the user opens or closes it.
+	 * Whether the menu is open. Supports two-way binding with `openChange`.
 	 */
-	@Input() open = false;
+	@Input({ transform: booleanAttribute }) open?: boolean;
+
+	@Output() openChange = new EventEmitter<boolean>();
 
 	protected elementRef = inject(ElementRef);
+	protected element = this.elementRef.nativeElement;
 	protected changeDetectorRef = inject(ChangeDetectorRef);
 
 	constructor() {
@@ -66,8 +85,9 @@ export class MenuButtonComponent {
 		setTimeout(async () => {
 			const element = this.elementRef.nativeElement;
 			await element.updateComplete;
-			if (element._open !== this.open) {
+			if (element._open !== !!this.open) {
 				this.open = element._open;
+				this.openChange.emit(this.open);
 				this.changeDetectorRef.markForCheck();
 			}
 		});

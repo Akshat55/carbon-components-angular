@@ -210,12 +210,10 @@ const HeaderWithTemplate = (args) => ({
 				</cds-header-global>
 			</cds-header>
 		</div>
+		<!-- Rendered inside the header's cds-header-name, before its name -->
 		<ng-template #brandTemplate>
-			<a class="cds--header__name">
-				<svg cdsIcon="carbon" size="16"></svg>
-				<span class="cds--header__name--prefix">IBM</span>
-				[Platform]
-			</a>
+			<svg cdsIcon="carbon" size="16" style="margin-inline-end: 0.5rem"></svg>
+			IBM&nbsp;
 		</ng-template>
 	`
 });

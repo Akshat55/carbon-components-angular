@@ -4,6 +4,7 @@ import { By } from "@angular/platform-browser";
 
 import { settle, shadow } from "../test-helpers/web-components";
 import { Tooltip } from "./tooltip.component";
+import { TooltipDefinition } from "./definition-tooptip.component";
 
 @Component({
 	template: `
@@ -88,5 +89,40 @@ describe("Tooltip", () => {
 		component.autoAlign = true;
 		await settle(fixture);
 		expect(element.autoalign).toBe(true);
+	});
+});
+
+@Component({
+	template: `
+		<cds-tooltip description="Plain"><button>Trigger</button></cds-tooltip>
+		<cds-definition-tooltip description="Definition">Term</cds-definition-tooltip>
+	`,
+	imports: [Tooltip, TooltipDefinition]
+})
+class TestTooltipDefaultsComponent {}
+
+describe("Tooltip defaults", () => {
+	it("should keep the web components' own defaults when inputs are unset", async () => {
+		const fixture = TestBed.createComponent(TestTooltipDefaultsComponent);
+		await settle(fixture);
+		const tooltip = fixture.nativeElement.querySelector("cds-tooltip");
+		const definition = fixture.nativeElement.querySelector("cds-definition-tooltip");
+		expect(tooltip.align).toBe("top");
+		expect(tooltip.enterDelayMs).toBe(100);
+		expect(tooltip.leaveDelayMs).toBe(300);
+		expect(tooltip.highContrast).toBe(true);
+		expect(tooltip.open).toBe(false);
+		expect(definition.align).toBe("bottom");
+		expect(definition.openOnHover).toBe(false);
+	});
+
+	it("should not emit when the open state did not change", async () => {
+		const fixture = TestBed.createComponent(TestTooltipDefaultsComponent);
+		await settle(fixture);
+		const definition = fixture.debugElement.children[1].componentInstance as TooltipDefinition;
+		const emitted = jasmine.createSpy("isOpenChange");
+		definition.isOpenChange.subscribe(emitted);
+		await definition.syncOpen();
+		expect(emitted).not.toHaveBeenCalled();
 	});
 });

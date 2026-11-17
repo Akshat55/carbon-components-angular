@@ -1,13 +1,13 @@
 import { moduleMetadata, Meta } from "@storybook/angular";
 import { IconDirective } from "../icon";
-import { Button } from "./";
+import { CdsButton } from "./";
 
 export default {
 	title: "Components/Button",
 	decorators: [
 		moduleMetadata({
 			imports: [
-				Button,
+				CdsButton,
 				IconDirective
 			]
 		})
@@ -15,7 +15,7 @@ export default {
 	args: {
 		kind: "primary",
 		size: "md",
-		isExpressive: "false",
+		isExpressive: false,
 		disabled: false
 	},
 	argTypes: {
@@ -30,8 +30,7 @@ export default {
 				"danger--tertiary",
 				"danger--ghost"
 			],
-			control: { type: "select" },
-			name: "cdsButton"
+			control: { type: "select" }
 		},
 		size: {
 			options: ["sm", "md", "lg", "xl", "2xl"],
@@ -53,14 +52,14 @@ export default {
 	parameters: {
 		layout: "centered"
 	},
-	component: Button
+	component: CdsButton
 } as Meta;
 
 const Template = (args) => ({
 	props: args,
 	template: `
-		<button
-			[cdsButton]="kind"
+		<cds-button
+			[kind]="kind"
 			[size]="size"
 			[isExpressive]="isExpressive"
 			[disabled]="disabled"
@@ -70,7 +69,7 @@ const Template = (args) => ({
 			(focus)="onFocus($event)"
 			(blur)="onBlur($event)">
 			Button
-		</button>
+		</cds-button>
 	`
 });
 export const Basic = Template.bind({});
@@ -78,19 +77,19 @@ export const Basic = Template.bind({});
 const WithIconTemplate = (args) => ({
 	props: args,
 	template: `
-		<button
-			[cdsButton]="kind"
+		<cds-button
+			[kind]="kind"
 			[size]="size"
 			[isExpressive]="isExpressive"
 			[disabled]="disabled"
 			(click)="onClick($event)"
 			(mouseenter)="onMouseEnter($event)"
-			(mouseleave)="onMouseleave($event)"
+			(mouseleave)="onMouseLeave($event)"
 			(focus)="onFocus($event)"
 			(blur)="onBlur($event)">
 			With icon
-			<svg class="cds--btn__icon" cdsIcon="add" size="16"></svg>
-		</button>
+			<svg slot="icon" cdsIcon="add" size="16"></svg>
+		</cds-button>
 	`
 });
 export const WithIcon = WithIconTemplate.bind({});

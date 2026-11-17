@@ -7,17 +7,20 @@ import { CommonModule } from "@angular/common";
 import { I18nModule } from "carbon-components-angular/i18n";
 import { Search } from "./search.component";
 import { IconDirective } from "carbon-components-angular/icon";
+import { SearchSkeleton } from "./search-skeleton.component";
 
 @NgModule({
 	exports: [
-		Search
+		Search,
+		SearchSkeleton
 	],
 	imports: [
 		FormsModule,
 		CommonModule,
 		I18nModule,
 		IconDirective,
-		Search
+		Search,
+		SearchSkeleton
 	]
 })
 export class SearchModule {}

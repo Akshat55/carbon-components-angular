@@ -1,4 +1,5 @@
 import {
+	booleanAttribute,
 	ChangeDetectionStrategy,
 	Component,
 	CUSTOM_ELEMENTS_SCHEMA,
@@ -32,5 +33,5 @@ export class TagOperationalComponent {
 	@Input() text = "";
 	@Input() type: TagType = "gray";
 	@Input() size: "sm" | "md" | "lg" = "md";
-	@Input() disabled = false;
+	@Input({ transform: booleanAttribute }) disabled = false;
 }

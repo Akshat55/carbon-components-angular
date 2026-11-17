@@ -3,6 +3,8 @@ import { Component } from "@angular/core";
 import { By } from "@angular/platform-browser";
 
 import { LayerDirective } from "./layer.directive";
+import { CdsLayer } from "./layer.component";
+import { settle } from "../test-helpers/web-components";
 
 @Component({
 	template: `<div cdsLayer></div>`,
@@ -79,5 +81,23 @@ describe("Layer", () => {
 		fixture.detectChanges();
 		const directiveEl = fixture.debugElement.query(By.directive(LayerDirective));
 		expect(directiveEl.nativeElement.querySelector("div").className.includes("cds--layer-three")).toBeTruthy();
+	});
+});
+
+@Component({
+	template: `<cds-layer>One<cds-layer [withBackground]="true">Two</cds-layer></cds-layer>`,
+	imports: [CdsLayer]
+})
+class CdsLayerTest {}
+
+describe("CdsLayer", () => {
+	it("should keep the web component's defaults and pass inputs through", async () => {
+		const fixture = TestBed.createComponent(CdsLayerTest);
+		await settle(fixture);
+		const [outer, inner] = fixture.nativeElement.querySelectorAll("cds-layer");
+		expect(outer instanceof customElements.get("cds-layer")).toBe(true);
+		expect(outer.withBackground).toBeFalsy();
+		expect(inner.withBackground).toBe(true);
+		expect(inner.level).toBe(outer.level + 1);
 	});
 });

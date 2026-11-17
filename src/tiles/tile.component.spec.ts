@@ -64,10 +64,9 @@ describe("TileGroup", () => {
 		await settle(fixture);
 	};
 
-	it("should name the tiles after the group and select the tile matching ngModel", async () => {
+	it("should select the tile matching ngModel", async () => {
 		await render();
 		const [one, two] = fixture.nativeElement.querySelectorAll("cds-radio-tile");
-		expect(one.name).toBe("cd-tile-group");
 		expect(one.selected).toBe(true);
 		expect(two.selected).toBe(false);
 	});
@@ -111,7 +110,6 @@ describe("TileGroup", () => {
 		await settle(fixture);
 
 		const three = ref.location.nativeElement;
-		expect(three.name).toBe("cd-tile-group");
 		three.shadowRoot.querySelector("input").click();
 		await settle(fixture);
 

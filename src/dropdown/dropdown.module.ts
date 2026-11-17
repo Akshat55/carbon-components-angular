@@ -3,6 +3,7 @@ import { CommonModule } from "@angular/common";
 import { FormsModule } from "@angular/forms";
 
 import { Dropdown, MultiSelect } from "./dropdown.component";
+import { DropdownItem, MultiSelectItem } from "./dropdown-item.component";
 import { DropdownList } from "./list/dropdown-list.component";
 import { AbstractDropdownView } from "./abstract-dropdown-view.class";
 
@@ -12,14 +13,18 @@ import { PlaceholderModule } from "carbon-components-angular/placeholder";
 import { DropdownService } from "./dropdown.service";
 import { UtilsModule } from "carbon-components-angular/utils";
 import { IconModule } from "carbon-components-angular/icon";
+import { DropdownSkeleton } from "./dropdown-skeleton.component";
 
 @NgModule({
 	exports: [
 		Dropdown,
 		MultiSelect,
+		DropdownItem,
+		MultiSelectItem,
 		DropdownList,
 		ScrollableList,
-		AbstractDropdownView
+		AbstractDropdownView,
+		DropdownSkeleton
 	],
 	imports: [
 		CommonModule,
@@ -30,9 +35,12 @@ import { IconModule } from "carbon-components-angular/icon";
 		IconModule,
 		Dropdown,
 		MultiSelect,
+		DropdownItem,
+		MultiSelectItem,
 		DropdownList,
 		ScrollableList,
-		AbstractDropdownView
+		AbstractDropdownView,
+		DropdownSkeleton
 	],
 	providers: [ DropdownService ]
 })

@@ -1,9 +1,12 @@
 import {
+	booleanAttribute,
 	ChangeDetectionStrategy,
 	Component,
 	CUSTOM_ELEMENTS_SCHEMA,
+	ElementRef,
 	Input,
-	TemplateRef
+	TemplateRef,
+	inject
 } from "@angular/core";
 import "@carbon/web-components/es/components/contained-list/index.js";
 import { TemplateSlot } from "carbon-components-angular/utils";
@@ -22,10 +25,10 @@ import { ContainedListKind, ContainedListSize } from "./contained-list.enums";
 		<ng-content />
 	`,
 	host: {
-		"[label]": "isTemplate(label) ? '' : label",
-		"[kind]": "kind",
-		"[size]": "size",
-		"[isInset]": "isInset",
+		"[label]": "isTemplate(label) ? '' : (label ?? element.label)",
+		"[kind]": "kind ?? element.kind",
+		"[size]": "size ?? element.size",
+		"[isInset]": "isInset ?? element.isInset",
 		"[attr.aria-labelledby]": "labelId"
 	},
 	changeDetection: ChangeDetectionStrategy.OnPush,
@@ -43,11 +46,19 @@ export class ContainedList {
 	/**
 	 * Inset rulers between items.
 	 */
-	@Input() isInset = false;
-	@Input() kind: ContainedListKind = ContainedListKind.OnPage;
+	@Input({ transform: booleanAttribute }) isInset?: boolean;
+	/**
+	 * The web component's default is `"on-page"`.
+	 */
+	@Input() kind?: ContainedListKind;
 	@Input() label: string | TemplateRef<any>;
-	@Input() size: ContainedListSize = ContainedListSize.Large;
+	/**
+	 * Unset, the list follows the surrounding layout size (v6 defaulted to `"lg"`).
+	 */
+	@Input() size?: ContainedListSize;
 	@Input() labelId = `contained-list-${ContainedList.count++}-header`;
+
+	protected element = inject(ElementRef).nativeElement;
 
 	isTemplate(value: unknown): value is TemplateRef<any> {
 		return value instanceof TemplateRef;

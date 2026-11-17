@@ -5,6 +5,7 @@ import { FormControl, FormsModule, ReactiveFormsModule } from "@angular/forms";
 
 import { settle, shadow } from "../test-helpers/web-components";
 import { DatePicker } from "./datepicker.component";
+import { DatePickerInput } from "../datepicker-input/datepicker-input.component";
 
 @Component({
 	template: `
@@ -197,5 +198,43 @@ describe("DatePicker range with reactive forms", () => {
 		await settle(fixture);
 		Array.from<any>(picker.querySelectorAll("cds-date-picker-input"))
 			.forEach(input => expect(shadow<HTMLInputElement>(input, "input").disabled).toBe(true));
+	});
+});
+
+@Component({
+	template: `
+		<cds-date-picker [(ngModel)]="value" [readonly]="readonly">
+			<cds-date-picker-input kind="from" labelText="Start" />
+			<cds-date-picker-input kind="to" labelText="End" />
+		</cds-date-picker>
+	`,
+	imports: [DatePicker, DatePickerInput, FormsModule]
+})
+class DatePickerChildrenTest {
+	value: any = [];
+	readonly: boolean | undefined;
+}
+
+describe("DatePicker with inputs written as children", () => {
+	it("should use the children instead of rendering its own inputs", async () => {
+		const fixture = TestBed.createComponent(DatePickerChildrenTest);
+		await settle(fixture);
+		await settle(fixture);
+		const picker = fixture.nativeElement.querySelector("cds-date-picker");
+		const inputs = Array.from<any>(picker.querySelectorAll("cds-date-picker-input"));
+		expect(inputs.map(input => input.kind)).toEqual(["from", "to"]);
+		expect(picker.querySelector("[data-cds-generated]")).toBeNull();
+		expect(picker.calendar).toBeTruthy();
+	});
+
+	it("should keep the web component's defaults and pass readonly on to the inputs", async () => {
+		const fixture = TestBed.createComponent(DatePickerChildrenTest);
+		await settle(fixture);
+		const picker = fixture.nativeElement.querySelector("cds-date-picker");
+		expect(picker.allowInput).toBe(true);
+		expect(picker.disabled).toBe(false);
+		fixture.componentInstance.readonly = true;
+		await settle(fixture);
+		expect(Array.from<any>(picker.querySelectorAll("cds-date-picker-input")).every(input => input.readonly)).toBe(true);
 	});
 });

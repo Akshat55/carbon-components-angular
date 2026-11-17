@@ -8,7 +8,7 @@ import { ContextMenuComponent, ContextMenuDividerComponent, ContextMenuItemCompo
 
 @Component({
 	template: `
-		<cds-combo-button label="Primary action" [open]="open" (actionClick)="onAction()">
+		<cds-combo-button label="Primary action" [(open)]="open" (actionClick)="onAction()">
 			<cds-menu>
 				<cds-menu-item label="First action with a long label description" />
 				<cds-menu-item label="Second action" />
@@ -66,12 +66,21 @@ describe("Combo button", () => {
 		iconButton().click();
 		await settle(fixture);
 		expect(comboButton.open).toBeTrue();
+		expect(wrapper.open).toBeTrue();
 		expect(menu.open).toBeTrue();
 
 		iconButton().click();
 		await settle(fixture);
 		expect(comboButton.open).toBeFalse();
+		expect(wrapper.open).toBeFalse();
 		expect(menu.open).toBeFalse();
+	});
+
+	it("should keep the web component's defaults when inputs are unset", () => {
+		expect(element.size).toBe("lg");
+		expect(element.menuAlignment).toBe("top");
+		expect(element.tooltipContent).toBe("Additional actions");
+		expect(element.disabled).toBeFalsy();
 	});
 
 	it("should open the menu when the host sets open", async () => {

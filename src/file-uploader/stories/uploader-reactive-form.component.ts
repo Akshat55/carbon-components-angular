@@ -11,12 +11,12 @@ import {
 	Validators
 } from "@angular/forms";
 
-import { Button } from "carbon-components-angular/button";
+import { CdsButton } from "carbon-components-angular/button";
 import { FileUploader } from "../file-uploader.component";
 
 @Component({
 	selector: "app-reactive-forms",
-	imports: [FileUploader, Button, ReactiveFormsModule],
+	imports: [CdsButton, FileUploader, ReactiveFormsModule],
 	template: `
 		<form [formGroup]="formGroup" (ngSubmit)="onUpload()">
 			<cds-file-uploader
@@ -33,12 +33,11 @@ import { FileUploader } from "../file-uploader.component";
 				formControlName="files">
 			</cds-file-uploader>
 			@if (formGroup.get('files').value && formGroup.get('files').value.size > 0) {
-				<button
-					cdsButton
+				<cds-button
 					type="submit"
 					style="margin-top: 20px">
 					Upload
-				</button>
+				</cds-button>
 			}
 		</form>
 		<form [formGroup]="disabledFormGroup" (ngSubmit)="onUpload()">
@@ -55,9 +54,9 @@ import { FileUploader } from "../file-uploader.component";
 			</cds-file-uploader>
 			<div [id]="notificationId" style="width: 300px; margin-top: 20px"></div>
 			@if (disabledFormGroup.get('files').value && disabledFormGroup.get('files').value.size > 0) {
-				<button cdsButton type="submit">
+				<cds-button type="submit">
 					Upload
-				</button>
+				</cds-button>
 			}
 		</form>
 	`

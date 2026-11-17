@@ -9,5 +9,4 @@ import { Directive, HostBinding } from "@angular/core";
 })
 export class ToggletipContent {
 	@HostBinding("attr.slot") slot = "body-text";
-	@HostBinding("class.cds--toggletip-content") toggletipContent = true;
 }

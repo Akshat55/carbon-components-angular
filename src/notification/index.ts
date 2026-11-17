@@ -14,3 +14,4 @@ export * from "./toast-caption.directive";
 export * from "./toast-subtitle.directive";
 export * from "./toast-title.directive";
 export * from "./toast.component";
+export { ActionableNotificationButton } from "./actionable-notification-button.component";

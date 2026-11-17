@@ -1,4 +1,5 @@
 import {
+	booleanAttribute,
 	ChangeDetectionStrategy,
 	Component,
 	CUSTOM_ELEMENTS_SCHEMA,
@@ -28,7 +29,7 @@ import { I18n } from "carbon-components-angular/i18n";
 export class Hamburger {
 	public i18n = inject(I18n);
 
-	@Input() active = false;
+	@Input({ transform: booleanAttribute }) active = false;
 	@Input() activeTitle = this.i18n.get().UI_SHELL.HEADER.CLOSE_MENU;
 	@Input() inactiveTitle = this.i18n.get().UI_SHELL.HEADER.OPEN_MENU;
 

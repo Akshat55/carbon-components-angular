@@ -4,3 +4,4 @@ export * from "./sidenav-item.interface";
 export * from "./sidenav-menu.component";
 export * from "./sidenav.component";
 export * from "./sidenav.module";
+export { SideNavDivider } from "./sidenav-divider.component";

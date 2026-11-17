@@ -24,13 +24,11 @@ import { PopoverBase } from "carbon-components-angular/popover";
 @Component({
 	selector: "cds-toggletip",
 	template: "<ng-content />",
-	// The web component is `display: flex`; v6 toggletips sat inline next to their label.
-	styles: [":host { display: inline-flex; }"],
 	host: {
 		"[id]": "id",
-		"[alignment]": "align",
-		"[alignmentAxisOffset]": "alignmentAxisOffset",
-		"[buttonLabel]": "buttonLabel"
+		"[alignment]": "align ?? element.alignment",
+		"[alignmentAxisOffset]": "alignmentAxisOffset ?? element.alignmentAxisOffset",
+		"[buttonLabel]": "buttonLabel ?? element.buttonLabel"
 	},
 	changeDetection: ChangeDetectionStrategy.OnPush,
 	schemas: [CUSTOM_ELEMENTS_SCHEMA]
@@ -39,6 +37,9 @@ export class Toggletip extends PopoverBase {
 	static toggletipCounter = 0;
 
 	@Input() id = `toggletip-${Toggletip.toggletipCounter++}`;
-	@Input() alignmentAxisOffset: number;
-	@Input() buttonLabel = "Show information";
+	@Input() alignmentAxisOffset?: number;
+	/**
+	 * The web component's default is `"Show information"`.
+	 */
+	@Input() buttonLabel?: string;
 }

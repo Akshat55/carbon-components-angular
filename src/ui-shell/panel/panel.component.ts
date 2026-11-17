@@ -1,4 +1,5 @@
 import {
+	booleanAttribute,
 	ChangeDetectionStrategy,
 	Component,
 	CUSTOM_ELEMENTS_SCHEMA,
@@ -20,6 +21,6 @@ import "@carbon/web-components/es/components/ui-shell/index.js";
 	schemas: [CUSTOM_ELEMENTS_SCHEMA]
 })
 export class Panel {
-	@Input() expanded = false;
+	@Input({ transform: booleanAttribute }) expanded = false;
 	@Input() ariaLabel: string;
 }

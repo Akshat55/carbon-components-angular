@@ -1,6 +1,6 @@
 import { FormsModule, ReactiveFormsModule } from "@angular/forms";
 import { moduleMetadata, Meta } from "@storybook/angular";
-import { Dropdown, DropdownList, MultiSelect } from "./";
+import { Dropdown, DropdownItem, DropdownList, MultiSelect, MultiSelectItem } from "./";
 import { Placeholder } from "../placeholder";
 
 import { ReactiveFormsStory } from "./stories";
@@ -8,7 +8,7 @@ import { JsonPipe } from "@angular/common";
 import { AILabelModule } from "../ai-label";
 import { ButtonModule } from "../button";
 import { IconModule } from "../icon";
-import { AI_LABEL_INNER, AI_LABEL_STORY_STYLES } from "../storybook/ai-label-story-shared";
+import { AI_LABEL_INNER } from "../storybook/ai-label-story-shared";
 
 export default {
 	title: "Components/Dropdown",
@@ -18,7 +18,9 @@ export default {
 				FormsModule,
 				ReactiveFormsModule,
 				Dropdown,
+				DropdownItem,
 				MultiSelect,
+				MultiSelectItem,
 				DropdownList,
 				Placeholder,
 				ReactiveFormsStory,
@@ -223,7 +225,6 @@ export const WithTemplate = NgTemplate.bind({});
 
 const withAILabelTemplate = (args) => ({
 	props: args,
-	styles: AI_LABEL_STORY_STYLES,
 	template: `
 		<div style="width: 400px">
 			<cds-dropdown
@@ -247,7 +248,6 @@ const withAILabelTemplate = (args) => ({
 		</div>
 		<ng-template #decoratorTpl>
 			<cds-ai-label
-				class="ai-label-container"
 				kind="default"
 				size="mini"
 				[autoAlign]="true"
@@ -268,7 +268,6 @@ withAILabel.args = {
 
 const multiselectWithAILabelTemplate = (args) => ({
 	props: args,
-	styles: AI_LABEL_STORY_STYLES,
 	template: `
 		<div style="width: 400px">
 			<cds-multi-select
@@ -298,7 +297,6 @@ const multiselectWithAILabelTemplate = (args) => ({
 		</div>
 		<ng-template #decoratorTpl>
 			<cds-ai-label
-				class="ai-label-container"
 				kind="default"
 				size="mini"
 				[autoAlign]="true"
@@ -310,3 +308,26 @@ const multiselectWithAILabelTemplate = (args) => ({
 	`
 });
 export const multiselectWithAILabel = multiselectWithAILabelTemplate.bind({});
+
+const ChildOptionsTemplate = (args) => ({
+	props: { fruit: "pear", colors: ["blue"], ...args },
+	template: `
+		<!-- Options written as children, like the web component. The model is the option's value. -->
+		<div style="width: 300px">
+			<cds-dropdown [label]="label" [helperText]="helperText" [(ngModel)]="fruit">
+				<cds-dropdown-item value="apple">Apple</cds-dropdown-item>
+				<cds-dropdown-item value="pear">Pear</cds-dropdown-item>
+				<cds-dropdown-item value="plum" [disabled]="true">Plum</cds-dropdown-item>
+			</cds-dropdown>
+			<p>Selected: {{ fruit }}</p>
+			<br />
+			<cds-multi-select [label]="label" [(ngModel)]="colors">
+				<cds-multi-select-item value="red">Red</cds-multi-select-item>
+				<cds-multi-select-item value="green">Green</cds-multi-select-item>
+				<cds-multi-select-item value="blue">Blue</cds-multi-select-item>
+			</cds-multi-select>
+			<p>Selected: {{ colors | json }}</p>
+		</div>
+	`
+});
+export const ChildOptions = ChildOptionsTemplate.bind({});

@@ -1,4 +1,5 @@
 import {
+	booleanAttribute,
 	ChangeDetectionStrategy,
 	ChangeDetectorRef,
 	Component,
@@ -24,42 +25,57 @@ type ComboButtonPlacement = "top" | "top-start" | "top-end" | "bottom" | "bottom
 	selector: "cds-combo-button",
 	template: "<ng-content />",
 	host: {
-		"[label]": "label",
-		"[size]": "size",
-		"[disabled]": "disabled",
-		"[menuAlignment]": "menuAlignment",
-		"[tooltipContent]": "description",
-		"[tooltipAlignment]": "tooltipPlacement",
-		"[_open]": "open"
+		"[label]": "label ?? element.label",
+		"[size]": "size ?? element.size",
+		"[disabled]": "disabled ?? element.disabled",
+		"[menuAlignment]": "menuAlignment ?? element.menuAlignment",
+		"[tooltipContent]": "description ?? element.tooltipContent",
+		"[tooltipAlignment]": "tooltipPlacement ?? element.tooltipAlignment",
+		"[_open]": "open ?? element._open"
 	},
 	changeDetection: ChangeDetectionStrategy.OnPush,
 	schemas: [CUSTOM_ELEMENTS_SCHEMA]
 })
 export class ComboButtonComponent {
-	@Input() size: "xs" | "sm" | "md" | "lg" = "lg";
+	/**
+	 * @deprecated the web component doesn't link its trigger to the menu by id.
+	 */
+	@Input() comboId?: string;
+	/**
+	 * The web component's default is `"lg"`.
+	 */
+	@Input() size?: "xs" | "sm" | "md" | "lg";
 	@Input() label: string;
-	@Input() disabled = false;
-	@Input() menuAlignment: ComboButtonPlacement = "bottom";
+	@Input({ transform: booleanAttribute }) disabled?: boolean;
+	/**
+	 * The web component's default is `"top"` (v6: `"bottom"`).
+	 */
+	@Input() menuAlignment?: ComboButtonPlacement;
 	/**
 	 * Tooltip for the menu trigger.
 	 */
 	@Input() description: string;
-	@Input() tooltipPlacement = "bottom";
+	/**
+	 * The web component's default is `"top"` (v6: `"bottom"`).
+	 */
+	@Input() tooltipPlacement?: string;
 	/**
 	 * @deprecated the web component positions its own tooltip.
 	 */
-	@Input() tooltipAutoAlign = false;
+	@Input({ transform: booleanAttribute }) tooltipAutoAlign = false;
 	/**
-	 * Whether the menu is open. Kept in sync when the user opens or closes it.
+	 * Whether the menu is open. Supports two-way binding with `openChange`.
 	 */
-	@Input() open = false;
+	@Input({ transform: booleanAttribute }) open?: boolean;
 
 	/**
 	 * Emits when the primary action is clicked.
 	 */
 	@Output() actionClick = new EventEmitter<Event>();
+	@Output() openChange = new EventEmitter<boolean>();
 
 	protected elementRef = inject(ElementRef);
+	protected element = this.elementRef.nativeElement;
 	protected changeDetectorRef = inject(ChangeDetectorRef);
 
 	constructor() {
@@ -75,8 +91,9 @@ export class ComboButtonComponent {
 		setTimeout(async () => {
 			const element = this.elementRef.nativeElement;
 			await element.updateComplete;
-			if (element._open !== this.open) {
+			if (element._open !== !!this.open) {
 				this.open = element._open;
+				this.openChange.emit(this.open);
 				this.changeDetectorRef.markForCheck();
 			}
 		});

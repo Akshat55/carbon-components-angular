@@ -1,9 +1,9 @@
 import {
+	booleanAttribute,
 	ChangeDetectionStrategy,
 	ChangeDetectorRef,
 	Component,
 	CUSTOM_ELEMENTS_SCHEMA,
-	DestroyRef,
 	Directive,
 	ElementRef,
 	EventEmitter,
@@ -12,6 +12,7 @@ import {
 	inject
 } from "@angular/core";
 import "@carbon/web-components/es/components/popover/index.js";
+import { observeAttributes } from "carbon-components-angular/utils";
 
 /**
  * Shared inputs/outputs of the popover based wrappers (`cds-popover`, `cds-tooltip`, `cds-toggletip`).
@@ -19,18 +20,21 @@ import "@carbon/web-components/es/components/popover/index.js";
  */
 @Directive({
 	host: {
-		"[attr.align]": "align",
-		"[autoalign]": "autoAlign",
-		"[open]": "isOpen"
+		"[autoalign]": "autoAlign ?? element.autoalign",
+		"[open]": "isOpen ?? element.open"
 	}
 })
 export abstract class PopoverBase {
 	/**
 	 * Placement, e.g. `top`, `bottom-start` (v6 names such as `top-left` also work).
+	 * Each wrapper binds it to its web component's alignment property.
 	 */
-	@Input() align = "bottom";
-	@Input() autoAlign = false;
-	@Input() isOpen = false;
+	@Input() align?: string;
+	@Input({ transform: booleanAttribute }) autoAlign?: boolean;
+	/**
+	 * Supports two-way binding with `isOpenChange`. Unset, the web component keeps its own state.
+	 */
+	@Input({ transform: booleanAttribute }) isOpen?: boolean;
 
 	// eslint-disable-next-line @angular-eslint/no-output-on-prefix
 	@Output() onClose: EventEmitter<Event> = new EventEmitter();
@@ -39,21 +43,19 @@ export abstract class PopoverBase {
 	@Output() isOpenChange = new EventEmitter<boolean>();
 
 	protected elementRef = inject(ElementRef);
+	protected element = this.elementRef.nativeElement;
 	protected changeDetectorRef = inject(ChangeDetectorRef);
 
 	constructor() {
-		const element: HTMLElement = this.elementRef.nativeElement;
-		const observer = new MutationObserver(() => {
-			const open = element.hasAttribute("open");
-			if (open !== this.isOpen) {
+		observeAttributes(this.element, ["open"], () => {
+			const open = this.element.open;
+			if (open !== !!this.isOpen) {
 				this.isOpen = open;
 				this.isOpenChange.emit(open);
 				(open ? this.onOpen : this.onClose).emit();
 				this.changeDetectorRef.markForCheck();
 			}
 		});
-		observer.observe(element, { attributes: true, attributeFilter: ["open"] });
-		inject(DestroyRef).onDestroy(() => observer.disconnect());
 	}
 }
 
@@ -77,21 +79,28 @@ export abstract class PopoverBase {
 	selector: "cds-popover",
 	template: "<ng-content />",
 	host: {
-		"[caret]": "caret",
-		"[dropShadow]": "dropShadow",
-		"[highContrast]": "highContrast",
-		"[border]": "border",
-		"[tabTip]": "tabTip",
-		"[alignmentAxisOffset]": "alignmentAxisOffset"
+		"[align]": "align ?? element.align",
+		"[caret]": "caret ?? element.caret",
+		"[dropShadow]": "dropShadow ?? element.dropShadow",
+		"[highContrast]": "highContrast ?? element.highContrast",
+		"[border]": "border ?? element.border",
+		"[tabTip]": "tabTip ?? element.tabTip",
+		"[alignmentAxisOffset]": "alignmentAxisOffset ?? element.alignmentAxisOffset"
 	},
 	changeDetection: ChangeDetectionStrategy.OnPush,
 	schemas: [CUSTOM_ELEMENTS_SCHEMA]
 })
 export class PopoverContainer extends PopoverBase {
-	@Input() caret = true;
-	@Input() dropShadow = true;
-	@Input() highContrast = false;
-	@Input() border = false;
-	@Input() tabTip = false;
+	/**
+	 * The web component's default is `true`.
+	 */
+	@Input({ transform: booleanAttribute }) caret?: boolean;
+	/**
+	 * The web component's default is `true`.
+	 */
+	@Input({ transform: booleanAttribute }) dropShadow?: boolean;
+	@Input({ transform: booleanAttribute }) highContrast?: boolean;
+	@Input({ transform: booleanAttribute }) border?: boolean;
+	@Input({ transform: booleanAttribute }) tabTip?: boolean;
 	@Input() alignmentAxisOffset?: number;
 }

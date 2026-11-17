@@ -1,13 +1,13 @@
 import { FormsModule, ReactiveFormsModule } from "@angular/forms";
 import { moduleMetadata, Meta } from "@storybook/angular";
-import { ComboBox } from "./";
+import { ComboBox, ComboBoxItem } from "./";
 
 import { DynamicListComboBox, ReactiveFormsCombobox, MockQueryCombobox } from "./stories";
 import { DropdownList, MultiSelect } from "../dropdown";
 import { AILabelModule } from "../ai-label";
 import { ButtonModule } from "../button";
 import { IconModule } from "../icon";
-import { AI_LABEL_INNER, AI_LABEL_STORY_STYLES } from "../storybook/ai-label-story-shared";
+import { AI_LABEL_INNER } from "../storybook/ai-label-story-shared";
 
 export default {
 	title: "Components/Combobox",
@@ -17,6 +17,7 @@ export default {
 				FormsModule,
 				ReactiveFormsModule,
 				ComboBox,
+				ComboBoxItem,
 				MultiSelect,
 				DropdownList,
 				AILabelModule,
@@ -266,7 +267,6 @@ MockQuerySearch.parameters = {
 
 const withAILabelTemplate = (args) => ({
 	props: args,
-	styles: AI_LABEL_STORY_STYLES,
 	template: `
 		<div style="width: 400px">
 			<cds-combo-box
@@ -293,7 +293,6 @@ const withAILabelTemplate = (args) => ({
 		</div>
 		<ng-template #decoratorTpl>
 			<cds-ai-label
-				class="ai-label-container"
 				kind="default"
 				size="mini"
 				[autoAlign]="true"
@@ -308,3 +307,19 @@ export const withAILabel = withAILabelTemplate.bind({});
 
 export const filterableWithAILabel = withAILabelTemplate.bind({});
 filterableWithAILabel.storyName = "Filterable with AI label";
+
+const ChildOptionsTemplate = (args) => ({
+	props: { fruit: "pear", ...args },
+	template: `
+		<!-- Options written as children, like the web component. The model is the option's value. -->
+		<div style="width: 300px">
+			<cds-combo-box label="Fruit" [(ngModel)]="fruit">
+				<cds-combo-box-item value="apple">Apple</cds-combo-box-item>
+				<cds-combo-box-item value="pear">Pear</cds-combo-box-item>
+				<cds-combo-box-item value="plum">Plum</cds-combo-box-item>
+			</cds-combo-box>
+			<p>Selected: {{ fruit }}</p>
+		</div>
+	`
+});
+export const ChildOptions = ChildOptionsTemplate.bind({});

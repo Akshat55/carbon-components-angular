@@ -5,5 +5,5 @@ import { Directive, HostBinding } from "@angular/core";
 	standalone: true
 })
 export class NotificationSubtitle {
-	@HostBinding("class.cds--inline-notification__subtitle") baseClass = true;
+	@HostBinding("attr.slot") slot = "subtitle";
 }

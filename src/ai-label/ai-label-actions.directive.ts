@@ -9,6 +9,4 @@ import { Directive, HostBinding } from "@angular/core";
 })
 export class AILabelActions {
 	@HostBinding("attr.slot") slot = "actions";
-	@HostBinding("class.cds--toggletip-actions") toggletipActions = true;
-	@HostBinding("class.cds--ai-label-actions") aiLabelActions = true;
 }

@@ -1,4 +1,5 @@
 import {
+	booleanAttribute,
 	ChangeDetectionStrategy,
 	Component,
 	CUSTOM_ELEMENTS_SCHEMA,
@@ -50,7 +51,7 @@ export class TagFilter {
 	@Input() size: "sm" | "md" | "lg" = "md";
 	@Input() decorator: TemplateRef<any>;
 	@Input() closeButtonLabel: string;
-	@Input() disabled = false;
+	@Input({ transform: booleanAttribute }) disabled = false;
 	@Input() title: string;
 
 	@Output() close = new EventEmitter<void>();

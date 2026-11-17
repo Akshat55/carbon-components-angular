@@ -3,7 +3,7 @@ import { Label, TextInput, TextInputLabelComponent } from "./";
 import { AILabelModule } from "../ai-label";
 import { ButtonModule } from "../button";
 import { IconModule } from "../icon";
-import { AI_LABEL_INNER, AI_LABEL_STORY_STYLES } from "../storybook/ai-label-story-shared";
+import { AI_LABEL_INNER } from "../storybook/ai-label-story-shared";
 import { FormsModule } from "@angular/forms";
 
 export default {
@@ -105,7 +105,6 @@ const SkeletonTemplate = (args) => ({
 export const Skeleton = SkeletonTemplate.bind({});
 
 export const withAILabel = () => ({
-	styles: AI_LABEL_STORY_STYLES,
 	template: `
 		<cds-text-label [decorator]="decoratorTpl">
 			Text input with decorator
@@ -113,7 +112,6 @@ export const withAILabel = () => ({
 		</cds-text-label>
 		<ng-template #decoratorTpl>
 			<cds-ai-label
-				class="ai-label-container"
 				kind="default"
 				size="mini"
 				[autoAlign]="true"

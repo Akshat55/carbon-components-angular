@@ -5,6 +5,7 @@ import { By } from "@angular/platform-browser";
 import { settle, shadow } from "../test-helpers/web-components";
 import { ProgressIndicator } from "./progress-indicator.component";
 import { Step } from "./progress-indicator-step.interface";
+import { ProgressStep } from "./progress-step.component";
 
 @Component({
 	template: `
@@ -140,5 +141,59 @@ describe("Progress Indicator", () => {
 		await settle(fixture);
 		expect(steps().length).toBe(6);
 		expect(currentStep().label).toBe("Sixth step");
+	});
+});
+
+@Component({
+	template: `
+		<cds-progress-indicator [current]="current" (stepSelected)="selected = $event">
+			<cds-progress-step label="First" />
+			<cds-progress-step label="Second" secondaryLabel="optional" />
+			<cds-progress-step label="Third" />
+		</cds-progress-indicator>
+	`,
+	imports: [ProgressIndicator, ProgressStep]
+})
+class ChildStepsTest {
+	current = 1;
+	selected: { step: Step, index: number };
+}
+
+describe("Progress Indicator with child steps", () => {
+	let fixture, steps: any[];
+
+	beforeEach(async () => {
+		TestBed.configureTestingModule({ imports: [ChildStepsTest] });
+		fixture = TestBed.createComponent(ChildStepsTest);
+		await settle(fixture);
+		steps = Array.from(fixture.nativeElement.querySelectorAll("cds-progress-step"));
+	});
+
+	it("should register the step web component", () => {
+		expect(steps[0] instanceof customElements.get("cds-progress-step")).toBe(true);
+		expect(steps[1].secondaryLabel).toBe("optional");
+	});
+
+	it("should set the step states from `current`", async () => {
+		expect(steps.map(step => [step.complete, step.current])).toEqual([[true, false], [false, true], [false, false]]);
+
+		fixture.componentInstance.current = 2;
+		await settle(fixture);
+		expect(steps[2].current).toBe(true);
+		expect(steps[1].complete).toBe(true);
+	});
+
+	it("should make the steps clickable when stepSelected is observed", () => {
+		expect(steps.every(step => step.clickable)).toBe(true);
+		expect(shadow(steps[0], "[role='button']").getAttribute("tabindex")).toBe("0");
+		// the current step stays unclickable
+		expect(shadow(steps[1], "[role='button']").getAttribute("tabindex")).toBe("-1");
+	});
+
+	it("should emit the step and index when a step is clicked", async () => {
+		shadow<HTMLElement>(steps[2], ".cds--progress-label").click();
+		await settle(fixture);
+		expect(fixture.componentInstance.selected.index).toBe(2);
+		expect(fixture.componentInstance.selected.step.label).toBe("Third");
 	});
 });

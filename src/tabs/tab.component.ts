@@ -1,225 +1,114 @@
 import {
+	booleanAttribute,
+	ChangeDetectionStrategy,
+	ChangeDetectorRef,
 	Component,
-	OnInit,
+	CUSTOM_ELEMENTS_SCHEMA,
+	ElementRef,
+	EventEmitter,
 	Input,
 	Output,
-	EventEmitter,
-	HostBinding,
-	TemplateRef
+	inject
 } from "@angular/core";
-import { NgStyle, NgTemplateOutlet } from "@angular/common";
+import "@carbon/web-components/es/components/tabs/index.js";
+import { observeAttributes } from "carbon-components-angular/utils";
 
 /**
-* The `Tab` component is a child of the `Tabs` component.
-* It represents one `Tab` item and its content within a panel of other `Tab` items.
-*
-* `Tab` takes a string or `TemplateRef` for the header, and any content for the body of the tab.
-* Disabled states should be handled by the application (ie. switch to the tab, but display some
-* indication as to _why_ the tab is disabled).
-*
-* When the tab is selected the `select` output will be triggered.
-* The `select` output will also be triggered for the active tab when the tabs are loaded or updated.
-*
-*
-* Tab with string header:
+ * Adds Angular inputs and outputs to the `<cds-tab>` web component: one tab in a `cds-tabs`.
+ * Importing it registers the web component.
+ *
+ * The tab is only the header. Point `target` at the `id` of the panel it shows; the web
+ * component toggles that panel's `hidden` attribute.
  *
  * ```html
-* <cds-tab heading='tab1'>
-* 	tab 1 content
-* </cds-tab>
-* ```
-*
-* Tab with custom header:
-*
-* ```html
-* <ng-template #tabHeading>
-* 	<svg cdsIcon="facebook"
-* 		size="sm"
-* 		style="margin-right: 7px;">
-* 	</svg>
-* 	Hello Tab 1
-* </ng-template>
-* <cds-tabs>
-* 	<cds-tab [heading]="tabHeading">
-* 		Tab 1 content <svg cdsIcon="alert" size="lg"></svg>
-* 	</cds-tab>
-* 	<cds-tab heading='Tab2'>
-* 		Tab 2 content
-* 	</cds-tab>
-* 	<cds-tab heading='Tab3'>
-* 		Tab 3 content
-* 	</cds-tab>
-* </cds-tabs>
+ * <cds-tab target="panel-1">First</cds-tab>
  * ```
+ *
+ * [See demo](../../?path=/story/components-tabs--basic)
  */
 @Component({
-	selector: "cds-tab, ibm-tab",
-	template: `
-		@if (shouldRender()) {
-			@if (isTemplate(tabContent)) {
-				<ng-template
-					[ngTemplateOutlet]="tabContent"
-					[ngTemplateOutletContext]="{ $implicit: templateContext }" />
-			}
-			<ng-content />
-		}
-	`,
-	imports: [NgTemplateOutlet]
+	selector: "cds-tab",
+	template: "<ng-content />",
+	host: {
+		"[id]": "id",
+		"[value]": "value",
+		"[target]": "target",
+		"[selected]": "active",
+		// `cds-tabs` picks its initial tab by the `selected` attribute, before the tab reflects it
+		"[attr.selected]": "active ? '' : null",
+		"[disabled]": "disabled",
+		"[iconOnly]": "iconOnly",
+		"[attr.aria-label]": "ariaLabel || null",
+		"[secondaryLabel]": "secondaryLabel",
+		"[badgeIndicator]": "badgeIndicator",
+		"(cds-tab-closed)": "tabClose.emit()"
+	},
+	changeDetection: ChangeDetectionStrategy.OnPush,
+	schemas: [CUSTOM_ELEMENTS_SCHEMA]
 })
-export class Tab implements OnInit {
-	@HostBinding("attr.id") get hostId() {
-		return this.id;
-	}
-	@HostBinding("attr.aria-labelledby") get hostAriaLabelledby() {
-		return `${this.id}-header`;
-	}
-	@HostBinding("attr.tabindex") get hostTabIndex() {
-		return this.tabIndex;
-	}
-	/**
-	 * `hidden` + display keep inactive panels out of layout; `null` display when active preserves grid/flex.
-	 */
-	@HostBinding("attr.hidden") get hostHidden() {
-		return this.active ? null : "";
-	}
-	@HostBinding("style.display") get hostDisplay() {
-		return this.active ? "block" : "none";
-	}
-	/**
-	 * Set to `true` to have `Tab` items cached and not reloaded on tab switching.
-	 */
-	@Input() set cacheActive(shouldCache: boolean) {
-		this._cacheActive = shouldCache;
-	}
-
-	get cacheActive() {
-		return this._cacheActive;
-	}
+export class Tab {
 	private static counter = 0;
-	@HostBinding("class.cds--tab-content") tabContentClass = true;
-	@HostBinding("attr.role") panelRole = "tabpanel";
-	@HostBinding("attr.aria-live") panelAriaLive = "polite";
-	/**
-	 * Boolean value reflects if the `Tab` is using a custom template for the heading.
-	 * Default value is false.
-	 */
-	public headingIsTemplate = false;
 
+	@Input() id = `tab-${Tab.counter++}`;
 	/**
-	 * The `Tab`'s title to be displayed or custom template for the `Tab` heading.
+	 * Identifies the tab in `cds-tabs`' `value`. Defaults to the `id`.
 	 */
-	@Input() heading: string | TemplateRef<any>;
+	@Input() set value(value: string) {
+		this._value = value;
+	}
+	get value() {
+		return this._value ?? this.id;
+	}
 	/**
-	 * Optional override for the `tabItem's`'s title attribute which is set in `TabHeaders`.
-	 * `tabItem`'s title attribute is automatically set to `heading`.
-	 *
-	 * You might want to use this if you set `heading` to a `TemplateRef`.
+	 * The `id` of the panel this tab shows.
 	 */
-	@Input() title: string;
+	@Input() target: string;
 	/**
-	 * Allows the user to pass data to the custom template for the `Tab` heading.
+	 * Selects this tab (`cds-tabs`' `value` does the same). Supports two-way binding with
+	 * `activeChange`.
 	 */
-	@Input() context: any;
+	@Input({ transform: booleanAttribute }) active = false;
+	@Input({ transform: booleanAttribute }) disabled = false;
 	/**
-	 * Indicates whether the `Tab` is active/selected.
-	 * Determines whether its tab panel content is rendered.
+	 * Set to `true` for a tab with only an icon. Give it an `ariaLabel`, which is also its tooltip.
 	 */
-	@Input() active = false;
+	@Input({ transform: booleanAttribute }) iconOnly = false;
 	/**
-	 * Indicates whether or not the `Tab` item is disabled.
+	 * Accessible label for tabs without text (and the tooltip of icon-only tabs).
 	 */
-	@Input() disabled = false;
-
+	@Input() ariaLabel: string;
 	/**
-	 * `tabindex` on the tab panel, the parent may set this to `null` when `isNavigation` is `true`.
-	 */
-	@Input() tabIndex = 0;
-	/**
-	 * Sets the id of the `Tab`. Will be uniquely generated if not provided.
-	 */
-	@Input() id = `n-tab-${Tab.counter++}`;
-	/**
-	 * Allows lifecycle hooks to be called on the rendered content.
-	 */
-	@Input() tabContent: TemplateRef<any>;
-	/**
-	 * Optional data for templates passed as implicit context.
-	 */
-	@Input() templateContext: any;
-	/**
-	 * Optional template that renders an icon inside the `Tab` header.
-	 * Useful for rendering a `cdsIcon` or any other icon next to the tab label.
-	 */
-	@Input() icon: TemplateRef<any>;
-	/**
-	 * Optional secondary label rendered below the primary tab label.
-	 * Only displayed when the parent `Tabs` is using `type="contained"`.
+	 * Second line of text (contained tabs).
 	 */
 	@Input() secondaryLabel: string;
-	/**
-	 * Sets the aria-label of the close button when the parent `Tabs` uses `dismissable`.
-	 */
-	@Input() closeButtonAriaLabel = "Press delete to remove tab";
-	/**
-	 * Icon-only tab: pair with `icon` and `iconLabel`.
-	 */
-	@Input() iconOnly = false;
-	/**
-	 * Icon-only tabs: accessible name and tooltip text.
-	 */
-	@Input() iconLabel: string;
-	/**
-	 * **Preview**: Icon-only tabs — show a notification dot on the icon.
-	 */
-	@Input() badgeIndicator = false;
-	/**
-	 * Icon-only tabs: tooltip show delay (ms).
-	 */
-	@Input() enterDelayMs: number;
-	/**
-	 * Icon-only tabs: tooltip hide delay (ms).
-	 */
-	@Input() leaveDelayMs: number;
-	/**
-	 * Icon-only tabs: open the tooltip on first render.
-	 */
-	@Input() isTooltipOpen = false;
-	/**
-	 * Emits when this tab becomes selected.
-	 */
-	@Output() selected: EventEmitter<void> = new EventEmitter<void>();
-	/**
-	 * Emits when this tab's close button is pressed.
-	 */
-	@Output() tabClose: EventEmitter<void> = new EventEmitter<void>();
-
-	protected _cacheActive = false;
+	@Input({ transform: booleanAttribute }) badgeIndicator = false;
 
 	/**
-	 * Checks for custom heading template on initialization and updates the value
-	 * of the boolean 'headingIsTemplate'.
+	 * Emits when the tab becomes selected.
 	 */
-	ngOnInit() {
-		if (this.heading instanceof TemplateRef) {
-			this.headingIsTemplate = true;
-		}
-	}
-
+	@Output() selected = new EventEmitter<void>();
+	@Output() activeChange = new EventEmitter<boolean>();
 	/**
-	 * Emit the status of the `Tab`, specifically 'select' and 'selected' properties.
+	 * Emits when the close button of a tab in `dismissable` tabs is clicked.
+	 * Remove the tab (and its panel) in response.
 	 */
-	doSelect() {
-		this.selected.emit();
-	}
+	@Output() tabClose = new EventEmitter<void>();
 
-	/**
-	* Returns value indicating whether this `Tab` should be rendered in a tab panel.
-	 */
-	shouldRender() {
-		return this.active || this.cacheActive;
-	}
+	readonly element: any = inject(ElementRef).nativeElement;
+	protected changeDetectorRef = inject(ChangeDetectorRef);
+	private _value: string;
 
-	public isTemplate(value) {
-		return value instanceof TemplateRef;
+	constructor() {
+		observeAttributes(this.element, ["selected"], () => {
+			const active = this.element.selected;
+			if (active !== this.active) {
+				this.active = active;
+				this.activeChange.emit(active);
+				if (active) {
+					this.selected.emit();
+				}
+				this.changeDetectorRef.markForCheck();
+			}
+		});
 	}
 }

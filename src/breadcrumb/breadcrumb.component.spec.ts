@@ -82,3 +82,64 @@ describe("Breadcrumb", () => {
 		expect(items[3].textContent.trim()).toBe("Breadcrumb 5");
 	});
 });
+
+@Component({
+	template: `
+		<cds-breadcrumb [size]="size" [skeleton]="skeleton" [items]="items" />
+	`,
+	imports: [Breadcrumb, BreadcrumbItemComponent]
+})
+class TestBreadcrumbState {
+	size: "sm" | "md" | undefined;
+	skeleton = false;
+	items = [{ content: "One", href: "#" }, { content: "Two", href: "#" }];
+}
+
+@Component({
+	template: `
+		<cds-breadcrumb>
+			<cds-breadcrumb-item href="#">One</cds-breadcrumb-item>
+			<cds-breadcrumb-item [skeleton]="true">Own skeleton</cds-breadcrumb-item>
+		</cds-breadcrumb>
+	`,
+	imports: [Breadcrumb, BreadcrumbItemComponent]
+})
+class TestBreadcrumbUnset {}
+
+describe("Breadcrumb state propagation", () => {
+	it("should keep the web component's defaults when inputs are unset", async () => {
+		const fixture = TestBed.createComponent(TestBreadcrumbUnset);
+		await settle(fixture);
+		const breadcrumb = fixture.nativeElement.querySelector("cds-breadcrumb");
+		expect(breadcrumb.size).toBe("md");
+		expect(breadcrumb.noTrailingSlash).toBe(false);
+	});
+
+	it("should leave each item's own skeleton alone when the breadcrumb's is unset", async () => {
+		const fixture = TestBed.createComponent(TestBreadcrumbUnset);
+		await settle(fixture);
+		const items = fixture.debugElement.queryAll(By.directive(BreadcrumbItemComponent)).map(item => item.componentInstance);
+		expect(items.map(item => item.skeleton)).toEqual([false, true]);
+	});
+
+	it("should pass skeleton on to the items it renders from items", async () => {
+		const fixture = TestBed.createComponent(TestBreadcrumbState);
+		await settle(fixture);
+		const items = () => fixture.debugElement.queryAll(By.directive(BreadcrumbItemComponent)).map(item => item.componentInstance);
+		fixture.componentInstance.skeleton = true;
+		await settle(fixture);
+		expect(items().map(item => item.skeleton)).toEqual([true, true]);
+		fixture.componentInstance.skeleton = false;
+		await settle(fixture);
+		expect(items().map(item => item.skeleton)).toEqual([false, false]);
+	});
+
+	it("should let the web component pass size on to its links", async () => {
+		const fixture = TestBed.createComponent(TestBreadcrumbState);
+		fixture.componentInstance.size = "sm";
+		await settle(fixture);
+		const links = Array.from<Element>(fixture.nativeElement.querySelectorAll("cds-breadcrumb-link"));
+		expect(links.length).toBe(2);
+		expect(links.every(link => link.getAttribute("size") === "sm")).toBe(true);
+	});
+});

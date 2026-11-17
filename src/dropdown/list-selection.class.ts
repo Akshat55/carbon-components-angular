@@ -100,6 +100,44 @@ export abstract class ListSelection extends WebComponentValueAccessor implements
 		this.changeDetectorRef.markForCheck();
 	}
 
+	/**
+	 * Whether `element` is an option rendered from `items` (rather than written as a child).
+	 */
+	protected isListItem(element: Element) {
+		return element.hasAttribute("data-list-index");
+	}
+
+	/**
+	 * Selects options written as children (`cds-dropdown-item` etc.). Their model is their `value`.
+	 */
+	protected selectChildren(options: Array<Element & { value: string }>) {
+		this._items.forEach(item => item.selected = false);
+		const values = options.map(option => option.value);
+		this.written = this.multiple ? values : values[0] ?? null;
+		this.onChange(this.written);
+		const items = options.map(option => ({ content: option.textContent.trim(), value: option.value, selected: true }));
+		if (this.multiple) {
+			this.selected.emit(items);
+		} else {
+			this.emitChildSelected(items[0]);
+		}
+		this.changeDetectorRef.markForCheck();
+	}
+
+	protected emitChildSelected(item: ListItem | undefined) {
+		this.selected.emit({ item, isUpdate: false });
+	}
+
+	/**
+	 * The web component's `value` when there are no `items`: the model of the child options.
+	 */
+	protected get childValue(): string {
+		if (this._items.length || this.written === undefined || this.written === null) {
+			return "";
+		}
+		return Array.isArray(this.written) ? this.written.join(",") : String(this.written);
+	}
+
 	protected emitSelected() {
 		if (this.multiple) {
 			this.selected.emit(this.selectedItems);

@@ -1,10 +1,13 @@
 import {
+	booleanAttribute,
 	ChangeDetectionStrategy,
 	Component,
 	CUSTOM_ELEMENTS_SCHEMA,
 	EventEmitter,
 	Input,
-	Output
+	Output,
+	ElementRef,
+	inject
 } from "@angular/core";
 import "@carbon/web-components/es/components/overflow-menu/index.js";
 
@@ -26,10 +29,10 @@ export enum Target {
 	selector: "cds-overflow-menu-item",
 	template: "<ng-content />",
 	host: {
-		"[danger]": "type === 'danger'",
-		"[disabled]": "disabled",
-		"[divider]": "divider",
-		"[href]": "href ?? ''",
+		"[danger]": "type ? type === 'danger' : element.danger",
+		"[disabled]": "disabled ?? element.disabled",
+		"[divider]": "divider ?? element.divider",
+		"[href]": "href ?? element.href",
 		"[attr.target]": "target",
 		"(click)": "onClick($event)"
 	},
@@ -37,8 +40,8 @@ export enum Target {
 	schemas: [CUSTOM_ELEMENTS_SCHEMA]
 })
 export class OverflowMenuOption {
-	@Input() type: "normal" | "danger" = "normal";
-	@Input() disabled = false;
+	@Input() type?: "normal" | "danger";
+	@Input({ transform: booleanAttribute }) disabled?: boolean;
 	/**
 	 * Renders the option as a link.
 	 */
@@ -47,15 +50,21 @@ export class OverflowMenuOption {
 	/**
 	 * Draws a divider above the option.
 	 */
-	@Input() divider = false;
+	@Input({ transform: booleanAttribute }) divider?: boolean;
+	/**
+	 * @deprecated the item's button is in the web component's shadow DOM.
+	 */
+	@Input() innerClass?: string;
 
 	/**
 	 * Emits when the option is chosen.
 	 */
 	@Output() selected: EventEmitter<any> = new EventEmitter();
 
+	protected element = inject(ElementRef).nativeElement;
+
 	onClick(event: Event) {
-		if (!this.disabled) {
+		if (!this.element.disabled) {
 			this.selected.emit(event);
 		}
 	}

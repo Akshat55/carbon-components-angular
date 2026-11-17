@@ -3,13 +3,15 @@ import { CommonModule } from "@angular/common";
 
 import { Slider } from "./slider.component";
 import { UtilsModule } from "carbon-components-angular/utils";
+import { SliderSkeleton } from "./slider-skeleton.component";
 
 @NgModule({
-	exports: [Slider],
+	exports: [Slider, SliderSkeleton],
 	imports: [
 		CommonModule,
 		UtilsModule,
-		Slider
+		Slider,
+		SliderSkeleton
 	]
 })
 export class SliderModule {}

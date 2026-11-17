@@ -2,6 +2,9 @@
  * Shared Storybook snippets for `cds-ai-label` (AI label) stories.
  */
 
+/**
+ * Only used by the table v1 stories; the web component stories need no styles of their own.
+ */
 export const AI_LABEL_STORY_STYLES = [`
 	.ai-label-container {
 		display: flex;
@@ -46,16 +49,16 @@ export const AI_LABEL_STORY_STYLES = [`
  */
 export const AI_LABEL_BODY_HTML = `
 	<div>
-		<p class="secondary">AI Explained</p>
-		<h2 class="ai-label-heading">84%</h2>
-		<p class="secondary bold">Confidence score</p>
-		<p class="secondary">
+		<p>AI Explained</p>
+		<h2>84%</h2>
+		<p><strong>Confidence score</strong></p>
+		<p>
 			Lorem ipsum dolor sit amet, di os consectetur adipiscing elit, sed do
 			eiusmod tempor incididunt ut fsil labore et dolore magna aliqua.
 		</p>
 		<hr />
-		<p class="secondary">Model type</p>
-		<p class="bold">Foundation model</p>
+		<p>Model type</p>
+		<p><strong>Foundation model</strong></p>
 	</div>
 `;
 
@@ -73,7 +76,7 @@ export const AI_LABEL_ACTIONS_HTML = `
 		<cds-icon-button kind="ghost" align="top" description="Folders">
 			<svg cdsIcon="folder" size="16"></svg>
 		</cds-icon-button>
-		<button cdsButton type="button">View details</button>
+		<cds-ai-label-action-button>View details</cds-ai-label-action-button>
 	</div>
 `;
 

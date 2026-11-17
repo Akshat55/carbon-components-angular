@@ -1,4 +1,5 @@
 import {
+	booleanAttribute,
 	ChangeDetectionStrategy,
 	ChangeDetectorRef,
 	Component,
@@ -39,10 +40,10 @@ import "@carbon/web-components/es/components/tooltip/index.js";
 	`,
 	host: {
 		"[id]": "id",
-		"[align]": "align",
-		"[autoalign]": "autoAlign",
-		"[openOnHover]": "openOnHover",
-		"[open]": "isOpen"
+		"[align]": "align ?? element.align",
+		"[autoalign]": "autoAlign ?? element.autoalign",
+		"[openOnHover]": "openOnHover ?? element.openOnHover",
+		"[open]": "isOpen ?? element.open"
 	},
 	changeDetection: ChangeDetectionStrategy.OnPush,
 	imports: [NgTemplateOutlet],
@@ -54,10 +55,16 @@ export class TooltipDefinition {
 	@Input() id = `tooltip-definition-${TooltipDefinition.tooltipCount++}`;
 	@Input() description: string | TemplateRef<any>;
 	@Input() templateContext: any;
-	@Input() openOnHover = false;
-	@Input() align = "bottom";
-	@Input() autoAlign = false;
-	@Input() isOpen = false;
+	@Input({ transform: booleanAttribute }) openOnHover?: boolean;
+	/**
+	 * The web component's default is `"bottom"`.
+	 */
+	@Input() align?: string;
+	@Input({ transform: booleanAttribute }) autoAlign?: boolean;
+	/**
+	 * Supports two-way binding with `isOpenChange`. Unset, the web component keeps its own state.
+	 */
+	@Input({ transform: booleanAttribute }) isOpen?: boolean;
 
 	// eslint-disable-next-line @angular-eslint/no-output-on-prefix
 	@Output() onClose: EventEmitter<Event> = new EventEmitter();
@@ -78,7 +85,7 @@ export class TooltipDefinition {
 
 	async syncOpen() {
 		await this.element.updateComplete;
-		if (this.element.open !== this.isOpen) {
+		if (this.element.open !== !!this.isOpen) {
 			this.isOpen = this.element.open;
 			this.isOpenChange.emit(this.isOpen);
 			(this.isOpen ? this.onOpen : this.onClose).emit();

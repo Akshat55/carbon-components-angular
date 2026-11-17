@@ -3,6 +3,7 @@ import { TestBed } from "@angular/core/testing";
 
 import { Accordion } from "./accordion.component";
 import { AccordionItem } from "./accordion-item.component";
+import { settle } from "../test-helpers/web-components";
 
 const rendered = (element: any) => element.updateComplete as Promise<boolean>;
 const heading = (item: HTMLElement) => item.shadowRoot.querySelector<HTMLButtonElement>(".cds--accordion__heading");
@@ -73,7 +74,7 @@ describe("Accordion", () => {
 	it("should expand on click, emit selected and update [(expanded)]", async () => {
 		spyOn(wrapper, "onSelected");
 		heading(item).click();
-		await update();
+		await settle(fixture);
 
 		expect(item.open).toBe(true);
 		expect(wrapper.expanded).toBe(true);
@@ -92,16 +93,28 @@ describe("Accordion", () => {
 		expect(item.open).toBe(false);
 	});
 
-	it("should disable items when the accordion is disabled, then restore the item's own value", async () => {
+	it("should let the web component disable its items", async () => {
 		await update({ accordionDisabled: true });
 		expect(item.disabled).toBe(true);
 		expect(heading(item).disabled).toBe(true);
 
 		await update({ accordionDisabled: false });
 		expect(item.disabled).toBe(false);
+	});
 
-		await update({ disabled: true, accordionDisabled: false });
-		expect(item.disabled).toBe(true);
+	it("should update [(expanded)] when the web component opens the item itself", async () => {
+		spyOn(wrapper, "onSelected");
+		item.open = true;
+		await settle(fixture);
+		expect(wrapper.expanded).toBe(true);
+		expect(wrapper.onSelected).toHaveBeenCalledWith({ id: item.id, expanded: true });
+	});
+
+	it("should not emit when [expanded] is written", async () => {
+		spyOn(wrapper, "onSelected");
+		await update({ expanded: true });
+		await settle(fixture);
+		expect(wrapper.onSelected).not.toHaveBeenCalled();
 	});
 
 	it("should render a TemplateRef title with context in the title slot", async () => {
@@ -122,8 +135,7 @@ describe("Accordion", () => {
 		expect(item.open).toBe(false);
 	});
 
-	it("should disable an item created dynamically in a disabled accordion", async () => {
-		await update({ accordionDisabled: true });
+	it("should emit expandedChange from an item created dynamically", async () => {
 		const ref = createComponent(AccordionItem, {
 			environmentInjector: TestBed.inject(EnvironmentInjector),
 			projectableNodes: [[document.createTextNode("Dynamic")]]
@@ -131,10 +143,56 @@ describe("Accordion", () => {
 		ref.setInput("title", "Dynamic");
 		TestBed.inject(ApplicationRef).attachView(ref.hostView);
 		accordion.appendChild(ref.location.nativeElement);
-		await update();
+		await settle(fixture);
+		const changes: boolean[] = [];
+		ref.instance.expandedChange.subscribe(value => changes.push(value));
 
-		expect(ref.location.nativeElement.disabled).toBe(true);
-		expect(ref.location.nativeElement.getAttribute("alignment")).toBe("start");
+		heading(ref.location.nativeElement).click();
+		await settle(fixture);
+
+		expect(ref.location.nativeElement.open).toBe(true);
+		expect(changes).toEqual([true]);
 		ref.destroy();
+	});
+});
+
+@Component({
+	template: `
+		<cds-accordion>
+			<cds-accordion-item title="Own disabled" [disabled]="true">Content</cds-accordion-item>
+			<cds-accordion-item title="Unset">Content</cds-accordion-item>
+		</cds-accordion>
+	`,
+	imports: [Accordion, AccordionItem]
+})
+class AccordionStateTest {}
+
+describe("Accordion defaults", () => {
+	let fixture;
+	let accordion;
+	let items: any[];
+
+	beforeEach(async () => {
+		fixture = TestBed.createComponent(AccordionStateTest);
+		await settle(fixture);
+		accordion = fixture.nativeElement.querySelector("cds-accordion");
+		items = Array.from(fixture.nativeElement.querySelectorAll("cds-accordion-item"));
+	});
+
+	it("should keep the web component defaults when inputs are unset", () => {
+		expect(accordion.size).toBe("md");
+		expect(accordion.disabled).toBe(false);
+		expect(items[1].open).toBe(false);
+		expect(items[1].disabled).toBe(false);
+	});
+
+	it("should keep an item's own disabled", () => {
+		expect(items[0].disabled).toBe(true);
+	});
+
+	it("should not overwrite state the web component set itself", async () => {
+		items[1].open = true;
+		await settle(fixture);
+		expect(items[1].open).toBe(true);
 	});
 });

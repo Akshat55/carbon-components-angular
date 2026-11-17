@@ -1,4 +1,5 @@
 import {
+	booleanAttribute,
 	ChangeDetectionStrategy,
 	Component,
 	CUSTOM_ELEMENTS_SCHEMA,
@@ -28,20 +29,17 @@ import { PopoverBase } from "carbon-components-angular/popover";
 		<div slot="body-text"><ng-content /></div>
 		<ng-content select="[cdsAILabelActions], [ibmAILabelActions], [slot='actions']" />
 	`,
-	// The web component is `display: flex`; v6 AI labels sat inline next to their content.
-	styles: [":host { display: inline-flex; }"],
 	host: {
 		"[id]": "id",
-		"[alignment]": "align",
-		"[alignmentAxisOffset]": "alignmentAxisOffset",
-		"[aiText]": "aiText",
-		"[aiTextLabel]": "textLabel",
-		"[kind]": "kind",
-		"[size]": "size",
-		"[revertActive]": "revertActive",
-		"[revertLabel]": "revertLabel",
-		"[buttonLabel]": "ariaLabel",
-		"(click)": "onClick($event)"
+		"[alignment]": "align ?? element.alignment",
+		"[alignmentAxisOffset]": "alignmentAxisOffset ?? element.alignmentAxisOffset",
+		"[aiText]": "aiText ?? element.aiText",
+		"[aiTextLabel]": "textLabel ?? element.aiTextLabel",
+		"[kind]": "kind ?? element.kind",
+		"[size]": "size ?? element.size",
+		"[revertActive]": "revertActive ?? element.revertActive",
+		"[revertLabel]": "revertLabel ?? element.revertLabel",
+		"[buttonLabel]": "ariaLabel ?? element.buttonLabel"
 	},
 	changeDetection: ChangeDetectionStrategy.OnPush,
 	schemas: [CUSTOM_ELEMENTS_SCHEMA]
@@ -50,41 +48,58 @@ export class AILabelComponent extends PopoverBase {
 	static labelCounter = 0;
 
 	@Input() id = `ai-label-${AILabelComponent.labelCounter++}`;
-	@Input() aiText = "AI";
+	/**
+	 * The web component's default is `"AI"`.
+	 */
+	@Input() aiText?: string;
 	/**
 	 * Text next to "AI" when `kind="inline"`.
 	 */
 	@Input() textLabel: string;
-	@Input() kind: "default" | "inline" = "default";
-	@Input() size: "mini" | "2xs" | "xs" | "sm" | "md" | "lg" | "xl" = "xs";
+	@Input() kind?: "default" | "inline";
 	/**
-	 * Shows the revert button instead of the label.
+	 * The web component's default is `"xs"`.
 	 */
-	@Input() revertActive = false;
-	@Input() revertLabel = "Revert to AI input";
-	@Input() ariaLabel = "Show information";
-	@Input() alignmentAxisOffset: number;
-	@Input() autoAlign = true;
+	@Input() size?: "mini" | "2xs" | "xs" | "sm" | "md" | "lg" | "xl";
+	/**
+	 * Shows the revert button instead of the label. The web component clears it when
+	 * the revert button is clicked, and `revertClick` emits.
+	 */
+	@Input({ transform: booleanAttribute }) revertActive?: boolean;
+	/**
+	 * The web component's default is `"Revert to AI input"`.
+	 */
+	@Input() revertLabel?: string;
+	/**
+	 * The web component's default is `"Show information"`.
+	 */
+	@Input() ariaLabel?: string;
+	@Input() alignmentAxisOffset?: number;
 	/**
 	 * @deprecated the web component always renders a caret.
 	 */
-	@Input() caret = true;
+	@Input({ transform: booleanAttribute }) caret = true;
 	/**
 	 * @deprecated
 	 */
-	@Input() dropShadow = false;
+	@Input({ transform: booleanAttribute }) dropShadow = false;
 	/**
 	 * @deprecated
 	 */
-	@Input() highContrast = true;
+	@Input({ transform: booleanAttribute }) highContrast = true;
 
 	@Output() revertClick = new EventEmitter<MouseEvent>();
 
-	onClick(event: MouseEvent) {
-		// The web component clears `revert-active` itself when the revert button is clicked.
-		if (this.revertActive) {
-			this.revertActive = false;
-			this.revertClick.emit(event);
-		}
+	constructor() {
+		super();
+		// The web component clears `revertActive` while handling the click inside its shadow
+		// root, so read it in the capture phase, before that.
+		this.element.addEventListener("click", (event: MouseEvent) => {
+			if (this.element.revertActive) {
+				this.revertActive = false;
+				this.revertClick.emit(event);
+				this.changeDetectorRef.markForCheck();
+			}
+		}, { capture: true });
 	}
 }

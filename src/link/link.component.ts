@@ -1,4 +1,5 @@
 import {
+	booleanAttribute,
 	ChangeDetectionStrategy,
 	Component,
 	CUSTOM_ELEMENTS_SCHEMA,
@@ -36,8 +37,8 @@ export class CdsLink {
 	@Input() target: string;
 	@Input() rel: string;
 	@Input() download: string;
-	@Input() inline = false;
+	@Input({ transform: booleanAttribute }) inline = false;
 	@Input() size: "sm" | "md" | "lg" = "md";
-	@Input() visited = false;
-	@Input() disabled = false;
+	@Input({ transform: booleanAttribute }) visited = false;
+	@Input({ transform: booleanAttribute }) disabled = false;
 }

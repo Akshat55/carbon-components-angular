@@ -6,16 +6,19 @@ import { CommonModule } from "@angular/common";
 // imports
 import { I18nModule } from "carbon-components-angular/i18n";
 import { Toggle } from "./toggle.component";
+import { ToggleSkeleton } from "./toggle-skeleton.component";
 
 @NgModule({
 	exports: [
-		Toggle
+		Toggle,
+		ToggleSkeleton
 	],
 	imports: [
 		CommonModule,
 		FormsModule,
 		I18nModule,
-		Toggle
+		Toggle,
+		ToggleSkeleton
 	]
 })
 export class ToggleModule {}

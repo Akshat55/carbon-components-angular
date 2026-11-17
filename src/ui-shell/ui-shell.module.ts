@@ -6,6 +6,9 @@ import { I18nModule } from "carbon-components-angular/i18n";
 import { HeaderModule } from "./header/header.module";
 import { SideNavModule } from "./sidenav/sidenav.module";
 import { PanelModule } from "./panel/panel.module";
+import { HeaderName, HeaderSideNavItems } from "./header/header-parts.component";
+import { SideNavDivider } from "./sidenav/sidenav-divider.component";
+import { SwitcherDivider } from "./panel/switcher-divider.component";
 
 @NgModule({
 	imports: [
@@ -13,12 +16,20 @@ import { PanelModule } from "./panel/panel.module";
 		I18nModule,
 		HeaderModule,
 		SideNavModule,
-		PanelModule
+		PanelModule,
+		HeaderName,
+		HeaderSideNavItems,
+		SideNavDivider,
+		SwitcherDivider
 	],
 	exports: [
 		HeaderModule,
 		SideNavModule,
-		PanelModule
+		PanelModule,
+		HeaderName,
+		HeaderSideNavItems,
+		SideNavDivider,
+		SwitcherDivider
 	]
 })
 export class UIShellModule {}

@@ -1,14 +1,12 @@
 import { moduleMetadata, Meta } from "@storybook/angular";
-import { GridModule } from "../grid/grid.module";
 import { IconModule } from "../icon/icon.module";
 
 import {
 	Tab,
-	TabHeader,
-	TabHeaderGroup,
-	TabHeaders,
+	TabItemSkeleton,
 	TabSkeleton,
-	Tabs
+	Tabs,
+	TabsVertical
 } from "./";
 
 import { TabsStoryModule } from "./stories";
@@ -20,16 +18,16 @@ export default {
 			imports: [
 				Tabs,
 				Tab,
-				TabHeader,
-				TabHeaderGroup,
-				TabHeaders,
+				TabsVertical,
 				TabSkeleton,
+				TabItemSkeleton,
 				IconModule,
-				GridModule,
 				TabsStoryModule
 			]
 		})
-	]
+	],
+	component: Tabs,
+	subcomponents: { Tab, TabsVertical }
 } as Meta;
 
 const Template = (args) => ({
@@ -37,168 +35,156 @@ const Template = (args) => ({
 	template: `
 		<cds-tabs
 			[type]="type"
-			[followFocus]="followFocus"
-			[isNavigation]="isNavigation"
-			[cacheActive]="cacheActive">
-			<cds-tab heading="one">Tab Content 1</cds-tab>
-			<cds-tab heading="two">Tab Content 2</cds-tab>
-			<cds-tab heading="three" [tabContent]="three"></cds-tab>
-			<cds-tab heading="four" [tabContent]="four"></cds-tab>
+			[size]="size"
+			[fullWidth]="fullWidth"
+			[selectionMode]="selectionMode"
+			[(value)]="value"
+			(selected)="selected($event)">
+			<cds-tab value="one" target="panel-one">Tab label 1</cds-tab>
+			<cds-tab value="two" target="panel-two" secondaryLabel="(21/25)">Tab label 2</cds-tab>
+			<cds-tab value="three" target="panel-three" [disabled]="true">Tab label 3</cds-tab>
+			<cds-tab value="four" target="panel-four">Tab label 4</cds-tab>
 		</cds-tabs>
-
-		<!-- Use templates if you would like to have lifecycle hooks called when cacheActive is false -->
-		<ng-template #three>
-			Tab Content 3
-		</ng-template>
-
-		<ng-template #four>
-			Tab Content 4
-		</ng-template>
+		<div id="panel-one" role="tabpanel" hidden>Tab Panel 1</div>
+		<div id="panel-two" role="tabpanel" hidden>Tab Panel 2</div>
+		<div id="panel-three" role="tabpanel" hidden>Tab Panel 3</div>
+		<div id="panel-four" role="tabpanel" hidden>
+			<!-- With [(value)], panels can also be rendered only when their tab is selected -->
+			@if (value === "four") {
+				Tab Panel 4
+			}
+		</div>
 	`
 });
 export const Basic = Template.bind({});
 Basic.args = {
-	followFocus: true,
-	cacheActive: true,
-	isNavigation: false,
-	type: "line"
+	type: "line",
+	size: "md",
+	fullWidth: false,
+	selectionMode: "automatic",
+	value: "one"
 };
 Basic.argTypes = {
+	type: {
+		options: ["line", "contained"],
+		control: "radio"
+	},
+	size: {
+		options: ["sm", "md", "lg"],
+		control: "radio"
+	},
+	selectionMode: {
+		options: ["automatic", "manual"],
+		control: "radio"
+	},
+	selected: { action: "selected" }
+};
+
+export const Contained = Template.bind({});
+Contained.args = {
+	...Basic.args,
+	type: "contained"
+};
+Contained.argTypes = Basic.argTypes;
+
+const IconTemplate = (args) => ({
+	props: args,
+	template: `
+		<cds-tabs [type]="type" [iconSize]="iconSize">
+			<cds-tab target="icon-panel-1" [iconOnly]="true" ariaLabel="Dashboard">
+				<svg cdsIcon="dashboard" size="16"></svg>
+			</cds-tab>
+			<cds-tab target="icon-panel-2" [iconOnly]="true" ariaLabel="Monitoring">
+				<svg cdsIcon="cloud--monitoring" size="16"></svg>
+			</cds-tab>
+			<cds-tab target="icon-panel-3" [iconOnly]="true" ariaLabel="Activity">
+				<svg cdsIcon="activity" size="16"></svg>
+			</cds-tab>
+			<cds-tab target="icon-panel-4" [iconOnly]="true" ariaLabel="Settings" [badgeIndicator]="true">
+				<svg cdsIcon="settings" size="16"></svg>
+			</cds-tab>
+		</cds-tabs>
+		<div id="icon-panel-1" role="tabpanel" hidden>Dashboard</div>
+		<div id="icon-panel-2" role="tabpanel" hidden>Monitoring</div>
+		<div id="icon-panel-3" role="tabpanel" hidden>Activity</div>
+		<div id="icon-panel-4" role="tabpanel" hidden>Settings</div>
+	`
+});
+export const IconOnly = IconTemplate.bind({});
+IconOnly.args = {
+	type: "line",
+	iconSize: "default"
+};
+IconOnly.argTypes = {
+	type: {
+		options: ["line", "contained"],
+		control: "radio"
+	},
+	iconSize: {
+		options: ["default", "lg"],
+		control: "radio"
+	}
+};
+
+const DismissableTemplate = (args) => ({
+	props: {
+		...args,
+		tabs: [1, 2, 3, 4, 5],
+		close(index: number) {
+			this.tabs = this.tabs.filter((_, i) => i !== index);
+		}
+	},
+	template: `
+		<cds-tabs [type]="type" [dismissable]="true" (tabClose)="close($event)">
+			@for (tab of tabs; track tab) {
+				<cds-tab [target]="'dismissable-panel-' + tab">Tab label {{tab}}</cds-tab>
+			}
+		</cds-tabs>
+		@for (tab of tabs; track tab) {
+			<div [id]="'dismissable-panel-' + tab" role="tabpanel" hidden>Tab Panel {{tab}}</div>
+		}
+	`
+});
+export const Dismissable = DismissableTemplate.bind({});
+Dismissable.args = {
+	type: "line"
+};
+Dismissable.argTypes = {
 	type: {
 		options: ["line", "contained"],
 		control: "radio"
 	}
 };
 
-const WithTemplate = (args) => ({
+const VerticalTemplate = (args) => ({
 	props: args,
 	template: `
-		<ng-template #customTabs let-item>
-			{{item ? item.name : "wait for it"}}
-		</ng-template>
-		<ng-template #iconTab>
-			<div style="height: 14px;">
-				Something custom
-				<svg width="16" height="16" viewBox="0 0 16 16"
-				style="height: 14px; width: 14px; fill: #3d70b2;">
-					<path d="M8 14.5a6.5 6.5 0 1 0 0-13 6.5 6.5 0 0 0 0 13zM8 16A8 8 0 1 1 8 0a8 8 0 0 1 0 16z"></path>
-					<path d="M9 13H7V7h2z"></path>
-					<path d="M7 4a1 1 0 1 1 2 0 1 1 0 1 1-2 0"></path>
-				</svg>
-			</div>
-		</ng-template>
-		<cds-tabs [type]="type" [followFocus]="followFocus" [isNavigation]="isNavigation">
-			@for (item of data; track item.name) {
-				<cds-tab
-					[heading]="customTabs"
-					title="Tab Content"
-					[context]="item">
-					Tab Content {{ $index + 1 }}
-				</cds-tab>
-			}
-			<cds-tab [heading]="iconTab" title="Custom tab content">Tab Content Custom</cds-tab>
-		</cds-tabs>
+		<cds-tabs-vertical [height]="height">
+			<cds-tabs slot="tabs">
+				<cds-tab target="vertical-panel-1">Dashboard</cds-tab>
+				<cds-tab target="vertical-panel-2">Extra long label that will go two lines then truncate</cds-tab>
+				<cds-tab target="vertical-panel-3">Activity</cds-tab>
+				<cds-tab target="vertical-panel-4" [disabled]="true">Settings</cds-tab>
+			</cds-tabs>
+			<div slot="panel" id="vertical-panel-1" role="tabpanel" hidden>Dashboard panel</div>
+			<div slot="panel" id="vertical-panel-2" role="tabpanel" hidden>Long label panel</div>
+			<div slot="panel" id="vertical-panel-3" role="tabpanel" hidden>Activity panel</div>
+			<div slot="panel" id="vertical-panel-4" role="tabpanel" hidden>Settings panel</div>
+		</cds-tabs-vertical>
 	`
 });
-export const With = WithTemplate.bind({});
-With.storyName = "With template";
-With.args = {
-	followFocus: true,
-	isNavigation: false,
-	data: [
-		{ name: "one" },
-		{ name: "two" },
-		{ name: "three" }
-	]
-};
-With.argTypes = {
-	...Basic.argTypes
-};
-
-const BeforeAndAfterTemplate = (args) => ({
-	props: args,
-	template: `
-		<div style="font-weight: 600; padding-bottom: 10px; padding-top: 20px;">before</div>
-		<cds-tabs [type]="type" [followFocus]="followFocus" [isNavigation]="isNavigation">
-			<cds-tab heading="one">foo</cds-tab>
-			<cds-tab heading="two">bar</cds-tab>
-			<span before>content before</span>
-		</cds-tabs>
-		<div style="font-weight: 600; padding-bottom: 10px; padding-top: 20px;">after</div>
-		<cds-tabs [type]="type" [followFocus]="followFocus" [isNavigation]="isNavigation">
-			<cds-tab heading="one">foo</cds-tab>
-			<cds-tab heading="two">bar</cds-tab>
-			<span after>content after</span>
-		</cds-tabs>
-		<div style="font-weight: 600; padding-bottom: 10px; padding-top: 20px;">both</div>
-		<cds-tabs [type]="type" [followFocus]="followFocus" [isNavigation]="isNavigation">
-			<cds-tab heading="one">foo</cds-tab>
-			<cds-tab heading="two">bar</cds-tab>
-			<span before>content before</span>
-			<span after>content after</span>
-		</cds-tabs>
-	`
-});
-export const BeforeAndAfter = BeforeAndAfterTemplate.bind({});
-BeforeAndAfter.storyName = "Width before and after content";
-BeforeAndAfter.args = {
-	followFocus: true,
-	isNavigation: false
-};
-BeforeAndAfter.argTypes = {
-	...Basic.argTypes
+export const Vertical = VerticalTemplate.bind({});
+Vertical.args = {
+	height: "400px"
 };
 
 const SkeletonTemplate = (args) => ({
 	props: args,
 	template: `
-		<cds-tabs skeleton="true">
-			<cds-tab></cds-tab>
-			<cds-tab></cds-tab>
-		</cds-tabs>
-
-		<div style="margin-top: 5rem">
-			<p>Tab skeleton component for cds-tab-header-group:</p>
-			<cds-tabs-skeleton></cds-tabs-skeleton>
-		</div>
-
-		<div style="margin-top: 5rem">
-			<p>Contained tab skeleton:</p>
-			<cds-tabs-skeleton [contained]="true"></cds-tabs-skeleton>
-		</div>
+		<cds-tabs-skeleton [contained]="contained" [numOfTabs]="5" />
 	`
 });
 export const Skeleton = SkeletonTemplate.bind({});
-
-const ContainedWithSecondaryLabelsTemplate = (args) => ({
-	props: args,
-	template: `
-		<cds-tabs type="contained">
-			<cds-tab heading="Engage" secondaryLabel="(21/25)">Tab Content 1</cds-tab>
-			<cds-tab heading="Analyze" secondaryLabel="(12/16)">Tab Content 2</cds-tab>
-			<cds-tab heading="Remediate" secondaryLabel="(0/7)">Tab Content 3</cds-tab>
-			<cds-tab heading="Assets" secondaryLabel="(4/12)">Tab Content 4</cds-tab>
-			<cds-tab heading="Monitoring" secondaryLabel="(0/10)" [disabled]="true">Tab Content 5</cds-tab>
-		</cds-tabs>
-	`
-});
-export const ContainedWithSecondaryLabels = ContainedWithSecondaryLabelsTemplate.bind({});
-ContainedWithSecondaryLabels.storyName = "Contained with secondary labels";
-
-const ContainedFullWidthTemplate = (args) => ({
-	props: args,
-	template: `
-		<cds-tabs type="contained" [fullWidth]="true">
-			<cds-tab heading="TLS">Tab Content 1</cds-tab>
-			<cds-tab heading="Origin">Tab Content 2</cds-tab>
-			<cds-tab heading="Rate limiting" [disabled]="true">Tab Content 3</cds-tab>
-			<cds-tab heading="WAF">Tab Content 4</cds-tab>
-			<cds-tab heading="IP Firewall">Tab Content 5</cds-tab>
-			<cds-tab heading="Firewall rules">Tab Content 6</cds-tab>
-			<cds-tab heading="Range">Tab Content 7</cds-tab>
-			<cds-tab heading="Mutual TLS">Tab Content 8</cds-tab>
-		</cds-tabs>
-	`
-});
-export const ContainedFullWidth = ContainedFullWidthTemplate.bind({});
-ContainedFullWidth.storyName = "Contained full width";
+Skeleton.args = {
+	contained: false
+};

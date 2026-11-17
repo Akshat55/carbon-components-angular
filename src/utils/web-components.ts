@@ -1,5 +1,6 @@
 import {
 	ApplicationRef,
+	booleanAttribute,
 	ChangeDetectorRef,
 	DestroyRef,
 	Directive,
@@ -28,13 +29,19 @@ import { ControlValueAccessor, NG_VALUE_ACCESSOR } from "@angular/forms";
  *   templates compile without `CUSTOM_ELEMENTS_SCHEMA` and importing the class registers it.
  * - Pass inputs with `host` property bindings and add `schemas: [CUSTOM_ELEMENTS_SCHEMA]`
  *   to the class (consumers don't need it).
- * - Parents find their children through the DOM (`observeChildren`, `wrapperOf`), never
- *   `@ContentChildren`, so children created with `createComponent` or `@for` work alike.
+ * - Parents and children talk through the web components themselves (a parent web component
+ *   passes its settings on to its children). Wrappers never find, sync or fix up each other,
+ *   so children created with `createComponent` or `@for` work exactly as the web component does.
+ * - Add only what Angular needs: inputs, two-way binding (`[(x)]`) and forms
+ *   (`ControlValueAccessor`). Mirror state the web component changes itself with
+ *   `observeAttributes` (reflected attributes) or its events.
  * - Angular rewrites `[readonly]`, `[tabindex]`, `[for]` and `[class]` to the DOM properties
  *   `readOnly`, `tabIndex`, `htmlFor` and `className`, so bind those as attributes instead:
  *   `"[attr.readonly]": "readOnly ? '' : null"`.
  * - A host `(event)` listener whose name matches one of the component's outputs subscribes to
  *   that output, not the DOM event. Use `addEventListener` for those.
+ * - Never write a value the consumer didn't set: inputs the web component (or a parent web
+ *   component) also sets are optional and bound as `"[x]": "x ?? element.x"`.
  */
 
 /**
@@ -142,33 +149,13 @@ export class TemplateSlot implements OnChanges, OnDestroy {
 	}
 }
 
-const wrappers = new WeakMap<Element, unknown>();
-
 /**
- * Links a web component element to the Angular wrapper that renders it.
- *
- * Parents find their children through the DOM (see `observeChildren`) instead of
- * `@ContentChildren`, which never sees components created with `createComponent` or
- * `ViewContainerRef`. `wrapperOf` then gives the Angular instance, when there is one.
+ * Calls `onChange` (at most once per microtask) whenever children of `element` are added
+ * or removed, however they were created: templates, `@for`, `createComponent`, or plain DOM.
+ * Also calls it once right away (in a microtask). Only for wrappers that render children
+ * themselves from data inputs and need to know whether the consumer wrote their own.
  */
-export function registerWrapper(element: Element, instance: unknown) {
-	wrappers.set(element, instance);
-}
-
-/**
- * The Angular wrapper of `element`, if it is one of `type`.
- */
-export function wrapperOf<T>(element: Element, type: abstract new (...args: any[]) => T): T | null {
-	const instance = wrappers.get(element);
-	return instance instanceof type ? instance : null;
-}
-
-/**
- * Calls `onChange` (at most once per microtask) whenever descendants of `element` are
- * added or removed, however they were created: templates, `@for`, `createComponent`, or
- * plain DOM. Also calls it once right away (in a microtask).
- */
-export function observeChildren(element: Element, destroyRef: DestroyRef, onChange: () => void) {
+export function observeChildren(element: Element, onChange: () => void, destroyRef = inject(DestroyRef)) {
 	let scheduled = false;
 	const schedule = () => {
 		if (!scheduled) {
@@ -180,23 +167,40 @@ export function observeChildren(element: Element, destroyRef: DestroyRef, onChan
 		}
 	};
 	const observer = new MutationObserver(schedule);
-	observer.observe(element, { childList: true, subtree: true });
+	observer.observe(element, { childList: true });
 	destroyRef.onDestroy(() => observer.disconnect());
 	schedule();
 }
 
 /**
- * Calls `onChange` when a boolean attribute the web component reflects (e.g. `open`,
- * `expanded`) is added or removed, so the wrapper can mirror state the user changed.
+ * Calls `onChange` when one of the `attributes` the web component reflects (e.g. `open`,
+ * `expanded`, `selected`) changes, whether the user, the web component itself or a parent web
+ * component changed it. Use it to mirror web component state into two-way bound inputs:
+ *
+ * ```ts
+ * constructor() {
+ * 	observeAttributes(this.element, ["open"], () => {
+ * 		if (this.element.open !== this.expanded) {
+ * 			this.expanded = this.element.open;
+ * 			this.expandedChange.emit(this.expanded);
+ * 		}
+ * 	});
+ * }
+ * ```
+ *
+ * Compare with the input's own value so writing the input doesn't emit. Call it from a
+ * constructor or field initializer (it injects `DestroyRef`), or pass `destroyRef`.
  */
-export function observeAttribute(
+export function observeAttributes(
 	element: Element,
-	name: string,
-	destroyRef: DestroyRef,
-	onChange: (present: boolean) => void
+	attributes: string[],
+	onChange: (name: string) => void,
+	destroyRef = inject(DestroyRef)
 ) {
-	const observer = new MutationObserver(() => onChange(element.hasAttribute(name)));
-	observer.observe(element, { attributes: true, attributeFilter: [name] });
+	const observer = new MutationObserver(records => {
+		new Set(records.map(record => record.attributeName)).forEach(name => onChange(name));
+	});
+	observer.observe(element, { attributes: true, attributeFilter: attributes });
 	destroyRef.onDestroy(() => observer.disconnect());
 }
 
@@ -231,13 +235,14 @@ export function provideValueAccessor(type: () => Type<any>): Provider {
 })
 export abstract class WebComponentValueAccessor<T = any> implements ControlValueAccessor {
 	/**
-	 * Set to `true` to disable the control.
+	 * Set to `true` to disable the control. Unset, the web component (or a parent such as a
+	 * group, which passes its own `disabled` on) decides.
 	 */
-	@Input() set disabled(value: boolean) {
+	@Input({ transform: booleanAttribute }) set disabled(value: boolean | undefined) {
 		this._disabled = value;
 		this.onDisabledChange();
 	}
-	get disabled() {
+	get disabled(): boolean | undefined {
 		return this._disabled;
 	}
 
@@ -246,7 +251,7 @@ export abstract class WebComponentValueAccessor<T = any> implements ControlValue
 	 */
 	protected element: any = inject(ElementRef).nativeElement;
 	protected changeDetectorRef = inject(ChangeDetectorRef);
-	protected _disabled = false;
+	protected _disabled?: boolean;
 
 	onChange: (value: T) => void = () => {};
 	onTouched: () => void = () => {};

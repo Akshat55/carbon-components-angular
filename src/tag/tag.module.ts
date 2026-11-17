@@ -6,6 +6,7 @@ import { TagIconDirective } from "./tag-icon.directive";
 import { TagSelectableComponent } from "./tag-selectable.component";
 import { TagOperationalComponent } from "./tag-operational.component";
 import { IconDirective } from "carbon-components-angular/icon";
+import { TagSkeleton } from "./tag-skeleton.component";
 
 @NgModule({
 	exports: [
@@ -13,7 +14,8 @@ import { IconDirective } from "carbon-components-angular/icon";
 		TagFilter,
 		TagIconDirective,
 		TagSelectableComponent,
-		TagOperationalComponent
+		TagOperationalComponent,
+		TagSkeleton
 	],
 	imports: [
 		IconDirective,
@@ -21,6 +23,8 @@ import { IconDirective } from "carbon-components-angular/icon";
 		TagFilter,
 		TagIconDirective,
 		TagSelectableComponent,
-		TagOperationalComponent]
+		TagOperationalComponent,
+		TagSkeleton
+	]
 })
 export class TagModule {}

@@ -5,5 +5,5 @@ import { Directive, HostBinding } from "@angular/core";
 	standalone: true
 })
 export class ToastCaption {
-	@HostBinding("class.cds--toast-notification__caption") baseClass = true;
+	@HostBinding("attr.slot") slot = "caption";
 }

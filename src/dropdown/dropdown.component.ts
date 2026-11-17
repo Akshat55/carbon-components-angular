@@ -18,6 +18,7 @@ import { I18n } from "carbon-components-angular/i18n";
 import { provideValueAccessor, TemplateContent, TemplateSlot } from "carbon-components-angular/utils";
 import { ListSelection } from "./list-selection.class";
 import { ListItem } from "./list-item.interface";
+import { DropdownItem, MultiSelectItem } from "./dropdown-item.component";
 
 /**
  * Inputs and host bindings shared by `Dropdown` and `MultiSelect`.
@@ -25,22 +26,22 @@ import { ListItem } from "./list-item.interface";
 @Directive({
 	host: {
 		"[id]": "id",
-		"[titleText]": "isTemplate(label) ? '' : label",
-		"[label]": "placeholder",
-		"[hideLabel]": "hideLabel",
-		"[helperText]": "isTemplate(helperText) ? '' : helperText",
-		"[size]": "size",
-		"[disabled]": "disabled",
-		"[readOnly]": "readonly",
-		"[type]": "inline ? 'inline' : ''",
-		"[direction]": "dropUp ? 'top' : 'bottom'",
-		"[open]": "isOpen",
-		"[invalid]": "invalid",
+		"[titleText]": "isTemplate(label) ? '' : (label ?? element.titleText)",
+		"[label]": "placeholder ?? element.label",
+		"[hideLabel]": "hideLabel ?? element.hideLabel",
+		"[helperText]": "isTemplate(helperText) ? '' : (helperText ?? element.helperText)",
+		"[size]": "size ?? element.size",
+		"[disabled]": "disabled ?? element.disabled",
+		"[readOnly]": "readonly ?? element.readOnly",
+		"[type]": "inline === undefined ? element.type : (inline ? 'inline' : '')",
+		"[direction]": "dropUp === undefined ? element.direction : (dropUp ? 'top' : 'bottom')",
+		"[open]": "isOpen ?? element.open",
+		"[invalid]": "invalid ?? element.invalid",
 		"[invalidText]": "content.render('invalidText', invalidText)",
-		"[warn]": "warn",
+		"[warn]": "warn ?? element.warn",
 		"[warnText]": "content.render('warnText', warnText)",
 		"[toggleLabelClosed]": "menuButtonLabel",
-		"[isFluid]": "fluid"
+		"[isFluid]": "fluid ?? element.isFluid"
 	}
 })
 export abstract class BaseDropdown extends ListSelection {
@@ -50,26 +51,32 @@ export abstract class BaseDropdown extends ListSelection {
 
 	@Input() id = `dropdown-${BaseDropdown.dropdownCount++}`;
 	@Input() label: string | TemplateRef<any>;
-	@Input() hideLabel = false;
+	@Input({ transform: booleanAttribute }) hideLabel?: boolean;
 	@Input() helperText: string | TemplateRef<any>;
 	@Input() decorator: TemplateRef<any>;
 	/**
 	 * Text shown in the trigger when nothing is selected.
 	 */
-	@Input() placeholder = "";
-	@Input() size: "sm" | "md" | "lg" = "md";
-	@Input() readonly = false;
-	@Input() inline = false;
-	@Input() fluid = false;
-	@Input() invalid = false;
+	@Input() placeholder?: string;
+	/**
+	 * The web component's default is `"md"`.
+	 */
+	@Input() size?: "sm" | "md" | "lg";
+	@Input({ transform: booleanAttribute }) readonly?: boolean;
+	@Input({ transform: booleanAttribute }) inline?: boolean;
+	@Input({ transform: booleanAttribute }) fluid?: boolean;
+	@Input({ transform: booleanAttribute }) invalid?: boolean;
 	@Input() invalidText: string | TemplateRef<any>;
-	@Input() warn = false;
+	@Input({ transform: booleanAttribute }) warn?: boolean;
 	@Input() warnText: string | TemplateRef<any>;
 	/**
 	 * Opens the menu upwards.
 	 */
-	@Input() dropUp: boolean;
-	@Input() isOpen = false;
+	@Input({ transform: booleanAttribute }) dropUp?: boolean;
+	/**
+	 * Unset, the web component keeps its own open state.
+	 */
+	@Input({ transform: booleanAttribute }) isOpen?: boolean;
 	@Input() menuButtonLabel = this.i18n.get().DROPDOWN.OPEN;
 	@Input() clearText: string = this.i18n.get().DROPDOWN.CLEAR;
 	@Input() selectedLabel = this.i18n.get().DROPDOWN.SELECTED;
@@ -84,7 +91,7 @@ export abstract class BaseDropdown extends ListSelection {
 	/**
 	 * @deprecated use `<cds-dropdown-skeleton>` instead.
 	 */
-	@Input() skeleton = false;
+	@Input({ transform: booleanAttribute }) skeleton = false;
 	/**
 	 * @deprecated the web component positions its own menu.
 	 */
@@ -96,7 +103,7 @@ export abstract class BaseDropdown extends ListSelection {
 	/**
 	 * @deprecated the web component handles keyboard navigation.
 	 */
-	@Input() disableArrowKeys = false;
+	@Input({ transform: booleanAttribute }) disableArrowKeys = false;
 
 	// eslint-disable-next-line @angular-eslint/no-output-on-prefix -- existing output name
 	@Output() onClose = new EventEmitter<any>();
@@ -154,8 +161,9 @@ const ITEM_CONTENT = `@if (listTpl) {<ng-template [ngTemplateOutlet]="listTpl" [
 	selector: "cds-dropdown",
 	template: `
 		${SLOTS}
+		<ng-content />
 		@for (item of items; track $index) {
-			<cds-dropdown-item [value]="'' + $index" [disabled]="!!item.disabled" [selected]="!!item.selected"
+			<cds-dropdown-item [value]="'' + $index" [attr.data-list-index]="$index" [disabled]="!!item.disabled" [selected]="!!item.selected"
 				>${ITEM_CONTENT}</cds-dropdown-item
 			>
 		}
@@ -167,7 +175,7 @@ const ITEM_CONTENT = `@if (listTpl) {<ng-template [ngTemplateOutlet]="listTpl" [
 	},
 	providers: [provideValueAccessor(() => Dropdown)],
 	changeDetection: ChangeDetectionStrategy.OnPush,
-	imports: [NgTemplateOutlet, TemplateSlot],
+	imports: [NgTemplateOutlet, TemplateSlot, DropdownItem],
 	schemas: [CUSTOM_ELEMENTS_SCHEMA]
 })
 export class Dropdown extends BaseDropdown {
@@ -186,12 +194,16 @@ export class Dropdown extends BaseDropdown {
 
 	get selectedIndex() {
 		const index = this._items.findIndex(item => item.selected);
-		return index < 0 ? "" : String(index);
+		return index < 0 ? this.childValue : String(index);
 	}
 
 	onSelected(event: Event) {
-		const value = (event as CustomEvent<{ item: { value: string } }>).detail.item.value;
-		this.select([Number(value)]);
+		const item = (event as CustomEvent<{ item: Element & { value: string } }>).detail.item;
+		if (this.isListItem(item)) {
+			this.select([Number(item.value)]);
+		} else {
+			this.selectChildren([item]);
+		}
 	}
 }
 
@@ -211,15 +223,16 @@ export class Dropdown extends BaseDropdown {
 	selector: "cds-multi-select",
 	template: `
 		${SLOTS}
+		<ng-content />
 		@for (item of displayItems; track item) {
-			<cds-multi-select-item [value]="'' + items.indexOf(item)" [disabled]="!!item.disabled" [selected]="!!item.selected"
+			<cds-multi-select-item [value]="'' + items.indexOf(item)" [attr.data-list-index]="items.indexOf(item)" [disabled]="!!item.disabled" [selected]="!!item.selected"
 				>${ITEM_CONTENT}</cds-multi-select-item
 			>
 		}
 	`,
 	host: {
 		"[value]": "selectedValues",
-		"[filterable]": "filterable",
+		"[filterable]": "filterable ?? element.filterable",
 		// The web component reorders by replacing its children, which Angular owns, so the
 		// wrapper orders the items itself (see `displayItems`).
 		"[selectionFeedback]": "'fixed'",
@@ -229,14 +242,14 @@ export class Dropdown extends BaseDropdown {
 	},
 	providers: [provideValueAccessor(() => MultiSelect)],
 	changeDetection: ChangeDetectionStrategy.OnPush,
-	imports: [NgTemplateOutlet, TemplateSlot],
+	imports: [NgTemplateOutlet, TemplateSlot, MultiSelectItem],
 	schemas: [CUSTOM_ELEMENTS_SCHEMA]
 })
 export class MultiSelect extends BaseDropdown {
 	/**
 	 * Lets the user type to filter the items.
 	 */
-	@Input({ transform: booleanAttribute }) filterable = false;
+	@Input({ transform: booleanAttribute }) filterable?: boolean;
 	/**
 	 * Where selected items appear in the list.
 	 */
@@ -252,7 +265,7 @@ export class MultiSelect extends BaseDropdown {
 	 * The web component's value: selected item values joined with commas.
 	 */
 	get selectedValues() {
-		return this._items.map((item, index) => item.selected ? String(index) : null).filter(Boolean).join(",");
+		return this._items.map((item, index) => item.selected ? String(index) : null).filter(Boolean).join(",") || this.childValue;
 	}
 
 	/**
@@ -278,8 +291,14 @@ export class MultiSelect extends BaseDropdown {
 	}
 
 	onSelected() {
-		const elements = Array.from<any>(this.element.querySelectorAll("cds-multi-select-item"));
-		this.select(elements.filter(item => item.selected).map(item => Number(item.value)));
+		const selected = Array.from<any>(this.element.querySelectorAll("cds-multi-select-item"))
+			.filter(item => item.selected && !item.isSelectAll);
+		const children = selected.filter(item => !this.isListItem(item));
+		if (children.length && !this._items.length) {
+			this.selectChildren(children);
+		} else {
+			this.select(selected.filter(item => this.isListItem(item)).map(item => Number(item.value)));
+		}
 	}
 
 	private selectedFirst() {

@@ -1,4 +1,5 @@
 import {
+	booleanAttribute,
 	ChangeDetectionStrategy,
 	Component,
 	CUSTOM_ELEMENTS_SCHEMA,
@@ -23,6 +24,6 @@ import { ShellLink } from "../shell-link.class";
 	schemas: [CUSTOM_ELEMENTS_SCHEMA]
 })
 export class SwitcherListItem extends ShellLink {
-	@Input() active = false;
+	@Input({ transform: booleanAttribute }) active = false;
 	@Input() target: string;
 }

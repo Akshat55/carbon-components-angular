@@ -10,17 +10,20 @@ import { NgModule } from "@angular/core";
 import { AILabelComponent } from "./ai-label.component";
 import { AILabelContent } from "./ai-label-content.directive";
 import { AILabelActions } from "./ai-label-actions.directive";
+import { AILabelActionButton } from "./ai-label-action-button.component";
 
 @NgModule({
 	exports: [
 		AILabelComponent,
 		AILabelContent,
-		AILabelActions
+		AILabelActions,
+		AILabelActionButton
 	],
 	imports: [
 		AILabelComponent,
 		AILabelContent,
-		AILabelActions
+		AILabelActions,
+		AILabelActionButton
 	]
 })
 export class AILabelModule {}

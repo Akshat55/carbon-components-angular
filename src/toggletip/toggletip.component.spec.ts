@@ -20,10 +20,9 @@ import {
 			<button cdsToggletipButton>
 				btn
 			</button>
-			<div cdsToggletipContent>
-				<div cdsToggletipAction>
-					<button>action btn</button>
-				</div>
+			<div cdsToggletipContent>Content</div>
+			<div cdsToggletipAction>
+				<button>action btn</button>
 			</div>
 		</cds-toggletip>
 		<button id="outside">outside</button>
@@ -62,14 +61,19 @@ describe("Toggletip", () => {
 	it("should create a toggletip component using helper directives", () => {
 		expect(toggletipEl.componentInstance instanceof Toggletip).toBe(true);
 		expect(element instanceof customElements.get("cds-toggletip")).toBe(true);
-		expect(fixture.debugElement.query(By.directive(ToggletipLabel)).nativeElement.classList).toContain("cds--toggletip-label");
+		expect(fixture.debugElement.query(By.directive(ToggletipLabel))).toBeTruthy();
 		expect(fixture.debugElement.query(By.directive(ToggletipButton)).nativeElement.getAttribute("slot")).toBe("trigger");
-		expect(fixture.debugElement.query(By.directive(ToggletipContent)).nativeElement.getAttribute("slot")).toBe("body-text");
-		expect(fixture.debugElement.query(By.directive(ToggletipAction)).nativeElement.classList).toContain("cds--toggletip-actions");
+		const content = fixture.debugElement.query(By.directive(ToggletipContent)).nativeElement;
+		const action = fixture.debugElement.query(By.directive(ToggletipAction)).nativeElement;
+		expect(shadow<HTMLSlotElement>(element, 'slot[name="body-text"]').assignedElements()).toEqual([content]);
+		expect(shadow<HTMLSlotElement>(element, 'slot[name="actions"]').assignedElements()).toEqual([action]);
 	});
 
-	it("should render inline", () => {
-		expect(getComputedStyle(element).display).toBe("inline-flex");
+	it("should leave styling to the web component", () => {
+		const helpers = [ToggletipLabel, ToggletipContent, ToggletipAction]
+			.map(type => fixture.debugElement.query(By.directive(type)).nativeElement);
+		expect(helpers.every(helper => !helper.className.includes("cds--"))).toBe(true);
+		expect(element.getAttribute("style")).toBeNull();
 	});
 
 	it("should open on button click and keep open after interacting with actions", async () => {

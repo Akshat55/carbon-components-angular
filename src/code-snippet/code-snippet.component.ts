@@ -1,7 +1,9 @@
 import {
+	booleanAttribute,
 	ChangeDetectionStrategy,
 	Component,
 	CUSTOM_ELEMENTS_SCHEMA,
+	ElementRef,
 	Input,
 	inject
 } from "@angular/core";
@@ -28,57 +30,78 @@ export enum SnippetType {
 	selector: "cds-code-snippet",
 	template: `<ng-content />`,
 	host: {
-		"[type]": "display",
-		"[disabled]": "disabled",
-		"[hideCopyButton]": "hideCopyButton",
-		"[wrapText]": "wrapText",
+		"[type]": "display ?? element.type",
+		"[disabled]": "disabled ?? element.disabled",
+		"[hideCopyButton]": "hideCopyButton ?? element.hideCopyButton",
+		"[wrapText]": "wrapText ?? element.wrapText",
+		"[copyText]": "copyText ?? element.copyText",
 		"[tooltipContent]": "copyButtonDescription || translations.COPY_CODE",
 		"[feedback]": "feedbackText",
-		"[feedbackTimeout]": "feedbackTimeout",
+		"[feedbackTimeout]": "feedbackTimeout ?? element.feedbackTimeout",
 		"[showMoreText]": "translations.SHOW_MORE",
 		"[showLessText]": "translations.SHOW_LESS",
-		"[maxCollapsedNumberOfRows]": "maxCollapsedNumberOfRows",
-		"[minCollapsedNumberOfRows]": "minCollapsedNumberOfRows",
-		"[maxExpandedNumberOfRows]": "maxExpandedNumberOfRows",
-		"[minExpandedNumberOfRows]": "minExpandedNumberOfRows"
+		"[maxCollapsedNumberOfRows]": "maxCollapsedNumberOfRows ?? element.maxCollapsedNumberOfRows",
+		"[minCollapsedNumberOfRows]": "minCollapsedNumberOfRows ?? element.minCollapsedNumberOfRows",
+		"[maxExpandedNumberOfRows]": "maxExpandedNumberOfRows ?? element.maxExpandedNumberOfRows",
+		"[minExpandedNumberOfRows]": "minExpandedNumberOfRows ?? element.minExpandedNumberOfRows"
 	},
 	changeDetection: ChangeDetectionStrategy.OnPush,
 	schemas: [CUSTOM_ELEMENTS_SCHEMA]
 })
 export class CodeSnippet extends BaseIconButton {
 	public i18n = inject(I18n);
+	protected element = inject(ElementRef).nativeElement;
 
-	@Input() display: SnippetType = SnippetType.single;
+	/**
+	 * The web component's default is `"single"`.
+	 */
+	@Input() display?: SnippetType;
 	@Input() translations = this.i18n.get().CODE_SNIPPET;
 	/**
 	 * Tooltip text for the copy button.
 	 */
 	@Input() copyButtonDescription: string;
-	@Input() hideCopyButton = false;
-	@Input() disabled = false;
-	@Input() maxCollapsedNumberOfRows = 15;
-	@Input() minCollapsedNumberOfRows = 3;
-	@Input() maxExpandedNumberOfRows = 0;
-	@Input() minExpandedNumberOfRows = 16;
-	@Input() wrapText = false;
+	@Input({ transform: booleanAttribute }) hideCopyButton?: boolean;
+	@Input({ transform: booleanAttribute }) disabled?: boolean;
+	/**
+	 * The web component's default is 15.
+	 */
+	@Input() maxCollapsedNumberOfRows?: number;
+	/**
+	 * The web component's default is 3.
+	 */
+	@Input() minCollapsedNumberOfRows?: number;
+	/**
+	 * The web component's default is 0 (no limit).
+	 */
+	@Input() maxExpandedNumberOfRows?: number;
+	/**
+	 * The web component's default is 16.
+	 */
+	@Input() minExpandedNumberOfRows?: number;
+	@Input({ transform: booleanAttribute }) wrapText?: boolean;
+	/**
+	 * Text copied to the clipboard. Defaults to the snippet's text.
+	 */
+	@Input() copyText?: string;
 	/**
 	 * Text shown after the code is copied.
 	 */
 	@Input() feedbackText = this.translations.COPIED;
 	/**
-	 * Milliseconds the copy feedback stays visible.
+	 * Milliseconds the copy feedback stays visible. The web component's default is 2000.
 	 */
-	@Input() feedbackTimeout = 2000;
+	@Input() feedbackTimeout?: number;
 	/**
 	 * @deprecated the web component follows the surrounding theme / layer.
 	 */
-	@Input() theme: "light" | "dark" = "dark";
+	@Input() theme?: "light" | "dark";
 	/**
 	 * @deprecated the web component manages its own expanded state.
 	 */
-	@Input() expanded = false;
+	@Input({ transform: booleanAttribute }) expanded?: boolean;
 	/**
 	 * @deprecated use `<cds-code-snippet-skeleton>` instead.
 	 */
-	@Input() skeleton = false;
+	@Input({ transform: booleanAttribute }) skeleton = false;
 }

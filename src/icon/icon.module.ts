@@ -5,6 +5,7 @@ import { CommonModule } from "@angular/common";
 // imports
 import { IconDirective } from "./icon.directive";
 import { IconService } from "./icon.service";
+import { CdsIcon } from "./icon.component";
 
 /**
  * Returns the parent `IconService` instance if one exists, otherwise creates a new one.
@@ -28,11 +29,13 @@ export const ICON_SERVICE_PROVIDER = {
 
 @NgModule({
 	exports: [
-		IconDirective
+		IconDirective,
+		CdsIcon
 	],
 	imports: [
 		CommonModule,
-		IconDirective
+		IconDirective,
+		CdsIcon
 	]
 })
 export class IconModule {

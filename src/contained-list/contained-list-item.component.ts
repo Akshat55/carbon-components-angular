@@ -1,9 +1,12 @@
 import {
+	booleanAttribute,
 	ChangeDetectionStrategy,
 	Component,
 	CUSTOM_ELEMENTS_SCHEMA,
+	ElementRef,
 	Input,
-	TemplateRef
+	TemplateRef,
+	inject
 } from "@angular/core";
 import "@carbon/web-components/es/components/contained-list/index.js";
 import { IconDirective } from "carbon-components-angular/icon";
@@ -26,8 +29,8 @@ import { TemplateSlot } from "carbon-components-angular/utils";
 		<ng-container cdsSlot="action" [cdsSlotTemplate]="action" [cdsSlotContext]="{ $implicit: actionData }" />
 	`,
 	host: {
-		"[clickable]": "clickable",
-		"[disabled]": "disabled",
+		"[clickable]": "clickable ?? element.clickable",
+		"[disabled]": "disabled ?? element.disabled",
 		"role": "listitem"
 	},
 	changeDetection: ChangeDetectionStrategy.OnPush,
@@ -40,15 +43,17 @@ export class ContainedListItem {
 	 */
 	@Input() action: TemplateRef<any>;
 	@Input() actionData: any;
-	@Input() disabled = false;
+	@Input({ transform: booleanAttribute }) disabled?: boolean;
 	/**
-	 * Renders the item as a button.
+	 * Renders the item as a button. Listen to clicks with the native `(click)` event.
 	 */
-	@Input() clickable: boolean;
+	@Input({ transform: booleanAttribute }) clickable?: boolean;
 	/**
 	 * Icon name (for `cdsIcon`) or a template.
 	 */
 	@Input() icon: TemplateRef<any> | string;
+
+	protected element = inject(ElementRef).nativeElement;
 
 	isTemplate(value: unknown): value is TemplateRef<any> {
 		return value instanceof TemplateRef;

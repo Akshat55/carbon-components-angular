@@ -1,19 +1,14 @@
-import { Radio } from "./radio.component";
-
-/**
- * Used to emit changes performed on a `Radio`.
- */
 export class RadioChange {
 	/**
-	 * Contains the `Radio` that has been changed.
+	 * The `cds-radio-button` element that was checked.
 	 */
-	source: Radio | null;
+	source: HTMLElement | null;
 	/**
-	 * The value of the `Radio` encompassed in the `RadioChange` class.
+	 * Its `value`.
 	 */
 	value: string;
 
-	constructor(source: Radio, value: string) {
+	constructor(source: HTMLElement | null, value: string) {
 		this.source = source;
 		this.value = value;
 	}

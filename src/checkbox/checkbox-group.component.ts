@@ -1,21 +1,19 @@
 import {
+	booleanAttribute,
 	ChangeDetectionStrategy,
 	CUSTOM_ELEMENTS_SCHEMA,
 	Component,
-	DestroyRef,
 	ElementRef,
 	Input,
-	OnChanges,
 	TemplateRef,
 	inject
 } from "@angular/core";
 import "@carbon/web-components/es/components/checkbox/index.js";
-import { observeChildren, TemplateContent, TemplateSlot, wrapperOf } from "carbon-components-angular/utils";
-import { Checkbox } from "./checkbox.component";
+import { TemplateContent, TemplateSlot } from "carbon-components-angular/utils";
 
 /**
- * Adds Angular inputs and outputs to the `<cds-checkbox-group>` web component. Child `cds-checkbox` elements inherit
- * `readOnly`, `invalid` and `warn` unless they set their own.
+ * Adds Angular inputs and outputs to the `<cds-checkbox-group>` web component. The web component passes
+ * `disabled`, `readOnly` and `orientation` on to its `cds-checkbox` children. `invalid` marks the whole group.
  *
  * [See demo](../../?path=/story/components-checkbox--group)
  */
@@ -27,54 +25,48 @@ import { Checkbox } from "./checkbox.component";
 	`,
 	host: {
 		"[legendText]": "content.render('legend', legend)",
-		"[legendId]": "legendId",
-		"[ariaLabelledBy]": "fieldsetAriaLabelledby",
-		"[orientation]": "orientation",
+		"[legendId]": "legendId ?? element.legendId",
+		"[ariaLabelledBy]": "fieldsetAriaLabelledby ?? element.ariaLabelledBy",
+		"[orientation]": "orientation ?? element.orientation",
 		"[helperText]": "content.render('helperText', helperText)",
-		"[invalid]": "invalid",
+		"[disabled]": "disabled ?? element.disabled",
+		"[invalid]": "invalid ?? element.invalid",
 		"[invalidText]": "content.render('invalidText', invalidText)",
-		"[warn]": "warn",
+		"[warn]": "warn ?? element.warn",
 		"[warnText]": "content.render('warnText', warnText)",
+		// Angular would bind `[readonly]` to the `readOnly` DOM property; the web component's is `readonly`.
 		"[attr.readonly]": "readOnly ? '' : null"
 	},
 	changeDetection: ChangeDetectionStrategy.OnPush,
 	imports: [TemplateSlot],
 	schemas: [CUSTOM_ELEMENTS_SCHEMA]
 })
-export class CheckboxGroup implements OnChanges {
+export class CheckboxGroup {
 	@Input() legend: string | TemplateRef<any>;
 	@Input() legendId: string;
 	@Input() fieldsetAriaLabelledby: string;
-	@Input() orientation: "horizontal" | "vertical" = "vertical";
+	/**
+	 * The web component's default is `"vertical"`.
+	 */
+	@Input() orientation?: "horizontal" | "vertical";
 	@Input() helperText: string | TemplateRef<any>;
-	@Input() invalid = false;
+	/**
+	 * Disables every checkbox.
+	 */
+	@Input({ transform: booleanAttribute }) disabled?: boolean;
+	@Input({ transform: booleanAttribute }) invalid?: boolean;
 	@Input() invalidText: string | TemplateRef<any>;
-	@Input() warn = false;
+	@Input({ transform: booleanAttribute }) warn?: boolean;
 	@Input() warnText: string | TemplateRef<any>;
-	@Input() readOnly = false;
+	/**
+	 * Makes every checkbox read-only.
+	 */
+	@Input({ transform: booleanAttribute }) readOnly?: boolean;
 	/**
 	 * Optional decorator (e.g. AI label) rendered next to the legend.
 	 */
 	@Input() decorator: TemplateRef<any>;
 
 	protected content = new TemplateContent();
-	private element = inject(ElementRef).nativeElement;
-
-	constructor() {
-		observeChildren(this.element, inject(DestroyRef), () => this.refreshCheckboxes());
-	}
-
-	ngOnChanges() {
-		this.refreshCheckboxes();
-	}
-
-	/**
-	 * Child checkboxes read inherited state from this group (found through the DOM). Refresh
-	 * them once the web component group has rendered (it copies `readonly` onto every child).
-	 */
-	protected refreshCheckboxes() {
-		Promise.resolve().then(() => this.element.updateComplete).then(() => {
-			this.element.querySelectorAll("cds-checkbox").forEach(element => wrapperOf(element, Checkbox)?.markForCheckFromGroup());
-		});
-	}
+	protected element = inject(ElementRef).nativeElement;
 }

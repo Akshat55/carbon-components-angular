@@ -1,12 +1,12 @@
 import { moduleMetadata, Meta } from "@storybook/angular";
 import { Documentation } from "../documentation-component/documentation.component";
-import { Accordion, AccordionItem } from "./";
+import { Accordion, AccordionItem, AccordionSkeleton } from "./";
 
 export default {
 	title: "Components/Accordion",
 	decorators: [
 		moduleMetadata({
-			imports: [Accordion, Documentation, AccordionItem]
+			imports: [Accordion, Documentation, AccordionItem, AccordionSkeleton]
 		})
 	],
 	component: Accordion
@@ -76,10 +76,10 @@ const WithTitleTemplate = (args) => ({
 			</cds-accordion>
 		</div>
 		<ng-template #title>
-			<p class="cds--accordion__title">Section 1 title</p>
+			<strong>Section 1 title</strong>
 		</ng-template>
 		<ng-template #titleWithContext let-index="index">
-			<p class="cds--accordion__title">Section {{ index }} title</p>
+			<strong>Section {{ index }} title</strong>
 		</ng-template>
 	`
 });
@@ -94,12 +94,7 @@ const WithSkeleton = (args) => ({
 	props: args,
 	template: `
 		<div style="width: 500px">
-			<cds-accordion skeleton="true">
-				<cds-accordion-item expanded="true"></cds-accordion-item>
-				<cds-accordion-item></cds-accordion-item>
-				<cds-accordion-item></cds-accordion-item>
-				<cds-accordion-item></cds-accordion-item>
-			</cds-accordion>
+			<cds-accordion-skeleton [count]="4" [open]="true" />
 		</div>
 	`
 });

@@ -1,19 +1,19 @@
 import {
+	booleanAttribute,
 	ChangeDetectionStrategy,
 	Component,
 	CUSTOM_ELEMENTS_SCHEMA,
-	DestroyRef,
 	ElementRef,
 	Input,
 	inject
 } from "@angular/core";
 import "@carbon/web-components/es/components/accordion/index.js";
-import { observeChildren } from "carbon-components-angular/utils";
 
 /**
  * Adds Angular inputs to the `<cds-accordion>` web component. Importing it registers the web component.
  *
- * The web component passes `size`, `align`, `isFlush` and `disabled` on to its items.
+ * The web component passes `size`, `align`, `isFlush` and `disabled` on to its items. Use
+ * `<cds-accordion-skeleton>` for a loading state.
  *
  * ```typescript
  * import { Accordion, AccordionItem } from 'carbon-components-angular';
@@ -25,38 +25,31 @@ import { observeChildren } from "carbon-components-angular/utils";
 	selector: "cds-accordion",
 	template: `<ng-content />`,
 	host: {
-		"[alignment]": "align",
-		"[size]": "size",
-		"[isFlush]": "isFlush",
-		"[disabled]": "disabled"
+		"[alignment]": "align ?? element.alignment",
+		"[size]": "size ?? element.size",
+		"[isFlush]": "isFlush ?? element.isFlush",
+		"[disabled]": "disabled ?? element.disabled"
 	},
 	changeDetection: ChangeDetectionStrategy.OnPush,
 	schemas: [CUSTOM_ELEMENTS_SCHEMA]
 })
 export class Accordion {
 	/**
-	 * Sets the alignment of the chevron icon
+	 * Sets the alignment of the chevron icon. The web component's default is `"end"`.
 	 */
-	@Input() align: "start" | "end" = "end";
+	@Input() align?: "start" | "end";
 	/**
-	 * Sets the size of all accordion items
+	 * Sets the size of all accordion items. The web component's default is `"md"`.
 	 */
-	@Input() size: "sm" | "md" | "lg" = "md";
+	@Input() size?: "sm" | "md" | "lg";
 	/**
 	 * Removes the side padding. Does not work with `align="start"`.
 	 */
-	@Input() isFlush = false;
+	@Input({ transform: booleanAttribute }) isFlush?: boolean;
 	/**
 	 * Disables every item.
 	 */
-	@Input() disabled = false;
+	@Input({ transform: booleanAttribute }) disabled?: boolean;
 
-	constructor() {
-		// The web component only passes its settings to the items it has when they change;
-		// re-apply them to items added later (`@for`, `createComponent`, ...).
-		const element = inject(ElementRef).nativeElement;
-		observeChildren(element, inject(DestroyRef), () => {
-			["size", "alignment", "isFlush", "disabled"].forEach(name => element.requestUpdate?.(name, undefined));
-		});
-	}
+	protected element = inject(ElementRef).nativeElement;
 }

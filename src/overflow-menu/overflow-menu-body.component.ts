@@ -1,8 +1,11 @@
 import {
+	booleanAttribute,
 	ChangeDetectionStrategy,
 	Component,
 	CUSTOM_ELEMENTS_SCHEMA,
-	Input
+	Input,
+	ElementRef,
+	inject
 } from "@angular/core";
 import "@carbon/web-components/es/components/overflow-menu/index.js";
 import { FloatingMenuCleanup } from "carbon-components-angular/utils";
@@ -16,8 +19,8 @@ import { FloatingMenuCleanup } from "carbon-components-angular/utils";
 	selector: "cds-overflow-menu-body",
 	template: "<ng-content />",
 	host: {
-		"[flipped]": "flipped",
-		"[direction]": "direction"
+		"[flipped]": "flipped ?? element.flipped",
+		"[direction]": "direction ?? element.direction"
 	},
 	hostDirectives: [FloatingMenuCleanup],
 	changeDetection: ChangeDetectionStrategy.OnPush,
@@ -27,6 +30,11 @@ export class OverflowMenuBody {
 	/**
 	 * Aligns the menu to the right edge of the trigger.
 	 */
-	@Input() flipped = false;
-	@Input() direction: "top" | "bottom" = "bottom";
+	@Input({ transform: booleanAttribute }) flipped?: boolean;
+	/**
+	 * The web component's default is `"bottom"`.
+	 */
+	@Input() direction?: "top" | "bottom";
+
+	protected element = inject(ElementRef).nativeElement;
 }

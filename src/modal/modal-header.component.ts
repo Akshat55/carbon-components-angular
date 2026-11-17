@@ -1,4 +1,5 @@
 import {
+	booleanAttribute,
 	ChangeDetectionStrategy,
 	Component,
 	CUSTOM_ELEMENTS_SCHEMA,
@@ -36,7 +37,7 @@ export class ModalHeader {
 	 */
 	@Input() theme = "default";
 	@Input() closeLabel = this.i18n.get().MODAL.CLOSE;
-	@Input() showCloseButton = true;
+	@Input({ transform: booleanAttribute }) showCloseButton = true;
 	@Input() decorator: TemplateRef<any>;
 
 	@Output() closeSelect = new EventEmitter();

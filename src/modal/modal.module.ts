@@ -20,6 +20,7 @@ import { ModalHeaderHeading } from "./modal-header-heading.directive";
 import { ModalHeaderLabel } from "./modal-header-label.directive";
 import { BaseModal } from "./base-modal.class";
 import { IconModule } from "carbon-components-angular/icon";
+import { ModalHeading, ModalLabel, ModalBody, ModalBodyContent, ModalCloseButton, ModalFooterButton } from "./modal-parts.component";
 
 @NgModule({
 	exports: [
@@ -31,7 +32,13 @@ import { IconModule } from "carbon-components-angular/icon";
 		ModalContentText,
 		ModalHeaderHeading,
 		ModalHeaderLabel,
-		BaseModal
+		BaseModal,
+		ModalHeading,
+		ModalLabel,
+		ModalBody,
+		ModalBodyContent,
+		ModalCloseButton,
+		ModalFooterButton
 	],
 	providers: [BaseModalService, ModalService],
 	imports: [
@@ -50,7 +57,13 @@ import { IconModule } from "carbon-components-angular/icon";
 		ModalContentText,
 		ModalHeaderHeading,
 		ModalHeaderLabel,
-		BaseModal
+		BaseModal,
+		ModalHeading,
+		ModalLabel,
+		ModalBody,
+		ModalBodyContent,
+		ModalCloseButton,
+		ModalFooterButton
 	]
 })
 export class ModalModule {}

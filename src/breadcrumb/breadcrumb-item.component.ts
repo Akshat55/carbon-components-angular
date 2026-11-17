@@ -1,9 +1,8 @@
 import {
+	booleanAttribute,
 	ChangeDetectionStrategy,
-	ChangeDetectorRef,
 	Component,
 	CUSTOM_ELEMENTS_SCHEMA,
-	ElementRef,
 	EventEmitter,
 	Input,
 	Output,
@@ -12,7 +11,6 @@ import {
 import { NgTemplateOutlet } from "@angular/common";
 import { Router } from "@angular/router";
 import "@carbon/web-components/es/components/breadcrumb/index.js";
-import { registerWrapper } from "carbon-components-angular/utils";
 
 /**
  * Adds Angular inputs and outputs to the `<cds-breadcrumb-item>` web component. With `href` or `route` the content is
@@ -48,28 +46,13 @@ export class BreadcrumbItemComponent {
 	@Input() route: any[];
 	@Input() routeExtras: any;
 	@Input() ariaCurrent = "page";
-	@Input() current = false;
+	@Input({ transform: booleanAttribute }) current = false;
 
-	@Input() set skeleton(value: boolean) {
-		this._skeleton = value;
-		this.changeDetectorRef.markForCheck();
-	}
-	get skeleton() {
-		return this._skeleton;
-	}
+	@Input({ transform: booleanAttribute }) skeleton = false;
 
-	/**
-	 * Emits the router's navigation promise when `route` is used.
-	 */
 	@Output() navigation = new EventEmitter<Promise<boolean>>();
 
-	protected changeDetectorRef = inject(ChangeDetectorRef);
 	protected router = inject(Router, { optional: true });
-	protected _skeleton = false;
-
-	constructor() {
-		registerWrapper(inject(ElementRef).nativeElement, this);
-	}
 
 	useLink() {
 		return this.skeleton || this.href || this.route;

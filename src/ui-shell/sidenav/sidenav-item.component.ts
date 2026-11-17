@@ -1,4 +1,5 @@
 import {
+	booleanAttribute,
 	ChangeDetectionStrategy,
 	Component,
 	CUSTOM_ELEMENTS_SCHEMA,
@@ -22,7 +23,7 @@ import { ShellLink } from "../shell-link.class";
 	}
 })
 export abstract class BaseSideNavItem extends ShellLink {
-	@Input() active = false;
+	@Input({ transform: booleanAttribute }) active = false;
 	@Input() title: string;
 
 	@Output() selected = new EventEmitter<boolean>();

@@ -1,8 +1,11 @@
 import {
+	booleanAttribute,
 	ChangeDetectionStrategy,
 	Component,
 	CUSTOM_ELEMENTS_SCHEMA,
-	Input
+	ElementRef,
+	Input,
+	inject
 } from "@angular/core";
 import "@carbon/web-components/es/components/button/index.js";
 
@@ -15,7 +18,7 @@ import "@carbon/web-components/es/components/button/index.js";
 	selector: "cds-button-set",
 	template: "<ng-content />",
 	host: {
-		"[stacked]": "stacked"
+		"[stacked]": "stacked ?? element.stacked"
 	},
 	changeDetection: ChangeDetectionStrategy.OnPush,
 	schemas: [CUSTOM_ELEMENTS_SCHEMA]
@@ -24,6 +27,8 @@ export class ButtonSet {
 	/**
 	 * @deprecated not supported by the web component.
 	 */
-	@Input() fluid = false;
-	@Input() stacked = false;
+	@Input({ transform: booleanAttribute }) fluid = false;
+	@Input({ transform: booleanAttribute }) stacked?: boolean;
+
+	protected element = inject(ElementRef).nativeElement;
 }

@@ -2,12 +2,14 @@ import { NgModule } from "@angular/core";
 import { CommonModule } from "@angular/common";
 
 import { LayerDirective } from "./layer.directive";
+import { CdsLayer } from "./layer.component";
 
 @NgModule({
-	exports: [LayerDirective],
+	exports: [LayerDirective, CdsLayer],
 	imports: [
 		CommonModule,
-		LayerDirective
+		LayerDirective,
+		CdsLayer
 	]
 })
 export class LayerModule {}

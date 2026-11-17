@@ -1,12 +1,10 @@
 import { moduleMetadata, Meta } from "@storybook/angular";
-import { Link } from "../link";
-import { Button } from "../button";
+import { CdsLink } from "../link";
+import { CdsButton } from "../button";
 import {
 	Toggletip,
 	ToggletipAction,
-	ToggletipButton,
-	ToggletipContent,
-	ToggletipLabel
+	ToggletipContent
 } from "./";
 
 export default {
@@ -16,11 +14,9 @@ export default {
 			imports: [
 				Toggletip,
 				ToggletipAction,
-				ToggletipButton,
 				ToggletipContent,
-				ToggletipLabel,
-				Link,
-				Button
+				CdsLink,
+				CdsButton
 			]
 		})
 	],
@@ -55,54 +51,30 @@ export default {
 	component: Toggletip,
 	subcomponents: {
 		ToggletipAction,
-		ToggletipButton,
-		ToggletipContent,
-		ToggletipLabel
+		ToggletipContent
 	}
 } as Meta;
 
 const Template = (args) => ({
 	props: args,
 	template: `
-		<span cdsToggletipLabel>Toggletip label</span>
 		<cds-toggletip
 			[isOpen]="isOpen"
 			[align]="align"
 			(isOpenChange)="isOpenChange($event)"
 			(onClose)="onClose($event)"
 			(onOpen)="onOpen($event)">
-			<button cdsToggletipButton>
-				<svg preserveAspectRatio="xMidYMid meet" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 32 32">
-					<path d="M26,4H6A2,2,0,0,0,4,6V26a2,2,0,0,0,2,2H26a2,2,0,0,0,2-2V6A2,2,0,0,0,26,4ZM6,26V6H26V26Z"></path>
-				</svg>
-			</button>
-			<div cdsToggletipContent>
-				<p>
-					Lorem ipsum dolor sit amet, di os consectetur adipiscing elit, sed
-					do eiusmod tempor incididunt ut fsil labore et dolore magna aliqua.
-				</p>
-				<div cdsToggletipAction>
-					<a href="#" cdsLink>Link action</a>
-					<button cdsButton size="sm">Some button</button>
-				</div>
+			Toggletip label
+			<p cdsToggletipContent>
+				Lorem ipsum dolor sit amet, di os consectetur adipiscing elit, sed
+				do eiusmod tempor incididunt ut fsil labore et dolore magna aliqua.
+			</p>
+			<div cdsToggletipAction>
+				<cds-link href="#">Link action</cds-link>
+				<cds-button size="sm">Some button</cds-button>
 			</div>
 		</cds-toggletip>
-	`,
-	styles: [`
-		.tooltip-trigger {
-			box-sizing: border-box;
-			margin: 0;
-			display: flex;
-			align-items: center;
-			justify-content: center;
-			width: 2rem;
-			height: 2rem;
-			background: white;
-			border: 1px solid var(--cds-border-subtle);
-			cursor: pointer;
-		}
-		svg { fill: var(--cds-background-inverse); }
-	`]
+	`
 });
 export const Basic = Template.bind({});
 Basic.parameters = {
@@ -121,7 +93,6 @@ const AutoAlignTemplate = (args) => ({
 		<div style="height:3000px">
 			Scrolling will update the position of the popover:
 			<div style="position: absolute; top: 500px; left: 500px;">
-			<span cdsToggletipLabel>Toggletip label</span>
 				<cds-toggletip
 					[isOpen]="isOpen"
 					[align]="align"
@@ -129,40 +100,19 @@ const AutoAlignTemplate = (args) => ({
 					(isOpenChange)="isOpenChange($event)"
 					(onClose)="onClose($event)"
 					(onOpen)="onOpen($event)">
-					<button cdsToggletipButton>
-						<svg preserveAspectRatio="xMidYMid meet" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 32 32">
-							<path d="M26,4H6A2,2,0,0,0,4,6V26a2,2,0,0,0,2,2H26a2,2,0,0,0,2-2V6A2,2,0,0,0,26,4ZM6,26V6H26V26Z"></path>
-						</svg>
-					</button>
-					<div cdsToggletipContent>
-						<p>
-							Lorem ipsum dolor sit amet, di os consectetur adipiscing elit, sed
-							do eiusmod tempor incididunt ut fsil labore et dolore magna aliqua.
-						</p>
-						<div cdsToggletipAction>
-							<a href="#" cdsLink>Link action</a>
-							<button cdsButton size="sm">Some button</button>
-						</div>
+					Toggletip label
+					<p cdsToggletipContent>
+						Lorem ipsum dolor sit amet, di os consectetur adipiscing elit, sed
+						do eiusmod tempor incididunt ut fsil labore et dolore magna aliqua.
+					</p>
+					<div cdsToggletipAction>
+						<cds-link href="#">Link action</cds-link>
+						<cds-button size="sm">Some button</cds-button>
 					</div>
 				</cds-toggletip>
 			</div>
 		</div>
-	`,
-	styles: [`
-		.tooltip-trigger {
-			box-sizing: border-box;
-			margin: 0;
-			display: flex;
-			align-items: center;
-			justify-content: center;
-			width: 2rem;
-			height: 2rem;
-			background: white;
-			border: 1px solid var(--cds-border-subtle);
-			cursor: pointer;
-		}
-		svg { fill: var(--cds-background-inverse); }
-	`]
+	`
 });
 export const WithAutoAlign = AutoAlignTemplate.bind({});
 WithAutoAlign.args = {

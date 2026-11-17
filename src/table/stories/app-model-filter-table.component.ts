@@ -14,7 +14,7 @@ import Filter16 from "@carbon/icons/es/filter/16";
 import { Table } from "../table.component";
 import { Button } from "../../button";
 import { Checkbox } from "../../checkbox";
-import { OverflowMenu, OverflowMenuOption, OverflowMenuDirective } from "../../dialog";
+import { PopoverContainer, PopoverContent } from "../../popover";
 import { IconDirective } from "../../icon";
 import { TableHeader } from "../header/table-header.component";
 import { TableContainer } from "../table-container.component";
@@ -40,15 +40,27 @@ import { TableToolbar } from "../toolbar/table-toolbar.component";
 					(valueChange)="filterNodeNames($event)"
 					(clear)="filterNodeNames('')">
 				</cds-table-toolbar-search>
-				<button
-					cdsButton="ghost"
-					class="toolbar-action"
-					[cdsOverflowMenu]="templateRef"
-					placement="bottom"
-					[flip]="true"
-					[offset]="{ x: 3, y: 0 }">
-					<svg cdsIcon="filter" size="16" class="cds--toolbar-action__icon"></svg>
-				</button>
+				<cds-popover [(isOpen)]="filterOpen" align="bottom-end" [dropShadow]="true" [caret]="false">
+					<button
+						cdsButton="ghost"
+						class="toolbar-action"
+						aria-label="Filter countries"
+						(click)="filterOpen = !filterOpen">
+						<svg cdsIcon="filter" size="16" class="cds--toolbar-action__icon"></svg>
+					</button>
+					<cds-popover-content>
+						<div style="padding: 0 1rem 0.5rem;">
+							<div style="padding-top: 0.5rem; color: grey;">Countries shown</div>
+							@for (country of countries; track country) {
+								<cds-checkbox
+									[checked]="displayedCountries.includes(country)"
+									(checkedChange)="filterCountries(country, $event)">
+									{{ country }}
+								</cds-checkbox>
+							}
+						</div>
+					</cds-popover-content>
+				</cds-popover>
 				<button cdsButton="primary" size="sm">
 					Primary Button<svg cdsIcon="add" size="20" class="cds--btn__icon"></svg>
 				</button>
@@ -67,32 +79,6 @@ import { TableToolbar } from "../toolbar/table-toolbar.component";
 			<ng-content />
 		</cds-table>
 	</cds-table-container>
-
-	<ng-template #templateRef>
-		<div style="padding: 0 1rem;" (click)="overflowOnClick($event)">
-			<div style="padding-top: 0.5rem; color: grey;">Countries shown</div>
-			<cds-checkbox
-				[checked]="displayedCountries.includes('US')"
-				(checkedChange)="filterCountries('US', $event)">
-				US
-			</cds-checkbox>
-			<cds-checkbox
-				[checked]="displayedCountries.includes('France')"
-				(checkedChange)="filterCountries('France', $event)">
-				France
-			</cds-checkbox>
-			<cds-checkbox
-				[checked]="displayedCountries.includes('Argentina')"
-				(checkedChange)="filterCountries('Argentina', $event)">
-				Argentina
-			</cds-checkbox>
-			<cds-checkbox
-				[checked]="displayedCountries.includes('Japan')"
-				(checkedChange)="filterCountries('Japan', $event)">
-				Japan
-			</cds-checkbox>
-		</div>
-	</ng-template>
 	`,
 	standalone: true,
 	imports: [
@@ -104,9 +90,8 @@ import { TableToolbar } from "../toolbar/table-toolbar.component";
 		TableToolbarSearch,
 		IconDirective,
 		Button,
-		OverflowMenu,
-		OverflowMenuOption,
-		OverflowMenuDirective,
+		PopoverContainer,
+		PopoverContent,
 		Checkbox
 	]
 })
@@ -121,7 +106,9 @@ export class FilterWithModelStory implements OnInit {
 	@Input() skeleton = false;
 
 	model = new TableModel();
-	displayedCountries = ["US", "France", "Argentina", "Japan"];
+	countries = ["US", "France", "Argentina", "Japan"];
+	displayedCountries = [...this.countries];
+	filterOpen = false;
 
 	dataset = [
 		[
@@ -184,10 +171,6 @@ export class FilterWithModelStory implements OnInit {
 
 		this.model.data = this.dataset.filter((row: TableItem[]) => this.displayedCountries.includes(row[3].data));
 	}
-
-	overflowOnClick = (event: any) => {
-		event.stopPropagation();
-	};
 
 	ngOnInit() {
 		this.iconService.registerAll([

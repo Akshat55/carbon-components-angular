@@ -1,4 +1,5 @@
 import {
+	booleanAttribute,
 	ChangeDetectionStrategy,
 	ChangeDetectorRef,
 	Component,
@@ -10,7 +11,7 @@ import {
 	inject
 } from "@angular/core";
 import "@carbon/web-components/es/components/content-switcher/index.js";
-import { registerWrapper } from "carbon-components-angular/utils";
+import { observeAttributes } from "carbon-components-angular/utils";
 
 /**
  * Adds Angular inputs and outputs to the `<cds-content-switcher-item>` web component.
@@ -20,8 +21,11 @@ import { registerWrapper } from "carbon-components-angular/utils";
 	template: "<ng-content />",
 	host: {
 		"[value]": "name",
-		"[selected]": "_active",
-		"[disabled]": "disabled",
+		"[disabled]": "disabled ?? element.disabled",
+		"[selected]": "active",
+		// The content switcher looks for `[selected]` items on its first render, before the
+		// item has reflected the property.
+		"[attr.selected]": "active ? '' : null",
 		"(click)": "onClick.emit($event)",
 		"(focus)": "onFocus.emit($event)"
 	},
@@ -29,33 +33,45 @@ import { registerWrapper } from "carbon-components-angular/utils";
 	schemas: [CUSTOM_ELEMENTS_SCHEMA]
 })
 export class ContentSwitcherOption {
-	@Input() set active(value: boolean) {
-		this._active = value;
-		this.changeDetectorRef.markForCheck();
-	}
-	/**
-	 * Whether the option is selected (the web component also selects options itself).
-	 */
-	get active() {
-		return (this.element as any).selected ?? this._active;
-	}
-	/**
-	 * Value of the option.
-	 */
-	@Input() name = "option";
-	@Input() disabled = false;
+	static optionCount = 0;
 
+	/**
+	 * Whether the option is selected. Supports two-way binding with `activeChange`; the web
+	 * component also selects options itself.
+	 */
+	@Input({ transform: booleanAttribute }) active = false;
+
+	/**
+	 * The item's `value`. The web component selects items by value, so every item needs its
+	 * own: unset, a unique one is generated (v6 used `"option"` for all).
+	 */
+	@Input() name = `content-switcher-option-${ContentSwitcherOption.optionCount++}`;
+	@Input({ transform: booleanAttribute }) disabled?: boolean;
+
+	/**
+	 * Emits `true` when the option becomes selected.
+	 */
 	@Output() selected = new EventEmitter<boolean>();
+	@Output() activeChange = new EventEmitter<boolean>();
 	// eslint-disable-next-line @angular-eslint/no-output-on-prefix
 	@Output() onClick = new EventEmitter<MouseEvent>();
 	// eslint-disable-next-line @angular-eslint/no-output-on-prefix
 	@Output() onFocus = new EventEmitter<FocusEvent>();
 
-	readonly element: HTMLElement = inject(ElementRef).nativeElement;
+	readonly element: any = inject(ElementRef).nativeElement;
 	protected changeDetectorRef = inject(ChangeDetectorRef);
-	protected _active = false;
 
 	constructor() {
-		registerWrapper(this.element, this);
+		observeAttributes(this.element, ["selected"], () => {
+			const active = this.element.selected;
+			if (active !== this.active) {
+				this.active = active;
+				this.activeChange.emit(active);
+				if (active) {
+					this.selected.emit(true);
+				}
+				this.changeDetectorRef.markForCheck();
+			}
+		});
 	}
 }

@@ -4,3 +4,4 @@ export * from "./tag-icon.directive";
 export * from "./tag-selectable.component";
 export * from "./tag-operational.component";
 export * from "./tag.module";
+export { TagSkeleton } from "./tag-skeleton.component";

@@ -1,8 +1,8 @@
 import {
+	booleanAttribute,
 	ChangeDetectionStrategy,
 	Component,
 	CUSTOM_ELEMENTS_SCHEMA,
-	DestroyRef,
 	ElementRef,
 	EventEmitter,
 	Input,
@@ -13,8 +13,10 @@ import { NgTemplateOutlet } from "@angular/common";
 import { Router } from "@angular/router";
 import "@carbon/web-components/es/components/breadcrumb/index.js";
 import "@carbon/web-components/es/components/overflow-menu/index.js";
+// Not registered by the breadcrumb index.
+import "@carbon/web-components/es/components/breadcrumb/breadcrumb-overflow-menu.js";
 import { I18n } from "carbon-components-angular/i18n";
-import { FloatingMenuCleanup, observeChildren, wrapperOf } from "carbon-components-angular/utils";
+import { FloatingMenuCleanup } from "carbon-components-angular/utils";
 import { BreadcrumbItemComponent } from "./breadcrumb-item.component";
 import { BreadcrumbItem } from "./breadcrumb-item.interface";
 
@@ -69,8 +71,8 @@ const MINIMUM_OVERFLOW_THRESHOLD = 4;
 		}
 	`,
 	host: {
-		"[noTrailingSlash]": "noTrailingSlash",
-		"[size]": "size",
+		"[noTrailingSlash]": "noTrailingSlash ?? element.noTrailingSlash",
+		"[size]": "size ?? element.size",
 		"[attr.aria-label]": "ariaLabel"
 	},
 	changeDetection: ChangeDetectionStrategy.OnPush,
@@ -83,22 +85,22 @@ export class Breadcrumb {
 
 
 	@Input() items: Array<BreadcrumbItem>;
-	@Input() noTrailingSlash = false;
-	@Input() size: "sm" | "md" = "md";
+	@Input({ transform: booleanAttribute }) noTrailingSlash?: boolean;
+	/**
+	 * The web component's default is `"md"`; it passes the size on to its links.
+	 */
+	@Input() size?: "sm" | "md";
 	@Input() ariaLabel: string = this.i18n.get().BREADCRUMB.LABEL;
-	@Input() autoAlign = false;
+	@Input({ transform: booleanAttribute }) autoAlign?: boolean;
 	/**
 	 * Tooltip text for the overflow menu.
 	 */
 	@Input() description: string = this.i18n.get().BREADCRUMB.OVERFLOW_MENU_DESCRIPTION;
 
-	@Input() set skeleton(value: boolean) {
-		this._skeleton = value;
-		this.updateChildren();
-	}
-	get skeleton(): boolean {
-		return this._skeleton;
-	}
+	/**
+	 * Shows the items rendered from `items` as skeletons.
+	 */
+	@Input({ transform: booleanAttribute }) skeleton = false;
 
 	/**
 	 * Number of `items` shown before the middle ones collapse into an overflow menu (minimum 4).
@@ -114,13 +116,7 @@ export class Breadcrumb {
 
 	protected readonly overflowMarker = {} as BreadcrumbItem;
 	protected _threshold: number;
-	protected _skeleton = false;
-	protected element: HTMLElement = inject(ElementRef).nativeElement;
-
-	constructor() {
-		// Items are read from the DOM, so items created any way get `skeleton` too.
-		observeChildren(this.element, inject(DestroyRef), () => this.updateChildren());
-	}
+	protected element: any = inject(ElementRef).nativeElement;
 
 	get shouldShowOverflow() {
 		return !!this.items && this.items.length > this.threshold;
@@ -148,14 +144,5 @@ export class Breadcrumb {
 			event.preventDefault();
 			this.navigation.emit(this.router.navigate(item.route, item.routeExtras));
 		}
-	}
-
-	protected updateChildren() {
-		this.element?.querySelectorAll("cds-breadcrumb-item").forEach(item => {
-			const child = wrapperOf(item, BreadcrumbItemComponent);
-			if (child) {
-				child.skeleton = this.skeleton;
-			}
-		});
 	}
 }

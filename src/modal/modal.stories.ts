@@ -2,17 +2,24 @@ import { moduleMetadata, Meta } from "@storybook/angular";
 import { PLACEHOLDER_SERVICE_PROVIDER, Placeholder } from "../placeholder";
 import {
 	Modal,
+	ModalBody,
+	ModalBodyContent,
 	ModalContent,
 	ModalContentText,
 	ModalFooter,
+	ModalFooterButton,
 	ModalHeader,
 	ModalHeaderHeading,
-	ModalHeaderLabel
+	ModalHeaderLabel,
+	ModalHeading,
+	ModalLabel
 } from "./";
+import { CdsTextInput } from "../input";
+import { Select, SelectItem } from "../select";
 import { InputModule } from "../input";
 import { IconModule } from "../icon";
 import { AILabelModule } from "../ai-label";
-import { AI_LABEL_INNER, AI_LABEL_STORY_STYLES } from "../storybook/ai-label-story-shared";
+import { AI_LABEL_INNER } from "../storybook/ai-label-story-shared";
 
 import {
 	ModalStory,
@@ -37,6 +44,14 @@ export default {
 				ModalContentText,
 				ModalHeaderHeading,
 				ModalHeaderLabel,
+				ModalHeading,
+				ModalLabel,
+				ModalBody,
+				ModalBodyContent,
+				ModalFooterButton,
+				CdsTextInput,
+				Select,
+				SelectItem,
 				Placeholder,
 				// stories
 				ModalStory,
@@ -203,24 +218,17 @@ DataPassing.argTypes = {
 const SimpleTemplate = (args) => ({
 	props: args,
 	template: `
-		<button #trigger cdsButton="primary" (click)="open = true">Open</button>
+		<cds-button #trigger (click)="open = true">Open</cds-button>
 		<cds-modal [open]="open" [trigger]="trigger" (overlaySelected)="open = false" (close)="open = false">
 			<cds-modal-header (closeSelect)="open = false" [showCloseButton]="showCloseButton">
-				<p class="cds--modal-header__label cds--type-delta">No service required</p>
-				<p class="cds--modal-header__heading cds--type-beta">A very simple modal</p>
+				<cds-modal-label>No service required</cds-modal-label>
+				<cds-modal-heading>A very simple modal</cds-modal-heading>
 			</cds-modal-header>
-			<div class="cds--modal-content">
-				<p>hello world</p>
-			</div>
+			<cds-modal-body>
+				<cds-modal-body-content>hello world</cds-modal-body-content>
+			</cds-modal-body>
 			<cds-modal-footer>
-				<ng-container>
-					<button
-						cdsButton="primary"
-						(click)="open = false"
-						[attr.modal-primary-focus]="true">
-						Okay
-					</button>
-				</ng-container>
+				<cds-modal-footer-button kind="primary" data-modal-primary-focus (click)="open = false">Okay</cds-modal-footer-button>
 			</cds-modal-footer>
 		</cds-modal>
 	`
@@ -233,7 +241,6 @@ Simple.args = {
 
 const withAILabelTemplate = (args) => ({
 	props: args,
-	styles: AI_LABEL_STORY_STYLES,
 	template: `
 		<cds-modal
 			[open]="open"
@@ -241,18 +248,17 @@ const withAILabelTemplate = (args) => ({
 			(overlaySelected)="open = false"
 			(close)="open = false">
 			<cds-modal-header [decorator]="decoratorTpl" (closeSelect)="open = false" [showCloseButton]="showCloseButton">
-				<p class="cds--modal-header__heading cds--type-beta">Modal with decorator</p>
+				<cds-modal-heading>Modal with decorator</cds-modal-heading>
 			</cds-modal-header>
-			<div class="cds--modal-content">
-				<p>Decorators apply <code>cds--modal--decorator</code> on the overlay.</p>
-			</div>
+			<cds-modal-body>
+				<cds-modal-body-content>The decorator is shown in the modal header.</cds-modal-body-content>
+			</cds-modal-body>
 			<cds-modal-footer>
-				<button cdsButton="primary" (click)="open = false" [attr.modal-primary-focus]="true">Close</button>
+				<cds-modal-footer-button kind="primary" data-modal-primary-focus (click)="open = false">Close</cds-modal-footer-button>
 			</cds-modal-footer>
 		</cds-modal>
 		<ng-template #decoratorTpl>
 			<cds-ai-label
-				class="ai-label-container"
 				kind="default"
 				size="sm"
 				[autoAlign]="true"
@@ -276,16 +282,15 @@ withAILabel.args = {
 const composedWithAILabelTemplate = (args) => ({
 	props: args,
 	styles: [
-		...AI_LABEL_STORY_STYLES,
 		`
-		.ai-label-modal .cds--form-item {
+		.ai-label-modal cds-select {
 			margin-top: 1rem;
 		}
 		`
 	],
 	template: `
 		<div class="ai-label-modal">
-			<button #launchBtn cdsButton="primary" (click)="open = true">Launch composed modal</button>
+			<cds-button #launchBtn (click)="open = true">Launch composed modal</cds-button>
 			<cds-modal
 				[open]="open"
 				[decorator]="decoratorTpl"
@@ -293,44 +298,32 @@ const composedWithAILabelTemplate = (args) => ({
 				(overlaySelected)="open = false"
 				(close)="open = false">
 				<cds-modal-header [decorator]="decoratorTpl" (closeSelect)="open = false" [showCloseButton]="showCloseButton">
-					<p class="cds--modal-header__label cds--type-delta">Account resources</p>
-					<p class="cds--modal-header__heading cds--type-beta">Add a custom domain</p>
+					<cds-modal-label>Account resources</cds-modal-label>
+					<cds-modal-heading>Add a custom domain</cds-modal-heading>
 				</cds-modal-header>
-				<div class="cds--modal-content">
-					<p style="margin-bottom: 1rem">
+				<cds-modal-body>
+					<cds-modal-body-content description>
 						Custom domains direct requests for your apps in this Cloud Foundry
 						organization to a URL that you own. A custom domain can be a
 						shared domain, a shared subdomain, or a shared domain and host.
-					</p>
-					<p style="margin-bottom: 1rem">
-						Lorem ipsum dolor sit amet, consectetur adipiscing elit. Phasellus
-						eu nibh odio. Nunc a consequat est, id porttitor sapien.
-					</p>
-					<cds-text-label>
-						Domain name
-						<input
-							cdsText
-							id="text-input-1"
-							placeholder="e.g. github.com"
-							modal-primary-focus />
-					</cds-text-label>
-					<label class="cds--label" style="display:block;margin-top:1rem">
-						Region
-						<select class="cds--select-input" style="display:block;width:100%;margin-top:0.25rem">
-							<option value="us-south">US South</option>
-							<option value="us-east">US East</option>
-						</select>
-					</label>
-				</div>
+					</cds-modal-body-content>
+					<cds-text-input
+						label="Domain name"
+						placeholder="e.g. github.com"
+						data-modal-primary-focus />
+					<cds-select label="Region">
+						<cds-select-item value="us-south">US South</cds-select-item>
+						<cds-select-item value="us-east">US East</cds-select-item>
+					</cds-select>
+				</cds-modal-body>
 				<cds-modal-footer>
-					<button cdsButton="secondary" (click)="open = false">Cancel</button>
-					<button cdsButton="primary" (click)="open = false">Save</button>
+					<cds-modal-footer-button kind="secondary" (click)="open = false">Cancel</cds-modal-footer-button>
+					<cds-modal-footer-button kind="primary" (click)="open = false">Save</cds-modal-footer-button>
 				</cds-modal-footer>
 			</cds-modal>
 		</div>
 		<ng-template #decoratorTpl>
 			<cds-ai-label
-				class="ai-label-container"
 				kind="default"
 				size="md"
 				[autoAlign]="true"

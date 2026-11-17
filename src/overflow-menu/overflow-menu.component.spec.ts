@@ -2,8 +2,8 @@ import { Component, TemplateRef, ViewChild } from "@angular/core";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { By } from "@angular/platform-browser";
 
-import { settle, shadow } from "../../test-helpers/web-components";
-import { DialogModule } from "../dialog.module";
+import { settle, shadow } from "../test-helpers/web-components";
+import { OverflowMenuModule } from "./overflow-menu.module";
 import { OverflowMenu } from "./overflow-menu.component";
 import { OverflowMenuOption } from "./overflow-menu-option.component";
 
@@ -24,7 +24,7 @@ import { OverflowMenuOption } from "./overflow-menu-option.component";
 		</cds-overflow-menu>
 		<ng-template #customTrigger><span class="custom-trigger">Custom</span></ng-template>
 	`,
-	imports: [DialogModule]
+	imports: [OverflowMenuModule]
 })
 class OverflowMenuTest {
 	@ViewChild(OverflowMenu) overflowMenu: OverflowMenu;
@@ -83,11 +83,19 @@ describe("OverflowMenu", () => {
 		expect(trigger().getAttribute("aria-expanded")).toBe("false");
 	});
 
+	it("should render the overflow icon in the trigger's icon slot", () => {
+		const icon = element.querySelector(":scope > svg[slot=icon]");
+		expect(icon).toBeTruthy();
+		expect(icon.classList.contains("cds--overflow-menu__icon")).toBe(true);
+		expect(icon.childElementCount).toBeGreaterThan(0);
+	});
+
 	it("should render a custom trigger in place of the icon", async () => {
 		wrapper.useCustomTrigger = true;
 		await settle(fixture);
 
 		expect(element.querySelector(":scope > [slot=icon] .custom-trigger")).toBeTruthy();
+		expect(element.querySelector(":scope > svg[slot=icon]")).toBeNull();
 	});
 
 	it("should open the menu when open is set", async () => {
@@ -185,5 +193,43 @@ describe("OverflowMenu", () => {
 		fixture.destroy();
 
 		expect(document.querySelector("cds-overflow-menu-body")).toBeNull();
+	});
+});
+
+@Component({
+	template: `
+		<cds-overflow-menu>
+			<cds-overflow-menu-body [direction]="direction">
+				<cds-overflow-menu-item>One</cds-overflow-menu-item>
+				<cds-overflow-menu-item type="danger">Delete</cds-overflow-menu-item>
+			</cds-overflow-menu-body>
+		</cds-overflow-menu>
+	`,
+	imports: [OverflowMenuModule]
+})
+class OverflowMenuPlacementTest {
+	direction: "top" | "bottom" | undefined;
+}
+
+describe("OverflowMenu direction and defaults", () => {
+	it("should keep the web components' defaults when inputs are unset", async () => {
+		const fixture = TestBed.createComponent(OverflowMenuPlacementTest);
+		await settle(fixture);
+		const menu = fixture.nativeElement.querySelector("cds-overflow-menu");
+		const body = fixture.nativeElement.querySelector("cds-overflow-menu-body");
+		const [plain, danger] = fixture.nativeElement.querySelectorAll("cds-overflow-menu-item");
+		expect(menu.open).toBe(false);
+		expect(menu.flipped).toBe(false);
+		expect(body.direction).toBe("bottom");
+		expect(plain.danger).toBe(false);
+		expect(plain.disabled).toBe(false);
+		expect(danger.danger).toBe(true);
+	});
+
+	it("should pass direction to the menu body", async () => {
+		const fixture = TestBed.createComponent(OverflowMenuPlacementTest);
+		fixture.componentInstance.direction = "top";
+		await settle(fixture);
+		expect(fixture.nativeElement.querySelector("cds-overflow-menu-body").direction).toBe("top");
 	});
 });

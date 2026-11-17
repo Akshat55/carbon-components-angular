@@ -7,3 +7,4 @@ export * from "./header-navigation-items.interface";
 export * from "./header-navigation.component";
 export * from "./header.component";
 export * from "./header.module";
+export { HeaderName, HeaderSideNavItems } from "./header-parts.component";

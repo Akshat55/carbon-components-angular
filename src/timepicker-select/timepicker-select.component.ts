@@ -1,8 +1,8 @@
 import {
+	booleanAttribute,
 	ChangeDetectionStrategy,
 	Component,
 	CUSTOM_ELEMENTS_SCHEMA,
-	DestroyRef,
 	EventEmitter,
 	Input,
 	Output,
@@ -31,6 +31,8 @@ import { observeChildren, provideValueAccessor, WebComponentValueAccessor } from
 	host: {
 		"[id]": "id",
 		"[disabled]": "disabled",
+		"[readOnly]": "readonly",
+		"[size]": "size",
 		"[attr.aria-label]": "ariaLabel || label || null",
 		"(cds-select-selected)": "onSelected($event)"
 	},
@@ -55,6 +57,8 @@ export class TimePickerSelect extends WebComponentValueAccessor<string> {
 		return this._value;
 	}
 	@Input() label: string;
+	@Input({ transform: booleanAttribute }) readonly = false;
+	@Input() size: "sm" | "md" | "lg" = "md";
 	@Input() ariaLabel: string;
 
 	@Output() valueChange = new EventEmitter<string>();
@@ -64,7 +68,7 @@ export class TimePickerSelect extends WebComponentValueAccessor<string> {
 	constructor() {
 		super();
 		// The web component resets its `<select>` to `value` (default ""), ignoring `selected` items.
-		observeChildren(this.element, inject(DestroyRef), () => {
+		observeChildren(this.element, () => {
 			if (this._value === undefined || this._value === null) {
 				const selected = this.element.querySelector("cds-select-item[selected]");
 				this.element.value = selected?.getAttribute("value") ?? "";

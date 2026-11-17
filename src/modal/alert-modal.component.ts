@@ -1,17 +1,20 @@
 import {
 	Component,
 	ViewChild,
-	AfterViewInit,
+	ElementRef,
 	inject
 } from "@angular/core";
 import { BaseModal } from "./base-modal.class";
 import { Modal } from "./modal.component";
 import { ModalHeader } from "./modal-header.component";
-import { ModalHeaderLabel } from "./modal-header-label.directive";
-import { ModalHeaderHeading } from "./modal-header-heading.directive";
-import { ModalContent } from "./modal-content.directive";
 import { ModalFooter } from "./modal-footer.component";
-import { Button } from "carbon-components-angular/button";
+import {
+	ModalBody,
+	ModalBodyContent,
+	ModalFooterButton,
+	ModalHeading,
+	ModalLabel
+} from "./modal-parts.component";
 import { BaseModalService } from "./base-modal.service";
 
 /**
@@ -63,22 +66,24 @@ import { BaseModalService } from "./base-modal.service";
 			[open]="open"
 			(overlaySelected)="dismissModal('overlay')">
 			<cds-modal-header (closeSelect)="dismissModal('close')" [showCloseButton]="showCloseButton">
-				<p cdsModalHeaderLabel class="cds--type-delta">{{label}}</p>
-				<p cdsModalHeaderHeading class="cds--type-beta">{{title}}</p>
+				@if (label) {
+					<cds-modal-label>{{label}}</cds-modal-label>
+				}
+				<cds-modal-heading>{{title}}</cds-modal-heading>
 			</cds-modal-header>
-			<div cdsModalContent #modalContent>
-				<p [innerHTML]="content"></p>
-			</div>
+			<cds-modal-body #modalContent>
+				<cds-modal-body-content [innerHTML]="content"></cds-modal-body-content>
+			</cds-modal-body>
 			@if (buttons.length > 0) {
 				<cds-modal-footer>
 					@for (button of buttons; track button.id; let i = $index) {
-						<button
-							[cdsButton]="button.type"
+						<cds-modal-footer-button
+							[kind]="kind(button.type)"
 							(click)="buttonClicked(i)"
 							[id]="button.id"
-							[attr.modal-primary-focus]="(button.type.indexOf('primary') !== -1 ? '' : null)">
+							[attr.data-modal-primary-focus]="(button.type.indexOf('primary') !== -1 ? '' : null)">
 							{{button.text}}
-						</button>
+						</cds-modal-footer-button>
 					}
 				</cds-modal-footer>
 			}
@@ -88,14 +93,15 @@ import { BaseModalService } from "./base-modal.service";
 	imports: [
 		Modal,
 		ModalHeader,
-		ModalHeaderLabel,
-		ModalHeaderHeading,
-		ModalContent,
+		ModalLabel,
+		ModalHeading,
+		ModalBody,
+		ModalBodyContent,
 		ModalFooter,
-		Button
+		ModalFooterButton
 	]
 })
-export class AlertModal extends BaseModal implements AfterViewInit {
+export class AlertModal extends BaseModal {
 	type = inject<any>("type" as any, { optional: true })! ?? "default";
 	label = inject<string>("label" as any, { optional: true })!;
 	title = inject<string>("title" as any, { optional: true })!;
@@ -106,7 +112,10 @@ export class AlertModal extends BaseModal implements AfterViewInit {
 	onClose = inject<Function>("close" as any, { optional: true })!;
 	showCloseButton = inject<any>("showCloseButton" as any, { optional: true })! ?? true;
 
-	@ViewChild("modalContent", { static: true }) modalContent: { nativeElement: any; };
+	/**
+	 * The `cds-modal-body`. The web component makes it focusable when its content scrolls.
+	 */
+	@ViewChild("modalContent", { static: true, read: ElementRef }) modalContent: ElementRef<HTMLElement>;
 
 	/** Inserted by Angular inject() migration for backwards compatibility */
 	// eslint-disable-next-line @angular-eslint/prefer-inject -- backwards-compatible DI overload until next major
@@ -127,14 +136,11 @@ export class AlertModal extends BaseModal implements AfterViewInit {
 		}
 	}
 
-	ngAfterViewInit() {
-		if (!this.modalContent) { return false; }
-		const element = this.modalContent.nativeElement;
-		if (element.scrollHeight > element.clientHeight) {
-			element.tabIndex = 0;
-		} else {
-			element.tabIndex = -1;
-		}
+	/**
+	 * The `cds-modal-footer-button` kind of a button type (`danger--primary` is `danger`).
+	 */
+	kind(type: string) {
+		return type === "danger--primary" ? "danger" : type;
 	}
 
 	buttonClicked(buttonIndex: string | number) {

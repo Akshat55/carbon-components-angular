@@ -1,4 +1,5 @@
 import {
+	booleanAttribute,
 	ChangeDetectionStrategy,
 	Component,
 	CUSTOM_ELEMENTS_SCHEMA,
@@ -48,7 +49,7 @@ export class Tag {
 	/**
 	 * @deprecated hides the content only. Use `<cds-tag-skeleton>` instead.
 	 */
-	@Input() skeleton = false;
+	@Input({ transform: booleanAttribute }) skeleton = false;
 	/**
 	 * Optional `TemplateRef` (e.g. AI label) rendered in the decorator slot.
 	 */

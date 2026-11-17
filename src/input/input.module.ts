@@ -13,6 +13,7 @@ import { IconDirective } from "carbon-components-angular/icon";
 import { PasswordInput } from "./password.directive";
 import { PasswordInputLabelComponent } from "./password-input-label.component";
 import { CdsPasswordInput, CdsTextarea, CdsTextInput } from "./text-input.component";
+import { TextInputSkeleton, TextareaSkeleton, PasswordInputSkeleton } from "./input-skeleton.component";
 
 
 
@@ -27,7 +28,10 @@ import { CdsPasswordInput, CdsTextarea, CdsTextInput } from "./text-input.compon
 		PasswordInput,
 		CdsTextInput,
 		CdsTextarea,
-		CdsPasswordInput
+		CdsPasswordInput,
+		TextInputSkeleton,
+		TextareaSkeleton,
+		PasswordInputSkeleton
 	],
 	imports: [
 		CommonModule,
@@ -42,7 +46,10 @@ import { CdsPasswordInput, CdsTextarea, CdsTextInput } from "./text-input.compon
 		PasswordInputLabelComponent,
 		CdsTextInput,
 		CdsTextarea,
-		CdsPasswordInput
+		CdsPasswordInput,
+		TextInputSkeleton,
+		TextareaSkeleton,
+		PasswordInputSkeleton
 	]
 })
 export class InputModule {}

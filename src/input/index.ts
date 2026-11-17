@@ -7,3 +7,4 @@ export * from "./textarea-label.component";
 export * from "./password-input-label.component";
 export * from "./password.directive";
 export { BaseTextInput, CdsPasswordInput, CdsTextarea, CdsTextInput } from "./text-input.component";
+export { TextInputSkeleton, TextareaSkeleton, PasswordInputSkeleton } from "./input-skeleton.component";

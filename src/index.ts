@@ -11,7 +11,7 @@ export * from "carbon-components-angular/content-switcher";
 export * from "carbon-components-angular/context-menu";
 export * from "carbon-components-angular/datepicker";
 export * from "carbon-components-angular/datepicker-input";
-export * from "carbon-components-angular/dialog";
+export * from "carbon-components-angular/overflow-menu";
 export * from "carbon-components-angular/dropdown";
 export * from "carbon-components-angular/experimental";
 export * from "carbon-components-angular/file-uploader";

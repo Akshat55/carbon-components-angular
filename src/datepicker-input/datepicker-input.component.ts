@@ -1,10 +1,13 @@
 import {
+	booleanAttribute,
 	ChangeDetectionStrategy,
 	Component,
 	CUSTOM_ELEMENTS_SCHEMA,
 	EventEmitter,
 	Input,
+	OnChanges,
 	Output,
+	SimpleChanges,
 	TemplateRef
 } from "@angular/core";
 import "@carbon/web-components/es/components/date-picker/index.js";
@@ -30,17 +33,16 @@ import { provideValueAccessor, TemplateContent, TemplateSlot, WebComponentValueA
 	`,
 	host: {
 		"[id]": "id",
-		"[kind]": "type === 'range' ? 'from' : type",
-		"[labelText]": "isTemplate(label) ? '' : label",
-		"[placeholder]": "placeholder",
-		"[pattern]": "pattern",
-		"[value]": "value",
-		"[size]": "size",
-		"[disabled]": "disabled",
-		"[attr.readonly]": "readonly ? '' : null",
-		"[invalid]": "invalid",
+		"[kind]": "kind ?? (type === 'range' ? 'from' : type) ?? element.kind",
+		"[labelText]": "isTemplate(label) ? '' : (label ?? element.labelText)",
+		"[placeholder]": "placeholder ?? element.placeholder",
+		"[pattern]": "pattern ?? element.pattern",
+		"[value]": "value ?? element.value",
+		"[size]": "size ?? element.size",
+		"[disabled]": "disabled ?? element.disabled",
+		"[invalid]": "invalid ?? element.invalid",
 		"[invalidText]": "content.render('invalidText', invalidText)",
-		"[warn]": "warn",
+		"[warn]": "warn ?? element.warn",
 		"[warnText]": "content.render('warnText', warnText)",
 		"(input)": "onInput($event)"
 	},
@@ -49,27 +51,47 @@ import { provideValueAccessor, TemplateContent, TemplateSlot, WebComponentValueA
 	imports: [TemplateSlot],
 	schemas: [CUSTOM_ELEMENTS_SCHEMA]
 })
-export class DatePickerInput extends WebComponentValueAccessor<string> {
+export class DatePickerInput extends WebComponentValueAccessor<string> implements OnChanges {
 	static datePickerCount = 0;
 
-	@Input() type: "simple" | "single" | "range" = "simple";
+	/**
+	 * v6 name for `kind`: `"range"` is the start input (`kind="from"`).
+	 */
+	@Input() type?: "simple" | "single" | "range";
+	/**
+	 * The web component's `kind`; inside a range `cds-date-picker`, use `"from"` and `"to"`.
+	 * The web component's default is `"simple"`.
+	 */
+	@Input() kind?: "simple" | "single" | "from" | "to";
 	@Input() id = `datepicker-${DatePickerInput.datePickerCount++}`;
 	@Input() label: string | TemplateRef<any>;
-	@Input() placeholder = "mm/dd/yyyy";
-	@Input() pattern = "^\\d{1,2}/\\d{1,2}/\\d{4}$";
-	@Input() readonly = false;
-	@Input() invalid = false;
+	@Input() placeholder?: string;
+	/**
+	 * The web component's default matches `mm/dd/yyyy`.
+	 */
+	@Input() pattern?: string;
+	/**
+	 * A `cds-date-picker` sets it on its inputs.
+	 */
+	@Input({ transform: booleanAttribute }) readonly?: boolean;
+	@Input({ transform: booleanAttribute }) invalid?: boolean;
 	@Input() invalidText: string | TemplateRef<any>;
-	@Input() warn = false;
+	@Input({ transform: booleanAttribute }) warn?: boolean;
 	@Input() warnText: string | TemplateRef<any>;
 	@Input() helperText: string | TemplateRef<any>;
 	@Input() decorator: TemplateRef<any>;
-	@Input() value = "";
-	@Input() size: "sm" | "md" | "lg" = "md";
+	/**
+	 * A `cds-date-picker` sets it on its inputs.
+	 */
+	@Input() value?: string;
+	/**
+	 * The web component's default is `"md"`.
+	 */
+	@Input() size?: "sm" | "md" | "lg";
 	/**
 	 * @deprecated the web component shows the calendar icon for `single` / `range`.
 	 */
-	@Input() hasIcon = false;
+	@Input({ transform: booleanAttribute }) hasIcon = false;
 	/**
 	 * @deprecated the web component follows the surrounding theme / layer.
 	 */
@@ -77,11 +99,18 @@ export class DatePickerInput extends WebComponentValueAccessor<string> {
 	/**
 	 * @deprecated use `<cds-date-picker-input-skeleton>` instead.
 	 */
-	@Input() skeleton = false;
+	@Input({ transform: booleanAttribute }) skeleton = false;
 
 	@Output() valueChange: EventEmitter<string> = new EventEmitter();
 
 	protected content = new TemplateContent();
+
+	ngOnChanges(changes: SimpleChanges) {
+		// Angular would bind `[readonly]` to the `readOnly` DOM property; the web component's is `readonly`.
+		if (changes["readonly"] && this.readonly !== undefined) {
+			this.element.readonly = this.readonly;
+		}
+	}
 
 	writeValue(value: string) {
 		this.value = value ?? "";

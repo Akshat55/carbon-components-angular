@@ -1,4 +1,5 @@
 import {
+	booleanAttribute,
 	ChangeDetectionStrategy,
 	Component,
 	CUSTOM_ELEMENTS_SCHEMA,
@@ -46,7 +47,7 @@ export class HeaderAction extends BaseIconButton {
 	 */
 	@Input() description: string | TemplateRef<any>;
 	@Input() ariaLabel: string;
-	@Input() active = false;
+	@Input({ transform: booleanAttribute }) active = false;
 
 	@Output() activeChange = new EventEmitter<boolean>();
 	/**

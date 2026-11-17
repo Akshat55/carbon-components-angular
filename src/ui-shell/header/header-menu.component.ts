@@ -1,16 +1,16 @@
 import {
+	booleanAttribute,
 	ChangeDetectionStrategy,
 	ChangeDetectorRef,
 	Component,
 	CUSTOM_ELEMENTS_SCHEMA,
-	DestroyRef,
 	ElementRef,
 	Input,
 	TemplateRef,
 	inject
 } from "@angular/core";
 import "@carbon/web-components/es/components/ui-shell/index.js";
-import { observeAttribute } from "carbon-components-angular/utils";
+import { observeAttributes } from "carbon-components-angular/utils";
 import { HeaderMenuItem } from "./header-item.component";
 import { HeaderItemInterface } from "./header-navigation-items.interface";
 
@@ -41,7 +41,7 @@ import { HeaderItemInterface } from "./header-navigation-items.interface";
 export class HeaderMenu {
 	@Input() title: string;
 	@Input() headerItems: HeaderItemInterface[];
-	@Input() useRouter = false;
+	@Input({ transform: booleanAttribute }) useRouter = false;
 	/**
 	 * Opens the menu on click, or while the pointer is over it.
 	 */
@@ -57,11 +57,13 @@ export class HeaderMenu {
 
 	expanded = false;
 
+	protected element = inject(ElementRef).nativeElement;
+	protected changeDetectorRef = inject(ChangeDetectorRef);
+
 	constructor() {
-		const changeDetectorRef = inject(ChangeDetectorRef);
-		observeAttribute(inject(ElementRef).nativeElement, "expanded", inject(DestroyRef), expanded => {
-			this.expanded = expanded;
-			changeDetectorRef.markForCheck();
+		observeAttributes(this.element, ["expanded"], () => {
+			this.expanded = this.element.expanded;
+			this.changeDetectorRef.markForCheck();
 		});
 	}
 }

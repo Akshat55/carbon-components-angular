@@ -2,12 +2,12 @@ import { Component, Input } from "@angular/core";
 import { FileItem } from "../";
 import * as fileType from "file-type";
 
-import { Button } from "carbon-components-angular/button";
+import { CdsButton } from "carbon-components-angular/button";
 import { FileUploader } from "../file-uploader.component";
 
 @Component({
 	selector: "app-drop-file-uploader",
-	imports: [FileUploader, Button],
+	imports: [CdsButton, FileUploader],
 	template: `
 		<cds-file-uploader
 			[title]="title"
@@ -26,12 +26,11 @@ import { FileUploader } from "../file-uploader.component";
 			[disabled]="disabled">
 		</cds-file-uploader>
 		@if (files && files.size > 0) {
-			<button
-				cdsButton
+			<cds-button
 				(click)="onUpload()"
 				style="margin-top:20px">
 				Upload
-			</button>
+			</cds-button>
 		}
 	`
 })

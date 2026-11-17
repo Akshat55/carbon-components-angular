@@ -101,7 +101,7 @@ class TestAILabelHostComponent {
 }
 
 @Component({
-	template: `<div cdsAILabelActions class="actions-host"></div>`,
+	template: `<cds-ai-label>Content<div cdsAILabelActions class="actions-host"><button>Action</button></div></cds-ai-label>`,
 	imports: [AILabelModule]
 })
 class TestAILabelActionsComponent {}
@@ -135,8 +135,16 @@ describe("AILabel", () => {
 		expect(body.assignedElements()[0].querySelector(".ai-label-projection").textContent).toContain("Child content");
 	});
 
-	it("should render inline", () => {
-		expect(getComputedStyle(element).display).toBe("inline-flex");
+	it("should leave the web component's defaults alone when inputs are unset", async () => {
+		const plain = TestBed.createComponent(TestPlainAILabelComponent);
+		await settle(plain);
+		const ai = plain.nativeElement.querySelector("cds-ai-label");
+		expect(ai.aiText).toBe("AI");
+		expect(ai.kind).toBe("");
+		expect(ai.size).toBe("xs");
+		expect(ai.alignment).toBe("top");
+		expect(ai.buttonLabel).toBe("Show information");
+		expect(ai.getAttribute("style")).toBeNull();
 	});
 
 	it("should respect aiText on the trigger", async () => {
@@ -246,12 +254,19 @@ describe("AILabel", () => {
 });
 
 describe("AILabelActions", () => {
-	it("should apply toggletip-actions and ai-label-actions classes", () => {
+	it("should put the actions in the web component's actions slot, without classes of its own", async () => {
 		const fixture = TestBed.createComponent(TestAILabelActionsComponent);
-		fixture.detectChanges();
+		await settle(fixture);
 		const actions = fixture.debugElement.query(By.directive(AILabelActions)).nativeElement;
-		expect(actions.classList).toContain("cds--toggletip-actions");
-		expect(actions.classList).toContain("cds--ai-label-actions");
+		const label = fixture.nativeElement.querySelector("cds-ai-label");
 		expect(actions.getAttribute("slot")).toBe("actions");
+		expect(shadow<HTMLSlotElement>(label, 'slot[name="actions"]').assignedElements()).toContain(actions);
+		expect(actions.className).not.toContain("cds--");
 	});
 });
+
+@Component({
+	template: `<cds-ai-label>Content</cds-ai-label>`,
+	imports: [AILabelComponent]
+})
+class TestPlainAILabelComponent {}

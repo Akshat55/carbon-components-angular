@@ -1,3 +1,4 @@
+import { CdsButton } from "../button";
 import { moduleMetadata, Meta } from "@storybook/angular";
 import { Tooltip } from "./";
 
@@ -5,7 +6,7 @@ export default {
 	title: "Components/Tooltip",
 	decorators: [
 		moduleMetadata({
-			imports: [Tooltip]
+			imports: [CdsButton, Tooltip]
 		})
 	],
 	args: {
@@ -60,28 +61,9 @@ const Template = (args) => ({
 			(onClose)="onClose($event)"
 			(isOpenChange)="isOpenChange($event)"
 			[description]="description">
-			<button type="button" class="tooltip-trigger">
-				<svg preserveAspectRatio="xMidYMid meet" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 32 32">
-					<path d="M26,4H6A2,2,0,0,0,4,6V26a2,2,0,0,0,2,2H26a2,2,0,0,0,2-2V6A2,2,0,0,0,26,4ZM6,26V6H26V26Z"></path>
-				</svg>
-			</button>
+			<cds-button kind="tertiary" size="sm">Trigger</cds-button>
 		</cds-tooltip>
-	`,
-	styles: [`
-		.tooltip-trigger {
-			box-sizing: border-box;
-			margin: 0;
-			display: flex;
-			align-items: center;
-			justify-content: center;
-			width: 2rem;
-			height: 2rem;
-			background: white;
-			border: 1px solid var(--cds-border-subtle);
-			cursor: pointer;
-		}
-		svg { fill: var(--cds-background-inverse); }
-	`]
+	`
 });
 export const Basic = Template.bind({});
 Basic.parameters = {
@@ -102,20 +84,11 @@ const EllipsesTemplate = (args) => ({
 			[caret]="caret"
 			[align]="align"
 			description="Tooltip for ellipsis because I can and I am really really long">
-			<span class="overflowText">
+			<span style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis; width: 100px; display: inline-block">
 				Tooltip for ellipsis because I can and I am really really long
 			</span>
 		</cds-tooltip>
-	`,
-	styles: [`
-		.overflowText {
-			white-space: nowrap;
-			overflow: hidden;
-			text-overflow: ellipsis;
-			width: 100px;
-			display: inline-block;
-		}
-	`]
+	`
 });
 export const Ellipses = EllipsesTemplate.bind({});
 Ellipses.argTypes = {
@@ -148,30 +121,11 @@ const AutoAlignTemplate = (args) => ({
 					(onClose)="onClose($event)"
 					(isOpenChange)="isOpenChange($event)"
 					[description]="description">
-					<button type="button" class="tooltip-trigger">
-						<svg preserveAspectRatio="xMidYMid meet" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 32 32">
-							<path d="M26,4H6A2,2,0,0,0,4,6V26a2,2,0,0,0,2,2H26a2,2,0,0,0,2-2V6A2,2,0,0,0,26,4ZM6,26V6H26V26Z"></path>
-						</svg>
-					</button>
+					<cds-button kind="tertiary" size="sm">Trigger</cds-button>
 				</cds-tooltip>
 			</div>
 		</div>
-	`,
-	styles: [`
-		.tooltip-trigger {
-			box-sizing: border-box;
-			margin: 0;
-			display: flex;
-			align-items: center;
-			justify-content: center;
-			width: 2rem;
-			height: 2rem;
-			background: white;
-			border: 1px solid var(--cds-border-subtle);
-			cursor: pointer;
-		}
-		svg { fill: var(--cds-background-inverse); }
-	`]
+	`
 });
 export const WithAutoAlign = AutoAlignTemplate.bind({});
 WithAutoAlign.args = {

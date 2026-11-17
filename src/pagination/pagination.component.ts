@@ -1,4 +1,5 @@
 import {
+	booleanAttribute,
 	ChangeDetectionStrategy,
 	Component,
 	CUSTOM_ELEMENTS_SCHEMA,
@@ -63,11 +64,11 @@ export class Pagination {
 	public i18n = inject(I18n);
 
 	@Input() model: PaginationModel;
-	@Input() disabled = false;
-	@Input() pageInputDisabled = false;
+	@Input({ transform: booleanAttribute }) disabled = false;
+	@Input({ transform: booleanAttribute }) pageInputDisabled = false;
 	@Input() size: "sm" | "md" | "lg" = "md";
-	@Input() showPageInput = true;
-	@Input() pagesUnknown = false;
+	@Input({ transform: booleanAttribute }) showPageInput = true;
+	@Input({ transform: booleanAttribute }) pagesUnknown = false;
 	@Input() itemsPerPageOptions: number[] = [10, 20, 30, 40, 50];
 	@Input() set translations(value: PaginationTranslations) {
 		this.texts = merge(this.i18n.getMultiple("PAGINATION"), value);
@@ -79,15 +80,15 @@ export class Pagination {
 	/**
 	 * @deprecated the web component works out when the buttons are disabled.
 	 */
-	@Input() backwardDisabled = false;
+	@Input({ transform: booleanAttribute }) backwardDisabled = false;
 	/**
 	 * @deprecated the web component works out when the buttons are disabled.
 	 */
-	@Input() forwardDisabled = false;
+	@Input({ transform: booleanAttribute }) forwardDisabled = false;
 	/**
 	 * @deprecated use `<cds-pagination-skeleton>` instead.
 	 */
-	@Input() skeleton = false;
+	@Input({ transform: booleanAttribute }) skeleton = false;
 
 	/**
 	 * Emits the page number (starting at 1) the user picked.

@@ -1,9 +1,8 @@
 import {
+	booleanAttribute,
 	ChangeDetectionStrategy,
 	Component,
 	CUSTOM_ELEMENTS_SCHEMA,
-	DestroyRef,
-	ElementRef,
 	EventEmitter,
 	Input,
 	Output,
@@ -11,7 +10,7 @@ import {
 } from "@angular/core";
 import "@carbon/web-components/es/components/search/index.js";
 import { I18n } from "carbon-components-angular/i18n";
-import { provideValueAccessor, WebComponentValueAccessor } from "carbon-components-angular/utils";
+import { observeAttributes, provideValueAccessor, WebComponentValueAccessor } from "carbon-components-angular/utils";
 
 /**
  * Adds Angular inputs and outputs to the `<cds-search>` web component. Works with `ngModel` / reactive forms.
@@ -50,18 +49,18 @@ export class Search extends WebComponentValueAccessor<string> {
 	/**
 	 * Collapses to an icon button until focused.
 	 */
-	@Input() expandable = false;
+	@Input({ transform: booleanAttribute }) expandable = false;
 	/**
 	 * @deprecated use `expandable`.
 	 */
-	@Input() toolbar = false;
+	@Input({ transform: booleanAttribute }) toolbar = false;
 	/**
 	 * Whether an expandable search is open.
 	 */
-	@Input() active = false;
+	@Input({ transform: booleanAttribute }) active = false;
 	@Input() name: string;
 	@Input() id = `search-${Search.searchCount++}`;
-	@Input() required: boolean;
+	@Input({ transform: booleanAttribute }) required: boolean;
 	@Input() value = "";
 	@Input() autocomplete = "on";
 	@Input() label = this.i18n.get().SEARCH.LABEL;
@@ -75,11 +74,11 @@ export class Search extends WebComponentValueAccessor<string> {
 	/**
 	 * @deprecated use `<cds-search-skeleton>` instead.
 	 */
-	@Input() skeleton = false;
+	@Input({ transform: booleanAttribute }) skeleton = false;
 	/**
 	 * @deprecated
 	 */
-	@Input() tableSearch = false;
+	@Input({ transform: booleanAttribute }) tableSearch = false;
 	/**
 	 * @deprecated
 	 */
@@ -87,7 +86,7 @@ export class Search extends WebComponentValueAccessor<string> {
 	/**
 	 * @deprecated use `<cds-fluid-search>`.
 	 */
-	@Input() fluid = false;
+	@Input({ transform: booleanAttribute }) fluid = false;
 
 	@Output() valueChange = new EventEmitter<string>();
 	/**
@@ -108,9 +107,8 @@ export class Search extends WebComponentValueAccessor<string> {
 		super();
 		// The web component expands / collapses itself (magnifier click, Escape, focus out)
 		// through its reflected `expanded` attribute; mirror that into `active` and `open`.
-		const element: HTMLElement = inject(ElementRef).nativeElement;
-		const observer = new MutationObserver(() => {
-			const expanded = element.hasAttribute("expanded");
+		observeAttributes(this.element, ["expanded"], () => {
+			const expanded = this.element.expanded;
 			if (expanded !== this.active) {
 				this.active = expanded;
 				this.open.emit(expanded);
@@ -118,8 +116,6 @@ export class Search extends WebComponentValueAccessor<string> {
 				this.changeDetectorRef.markForCheck();
 			}
 		});
-		observer.observe(element, { attributes: true, attributeFilter: ["expanded"] });
-		inject(DestroyRef).onDestroy(() => observer.disconnect());
 	}
 
 	writeValue(value: string) {

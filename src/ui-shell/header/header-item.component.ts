@@ -1,4 +1,5 @@
 import {
+	booleanAttribute,
 	ChangeDetectionStrategy,
 	Component,
 	CUSTOM_ELEMENTS_SCHEMA,
@@ -19,7 +20,7 @@ import { ShellLink } from "../shell-link.class";
 	}
 })
 export abstract class BaseHeaderItem extends ShellLink {
-	@Input() isCurrentPage = false;
+	@Input({ transform: booleanAttribute }) isCurrentPage = false;
 }
 
 /**

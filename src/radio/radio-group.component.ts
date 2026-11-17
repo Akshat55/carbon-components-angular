@@ -1,33 +1,27 @@
 import {
+	booleanAttribute,
 	ChangeDetectionStrategy,
 	Component,
 	CUSTOM_ELEMENTS_SCHEMA,
-	DestroyRef,
 	EventEmitter,
 	Input,
 	Output,
-	TemplateRef,
-	inject
+	TemplateRef
 } from "@angular/core";
 import "@carbon/web-components/es/components/radio-button/index.js";
 import {
-	observeChildren,
 	provideValueAccessor,
 	TemplateContent,
 	TemplateSlot,
-	WebComponentValueAccessor,
-	wrapperOf
+	WebComponentValueAccessor
 } from "carbon-components-angular/utils";
-import { Radio } from "./radio.component";
 import { RadioChange } from "./radio-change.class";
 
 /**
- * Adds `ngModel` / reactive forms and Angular outputs to the `<cds-radio-button-group>`
- * web component. The value is the selected radio's `value` (any type for `cds-radio-button`s
- * with the Angular `value` input).
- *
- * The radios are read from the DOM, so radios from templates, `@for`, `createComponent`
- * or plain markup all work.
+ * Adds `ngModel` / reactive forms, `[(value)]` and Angular outputs to the
+ * `<cds-radio-button-group>` web component. The value is the `value` of the checked
+ * `cds-radio-button`. The web component passes `name`, `disabled`, `orientation` and
+ * `labelPosition` on to its radios and checks the radio whose `value` matches.
  *
  * [See demo](../../?path=/story/components-radio--basic)
  */
@@ -39,7 +33,8 @@ import { RadioChange } from "./radio-change.class";
 	`,
 	host: {
 		"[name]": "name",
-		"[disabled]": "disabled",
+		"[value]": "value",
+		"[disabled]": "!!disabled",
 		"[orientation]": "orientation",
 		"[labelPosition]": "labelPlacement",
 		"[legendText]": "legend",
@@ -48,113 +43,58 @@ import { RadioChange } from "./radio-change.class";
 		"[invalidText]": "content.render('invalidText', invalidText)",
 		"[warn]": "warn",
 		"[warnText]": "content.render('warnText', warnText)",
-		"(cds-radio-button-group-changed)": "onGroupChanged()"
+		"(cds-radio-button-group-changed)": "onGroupChanged($event)"
 	},
 	providers: [provideValueAccessor(() => RadioGroup)],
 	changeDetection: ChangeDetectionStrategy.OnPush,
 	imports: [TemplateSlot],
 	schemas: [CUSTOM_ELEMENTS_SCHEMA]
 })
-export class RadioGroup extends WebComponentValueAccessor {
+export class RadioGroup extends WebComponentValueAccessor<string> {
 	static radioGroupCount = 0;
 
-	@Input() set value(value: any) {
-		this._value = value;
-		this.hasValue = true;
-		this.sync();
-	}
-	get value() {
-		return this._value;
-	}
-
+	/**
+	 * The `value` of the checked radio. Supports two-way binding with `valueChange`. Unset, a
+	 * radio's own `checked` decides.
+	 */
+	@Input() value: string | null | undefined;
 	@Input() name = `radio-group-${RadioGroup.radioGroupCount++}`;
 	@Input() orientation: "horizontal" | "vertical" = "horizontal";
 	@Input() labelPlacement: "right" | "left" = "right";
 	@Input() legend: string;
 	@Input() decorator: TemplateRef<any>;
 	@Input() helperText: string | TemplateRef<any>;
-	@Input() invalid = false;
+	@Input({ transform: booleanAttribute }) invalid = false;
 	@Input() invalidText: string | TemplateRef<any>;
-	@Input() warn = false;
+	@Input({ transform: booleanAttribute }) warn = false;
 	@Input() warnText: string | TemplateRef<any>;
 
 	// eslint-disable-next-line @angular-eslint/no-output-native
 	@Output() change = new EventEmitter<RadioChange>();
+	@Output() valueChange = new EventEmitter<string>();
 
 	/**
-	 * The selected `Radio` (`null` when nothing is selected or it has no Angular instance).
+	 * The checked `cds-radio-button` element, if any.
 	 */
-	get selected(): Radio | null {
-		const element = this.radios().find(radio => radio.checked);
-		return element ? wrapperOf(element, Radio) : null;
+	get selected(): HTMLElement | null {
+		return this.element.querySelector("cds-radio-button[checked]");
 	}
 
 	protected content = new TemplateContent();
-	protected _value: any = null;
-	/**
-	 * `false` until a value is set; until then a pre-checked radio provides it.
-	 */
-	protected hasValue = false;
 
-	constructor() {
-		super();
-		// The web component only updates the radios it has when its own properties change.
-		observeChildren(this.element, inject(DestroyRef), () => this.sync());
-	}
-
-	writeValue(value: any) {
+	writeValue(value: string) {
 		this.value = value;
+		this.changeDetectorRef.markForCheck();
 	}
 
-	onGroupChanged() {
-		const element = this.radios().find(radio => radio.checked);
-		if (!element) {
+	onGroupChanged(event: Event) {
+		if (event.target !== this.element) {
 			return;
 		}
-		this._value = this.valueOf(element);
-		this.hasValue = true;
-		this.change.emit(new RadioChange(wrapperOf(element, Radio), this._value));
-		this.onChange(this._value);
+		this.value = (event as CustomEvent<{ value: string }>).detail.value;
+		this.change.emit(new RadioChange(this.selected, this.value));
+		this.valueChange.emit(this.value);
+		this.onChange(this.value);
 		this.onTouched();
-	}
-
-	protected onDisabledChange() {
-		this.sync();
-	}
-
-	protected radios(): any[] {
-		return Array.from(this.element.querySelectorAll("cds-radio-button"));
-	}
-
-	protected valueOf(element: any) {
-		const radio = wrapperOf(element, Radio);
-		return radio ? radio.value : element.value;
-	}
-
-	/**
-	 * Pushes the group's state to every radio, including ones added after the group rendered.
-	 */
-	protected sync() {
-		const radios = this.radios();
-		if (!this.hasValue) {
-			const checked = radios.find(radio => radio.checked);
-			if (checked) {
-				this._value = this.valueOf(checked);
-				this.hasValue = true;
-			}
-		}
-		for (const radio of radios) {
-			radio.name = this.name;
-			radio.checked = this.hasValue && this.valueOf(radio) === this._value;
-			// Remember which radios the group disabled, so enabling the group restores the rest.
-			if (this.disabled && !radio.disabled) {
-				radio.disabled = true;
-				radio.toggleAttribute("data-group-disabled", true);
-			} else if (!this.disabled && radio.hasAttribute("data-group-disabled")) {
-				radio.disabled = false;
-				radio.removeAttribute("data-group-disabled");
-			}
-		}
-		this.element.value = radios.find(radio => radio.checked)?.value ?? "";
 	}
 }

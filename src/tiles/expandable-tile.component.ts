@@ -1,4 +1,5 @@
 import {
+	booleanAttribute,
 	ChangeDetectionStrategy,
 	Component,
 	CUSTOM_ELEMENTS_SCHEMA,
@@ -40,13 +41,13 @@ export interface ExpandableTileTranslations {
 })
 export class ExpandableTile {
 	@Input() theme: "light" | "dark" = "dark";
-	@Input() expanded = false;
+	@Input({ transform: booleanAttribute }) expanded = false;
 	/**
 	 * Set to `true` when the tile contains interactive elements.
 	 */
-	@Input() interactive = false;
+	@Input({ transform: booleanAttribute }) interactive = false;
 	@Input() decorator: TemplateRef<any>;
-	@Input() hasRoundedCorners = false;
+	@Input({ transform: booleanAttribute }) hasRoundedCorners = false;
 	/**
 	 * @deprecated the web component provides its own expand/collapse labels.
 	 */

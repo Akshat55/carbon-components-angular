@@ -1,5 +1,7 @@
 import {
+	booleanAttribute,
 	ChangeDetectionStrategy,
+	ChangeDetectorRef,
 	Component,
 	CUSTOM_ELEMENTS_SCHEMA,
 	Directive,
@@ -11,7 +13,7 @@ import {
 	inject
 } from "@angular/core";
 import "@carbon/web-components/es/components/tile/index.js";
-import { registerWrapper, TemplateSlot } from "carbon-components-angular/utils";
+import { observeAttributes, TemplateSlot } from "carbon-components-angular/utils";
 
 /**
  * Inputs and `[(selected)]` shared by `SelectableTile` and `RadioTile`.
@@ -31,21 +33,27 @@ export abstract class BaseSelectionTile {
 
 	@Input() id = `tile-${BaseSelectionTile.tileCount++}`;
 	@Input() value: string;
-	@Input() selected = false;
-	@Input() disabled = false;
+	@Input({ transform: booleanAttribute }) selected = false;
+	@Input({ transform: booleanAttribute }) disabled = false;
 	@Input() theme: "light" | "dark" = "dark";
 	@Input() decorator: TemplateRef<any>;
-	@Input() hasRoundedCorners = false;
+	@Input({ transform: booleanAttribute }) hasRoundedCorners = false;
 
 	@Output() selectedChange = new EventEmitter<boolean>();
 
-	constructor() {
-		registerWrapper(inject(ElementRef).nativeElement, this);
-	}
+	protected element = inject(ElementRef).nativeElement;
+	protected changeDetectorRef = inject(ChangeDetectorRef);
 
-	onSelected(event: Event) {
-		this.selected = (event as CustomEvent<{ selected: boolean }>).detail.selected;
-		this.selectedChange.emit(this.selected);
+	constructor() {
+		// The web component reflects `selected`, also when a `cds-tile-group` deselects a radio tile.
+		observeAttributes(this.element, ["selected"], () => {
+			const selected = this.element.selected;
+			if (selected !== this.selected) {
+				this.selected = selected;
+				this.selectedChange.emit(selected);
+				this.changeDetectorRef.markForCheck();
+			}
+		});
 	}
 }
 
@@ -61,9 +69,6 @@ export abstract class BaseSelectionTile {
 		<ng-content />
 		<ng-container cdsSlot="decorator" [cdsSlotTemplate]="decorator" />
 	`,
-	host: {
-		"(cds-selectable-tile-changed)": "onSelected($event)"
-	},
 	changeDetection: ChangeDetectionStrategy.OnPush,
 	imports: [TemplateSlot],
 	schemas: [CUSTOM_ELEMENTS_SCHEMA]
@@ -82,9 +87,6 @@ export class SelectableTile extends BaseSelectionTile {}
 		<ng-content />
 		<ng-container cdsSlot="decorator" [cdsSlotTemplate]="decorator" />
 	`,
-	host: {
-		"(cds-radio-tile-selected)": "onSelected($event)"
-	},
 	changeDetection: ChangeDetectionStrategy.OnPush,
 	imports: [TemplateSlot],
 	schemas: [CUSTOM_ELEMENTS_SCHEMA]

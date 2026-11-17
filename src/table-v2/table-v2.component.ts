@@ -1,4 +1,5 @@
 import {
+	booleanAttribute,
 	ChangeDetectionStrategy,
 	Component,
 	CUSTOM_ELEMENTS_SCHEMA,
@@ -57,20 +58,20 @@ import "@carbon/web-components/es/components/data-table/index.js";
 })
 export class TableV2 {
 	@Input() size: "xs" | "sm" | "md" | "lg" | "xl" = "lg";
-	@Input() useZebraStyles = false;
-	@Input() useStaticWidth = false;
-	@Input() isSortable = false;
-	@Input() isSelectable = false;
+	@Input({ transform: booleanAttribute }) useZebraStyles = false;
+	@Input({ transform: booleanAttribute }) useStaticWidth = false;
+	@Input({ transform: booleanAttribute }) isSortable = false;
+	@Input({ transform: booleanAttribute }) isSelectable = false;
 	/**
 	 * Single selection with radio buttons (with `isSelectable`).
 	 */
-	@Input() radio = false;
-	@Input() expandable = false;
+	@Input({ transform: booleanAttribute }) radio = false;
+	@Input({ transform: booleanAttribute }) expandable = false;
 	/**
 	 * Adds an expand-all button to the header (with `expandable`).
 	 */
-	@Input() batchExpansion = false;
-	@Input() overflowMenuOnHover = true;
+	@Input({ transform: booleanAttribute }) batchExpansion = false;
+	@Input({ transform: booleanAttribute }) overflowMenuOnHover = true;
 	@Input() locale = "en";
 
 	/**
@@ -122,7 +123,7 @@ export class TableV2HeaderRow {
 	/**
 	 * State of the select-all checkbox.
 	 */
-	@Input() selected = false;
+	@Input({ transform: booleanAttribute }) selected = false;
 }
 
 /**
@@ -141,7 +142,7 @@ export class TableV2HeaderRow {
 	schemas: [CUSTOM_ELEMENTS_SCHEMA]
 })
 export class TableV2HeaderCell {
-	@Input() isSortable: boolean;
+	@Input({ transform: booleanAttribute }) isSortable: boolean;
 	@Input() sortDirection: "none" | "ascending" | "descending";
 	@Input() sortCycle: string;
 
@@ -186,9 +187,9 @@ export class TableV2Body {}
 	schemas: [CUSTOM_ELEMENTS_SCHEMA]
 })
 export class TableV2Row {
-	@Input() selected = false;
-	@Input() expanded = false;
-	@Input() disabled = false;
+	@Input({ transform: booleanAttribute }) selected = false;
+	@Input({ transform: booleanAttribute }) expanded = false;
+	@Input({ transform: booleanAttribute }) disabled = false;
 	/**
 	 * Name of the row's selection checkbox / radio (set it to make the row selectable).
 	 */
@@ -307,11 +308,11 @@ export class TableV2ToolbarContent {}
 	schemas: [CUSTOM_ELEMENTS_SCHEMA]
 })
 export class TableV2ToolbarSearch {
-	@Input() expanded = false;
+	@Input({ transform: booleanAttribute }) expanded = false;
 	/**
 	 * Keeps the search open.
 	 */
-	@Input() persistent = false;
+	@Input({ transform: booleanAttribute }) persistent = false;
 	@Input() placeholder = "Filter table";
 
 	@Output() valueChange = new EventEmitter<string>();
@@ -334,7 +335,7 @@ export class TableV2ToolbarSearch {
 	schemas: [CUSTOM_ELEMENTS_SCHEMA]
 })
 export class TableV2BatchActions {
-	@Input() active = false;
+	@Input({ transform: booleanAttribute }) active = false;
 	@Input() selectedRowsCount = 0;
 	@Input() totalRowsCount = 0;
 
@@ -361,7 +362,7 @@ export class TableV2BatchActions {
 export class TableV2Skeleton {
 	@Input() columnCount = 5;
 	@Input() rowCount = 5;
-	@Input() showHeader = true;
-	@Input() showToolbar = true;
-	@Input() zebra = false;
+	@Input({ transform: booleanAttribute }) showHeader = true;
+	@Input({ transform: booleanAttribute }) showToolbar = true;
+	@Input({ transform: booleanAttribute }) zebra = false;
 }

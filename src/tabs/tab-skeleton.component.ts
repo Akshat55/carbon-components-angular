@@ -1,43 +1,59 @@
-import { Component, HostBinding, Input } from "@angular/core";
+import {
+	booleanAttribute,
+	ChangeDetectionStrategy,
+	Component,
+	CUSTOM_ELEMENTS_SCHEMA,
+	Input
+} from "@angular/core";
+import "@carbon/web-components/es/components/tabs/index.js";
 
 /**
- * Skeleton component for tabs
+ * The `<cds-tab-skeleton>` web component: one tab in a `cds-tabs-skeleton`.
  */
 @Component({
-	selector: "cds-tabs-skeleton, ibm-tabs-skeleton",
+	selector: "cds-tab-skeleton",
+	template: "<ng-content />",
+	changeDetection: ChangeDetectionStrategy.OnPush,
+	schemas: [CUSTOM_ELEMENTS_SCHEMA]
+})
+export class TabItemSkeleton {}
+
+/**
+ * The `<cds-tabs-skeleton>` web component. Project `cds-tab-skeleton`s, or set `numOfTabs`.
+ *
+ * ```html
+ * <cds-tabs-skeleton [numOfTabs]="5" />
+ * ```
+ */
+@Component({
+	selector: "cds-tabs-skeleton",
 	template: `
-		<ul class="cds--tabs__nav">
-			@for (i of numOfSkeletonTabs; track i) {
-				<li class="cds--tabs__nav-item">
-					<div class="cds--tabs__nav-link">
-						<span></span>
-					</div>
-				</li>
-			}
-		</ul>
+		<ng-content />
+		@for (tab of tabs; track $index) {
+			<cds-tab-skeleton />
+		}
 	`,
-	standalone: true
+	host: {
+		"[contained]": "contained"
+	},
+	changeDetection: ChangeDetectionStrategy.OnPush,
+	imports: [TabItemSkeleton],
+	schemas: [CUSTOM_ELEMENTS_SCHEMA]
 })
 export class TabSkeleton {
 	/**
-	 * Number of skeleton tab placeholders to render, default is 5
+	 * Number of `cds-tab-skeleton`s to render.
 	 */
-	@Input() set numOftabs(num: number) {
-		this.numOfSkeletonTabs = new Array(num);
+	@Input() set numOfTabs(count: number) {
+		this.tabs = new Array(count ?? 0);
 	}
-
 	/**
-	 * Set to `true` to render the contained variant of the skeleton tabs.
+	 * @deprecated use `numOfTabs`.
 	 */
-	@Input() contained = false;
-
-	/**
-	 * Set to `true` to put tabs in a loading state.
-	 */
-	@HostBinding("class.cds--skeleton") skeleton = true;
-	@HostBinding("class.cds--tabs") tabs = true;
-	@HostBinding("class.cds--tabs--contained") get containedClass() {
-		return this.contained;
+	@Input() set numOftabs(count: number) {
+		this.numOfTabs = count;
 	}
-	numOfSkeletonTabs = new Array(5);
+	@Input({ transform: booleanAttribute }) contained = false;
+
+	protected tabs: unknown[] = [];
 }

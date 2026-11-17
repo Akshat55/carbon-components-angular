@@ -188,3 +188,27 @@ describe("ContainedList", () => {
 		});
 	});
 });
+
+@Component({
+	template: `
+		<cds-contained-list label="Plain">
+			<cds-contained-list-item>Item</cds-contained-list-item>
+		</cds-contained-list>
+	`,
+	imports: [ContainedList, ContainedListItem]
+})
+class PlainContainedListComponent {}
+
+describe("ContainedList defaults", () => {
+	it("should keep the web components' defaults when inputs are unset", async () => {
+		const plain = TestBed.createComponent(PlainContainedListComponent);
+		await settle(plain);
+		const list = plain.nativeElement.querySelector("cds-contained-list");
+		const item = plain.nativeElement.querySelector("cds-contained-list-item");
+		expect(list.kind).toBe("on-page");
+		expect(list.size).toBeUndefined();
+		expect(list.isInset).toBe(false);
+		expect(item.disabled).toBe(false);
+		expect(item.clickable).toBe(false);
+	});
+});

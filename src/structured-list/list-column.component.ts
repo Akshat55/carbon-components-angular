@@ -1,4 +1,5 @@
 import {
+	booleanAttribute,
 	ChangeDetectionStrategy,
 	Component,
 	CUSTOM_ELEMENTS_SCHEMA,
@@ -19,7 +20,7 @@ import "@carbon/web-components/es/components/structured-list/index.js";
 	schemas: [CUSTOM_ELEMENTS_SCHEMA]
 })
 export class ListColumn {
-	@Input() nowrap = false;
+	@Input({ transform: booleanAttribute }) nowrap = false;
 }
 
 /**
@@ -35,7 +36,7 @@ export class ListColumn {
 	schemas: [CUSTOM_ELEMENTS_SCHEMA]
 })
 export class ListHeaderColumn {
-	@Input() nowrap = false;
+	@Input({ transform: booleanAttribute }) nowrap = false;
 }
 
 /**

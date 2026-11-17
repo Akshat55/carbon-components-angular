@@ -1,4 +1,5 @@
 import {
+	booleanAttribute,
 	ChangeDetectionStrategy,
 	Component,
 	CUSTOM_ELEMENTS_SCHEMA,
@@ -14,6 +15,7 @@ import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { Observable, Subscription } from "rxjs";
 import "@carbon/web-components/es/components/combo-box/index.js";
 import { ListItem, ListSelection } from "carbon-components-angular/dropdown";
+import { ComboBoxItem } from "./combobox-item.component";
 import { I18n, Overridable } from "carbon-components-angular/i18n";
 import { provideValueAccessor, TemplateContent, TemplateSlot } from "carbon-components-angular/utils";
 
@@ -37,30 +39,31 @@ import { provideValueAccessor, TemplateContent, TemplateSlot } from "carbon-comp
 		<ng-container cdsSlot="title-text" [cdsSlotTemplate]="isTemplate(label) ? label : null" />
 		<ng-container cdsSlot="helper-text" [cdsSlotTemplate]="isTemplate(helperText) ? helperText : null" />
 		<ng-container cdsSlot="ai-label" [cdsSlotTemplate]="decorator" />
+		<ng-content />
 		@for (item of visibleItems; track item) {
 			<!-- The web component copies the item's text into the input, so no whitespace around it. -->
-			<cds-combo-box-item [value]="'' + items.indexOf(item)" [disabled]="!!item.disabled" [selected]="!!item.selected"
+			<cds-combo-box-item [value]="'' + items.indexOf(item)" [attr.data-list-index]="items.indexOf(item)" [disabled]="!!item.disabled" [selected]="!!item.selected"
 				>@if (listTpl) {<ng-template [ngTemplateOutlet]="listTpl" [ngTemplateOutletContext]="{ item: item }" />} @else {{{ item.content }}}</cds-combo-box-item
 			>
 		}
 	`,
 	host: {
 		"[id]": "id",
-		"[titleText]": "isTemplate(label) ? '' : label",
+		"[titleText]": "isTemplate(label) ? '' : (label ?? element.titleText)",
 		"[label]": "texts.placeholder",
-		"[hideLabel]": "hideLabel",
-		"[helperText]": "isTemplate(helperText) ? '' : helperText",
+		"[hideLabel]": "hideLabel ?? element.hideLabel",
+		"[helperText]": "isTemplate(helperText) ? '' : (helperText ?? element.helperText)",
 		"[value]": "selectedIndex",
 		"[open]": "open",
-		"[size]": "size",
-		"[disabled]": "disabled",
-		"[readOnly]": "readonly",
-		"[direction]": "dropUp ? 'top' : 'bottom'",
-		"[invalid]": "invalid",
+		"[size]": "size ?? element.size",
+		"[disabled]": "disabled ?? element.disabled",
+		"[readOnly]": "readonly ?? element.readOnly",
+		"[direction]": "dropUp === undefined ? element.direction : (dropUp ? 'top' : 'bottom')",
+		"[invalid]": "invalid ?? element.invalid",
 		"[invalidText]": "content.render('invalidText', invalidText)",
-		"[warn]": "warn",
+		"[warn]": "warn ?? element.warn",
 		"[warnText]": "content.render('warnText', warnText)",
-		"[isFluid]": "fluid",
+		"[isFluid]": "fluid ?? element.isFluid",
 		"[toggleLabelClosed]": "texts.openMenuAria",
 		"[toggleLabelOpen]": "texts.closeMenuAria",
 		"[clearSelectionLabel]": "texts.clearSelectionAria",
@@ -71,7 +74,7 @@ import { provideValueAccessor, TemplateContent, TemplateSlot } from "carbon-comp
 	},
 	providers: [provideValueAccessor(() => ComboBox)],
 	changeDetection: ChangeDetectionStrategy.OnPush,
-	imports: [NgTemplateOutlet, TemplateSlot],
+	imports: [NgTemplateOutlet, TemplateSlot, ComboBoxItem],
 	schemas: [CUSTOM_ELEMENTS_SCHEMA]
 })
 export class ComboBox extends ListSelection {
@@ -122,21 +125,24 @@ export class ComboBox extends ListSelection {
 	 * @deprecated use `<cds-multi-select filterable>` for multiple selection.
 	 */
 	@Input() type: "single" | "multi" = "single";
-	@Input() size: "sm" | "md" | "lg" = "md";
+	/**
+	 * The web component's default is `"md"`.
+	 */
+	@Input() size?: "sm" | "md" | "lg";
 	@Input() label: string | TemplateRef<any>;
-	@Input() hideLabel = false;
+	@Input({ transform: booleanAttribute }) hideLabel?: boolean;
 	@Input() helperText: string | TemplateRef<any>;
 	@Input() decorator: TemplateRef<any>;
-	@Input() invalid = false;
+	@Input({ transform: booleanAttribute }) invalid?: boolean;
 	@Input() invalidText: string | TemplateRef<any>;
-	@Input() warn = false;
+	@Input({ transform: booleanAttribute }) warn?: boolean;
 	@Input() warnText: string | TemplateRef<any>;
-	@Input() readonly = false;
-	@Input() fluid = false;
+	@Input({ transform: booleanAttribute }) readonly?: boolean;
+	@Input({ transform: booleanAttribute }) fluid?: boolean;
 	/**
 	 * Opens the menu upwards.
 	 */
-	@Input() dropUp: boolean;
+	@Input({ transform: booleanAttribute }) dropUp?: boolean;
 	/**
 	 * @deprecated the web component positions its own menu.
 	 */
@@ -206,7 +212,7 @@ export class ComboBox extends ListSelection {
 
 	get selectedIndex() {
 		const index = this._items.findIndex(item => item.selected);
-		return index < 0 ? "" : String(index);
+		return index < 0 ? this.childValue : String(index);
 	}
 
 	/**
@@ -220,8 +226,10 @@ export class ComboBox extends ListSelection {
 
 	onSelected(event: Event) {
 		this.searchText = "";
-		const item = (event as CustomEvent<{ item: { value: string } | null }>).detail.item;
-		if (item) {
+		const item = (event as CustomEvent<{ item: Element & { value: string } | null }>).detail.item;
+		if (item && !this.isListItem(item)) {
+			this.selectChildren([item]);
+		} else if (item) {
 			this.select([Number(item.value)]);
 		} else {
 			this.select([]);
@@ -282,6 +290,10 @@ export class ComboBox extends ListSelection {
 	 */
 	protected emitSelected() {
 		this.selected.emit(this.selectedItems[0]);
+	}
+
+	protected emitChildSelected(item: ListItem | undefined) {
+		this.selected.emit(item);
 	}
 
 	/**

@@ -1,4 +1,5 @@
 import {
+	booleanAttribute,
 	ChangeDetectionStrategy,
 	Component,
 	CUSTOM_ELEMENTS_SCHEMA,
@@ -45,7 +46,7 @@ export class Toggle extends WebComponentValueAccessor<boolean> {
 
 	public i18n = inject(I18n);
 
-	@Input() checked = false;
+	@Input({ transform: booleanAttribute }) checked = false;
 	/**
 	 * Text shown when off. Defaults to the `TOGGLE.OFF` i18n value.
 	 */
@@ -68,13 +69,13 @@ export class Toggle extends WebComponentValueAccessor<boolean> {
 	}
 	@Input() label: string | TemplateRef<any>;
 	@Input() size: "sm" | "md" = "md";
-	@Input() hideLabel = false;
+	@Input({ transform: booleanAttribute }) hideLabel = false;
 	@Input() ariaLabel: string;
 	@Input() id = `toggle-${Toggle.toggleCount++}`;
 	/**
 	 * @deprecated use `<cds-toggle-skeleton>` instead.
 	 */
-	@Input() skeleton = false;
+	@Input({ transform: booleanAttribute }) skeleton = false;
 
 	@Output() checkedChange = new EventEmitter<boolean>();
 

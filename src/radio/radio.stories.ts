@@ -6,7 +6,7 @@ import { ReactiveFormsStory } from "./stories";
 import { AILabelModule } from "../ai-label";
 import { ButtonModule } from "../button";
 import { IconModule } from "../icon";
-import { AI_LABEL_INNER, AI_LABEL_STORY_STYLES } from "../storybook/ai-label-story-shared";
+import { AI_LABEL_INNER } from "../storybook/ai-label-story-shared";
 
 export default {
 	title: "Components/Radio",
@@ -107,9 +107,8 @@ ReactiveForms.parameters = {
 
 const withAILabelTemplate = (args) => ({
 	props: args,
-	styles: AI_LABEL_STORY_STYLES,
 	template: `
-		<div class="ai-label-check-radio-container">
+		<div style="display: flex; flex-direction: column; gap: 2rem">
 			<cds-radio-button-group
 				legend="Group label"
 				orientation="vertical"
@@ -153,7 +152,6 @@ const withAILabelTemplate = (args) => ({
 
 		<ng-template #aiLabelDefaultTpl>
 			<cds-ai-label
-				class="ai-label-container"
 				kind="default"
 				size="md"
 				[autoAlign]="true"
@@ -164,7 +162,6 @@ const withAILabelTemplate = (args) => ({
 		</ng-template>
 		<ng-template #aiLabelInlineTpl>
 			<cds-ai-label
-				class="ai-label-container"
 				kind="inline"
 				size="md"
 				[autoAlign]="true"

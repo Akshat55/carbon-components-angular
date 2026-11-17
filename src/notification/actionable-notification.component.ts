@@ -3,6 +3,7 @@ import {
 	CUSTOM_ELEMENTS_SCHEMA
 } from "@angular/core";
 import { NgTemplateOutlet } from "@angular/common";
+import { CdsLink } from "carbon-components-angular/link";
 import "@carbon/web-components/es/components/notification/index.js";
 import { BaseNotification } from "./base-notification.component";
 import { NotificationDisplayService } from "./notification-display.service";
@@ -27,7 +28,7 @@ import { ActionableContent } from "./notification-content.interface";
 				<span slot="subtitle">
 					<span [innerHTML]="notificationObj.message"></span>
 					@for (link of notificationObj.links; track link) {
-						<a class="cds--link" [href]="link.href">{{ link.text }}</a>
+						<cds-link [href]="link.href" [inline]="true">{{ link.text }}</cds-link>
 					}
 				</span>
 			}
@@ -50,7 +51,7 @@ import { ActionableContent } from "./notification-content.interface";
 	},
 	providers: [NotificationDisplayService],
 	// Default change detection: notifications re-render when `notificationObj` is mutated.
-	imports: [NgTemplateOutlet],
+	imports: [NgTemplateOutlet, CdsLink],
 	schemas: [CUSTOM_ELEMENTS_SCHEMA]
 })
 export class ActionableNotification extends BaseNotification<ActionableContent> {}

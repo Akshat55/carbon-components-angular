@@ -7,10 +7,10 @@ import { ComboButtonComponent } from "carbon-components-angular/combo-button";
 import {
 	ContextMenuComponent,
 	ContextMenuDividerComponent,
-	ContextMenuGroupComponent,
+	MenuItemRadioGroup,
 	ContextMenuItemComponent
 } from "carbon-components-angular/context-menu";
-import { OverflowMenu, OverflowMenuOption } from "carbon-components-angular/dialog";
+import { OverflowMenu, OverflowMenuOption } from "carbon-components-angular/overflow-menu";
 import { MenuButtonComponent } from "carbon-components-angular/menu-button";
 import {
 	BaseModal,
@@ -168,30 +168,30 @@ describe("NotificationService", () => {
 });
 
 describe("Context menu", () => {
-	it("should keep radio group selection and emit itemClick", () => {
-		const host = { value: "b", onValue: jasmine.createSpy("value"), onItem: jasmine.createSpy("item") };
+	it("should keep radio group selection and emit itemClick", async () => {
+		const host = { value: "B", onValue: jasmine.createSpy("value"), onItem: jasmine.createSpy("item") };
 		const fixture = render(`
 			<cds-menu [open]="true">
-				<cds-menu-item-group type="radio" [value]="value" (valueChange)="onValue($event)">
-					<cds-menu-item label="A" type="radio" value="a" (itemClick)="onItem($event)" />
-					<cds-menu-item label="B" type="radio" value="b" />
-				</cds-menu-item-group>
+				<cds-menu-item-radio-group label="Group" [selected]="value" (selectedChange)="onValue($event)">
+					<cds-menu-item label="A" value="a" (itemClick)="onItem($event)" />
+					<cds-menu-item label="B" value="b" />
+				</cds-menu-item-radio-group>
 				<cds-menu-item-divider />
-				<cds-menu-item label="More"><cds-menu><cds-menu-item label="Child" /></cds-menu></cds-menu-item>
+				<cds-menu-item label="More"><cds-menu slot="submenu"><cds-menu-item label="Child" /></cds-menu></cds-menu-item>
 			</cds-menu>`,
-		[ContextMenuComponent, ContextMenuGroupComponent, ContextMenuItemComponent, ContextMenuDividerComponent], host);
+		[ContextMenuComponent, MenuItemRadioGroup, ContextMenuItemComponent, ContextMenuDividerComponent], host);
+		await settle(fixture);
 
 		const menu = fixture.nativeElement.querySelector("cds-menu");
 		expect(menu instanceof customElements.get("cds-menu")).toBe(true);
-		const [a, b] = menu.querySelectorAll("cds-menu-item-group cds-menu-item");
+		const [a, b] = menu.querySelectorAll("cds-menu-item-radio-group cds-menu-item");
 		expect(b.getAttribute("aria-checked")).toBe("true");
 		expect(menu.querySelector("cds-menu-item-divider")).toBeTruthy();
-		expect(menu.querySelector("cds-menu-item[label='More'] > cds-menu").getAttribute("slot")).toBe("submenu");
 
 		a.click();
-		fixture.detectChanges();
-		expect(host.onItem).toHaveBeenCalledWith(jasmine.objectContaining({ value: "a", type: "radio" }));
-		expect(host.onValue).toHaveBeenCalledWith("a");
+		await settle(fixture);
+		expect(host.onItem).toHaveBeenCalledWith(jasmine.objectContaining({ value: "a", label: "A" }));
+		expect(host.onValue).toHaveBeenCalledWith("A");
 		expect(a.getAttribute("aria-checked")).toBe("true");
 		expect(b.getAttribute("aria-checked")).toBe("false");
 	});

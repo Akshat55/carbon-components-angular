@@ -1,5 +1,14 @@
-import { Component, CUSTOM_ELEMENTS_SCHEMA, TemplateRef, ViewChild } from "@angular/core";
+import {
+	ApplicationRef,
+	Component,
+	createComponent,
+	CUSTOM_ELEMENTS_SCHEMA,
+	EnvironmentInjector,
+	TemplateRef,
+	ViewChild
+} from "@angular/core";
 import { TestBed } from "@angular/core/testing";
+import { settle } from "../test-helpers/web-components";
 
 import { Checkbox } from "./checkbox.component";
 import { CheckboxGroup } from "./checkbox-group.component";
@@ -78,22 +87,69 @@ describe("CheckboxGroup", () => {
 		expect(group.querySelector(".decorator").getAttribute("slot")).toBe("decorator");
 	});
 
-	it("should apply group readOnly to children unless they set their own", async () => {
+	it("should let the web component pass readOnly on to every checkbox", async () => {
 		await update({ readOnly: true });
 		expect(group.readonly).toBe(true);
 		expect(one.readonly).toBe(true);
-		expect(two.readonly).toBe(false);
+		expect(two.readonly).toBe(true);
 	});
 
-	it("should apply group invalid and warn to children unless they set their own", async () => {
-		await update({ invalid: true, warn: true });
-		expect(one.invalid).toBe(true);
-		expect(one.warn).toBe(true);
-		expect(two.invalid).toBe(false);
-		expect(two.warn).toBe(false);
-
-		await update({ invalid: false, warn: false });
+	it("should mark the whole group invalid through the web component", async () => {
+		await update({ invalid: true });
+		expect(group.invalid).toBe(true);
+		expect(one.hasAttribute("invalid-group")).toBe(true);
+		expect(two.hasAttribute("invalid-group")).toBe(true);
 		expect(one.invalid).toBe(false);
+
+		await update({ invalid: false });
+		expect(one.hasAttribute("invalid-group")).toBe(false);
+	});
+
+	it("should pass warn to the web component group only", async () => {
+		await update({ warn: true });
+		expect(group.warn).toBe(true);
 		expect(one.warn).toBe(false);
+	});
+});
+
+@Component({
+	template: `
+		<cds-checkbox-group [disabled]="disabled" legend="Group">
+			<cds-checkbox [readOnly]="true">Own read-only</cds-checkbox>
+			<cds-checkbox [disabled]="true">Own disabled</cds-checkbox>
+			<cds-checkbox>Plain</cds-checkbox>
+		</cds-checkbox-group>
+	`,
+	imports: [Checkbox, CheckboxGroup]
+})
+class CheckboxGroupStateTest {
+	disabled: boolean | undefined;
+}
+
+describe("CheckboxGroup state propagation", () => {
+	let fixture;
+	let group;
+	let checkboxes: any[];
+
+	beforeEach(async () => {
+		fixture = TestBed.createComponent(CheckboxGroupStateTest);
+		await settle(fixture);
+		group = fixture.nativeElement.querySelector("cds-checkbox-group");
+		checkboxes = Array.from(fixture.nativeElement.querySelectorAll("cds-checkbox"));
+	});
+
+	it("should keep the web component's defaults when inputs are unset", () => {
+		expect(group.orientation).toBe("vertical");
+		expect(group.disabled).toBe(false);
+	});
+
+	it("should let the web component disable and re-enable every checkbox", async () => {
+		fixture.componentInstance.disabled = true;
+		await settle(fixture);
+		expect(checkboxes.map(checkbox => checkbox.disabled)).toEqual([true, true, true]);
+
+		fixture.componentInstance.disabled = false;
+		await settle(fixture);
+		expect(checkboxes.map(checkbox => checkbox.disabled)).toEqual([false, false, false]);
 	});
 });

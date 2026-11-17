@@ -1,4 +1,5 @@
 import {
+	booleanAttribute,
 	ChangeDetectionStrategy,
 	ChangeDetectorRef,
 	Component,
@@ -57,19 +58,19 @@ export class TreeNodeComponent implements OnInit, OnDestroy {
 	static treeNodeCount = 0;
 
 	@Input() id = `tree-node-${TreeNodeComponent.treeNodeCount++}`;
-	@Input() active = false;
-	@Input() disabled = false;
+	@Input({ transform: booleanAttribute }) active = false;
+	@Input({ transform: booleanAttribute }) disabled = false;
 	/**
 	 * Only applies to nodes with children: `false` makes a click toggle instead of select.
 	 */
-	@Input() selectable = true;
-	@Input() expanded = false;
+	@Input({ transform: booleanAttribute }) selectable = true;
+	@Input({ transform: booleanAttribute }) expanded = false;
 	/**
 	 * Node label. A `TemplateRef` is not supported by the web component and renders nothing.
 	 */
 	@Input() label: string | TemplateRef<any>;
 	@Input() labelContext: any;
-	@Input() selected = false;
+	@Input({ transform: booleanAttribute }) selected = false;
 	@Input() value: any;
 	@Input() icon: string | TemplateRef<any>;
 	@Input() iconContext: any;

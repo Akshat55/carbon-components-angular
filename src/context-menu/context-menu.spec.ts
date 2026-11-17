@@ -1,38 +1,31 @@
 import { Component, Input } from "@angular/core";
 import { TestBed } from "@angular/core/testing";
-import { By } from "@angular/platform-browser";
 
 import { settle } from "../test-helpers/web-components";
 import { ContextMenuComponent } from "./context-menu.component";
 import { ContextMenuItemComponent } from "./context-menu-item.component";
 import { ContextMenuDividerComponent } from "./context-menu-divider.component";
 import { ContextMenuGroupComponent } from "./context-menu-group.component";
-import { ContextMenuSelectionService } from "./context-menu-selection.service";
+import { MenuItemRadioGroup, MenuItemSelectable } from "./menu-item-selectable.component";
+import { ItemClickEvent } from "./context-menu.types";
+import { MenuButtonComponent } from "../menu-button/menu-button.component";
 
 @Component({
 	template: `
 		<cds-menu [open]="open">
-			<cds-menu-item label="Option with icon" icon="calendar" />
+			<cds-menu-item label="Option with icon" icon="calendar" value="icon" (itemClick)="onItemClick($event)" />
 			<cds-menu-item-divider />
-			<cds-menu-item type="checkbox" label="Enable magic" />
-			<cds-menu-item-divider />
-			<cds-menu-item-group
-				type="checkbox"
-				label="Selection group"
-				[value]="checkboxGroupValue">
-				<cds-menu-item type="checkbox" label="Blue" value="blue"></cds-menu-item>
-				<cds-menu-item type="checkbox" label="Red" value="red" [checked]="true"></cds-menu-item>
+			<cds-menu-item-group label="Selection group">
+				<cds-menu-item-selectable label="Blue" [(selected)]="blue" />
+				<cds-menu-item-selectable label="Red" [selected]="true" />
 			</cds-menu-item-group>
 			<cds-menu-item-divider />
 			<cds-menu-item label="Radio flyout">
-				<cds-menu>
-					<cds-menu-item-group
-						type="radio"
-						[value]="radioGroupValue"
-						(valueChange)="onRadioChange($event)">
-						<cds-menu-item type="radio" label="Radio one" value="one" />
-						<cds-menu-item type="radio" label="Radio two" value="two" />
-					</cds-menu-item-group>
+				<cds-menu slot="submenu">
+					<cds-menu-item-radio-group label="Radios" [(selected)]="radio">
+						<cds-menu-item label="Radio one" />
+						<cds-menu-item label="Radio two" />
+					</cds-menu-item-radio-group>
 				</cds-menu>
 			</cds-menu-item>
 		</cds-menu>
@@ -41,21 +34,22 @@ import { ContextMenuSelectionService } from "./context-menu-selection.service";
 		ContextMenuComponent,
 		ContextMenuItemComponent,
 		ContextMenuDividerComponent,
-		ContextMenuGroupComponent
+		ContextMenuGroupComponent,
+		MenuItemSelectable,
+		MenuItemRadioGroup
 	]
 })
 class MenuTestComponent {
 	@Input() open = true;
-	radioGroupValue = "one";
-	checkboxGroupValue = ["red"];
+	radio = "Radio one";
+	blue = false;
 
-	onRadioChange(event) {}
+	onItemClick(_: ItemClickEvent) {}
 }
 
 describe("Menu", () => {
 	let fixture, wrapper;
-	const item = (selector: string) => fixture.debugElement.query(By.css(`cds-menu-item${selector}`));
-	const hasCheckmark = (debugElement) => !!debugElement.nativeElement.querySelector("svg[slot=render-icon]");
+	const element = (selector: string) => fixture.nativeElement.querySelector(selector);
 
 	beforeEach(async () => {
 		TestBed.configureTestingModule({
@@ -67,83 +61,69 @@ describe("Menu", () => {
 	});
 
 	it("should work", () => {
-		const menu = fixture.nativeElement.querySelector("cds-menu");
+		const menu = element("cds-menu");
 		expect(wrapper instanceof MenuTestComponent).toBe(true);
 		expect(menu instanceof customElements.get("cds-menu")).toBe(true);
 		expect(menu.open).toBe(true);
 	});
 
 	it("should close the menu when open is set to false", async () => {
-		const menu = fixture.nativeElement.querySelector("cds-menu");
+		const menu = element("cds-menu");
 		wrapper.open = false;
 		await settle(fixture);
 		expect(menu.open).toBe(false);
 	});
 
-	it("should have red checkbox checked by default", () => {
-		const red = item("[label='Red']");
-		expect(red.componentInstance.checked).toBeTrue();
-		expect(red.nativeElement.getAttribute("aria-checked")).toBe("true");
-	});
-
-	it("should have radio one selected by default", () => {
-		expect(item("[type='radio'][value='one']").componentInstance.checked).toBeTrue();
-	});
-
-	it("should emit valueChange from group when a radio item is clicked", async () => {
-		spyOn(wrapper, "onRadioChange");
-		const radioOne = item("[type='radio'][value='one']");
-		const radioTwo = item("[type='radio'][value='two']");
-
-		radioTwo.nativeElement.click();
+	it("should emit itemClick with the item's details", async () => {
+		spyOn(wrapper, "onItemClick");
+		element("cds-menu-item[label='Option with icon']").click();
 		await settle(fixture);
-
-		expect(wrapper.onRadioChange).toHaveBeenCalledWith("two");
-		expect(hasCheckmark(radioTwo)).toBeTrue();
-		expect(hasCheckmark(radioOne)).toBeFalse();
+		expect(wrapper.onItemClick).toHaveBeenCalledWith(jasmine.objectContaining({ label: "Option with icon", value: "icon" }));
 	});
 
-	it("should check the radio item the selection service selects", async () => {
-		const group = fixture.debugElement.query(By.css("cds-menu-item-group[type='radio']"));
-		group.componentInstance.contextMenuSelectionService.selectRadio("two");
+	it("should pass selected to selectable items and update [(selected)] on click", async () => {
+		expect(element("cds-menu-item-selectable[label='Red']").selected).toBe(true);
+		element("cds-menu-item-selectable[label='Blue']").shadowRoot.querySelector("cds-menu-item").click();
 		await settle(fixture);
-
-		expect(hasCheckmark(item("[type='radio'][value='two']"))).toBeTrue();
-		expect(hasCheckmark(item("[type='radio'][value='one']"))).toBeFalse();
+		expect(wrapper.blue).toBe(true);
 	});
 
-	it("should update aria-checked when a checkbox item is toggled", async () => {
-		const blue = item("[label='Blue']");
-		expect(blue.nativeElement.getAttribute("aria-checked")).toBe("false");
-
-		blue.nativeElement.click();
+	it("should update the radio group's [(selected)] on click", async () => {
+		const [, two] = fixture.nativeElement.querySelectorAll("cds-menu-item-radio-group cds-menu-item");
+		two.click();
 		await settle(fixture);
-
-		expect(blue.nativeElement.getAttribute("aria-checked")).toBe("true");
-		expect(hasCheckmark(blue)).toBeTrue();
-	});
-
-	it("should check every checkbox item the selection service selects", async () => {
-		const group = fixture.debugElement.query(By.css("cds-menu-item-group[type='checkbox']"));
-		group.componentInstance.contextMenuSelectionService.selectCheckboxes(["blue", "red"]);
-		await settle(fixture);
-
-		const blue = item("[label='Blue']");
-		const red = item("[label='Red']");
-		expect(blue.nativeElement.getAttribute("aria-checked")).toBe("true");
-		expect(red.nativeElement.getAttribute("aria-checked")).toBe("true");
-		expect(hasCheckmark(blue)).toBeTrue();
-		expect(hasCheckmark(red)).toBeTrue();
+		expect(wrapper.radio).toBe("Radio two");
 	});
 
 	it("should render the divider web component", () => {
-		const divider = fixture.nativeElement.querySelector("cds-menu-item-divider");
+		const divider = element("cds-menu-item-divider");
 		expect(divider instanceof customElements.get("cds-menu-item-divider")).toBe(true);
 	});
+});
 
-	it("should detect if there is a child context menu", () => {
-		const flyout = item("[label='Radio flyout']");
-		expect(flyout.componentInstance.childContextMenu).toBeTruthy();
-		expect(flyout.nativeElement.querySelector(":scope > cds-menu").getAttribute("slot")).toBe("submenu");
+@Component({
+	template: `
+		<cds-menu-button label="Actions" size="sm">
+			<cds-menu>
+				<cds-menu-item label="Plain" />
+				<cds-menu-item label="Delete" [danger]="true" />
+			</cds-menu>
+		</cds-menu-button>
+	`,
+	imports: [MenuButtonComponent, ContextMenuComponent, ContextMenuItemComponent]
+})
+class MenuDefaultsTest {}
+
+describe("Context menu defaults", () => {
+	it("should keep the web components' defaults and take the menu button's size", async () => {
+		const fixture = TestBed.createComponent(MenuDefaultsTest);
+		await settle(fixture);
+		const menu = fixture.nativeElement.querySelector("cds-menu");
+		const [plain, danger] = fixture.nativeElement.querySelectorAll("cds-menu-item");
+		expect(menu.getAttribute("size")).toBe("sm");
+		expect(menu.open).toBe(false);
+		expect(plain.kind).toBe("default");
+		expect(plain.disabled).toBeFalsy();
+		expect(danger.kind).toBe("danger");
 	});
 });

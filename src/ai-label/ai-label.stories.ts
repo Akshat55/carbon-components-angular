@@ -4,7 +4,7 @@ import { moduleMetadata, Meta } from "@storybook/angular";
 import { ButtonModule } from "../button";
 import { IconModule } from "../icon";
 import { LinkModule } from "../link";
-import { AI_LABEL_INNER, AI_LABEL_STORY_STYLES } from "../storybook/ai-label-story-shared";
+import { AI_LABEL_INNER } from "../storybook/ai-label-story-shared";
 import {
 	AILabelModule,
 	AILabelComponent,
@@ -74,7 +74,7 @@ export default {
 const Template = (args) => ({
 	props: args,
 	template: `
-		<div class="ai-label-container">
+		<div>
 			<cds-ai-label
 				[aiText]="aiText"
 				[kind]="kind"
@@ -90,16 +90,16 @@ const Template = (args) => ({
 				(onClose)="onClose($event)"
 				(isOpenChange)="isOpenChange($event)">
 					<div>
-						<p class="secondary">AI Explained</p>
-						<h2 class="ai-label-heading">84%</h2>
-						<p class="secondary bold">Confidence score</p>
-						<p class="secondary">
+						<p>AI Explained</p>
+						<h2>84%</h2>
+						<p><strong>Confidence score</strong></p>
+						<p>
 							Lorem ipsum dolor sit amet, di os consectetur adipiscing elit, sed do
 							eiusmod tempor incididunt ut fsil labore et dolore magna aliqua.
 						</p>
 						<hr />
-						<p class="secondary">Model type</p>
-						<p class="bold">Foundation model</p>
+						<p>Model type</p>
+						<p><strong>Foundation model</strong></p>
 					</div>
 
 					<div cdsAILabelActions>
@@ -112,12 +112,11 @@ const Template = (args) => ({
 						<cds-icon-button kind="ghost" align="top" description="Folders">
 							<svg cdsIcon="folder" size="16"></svg>
 						</cds-icon-button>
-						<button cdsButton type="button">View details</button>
+						<cds-ai-label-action-button>View details</cds-ai-label-action-button>
 					</div>
 			</cds-ai-label>
 		</div>
-	`,
-	styles: AI_LABEL_STORY_STYLES
+	`
 });
 
 export const Default = Template.bind({});
@@ -131,7 +130,7 @@ Default.parameters = {
 const InlineTemplate = (args) => ({
 	props: args,
 	template: `
-		<div class="ai-label-container">
+		<div>
 			<cds-ai-label
 				[aiText]="aiText"
 				kind="inline"
@@ -147,16 +146,16 @@ const InlineTemplate = (args) => ({
 				(onClose)="onClose($event)"
 				(isOpenChange)="isOpenChange($event)">
 					<div>
-						<p class="secondary">AI Explained</p>
-						<h2 class="ai-label-heading">84%</h2>
-						<p class="secondary bold">Confidence score</p>
-						<p class="secondary">
+						<p>AI Explained</p>
+						<h2>84%</h2>
+						<p><strong>Confidence score</strong></p>
+						<p>
 							Lorem ipsum dolor sit amet, di os consectetur adipiscing elit, sed do
 							eiusmod tempor incididunt ut fsil labore et dolore magna aliqua.
 						</p>
 						<hr />
-						<p class="secondary">Model type</p>
-						<p class="bold">Foundation model</p>
+						<p>Model type</p>
+						<p><strong>Foundation model</strong></p>
 					</div>
 
 					<div cdsAILabelActions>
@@ -169,12 +168,11 @@ const InlineTemplate = (args) => ({
 						<cds-icon-button kind="ghost" align="top" description="Folders">
 							<svg cdsIcon="folder" size="16"></svg>
 						</cds-icon-button>
-						<button cdsButton type="button">View details</button>
+						<cds-ai-label-action-button>View details</cds-ai-label-action-button>
 					</div>
 			</cds-ai-label>
 		</div>
-	`,
-	styles: AI_LABEL_STORY_STYLES
+	`
 });
 
 export const Inline = InlineTemplate.bind({});
@@ -198,7 +196,7 @@ Inline.parameters = {
 const InlineWithContentTemplate = (args) => ({
 	props: args,
 	template: `
-		<div class="ai-label-container">
+		<div>
 			<cds-ai-label
 				[aiText]="aiText"
 				kind="inline"
@@ -215,16 +213,16 @@ const InlineWithContentTemplate = (args) => ({
 				(onClose)="onClose($event)"
 				(isOpenChange)="isOpenChange($event)">
 					<div>
-						<p class="secondary">AI Explained</p>
-						<h2 class="ai-label-heading">84%</h2>
-						<p class="secondary bold">Confidence score</p>
-						<p class="secondary">
+						<p>AI Explained</p>
+						<h2>84%</h2>
+						<p><strong>Confidence score</strong></p>
+						<p>
 							Lorem ipsum dolor sit amet, di os consectetur adipiscing elit, sed do
 							eiusmod tempor incididunt ut fsil labore et dolore magna aliqua.
 						</p>
 						<hr />
-						<p class="secondary">Model type</p>
-						<p class="bold">Foundation model</p>
+						<p>Model type</p>
+						<p><strong>Foundation model</strong></p>
 					</div>
 
 					<div cdsAILabelActions>
@@ -237,12 +235,11 @@ const InlineWithContentTemplate = (args) => ({
 						<cds-icon-button kind="ghost" align="top" description="Folders">
 							<svg cdsIcon="folder" size="16"></svg>
 						</cds-icon-button>
-						<button cdsButton type="button">View details</button>
+						<cds-ai-label-action-button>View details</cds-ai-label-action-button>
 					</div>
 			</cds-ai-label>
 		</div>
-	`,
-	styles: AI_LABEL_STORY_STYLES
+	`
 });
 
 export const InlineWithContent = InlineWithContentTemplate.bind({});
@@ -267,7 +264,7 @@ InlineWithContent.parameters = {
 const RevertTemplate = (args) => ({
 	props: args,
 	template: `
-		<div class="ai-label-container">
+		<div>
 			<cds-ai-label
 				[aiText]="aiText"
 				[size]="size"
@@ -275,16 +272,16 @@ const RevertTemplate = (args) => ({
 				[revertLabel]="revertLabel"
 				(revertClick)="revertClick($event)">
 					<div>
-						<p class="secondary">AI Explained</p>
-						<h2 class="ai-label-heading">84%</h2>
-						<p class="secondary bold">Confidence score</p>
-						<p class="secondary">
+						<p>AI Explained</p>
+						<h2>84%</h2>
+						<p><strong>Confidence score</strong></p>
+						<p>
 							Lorem ipsum dolor sit amet, di os consectetur adipiscing elit, sed do
 							eiusmod tempor incididunt ut fsil labore et dolore magna aliqua.
 						</p>
 						<hr />
-						<p class="secondary">Model type</p>
-						<p class="bold">Foundation model</p>
+						<p>Model type</p>
+						<p><strong>Foundation model</strong></p>
 					</div>
 
 					<div cdsAILabelActions>
@@ -297,12 +294,11 @@ const RevertTemplate = (args) => ({
 						<cds-icon-button kind="ghost" align="top" description="Folders">
 							<svg cdsIcon="folder" size="16"></svg>
 						</cds-icon-button>
-						<button cdsButton type="button">View details</button>
+						<cds-ai-label-action-button>View details</cds-ai-label-action-button>
 					</div>
 			</cds-ai-label>
 		</div>
-	`,
-	styles: AI_LABEL_STORY_STYLES
+	`
 });
 
 export const Revert = RevertTemplate.bind({});
@@ -323,7 +319,7 @@ const AutoAlignTemplate = (args) => ({
 		<div style="height: 3000px;">
 			<p style="padding: 1rem;">Scroll down — the popover repositions automatically.</p>
 			<div style="position: absolute; top: 700px; left: 700px;">
-				<div class="ai-label-container">
+				<div>
 					<cds-ai-label
 						[aiText]="aiText"
 						[kind]="kind"
@@ -336,16 +332,16 @@ const AutoAlignTemplate = (args) => ({
 						(onClose)="onClose($event)"
 						(isOpenChange)="isOpenChange($event)">
 						<div>
-							<p class="secondary">AI Explained</p>
-							<h2 class="ai-label-heading">84%</h2>
-							<p class="secondary bold">Confidence score</p>
-							<p class="secondary">
+							<p>AI Explained</p>
+							<h2>84%</h2>
+							<p><strong>Confidence score</strong></p>
+							<p>
 								Lorem ipsum dolor sit amet, di os consectetur adipiscing elit, sed do
 								eiusmod tempor incididunt ut fsil labore et dolore magna aliqua.
 							</p>
 							<hr />
-							<p class="secondary">Model type</p>
-							<p class="bold">Foundation model</p>
+							<p>Model type</p>
+							<p><strong>Foundation model</strong></p>
 						</div>
 
 						<div cdsAILabelActions>
@@ -358,14 +354,13 @@ const AutoAlignTemplate = (args) => ({
 							<cds-icon-button kind="ghost" align="top" description="Folders">
 								<svg cdsIcon="folder" size="16"></svg>
 							</cds-icon-button>
-							<button cdsButton type="button">View details</button>
+							<cds-ai-label-action-button>View details</cds-ai-label-action-button>
 						</div>
 					</cds-ai-label>
 				</div>
 			</div>
 		</div>
-	`,
-	styles: AI_LABEL_STORY_STYLES
+	`
 });
 
 export const WithAutoAlign = AutoAlignTemplate.bind({});

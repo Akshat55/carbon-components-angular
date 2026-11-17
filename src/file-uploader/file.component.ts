@@ -6,7 +6,8 @@ import {
 	Input,
 	Output,
 	TemplateRef,
-	inject
+	inject,
+	ElementRef
 } from "@angular/core";
 import { NgTemplateOutlet } from "@angular/common";
 import "@carbon/web-components/es/components/file-uploader/index.js";
@@ -32,13 +33,13 @@ import { FileItem } from "./file-item.interface";
 		<ng-content />
 	`,
 	host: {
-		"[state]": "fileItem?.state === 'upload' ? 'uploading' : fileItem?.state",
-		"[size]": "size",
-		"[invalid]": "!!fileItem?.invalid",
-		"[errorSubject]": "fileItem?.invalidTitle ?? ''",
-		"[errorBody]": "fileItem?.invalidText ?? ''",
+		"[state]": "fileItem ? (fileItem.state === 'upload' ? 'uploading' : fileItem.state) : element.state",
+		"[size]": "size ?? element.size",
+		"[invalid]": "fileItem ? !!fileItem.invalid : element.invalid",
+		"[errorSubject]": "fileItem ? (fileItem.invalidTitle ?? '') : element.errorSubject",
+		"[errorBody]": "fileItem ? (fileItem.invalidText ?? '') : element.errorBody",
 		"[iconDescription]": "translations.REMOVE_BUTTON",
-		"[title]": "fileItem?.file.name ?? ''",
+		"[title]": "fileItem ? fileItem.file.name : element.title",
 		"(cds-file-uploader-item-beingdeleted)": "onDelete($event)"
 	},
 	changeDetection: ChangeDetectionStrategy.OnPush,
@@ -50,11 +51,16 @@ export class FileComponent {
 
 	@Input() translations = this.i18n.get().FILE_UPLOADER;
 	@Input() fileItem: FileItem;
-	@Input() size: "sm" | "md" | "lg" = "lg";
+	/**
+	 * The web component's default is `"md"` (a `cds-file-uploader` uses its `fileItemSize`, `"lg"`).
+	 */
+	@Input() size?: "sm" | "md" | "lg";
 	@Input() nameTpl: TemplateRef<unknown>;
 	@Input() actionsTpl: TemplateRef<unknown>;
 
 	@Output() remove = new EventEmitter();
+
+	protected element = inject(ElementRef).nativeElement;
 
 	/**
 	 * Angular owns the row, so stop the web component removing itself and let the parent drop it.

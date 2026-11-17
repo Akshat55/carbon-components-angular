@@ -1,166 +1,147 @@
-import { Component, CUSTOM_ELEMENTS_SCHEMA } from "@angular/core";
-import { fakeAsync, TestBed } from "@angular/core/testing";
+import { TestBed } from "@angular/core/testing";
 import { By } from "@angular/platform-browser";
-import { advancedFakeAsync } from "../test-helpers/change-detection";
-import { I18nModule } from "../i18n";
-import { UtilsModule } from "../utils";
-import { Tabs } from "./tabs.component";
-import { Tab } from "./tab.component";
+import { ApplicationRef, Component, createComponent, EnvironmentInjector } from "@angular/core";
+
+import { settle, shadow } from "../test-helpers/web-components";
+import { Tab, Tabs } from "./index";
 
 @Component({
 	template: `
-		<cds-tabs [followFocus]="followFocus" [isNavigation]="isNavigation">
-			<cds-tab heading="one" (selected)="onSelected()">Tab Content 1</cds-tab>
-			<cds-tab heading="two">Tab Content 2</cds-tab>
-			<cds-tab heading="three">Tab Content 3</cds-tab>
+		<cds-tabs [(value)]="value" (selected)="onSelected($event)">
+			<cds-tab id="one" value="one" target="panel-one">One</cds-tab>
+			<cds-tab id="two" value="two" target="panel-two">Two</cds-tab>
+			<cds-tab id="three" value="three" target="panel-three">Three</cds-tab>
 		</cds-tabs>
+		<div id="panel-one" role="tabpanel">Panel 1</div>
+		<div id="panel-two" role="tabpanel" hidden>Panel 2</div>
+		<div id="panel-three" role="tabpanel" hidden>Panel 3</div>
 	`,
 	imports: [Tabs, Tab]
 })
 class TabsTest {
-	isNavigation = true;
-	followFocus = true;
-	onSelected() {}
+	value: string;
+	selectedTab: any = null;
+	onSelected(tab: HTMLElement) {
+		this.selectedTab = tab;
+	}
 }
 
 describe("Tabs", () => {
-	let fixture, wrapper, element;
+	let fixture, wrapper: TabsTest, element, tabs: Tabs;
+	const tab = (id: string): any => element.querySelector(`#${id}`);
+	const tabWrappers = (): Tab[] => fixture.debugElement.queryAll(By.directive(Tab)).map(debug => debug.componentInstance);
+	const panel = (id: string): HTMLElement => fixture.nativeElement.querySelector(`#panel-${id}`);
+	const press = async (id: string, key: string) => {
+		tab(id).dispatchEvent(new KeyboardEvent("keydown", { key, bubbles: true, composed: true }));
+		await settle(fixture);
+	};
+	const choose = async (id: string) => {
+		tab(id).click();
+		await settle(fixture);
+	};
 
-	const arrowRight = new KeyboardEvent("keydown", {
-		"key": "ArrowRight"
-	});
-	const arrowLeft = new KeyboardEvent("keydown", {
-		"key": "ArrowLeft"
-	});
-
-	function buildTabs() {
-		fixture = TestBed.createComponent(TabsTest);
-		fixture.detectChanges();
-		return fixture.debugElement.queryAll(By.directive(Tab));
-	}
-
-	beforeEach(() => {
-		TestBed.configureTestingModule({
-			imports: [
-				TabsTest
-			],
-			schemas: [CUSTOM_ELEMENTS_SCHEMA]
-		});
-
+	beforeEach(async () => {
+		TestBed.configureTestingModule({ imports: [TabsTest] });
 		fixture = TestBed.createComponent(TabsTest);
 		wrapper = fixture.componentInstance;
-		element = fixture.debugElement.query(By.css("cds-tabs"));
-		fixture.detectChanges();
+		await settle(fixture);
+		element = fixture.nativeElement.querySelector("cds-tabs");
+		tabs = fixture.debugElement.query(By.directive(Tabs)).componentInstance;
 	});
 
 	it("should work", () => {
-		const fixture = TestBed.createComponent(Tabs);
-		expect(fixture.componentInstance instanceof Tabs).toBe(true);
+		expect(tabs instanceof Tabs).toBe(true);
+		expect(element instanceof customElements.get("cds-tabs")).toBe(true);
+		expect(tab("one") instanceof customElements.get("cds-tab")).toBe(true);
 	});
 
 	it("should have 3 tabs", () => {
-		expect(element.componentInstance.tabs.length).toBe(3);
+		expect(tabWrappers().length).toBe(3);
 	});
 
-	it("should emit the selected event on click and change selected tab on keydown", () => {
-		spyOn(wrapper, "onSelected");
-		const navItem = element.nativeElement.querySelector(".cds--tabs__nav-item");
-		navItem.click();
-		expect(wrapper.onSelected).toHaveBeenCalled();
+	it("should emit the selected event on click and change the selected tab on keydown", async () => {
+		await choose("two");
+		expect(wrapper.selectedTab?.value).toBe("two");
+		expect(wrapper.value).toBe("two");
+
+		await press("two", "ArrowRight");
+		expect(wrapper.value).toBe("three");
+		expect(tab("three").selected).toBe(true);
 	});
 
-	it("should increment currentSelectedTab on right arrow and decrement on left arrow", () => {
-		const navItem = element.nativeElement.querySelector(".cds--tabs__nav-item");
-		const tabHeaders = fixture.debugElement.query(By.css("cds-tab-headers"));
-
-		navItem.click();
-		expect(tabHeaders.componentInstance.currentSelectedTab).toBe(0);
-
-		tabHeaders.nativeElement.dispatchEvent(arrowRight);
-		tabHeaders.nativeElement.dispatchEvent(arrowRight);
-		fixture.detectChanges();
-		expect(tabHeaders.componentInstance.currentSelectedTab).toBe(2);
-
-		tabHeaders.nativeElement.dispatchEvent(arrowLeft);
-		fixture.detectChanges();
-		expect(tabHeaders.componentInstance.currentSelectedTab).toBe(1);
+	it("should move to the next tab on ArrowRight and the previous one on ArrowLeft", async () => {
+		await press("one", "ArrowRight");
+		expect(wrapper.value).toBe("two");
+		await press("two", "ArrowLeft");
+		expect(wrapper.value).toBe("one");
 	});
 
-	it("should set currentSelectedTab to the first tab on arrowRight when done on the last tab", () => {
-		const navItem = element.nativeElement.querySelector(".cds--tabs__nav-item");
-		const tabHeaders = fixture.debugElement.query(By.css("cds-tab-headers"));
-
-		navItem.click();
-
-		for (let i = 0; i < element.componentInstance.tabs.length; i++) {
-			tabHeaders.nativeElement.dispatchEvent(arrowRight);
-		}
-
-		fixture.detectChanges();
-		expect(tabHeaders.componentInstance.currentSelectedTab).toBe(0);
+	it("should wrap to the first tab on ArrowRight from the last tab", async () => {
+		await choose("three");
+		await press("three", "ArrowRight");
+		expect(wrapper.value).toBe("one");
 	});
 
-	it("should set currentSelectedTab to the last tab on left arrow when done on the first tab", () => {
-		const navItem = element.nativeElement.querySelector(".cds--tabs__nav-item");
-		const tabHeaders = fixture.debugElement.query(By.css("cds-tab-headers"));
-		navItem.click();
-		tabHeaders.nativeElement.dispatchEvent(arrowLeft);
-		fixture.detectChanges();
-		expect(tabHeaders.componentInstance.currentSelectedTab).toBe(2);
+	it("should wrap to the last tab on ArrowLeft from the first tab", async () => {
+		await press("one", "ArrowLeft");
+		expect(wrapper.value).toBe("three");
 	});
 
-	it("should set tabIndex of all tabpanels to be null if isNavigation is false", () => {
-		element.componentInstance.tabs.forEach(tab => {
-			expect(tab.tabIndex).toBeFalsy();
+	it("should select the tab whose value is bound", async () => {
+		wrapper.value = "three";
+		await settle(fixture);
+		expect(tab("three").selected).toBe(true);
+		expect(tab("one").selected).toBe(false);
+		expect(panel("three").hidden).toBe(false);
+		expect(panel("one").hidden).toBe(true);
+	});
+
+	it("should give only the selected tab a tab stop", async () => {
+		await choose("two");
+		const link = (id: string) => shadow(tab(id), "[role='tab']");
+		expect(link("two").getAttribute("tabindex")).toBe("0");
+		expect(link("one").getAttribute("tabindex")).toBe("-1");
+		expect(link("three").getAttribute("tabindex")).toBe("-1");
+	});
+
+	it("should activate the first tab on init", () => {
+		expect(tab("one").selected).toBe(true);
+		expect(shadow(tab("one"), "[role='tab']").getAttribute("aria-selected")).toBe("true");
+	});
+
+	it("should keep the inactive panels hidden", () => {
+		expect(panel("one").hidden).toBe(false);
+		expect(panel("two").hidden).toBe(true);
+		expect(panel("three").hidden).toBe(true);
+	});
+
+	it("should move the active state between tabs when a tab is clicked", async () => {
+		await choose("three");
+		expect(tab("three").selected).toBe(true);
+		expect(tab("one").selected).toBe(false);
+		expect(tabWrappers()[2].active).toBe(true);
+		expect(tabWrappers()[0].active).toBe(false);
+		expect(panel("three").hidden).toBe(false);
+		expect(panel("one").hidden).toBe(true);
+	});
+
+	it("should select tabs created with createComponent", async () => {
+		const appRef = TestBed.inject(ApplicationRef);
+		const ref = createComponent(Tab, {
+			environmentInjector: TestBed.inject(EnvironmentInjector),
+			projectableNodes: [[document.createTextNode("Four")]]
 		});
+		ref.setInput("id", "four");
+		ref.setInput("value", "four");
+		appRef.attachView(ref.hostView);
+		element.append(ref.location.nativeElement);
+		await settle(fixture);
+
+		expect(element.querySelectorAll("cds-tab").length).toBe(4);
+		await choose("four");
+		expect(wrapper.selectedTab).toBe(ref.location.nativeElement);
+		expect(ref.instance.active).toBe(true);
+		expect(wrapper.value).toBe("four");
+		ref.destroy();
 	});
-
-	it("should set tabIndex of all tabpanels to be 0 if isNavigation is true", () => {
-		fixture = TestBed.createComponent(TabsTest);
-		wrapper = fixture.componentInstance;
-		wrapper.isNavigation = false;
-		element = fixture.debugElement.query(By.css("cds-tabs"));
-		fixture.detectChanges();
-		element.componentInstance.tabs.forEach(tab => {
-			expect(tab.tabIndex).toBe(0);
-		});
-	});
-
-	it("should activate the first tab on init", fakeAsync(() => {
-		const tabElements = buildTabs();
-		expect(tabElements[0].componentInstance.active).toBe(false);
-
-		advancedFakeAsync(fixture);
-
-		expect(tabElements[0].componentInstance.active).toBe(true);
-		expect(tabElements[0].nativeElement.getAttribute("hidden")).toBeNull();
-		expect(tabElements[0].nativeElement.style.display).toBe("block");
-		expect(tabElements[0].nativeElement.textContent.trim()).toBe("Tab Content 1");
-	}));
-
-	it("should keep the inactive tabs hidden", fakeAsync(() => {
-		const tabElements = buildTabs();
-		advancedFakeAsync(fixture);
-
-		expect(tabElements[1].componentInstance.active).toBe(false);
-		expect(tabElements[1].nativeElement.getAttribute("hidden")).toBe("");
-		expect(tabElements[1].nativeElement.style.display).toBe("none");
-	}));
-
-	it("should move the active state between tabs when a header is clicked", fakeAsync(() => {
-		const tabElements = buildTabs();
-		advancedFakeAsync(fixture);
-
-		fixture.nativeElement.querySelectorAll(".cds--tabs__nav-item")[1].click();
-		advancedFakeAsync(fixture);
-
-		expect(tabElements[0].componentInstance.active).toBe(false);
-		expect(tabElements[1].componentInstance.active).toBe(true);
-		expect(tabElements[0].nativeElement.getAttribute("hidden")).toBe("");
-		expect(tabElements[1].nativeElement.getAttribute("hidden")).toBeNull();
-
-		const headerButtons = fixture.nativeElement.querySelectorAll(".cds--tabs__nav-item");
-		expect(headerButtons[0].classList).not.toContain("cds--tabs__nav-item--selected");
-		expect(headerButtons[1].classList).toContain("cds--tabs__nav-item--selected");
-	}));
 });

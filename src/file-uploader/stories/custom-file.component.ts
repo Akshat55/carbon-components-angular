@@ -1,13 +1,13 @@
 import { Component, Input } from "@angular/core";
 
-import { Button } from "carbon-components-angular/button";
+import { IconButton } from "carbon-components-angular/button";
 import { IconDirective } from "carbon-components-angular/icon";
-import { Link } from "carbon-components-angular/link";
+import { CdsLink } from "carbon-components-angular/link";
 import { FileComponent } from "../file.component";
 
 @Component({
 	selector: "app-custom-file",
-	imports: [FileComponent, Link, Button, IconDirective],
+	imports: [CdsLink, IconButton, FileComponent, IconDirective],
 	template: `
 		<cds-file-uploader-item
 			[size]="size"
@@ -17,27 +17,18 @@ import { FileComponent } from "../file.component";
 		</cds-file-uploader-item>
 
 		<ng-template #nameTpl let-fileItem>
-			<a href="#" cdsLink>{{ fileItem.file.name }}</a>
+			<cds-link href="#">{{ fileItem.file.name }}</cds-link>
 		</ng-template>
 
 		<ng-template #actionsTpl>
-			<button
-				ibmButton="ghost"
-				iconOnly="true"
-				aria-label="View"
-				[size]="size">
-				<svg ibmIcon="view" size="16"></svg>
-			</button>
-			<button
-				ibmButton="ghost"
-				iconOnly="true"
-				aria-label="Download"
-				[size]="size">
-				<svg ibmIcon="download" size="16"></svg>
-			</button>
+			<cds-icon-button kind="ghost" description="View" [size]="size">
+				<svg cdsIcon="view" size="16"></svg>
+			</cds-icon-button>
+			<cds-icon-button kind="ghost" description="Download" [size]="size">
+				<svg cdsIcon="download" size="16"></svg>
+			</cds-icon-button>
 		</ng-template>
-	`,
-	styles: []
+	`
 })
 export class CustomFileStory {
 	@Input() size = "sm";

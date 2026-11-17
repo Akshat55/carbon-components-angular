@@ -1,15 +1,15 @@
 import {
+	booleanAttribute,
 	ChangeDetectionStrategy,
 	ChangeDetectorRef,
 	Component,
 	CUSTOM_ELEMENTS_SCHEMA,
-	DestroyRef,
 	ElementRef,
 	Input,
 	inject
 } from "@angular/core";
 import "@carbon/web-components/es/components/ui-shell/index.js";
-import { observeAttribute } from "carbon-components-angular/utils";
+import { observeAttributes } from "carbon-components-angular/utils";
 import { NavigationItem } from "../header/header-navigation-items.interface";
 import { SideNavItem } from "./sidenav-item.component";
 import { SideNavMenu } from "./sidenav-menu.component";
@@ -63,22 +63,23 @@ import { SideNavMenu } from "./sidenav-menu.component";
 })
 export class SideNav {
 	@Input() ariaLabel = "Side navigation";
-	@Input() expanded = true;
-	@Input() hidden = false;
+	@Input({ transform: booleanAttribute }) expanded = true;
+	@Input({ transform: booleanAttribute }) hidden = false;
 	/**
 	 * Collapses to a rail of icons.
 	 */
-	@Input() rail = false;
-	@Input() allowExpansion = false;
+	@Input({ transform: booleanAttribute }) rail = false;
+	@Input({ transform: booleanAttribute }) allowExpansion = false;
 	@Input() navigationItems: NavigationItem[];
-	@Input() useRouter = false;
+	@Input({ transform: booleanAttribute }) useRouter = false;
 
+	protected element = inject(ElementRef).nativeElement;
 	protected changeDetectorRef = inject(ChangeDetectorRef);
 
 	constructor() {
 		// The hamburger (`cds-header-menu-button`) expands and collapses the web component.
-		observeAttribute(inject(ElementRef).nativeElement, "expanded", inject(DestroyRef), expanded => {
-			this.expanded = expanded;
+		observeAttributes(this.element, ["expanded"], () => {
+			this.expanded = this.element.expanded;
 			this.changeDetectorRef.markForCheck();
 		});
 	}

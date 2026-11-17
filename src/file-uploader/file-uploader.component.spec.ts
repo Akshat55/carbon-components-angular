@@ -6,6 +6,8 @@ import { FormControl, FormsModule, ReactiveFormsModule } from "@angular/forms";
 import { settle, shadow } from "../test-helpers/web-components";
 import { FileItem } from "./file-item.interface";
 import { FileUploader } from "./file-uploader.component";
+import { FileComponent } from "./file.component";
+import { FileUploaderDropContainer } from "./file-uploader-parts.component";
 
 @Component({
 	template: `
@@ -203,5 +205,46 @@ describe("FileUploader with reactive forms", () => {
 		fixture.componentInstance.control.disable();
 		await settle(fixture);
 		expect(element.querySelector("cds-file-uploader-button").disabled).toBe(true);
+	});
+});
+
+@Component({
+	template: `
+		<cds-file-uploader title="Upload" [(ngModel)]="files">
+			<cds-file-uploader-drop-container accept=".png">Drag and drop</cds-file-uploader-drop-container>
+			<cds-file-uploader-item state="complete">existing.png</cds-file-uploader-item>
+		</cds-file-uploader>
+	`,
+	imports: [FileUploader, FileUploaderDropContainer, FileComponent, FormsModule]
+})
+class FileUploaderChildrenTest {
+	files = new Set<FileItem>();
+}
+
+describe("FileUploader with children written as web components", () => {
+	it("should use them instead of its own button, and add their files to the model", async () => {
+		const fixture = TestBed.createComponent(FileUploaderChildrenTest);
+		await settle(fixture);
+		await settle(fixture);
+		const uploader = fixture.nativeElement.querySelector("cds-file-uploader");
+		expect(uploader.querySelector("[data-cds-generated]")).toBeNull();
+		expect(uploader.querySelector("cds-file-uploader-item").state).toBe("complete");
+
+		const file = new File(["x"], "added.png");
+		uploader.querySelector("cds-file-uploader-drop-container").dispatchEvent(new CustomEvent("cds-file-uploader-drop-container-changed", {
+			bubbles: true,
+			composed: true,
+			detail: { addedFiles: [file] }
+		}));
+		await settle(fixture);
+		expect(Array.from(fixture.componentInstance.files).map(item => item.file)).toEqual([file]);
+	});
+
+	it("should keep the web components' defaults when inputs are unset", async () => {
+		const fixture = TestBed.createComponent(FileUploaderChildrenTest);
+		await settle(fixture);
+		const container = fixture.nativeElement.querySelector("cds-file-uploader-drop-container");
+		expect(container.multiple).toBe(false);
+		expect(container.disabled).toBe(false);
 	});
 });

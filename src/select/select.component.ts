@@ -1,4 +1,5 @@
 import {
+	booleanAttribute,
 	ChangeDetectionStrategy,
 	Component,
 	CUSTOM_ELEMENTS_SCHEMA,
@@ -69,16 +70,16 @@ export class Select extends WebComponentValueAccessor {
 	@Input() display: "inline" | "default" = "default";
 	@Input() label: string | TemplateRef<any>;
 	@Input() helperText: string | TemplateRef<any>;
-	@Input() invalid = false;
+	@Input({ transform: booleanAttribute }) invalid = false;
 	@Input() invalidText: string | TemplateRef<any>;
-	@Input() warn = false;
+	@Input({ transform: booleanAttribute }) warn = false;
 	@Input() warnText: string | TemplateRef<any>;
 	@Input() id = `select-${Select.selectCount++}`;
 	@Input() size: "sm" | "md" | "lg" = "md";
-	@Input() readonly = false;
+	@Input({ transform: booleanAttribute }) readonly = false;
 	@Input() ariaLabel: string;
-	@Input() hideLabel = false;
-	@Input() fluid = false;
+	@Input({ transform: booleanAttribute }) hideLabel = false;
+	@Input({ transform: booleanAttribute }) fluid = false;
 	@Input() decorator: TemplateRef<any>;
 	/**
 	 * @deprecated the web component follows the surrounding theme / layer.
@@ -87,7 +88,7 @@ export class Select extends WebComponentValueAccessor {
 	/**
 	 * @deprecated use `<cds-select-skeleton>` instead.
 	 */
-	@Input() skeleton = false;
+	@Input({ transform: booleanAttribute }) skeleton = false;
 
 	@Output() valueChange = new EventEmitter();
 

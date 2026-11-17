@@ -4,7 +4,7 @@ import { ButtonModule } from "../button";
 import { TilesModule, ExpandableTile } from "./";
 import { AILabelModule } from "../ai-label";
 import { IconModule } from "../icon";
-import { AI_LABEL_INNER, AI_LABEL_STORY_STYLES } from "../storybook/ai-label-story-shared";
+import { AI_LABEL_INNER } from "../storybook/ai-label-story-shared";
 
 export default {
 	title: "Components/Tiles/Expandable",
@@ -91,7 +91,6 @@ WithLayers.parameters = {
 };
 
 export const withAILabel = () => ({
-	styles: AI_LABEL_STORY_STYLES,
 	template: `
 		<cds-expandable-tile [decorator]="decoratorTpl" [interactive]="true">
 			<div cdsAboveFold style="height: 200px">Above the fold</div>
@@ -99,7 +98,6 @@ export const withAILabel = () => ({
 		</cds-expandable-tile>
 		<ng-template #decoratorTpl>
 			<cds-ai-label
-				class="ai-label-container"
 				kind="default"
 				size="mini"
 				[align]="'bottom-end'"

@@ -4,7 +4,9 @@ import {
 	CUSTOM_ELEMENTS_SCHEMA,
 	EventEmitter,
 	Input,
-	Output
+	Output,
+	ElementRef,
+	inject
 } from "@angular/core";
 import "@carbon/web-components/es/components/inline-loading/index.js";
 
@@ -30,9 +32,9 @@ export enum InlineLoadingState {
 	selector: "cds-inline-loading",
 	template: `{{ text }}`,
 	host: {
-		"[status]": "state",
-		"[iconDescription]": "iconDescription",
-		"[successDelay]": "successDelay",
+		"[status]": "state ?? element.status",
+		"[iconDescription]": "iconDescription ?? element.iconDescription",
+		"[successDelay]": "successDelay ?? element.successDelay",
 		"[hidden]": "state === 'hidden'",
 		"[attr.aria-live]": "state === 'hidden' ? null : state === 'inactive' ? 'off' : 'assertive'"
 	},
@@ -40,13 +42,19 @@ export enum InlineLoadingState {
 	schemas: [CUSTOM_ELEMENTS_SCHEMA]
 })
 export class InlineLoading {
-	@Input() state: InlineLoadingState | string = InlineLoadingState.Active;
+	/**
+	 * The web component's default is `"active"`.
+	 */
+	@Input() state?: InlineLoadingState | string;
 	@Input() loadingText: string;
 	@Input() successText: string;
 	/**
 	 * Milliseconds before `onSuccess` fires after the finished state.
 	 */
-	@Input() successDelay = 1500;
+	/**
+	 * The web component's default is 1500 ms.
+	 */
+	@Input() successDelay?: number;
 	@Input() errorText: string;
 	@Input() iconDescription: string;
 
@@ -54,7 +62,7 @@ export class InlineLoading {
 	 * `false` stops the animation.
 	 */
 	@Input() get isActive() {
-		return this.state === InlineLoadingState.Active;
+		return (this.state ?? this.element.status) === InlineLoadingState.Active;
 	}
 	set isActive(active: boolean) {
 		this.state = active ? InlineLoadingState.Active : InlineLoadingState.Inactive;
@@ -64,19 +72,21 @@ export class InlineLoading {
 	 * `true` shows the finished state and emits `onSuccess` after `successDelay`; `false` shows the error state.
 	 */
 	@Input() get success() {
-		return this.state === InlineLoadingState.Finished;
+		return (this.state ?? this.element.status) === InlineLoadingState.Finished;
 	}
 	set success(success: boolean) {
 		this.state = success ? InlineLoadingState.Finished : InlineLoadingState.Error;
 		if (success) {
-			setTimeout(() => this.onSuccess.emit(), this.successDelay);
+			setTimeout(() => this.onSuccess.emit(), this.successDelay ?? this.element.successDelay);
 		}
 	}
 
 	@Output() onSuccess: EventEmitter<any> = new EventEmitter();
 
+	protected element = inject(ElementRef).nativeElement;
+
 	get text() {
-		switch (this.state) {
+		switch (this.state ?? this.element.status) {
 			case InlineLoadingState.Finished: return this.successText;
 			case InlineLoadingState.Error: return this.errorText;
 			case InlineLoadingState.Hidden: return "";

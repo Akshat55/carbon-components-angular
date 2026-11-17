@@ -3,7 +3,7 @@ import { FormsModule } from "@angular/forms";
 import { NgStyle } from "@angular/common";
 import { Button } from "../button";
 import { Search } from "../search";
-import { Dialog, OverflowMenu, OverflowMenuOption } from "../dialog";
+import { OverflowMenu, OverflowMenuBody, OverflowMenuOption } from "../overflow-menu";
 import { TableRow } from "./table-row.class";
 import {
 	TableStory,
@@ -90,7 +90,6 @@ export default {
 		moduleMetadata({
 			imports: [
 				FormsModule,
-				Dialog,
 				Search,
 				Button,
 				TableContainer,
@@ -101,6 +100,7 @@ export default {
 				TableToolbarSearch,
 				TableRowComponent,
 				OverflowMenu,
+				OverflowMenuBody,
 				OverflowMenuOption,
 				TableDirective,
 				TableHeaderTitle,

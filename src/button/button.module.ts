@@ -8,13 +8,15 @@ import { BaseIconButton } from "./base-icon-button.component";
 import { IconButton } from "./icon-button.component";
 
 import { TooltipModule } from "carbon-components-angular/tooltip";
+import { ButtonSkeleton } from "./button-skeleton.component";
 
 @NgModule({
 	exports: [
 		Button,
 		CdsButton,
 		ButtonSet,
-		IconButton
+		IconButton,
+		ButtonSkeleton
 	],
 	imports: [
 		CommonModule,
@@ -23,7 +25,8 @@ import { TooltipModule } from "carbon-components-angular/tooltip";
 		CdsButton,
 		ButtonSet,
 		BaseIconButton,
-		IconButton
+		IconButton,
+		ButtonSkeleton
 	]
 })
 export class ButtonModule {}

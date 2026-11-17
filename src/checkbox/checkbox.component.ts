@@ -1,17 +1,16 @@
 import {
+	booleanAttribute,
 	ChangeDetectionStrategy,
 	CUSTOM_ELEMENTS_SCHEMA,
 	Component,
 	EventEmitter,
 	Input,
 	Output,
-	TemplateRef,
-	inject
+	TemplateRef
 } from "@angular/core";
 import "@carbon/web-components/es/components/checkbox/index.js";
 import {
 	provideValueAccessor,
-	registerWrapper,
 	TemplateContent,
 	TemplateSlot,
 	WebComponentValueAccessor
@@ -45,22 +44,22 @@ export enum CheckboxState {
 	`,
 	host: {
 		"[id]": "id",
-		"[name]": "name",
-		"[value]": "value",
-		"[title]": "title",
-		"[checked]": "checked",
-		"[indeterminate]": "indeterminate",
-		"[disabled]": "disabled",
-		"[hideLabel]": "hideLabel",
-		"[attr.readonly]": "effectiveReadOnly ? '' : null",
-		"[invalid]": "effectiveInvalid",
-		"[warn]": "effectiveWarn",
+		"[name]": "name ?? element.name",
+		"[value]": "value ?? element.value",
+		"[title]": "title ?? element.title",
+		"[checked]": "checked ?? element.checked",
+		"[indeterminate]": "indeterminate ?? element.indeterminate",
+		"[disabled]": "disabled ?? element.disabled",
+		"[hideLabel]": "hideLabel ?? element.hideLabel",
+		"[invalid]": "invalid ?? element.invalid",
+		"[warn]": "warn ?? element.warn",
 		"[helperText]": "content.render('helperText', helperText)",
 		"[invalidText]": "content.render('invalidText', invalidText)",
 		"[warnText]": "content.render('warnText', warnText)",
 		"[attr.required]": "required ? '' : null",
 		"[attr.aria-label]": "ariaLabel || null",
 		"[attr.aria-labelledby]": "ariaLabelledby || null",
+		"[attr.readonly]": "readOnly ? '' : null",
 		"(cds-checkbox-changed)": "onCheckboxChanged($event)"
 	},
 	providers: [provideValueAccessor(() => Checkbox)],
@@ -74,36 +73,33 @@ export class Checkbox extends WebComponentValueAccessor<boolean> {
 	/**
 	 * @deprecated the web component has no skeleton state. Use `<cds-checkbox-skeleton>` instead.
 	 */
-	@Input() skeleton = false;
+	@Input({ transform: booleanAttribute }) skeleton = false;
 	/**
 	 * Set to `true` to hide the checkbox label.
 	 */
-	@Input() hideLabel = false;
+	@Input({ transform: booleanAttribute }) hideLabel?: boolean;
 	@Input() name: string;
 	@Input() id = `checkbox-${Checkbox.checkboxCount++}`;
-	@Input() required: boolean;
+	@Input({ transform: booleanAttribute }) required: boolean;
 	@Input() value: CheckboxValue;
 	@Input() ariaLabel: string;
 	@Input() ariaLabelledby: string;
-	@Input() title = "";
+	@Input() title?: string;
 	/**
 	 * Helper text below the label. Hidden while `invalid` or `warn` is `true`.
 	 */
 	@Input() helperText: string | TemplateRef<any>;
 	/**
-	 * Inherits the parent `cds-checkbox-group` value when not set.
+	 * A `cds-checkbox-group`'s `invalid` marks the whole group instead.
 	 */
-	@Input() invalid?: boolean;
+	@Input({ transform: booleanAttribute }) invalid?: boolean;
 	@Input() invalidText: string | TemplateRef<any>;
-	/**
-	 * Inherits the parent `cds-checkbox-group` value when not set.
-	 */
-	@Input() warn?: boolean;
+	@Input({ transform: booleanAttribute }) warn?: boolean;
 	@Input() warnText: string | TemplateRef<any>;
 	/**
-	 * Inherits the parent `cds-checkbox-group` value when not set.
+	 * Unset, the checkbox follows its `cds-checkbox-group`'s `readOnly`.
 	 */
-	@Input() readOnly?: boolean;
+	@Input({ transform: booleanAttribute }) readOnly?: boolean;
 	/**
 	 * Optional `TemplateRef` (e.g. AI label) rendered next to the label.
 	 */
@@ -111,11 +107,11 @@ export class Checkbox extends WebComponentValueAccessor<boolean> {
 	/**
 	 * Supports two-way binding with `indeterminateChange`.
 	 */
-	@Input() indeterminate = false;
+	@Input({ transform: booleanAttribute }) indeterminate?: boolean;
 	/**
 	 * Supports two-way binding with `checkedChange`.
 	 */
-	@Input() checked = false;
+	@Input({ transform: booleanAttribute }) checked?: boolean;
 
 	/**
 	 * When observed, clicks no longer toggle the checkbox so the parent can control
@@ -130,55 +126,29 @@ export class Checkbox extends WebComponentValueAccessor<boolean> {
 
 	constructor() {
 		super();
-		registerWrapper(this.element, this);
 		// A host `(click)` listener would also subscribe to the `click` output,
 		// so listen to the native event directly.
 		this.element.addEventListener("click", (event: MouseEvent) => this.onClick(event));
 	}
 
 	/**
-	 * The `cds-checkbox-group` this checkbox is in, if any. Found through the DOM, so it also
-	 * works for checkboxes created with `createComponent`.
-	 */
-	get hostGroup(): { readonly?: boolean, invalid?: boolean, warn?: boolean } | null {
-		return this.element.closest("cds-checkbox-group");
-	}
-
-	get effectiveReadOnly() {
-		return !!(this.readOnly ?? this.hostGroup?.readonly);
-	}
-
-	get effectiveInvalid() {
-		return !!(this.invalid ?? this.hostGroup?.invalid);
-	}
-
-	get effectiveWarn() {
-		return !!(this.warn ?? this.hostGroup?.warn);
-	}
-
-	/**
 	 * Flips the checked state and resets `indeterminate`.
 	 */
 	toggle() {
-		if (!this.effectiveReadOnly) {
-			this.setChecked(!this.checked);
+		if (!this.element.readonly) {
+			this.setChecked(!this.element.checked);
 		}
 	}
 
 	writeValue(value: boolean) {
-		this.setChecked(!!value);
-	}
-
-	markForCheckFromGroup() {
-		// The web component group copies its `readonly` onto every child, so re-apply our own.
-		this.element.readonly = this.effectiveReadOnly;
-		this.changeDetectorRef.markForCheck();
+		this.setChecked(!!value, false);
 	}
 
 	onCheckboxChanged(event: Event) {
-		this.setChecked((event as CustomEvent<{ checked: boolean }>).detail.checked);
-		this.checkedChange.emit(this.checked);
-		this.onChange(this.checked);
+		if (this.setChecked((event as CustomEvent<{ checked: boolean }>).detail.checked)) {
+			this.checkedChange.emit(this.checked);
+			this.onChange(this.checked);
+		}
 	}
 
 	onClick(event: MouseEvent) {
@@ -188,15 +158,20 @@ export class Checkbox extends WebComponentValueAccessor<boolean> {
 		}
 	}
 
-	private setChecked(checked: boolean) {
+	/**
+	 * Returns `false` when the state didn't change.
+	 */
+	private setChecked(checked: boolean, resetIndeterminate = true) {
+		// Compared with our own copy: the web component already changed by the time it fires.
 		if (checked === this.checked) {
-			return;
+			return false;
 		}
 		this.checked = checked;
-		if (this.indeterminate) {
+		if (resetIndeterminate && this.indeterminate) {
 			this.indeterminate = false;
 			this.indeterminateChange.emit(false);
 		}
 		this.changeDetectorRef.markForCheck();
+		return true;
 	}
 }

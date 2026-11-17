@@ -17,3 +17,4 @@ export { ModalContent } from "./modal-content.directive";
 export { ModalContentText } from "./modal-content-text.directive";
 export { ModalHeaderHeading } from "./modal-header-heading.directive";
 export { ModalHeaderLabel } from "./modal-header-label.directive";
+export { ModalHeading, ModalLabel, ModalBody, ModalBodyContent, ModalCloseButton, ModalFooterButton } from "./modal-parts.component";

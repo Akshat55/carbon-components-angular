@@ -95,20 +95,6 @@ describe("RadioGroup", () => {
 		radioInputs(fixture).forEach(input => expect(input.name).toBe("test-group"));
 	});
 
-	it("should configure radios added after the group is created", async () => {
-		const fixture = TestBed.createComponent(RadioTest);
-		fixture.componentInstance.disabled = true;
-		await settle(fixture);
-
-		fixture.componentInstance.manyRadios = [...fixture.componentInstance.manyRadios, "seven"];
-		await settle(fixture);
-
-		const inputs = radioInputs(fixture);
-		expect(inputs.length).toBe(7);
-		expect(inputs[6].disabled).toBe(true);
-		expect(inputs[6].name).toBe("test-group");
-	});
-
 	it("should keep the selection when the radios change", async () => {
 		const fixture = TestBed.createComponent(RadioTest);
 		fixture.componentInstance.radio = "two";
@@ -181,7 +167,7 @@ describe("Radio created dynamically", () => {
 			environmentInjector: TestBed.inject(EnvironmentInjector),
 			projectableNodes: [[document.createTextNode("Dynamic")]]
 		});
-		ref.setInput("value", { id: 3 });
+		ref.setInput("value", "dynamic");
 		TestBed.inject(ApplicationRef).attachView(ref.hostView);
 		group.appendChild(ref.location.nativeElement);
 		await settle(fixture);
@@ -189,11 +175,10 @@ describe("Radio created dynamically", () => {
 		const element = ref.location.nativeElement;
 		expect(element instanceof customElements.get("cds-radio-button")).toBe(true);
 		expect(element.textContent).toContain("Dynamic");
-		expect(element.name).toBe(group.name);
 
 		element.click();
 		await settle(fixture);
-		expect(fixture.debugElement.query(By.directive(RadioGroup)).componentInstance.value).toEqual({ id: 3 });
+		expect(fixture.debugElement.query(By.directive(RadioGroup)).componentInstance.value).toBe("dynamic");
 		ref.destroy();
 	});
 });

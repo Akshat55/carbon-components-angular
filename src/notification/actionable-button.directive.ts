@@ -5,6 +5,6 @@ import { Directive, HostBinding } from "@angular/core";
 	standalone: true
 })
 export class ActionableButton {
-	@HostBinding("class.cds--actionable-notification__action-button") actionableButton = true;
+	@HostBinding("attr.slot") slot = "action";
 	@HostBinding("attr.type") type = "button";
 }

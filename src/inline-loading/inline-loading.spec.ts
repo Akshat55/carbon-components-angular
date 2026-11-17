@@ -103,3 +103,21 @@ describe("Inline Loading", () => {
 		expect(onSuccess).toHaveBeenCalled();
 	});
 });
+
+@Component({
+	template: `<cds-inline-loading loadingText="Loading..." />`,
+	imports: [InlineLoading]
+})
+class PlainInlineLoadingTest {}
+
+describe("InlineLoading defaults", () => {
+	it("should keep the web component's defaults when inputs are unset", async () => {
+		const fixture = TestBed.createComponent(PlainInlineLoadingTest);
+		await settle(fixture);
+		const element = fixture.nativeElement.querySelector("cds-inline-loading");
+		expect(element.status).toBe("active");
+		expect(element.iconDescription).toBe("Loading");
+		expect(element.successDelay).toBe(1500);
+		expect(element.textContent.trim()).toBe("Loading...");
+	});
+});

@@ -9,7 +9,7 @@ import { TableModel } from "../table-model.class";
 import { TableItem } from "../table-item.class";
 import { TableHeaderItem } from "../table-header-item.class";
 import { Table } from "../table.component";
-import { OverflowMenu, OverflowMenuOption } from "../../dialog";
+import { OverflowMenu, OverflowMenuBody, OverflowMenuOption } from "../../overflow-menu";
 
 @Component({
 	selector: "app-overflow-table",
@@ -43,7 +43,7 @@ import { OverflowMenu, OverflowMenuOption } from "../../dialog";
 		</cds-table>
 	`,
 	standalone: true,
-	imports: [Table, OverflowMenu, OverflowMenuOption]
+	imports: [Table, OverflowMenu, OverflowMenuBody, OverflowMenuOption]
 })
 export class OverflowTableStory implements AfterViewInit {
 	@Input() model = new TableModel();

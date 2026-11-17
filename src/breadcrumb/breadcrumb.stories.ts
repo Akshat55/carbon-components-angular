@@ -134,11 +134,11 @@ ModelWithTemplate.args = {
 const WithSkeleton = (args) => ({
 	props: args,
 	template: `
-		<cds-breadcrumb skeleton="true" [noTrailingSlash]="noTrailingSlash" [size]="size">
-			<cds-breadcrumb-item></cds-breadcrumb-item>
-			<cds-breadcrumb-item></cds-breadcrumb-item>
-			<cds-breadcrumb-item></cds-breadcrumb-item>
-			<cds-breadcrumb-item></cds-breadcrumb-item>
+		<cds-breadcrumb [noTrailingSlash]="noTrailingSlash" [size]="size">
+			<cds-breadcrumb-item skeleton="true"></cds-breadcrumb-item>
+			<cds-breadcrumb-item skeleton="true"></cds-breadcrumb-item>
+			<cds-breadcrumb-item skeleton="true"></cds-breadcrumb-item>
+			<cds-breadcrumb-item skeleton="true"></cds-breadcrumb-item>
 		</cds-breadcrumb>
 	`
 });

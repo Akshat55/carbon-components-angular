@@ -5,5 +5,5 @@ import { Directive, HostBinding } from "@angular/core";
 	standalone: true
 })
 export class ToggletipAction {
-	@HostBinding("class.cds--toggletip-actions") toggleTipActions = true;
+	@HostBinding("attr.slot") slot = "actions";
 }

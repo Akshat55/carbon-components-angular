@@ -1,4 +1,5 @@
 import {
+	booleanAttribute,
 	ChangeDetectionStrategy,
 	Component,
 	CUSTOM_ELEMENTS_SCHEMA,
@@ -7,7 +8,6 @@ import {
 	inject
 } from "@angular/core";
 import "@carbon/web-components/es/components/menu/index.js";
-import { registerWrapper } from "carbon-components-angular/utils";
 
 /**
  * Adds Angular inputs and outputs to the `<cds-menu>` web component, used as a context menu or a submenu.
@@ -26,27 +26,31 @@ import { registerWrapper } from "carbon-components-angular/utils";
 	selector: "cds-menu",
 	template: "<ng-content />",
 	host: {
-		"[open]": "open",
-		"[x]": "position.left",
-		"[y]": "position.top",
-		"[size]": "size"
+		"[open]": "open ?? element.open",
+		"[x]": "position?.left ?? element.x",
+		"[y]": "position?.top ?? element.y",
+		"[size]": "size ?? element.size"
 	},
 	changeDetection: ChangeDetectionStrategy.OnPush,
 	schemas: [CUSTOM_ELEMENTS_SCHEMA]
 })
 export class ContextMenuComponent {
-	@Input() open = false;
+	/**
+	 * Unset, the menu keeps its own state (a `cds-menu-button` or `cds-combo-button` opens it).
+	 */
+	@Input({ transform: booleanAttribute }) open?: boolean;
 	/**
 	 * Viewport position, in pixels.
 	 */
-	@Input() position = { left: 0, top: 0 };
-	@Input() size: "xs" | "sm" | "md" | "lg" = "lg";
+	@Input() position?: { left: number, top: number };
+	/**
+	 * The web component's default is `"sm"`; a `cds-menu-button` or `cds-combo-button`
+	 * gives its menu the button's size.
+	 */
+	@Input() size?: "xs" | "sm" | "md" | "lg";
 
 	elementRef = inject(ElementRef);
-
-	constructor() {
-		registerWrapper(this.elementRef.nativeElement, this);
-	}
+	protected element = this.elementRef.nativeElement;
 
 	focusMenu() {
 		this.elementRef.nativeElement.focus();

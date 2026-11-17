@@ -20,6 +20,7 @@ import { I18nModule } from "carbon-components-angular/i18n";
 import { ExperimentalModule } from "carbon-components-angular/experimental";
 import { LinkModule } from "carbon-components-angular/link";
 import { IconModule } from "carbon-components-angular/icon";
+import { ActionableNotificationButton } from "./actionable-notification-button.component";
 
 @NgModule({
 	exports: [
@@ -33,7 +34,8 @@ import { IconModule } from "carbon-components-angular/icon";
 		ToastSubtitle,
 		ToastCaption,
 		NotificationTitle,
-		NotificationSubtitle
+		NotificationSubtitle,
+		ActionableNotificationButton
 	],
 	imports: [
 		ButtonModule,
@@ -53,7 +55,8 @@ import { IconModule } from "carbon-components-angular/icon";
 		ToastSubtitle,
 		ToastCaption,
 		NotificationTitle,
-		NotificationSubtitle
+		NotificationSubtitle,
+		ActionableNotificationButton
 	],
 	providers: [NotificationService, NotificationDisplayService]
 })

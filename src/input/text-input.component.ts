@@ -1,4 +1,5 @@
 import {
+	booleanAttribute,
 	ChangeDetectionStrategy,
 	Component,
 	CUSTOM_ELEMENTS_SCHEMA,
@@ -40,22 +41,22 @@ export abstract class BaseTextInput extends WebComponentValueAccessor<string> {
 	@Input() label: string | TemplateRef<any>;
 	@Input() value = "";
 	@Input() placeholder = "";
-	@Input() readonly = false;
-	@Input() required = false;
+	@Input({ transform: booleanAttribute }) readonly = false;
+	@Input({ transform: booleanAttribute }) required = false;
 	@Input() name: string;
 	@Input() size: "sm" | "md" | "lg" = "md";
-	@Input() hideLabel = false;
+	@Input({ transform: booleanAttribute }) hideLabel = false;
 	@Input() helperText: string | TemplateRef<any>;
-	@Input() invalid = false;
+	@Input({ transform: booleanAttribute }) invalid = false;
 	@Input() invalidText: string | TemplateRef<any>;
-	@Input() warn = false;
+	@Input({ transform: booleanAttribute }) warn = false;
 	@Input() warnText: string | TemplateRef<any>;
 	/**
 	 * Shows a character counter; set `maxCount` too.
 	 */
-	@Input() enableCounter = false;
+	@Input({ transform: booleanAttribute }) enableCounter = false;
 	@Input() maxCount: number;
-	@Input() fluid = false;
+	@Input({ transform: booleanAttribute }) fluid = false;
 
 	protected content = new TemplateContent();
 

@@ -3,7 +3,9 @@ import {
 	ContextMenuComponent,
 	ContextMenuDividerComponent,
 	ContextMenuItemComponent,
-	ContextMenuGroupComponent
+	ContextMenuGroupComponent,
+	MenuItemRadioGroup,
+	MenuItemSelectable
 } from "./";
 
 export default {
@@ -14,7 +16,9 @@ export default {
 				ContextMenuComponent,
 				ContextMenuDividerComponent,
 				ContextMenuItemComponent,
-				ContextMenuGroupComponent
+				ContextMenuGroupComponent,
+				MenuItemRadioGroup,
+				MenuItemSelectable
 			]
 		})
 	],
@@ -24,18 +28,19 @@ export default {
 			left: 0
 		},
 		open: true,
-		checkboxGroupValue: ["a", "b"],
-		radioGroupValue: "one"
+		radioGroupValue: "Radio one"
 	},
 	argTypes: {
 		onRadioChange: { action: "Radio menu change!" },
-		onCheckboxChange: { action: "Radio menu change!" }
+		onCheckboxChange: { action: "Checkbox menu change!" }
 	},
 	component: ContextMenuComponent,
 	subcomponents: {
 		ContextMenuDividerComponent,
 		ContextMenuItemComponent,
-		ContextMenuGroupComponent
+		ContextMenuGroupComponent,
+		MenuItemRadioGroup,
+		MenuItemSelectable
 	},
 	parameters: {
 		docs: {
@@ -53,39 +58,33 @@ const Template = (args) => ({
 			<cds-menu-item label="Cut" info="⌘X"></cds-menu-item>
 			<cds-menu-item label="Option with icon" icon="calendar"></cds-menu-item>
 			<cds-menu-item-divider></cds-menu-item-divider>
-			<cds-menu-item type="checkbox" label="Enable magic"></cds-menu-item>
+			<cds-menu-item-selectable label="Enable magic"></cds-menu-item-selectable>
 			<cds-menu-item-divider></cds-menu-item-divider>
-			<cds-menu-item-group label="Selection group" type="checkbox">
-				<cds-menu-item type="checkbox" label="Blue"></cds-menu-item>
-				<cds-menu-item type="checkbox" label="Red" [checked]="true"></cds-menu-item>
-				<cds-menu-item type="checkbox" label="Black"></cds-menu-item>
-				<cds-menu-item type="checkbox" label="Green"></cds-menu-item>
+			<cds-menu-item-group label="Selection group">
+				<cds-menu-item-selectable label="Blue"></cds-menu-item-selectable>
+				<cds-menu-item-selectable label="Red" [selected]="true"></cds-menu-item-selectable>
+				<cds-menu-item-selectable label="Black"></cds-menu-item-selectable>
+				<cds-menu-item-selectable label="Green"></cds-menu-item-selectable>
 			</cds-menu-item-group>
 			<cds-menu-item-divider></cds-menu-item-divider>
 			<cds-menu-item label="Radio flyout">
-				<cds-menu>
-					<cds-menu-item-group
-						type="radio"
-						[value]="radioGroupValue"
-						(valueChange)="onRadioChange($event)">
-						<cds-menu-item type="radio" label="Radio one" value="one"></cds-menu-item>
-						<cds-menu-item type="radio" label="Radio two" value="two"></cds-menu-item>
-						<cds-menu-item type="radio" label="Radio three" value="three"></cds-menu-item>
-						<cds-menu-item type="radio" label="Radio four" value="four"></cds-menu-item>
-					</cds-menu-item-group>
+				<cds-menu slot="submenu">
+					<cds-menu-item-radio-group
+						label="Radio group"
+						[selected]="radioGroupValue"
+						(selectedChange)="onRadioChange($event)">
+						<cds-menu-item label="Radio one"></cds-menu-item>
+						<cds-menu-item label="Radio two"></cds-menu-item>
+						<cds-menu-item label="Radio three"></cds-menu-item>
+						<cds-menu-item label="Radio four"></cds-menu-item>
+					</cds-menu-item-radio-group>
 				</cds-menu>
 			</cds-menu-item>
 			<cds-menu-item label="Checkbox flyout">
-				<cds-menu>
-					<cds-menu-item-group
-						type="checkbox"
-						[value]="checkboxGroupValue"
-						(valueChange)="onCheckboxChange($event)">
-						<cds-menu-item type="checkbox" label="Selectable item a" value="a"></cds-menu-item>
-						<cds-menu-item type="checkbox" label="Selectable item b" value="b"></cds-menu-item>
-						<cds-menu-item type="checkbox" label="Selectable item c" value="c"></cds-menu-item>
-						<cds-menu-item type="checkbox" label="Selectable item d" value="d"></cds-menu-item>
-					</cds-menu-item-group>
+				<cds-menu slot="submenu">
+					<cds-menu-item-selectable label="Selectable item a" [selected]="true" (selectedChange)="onCheckboxChange($event)"></cds-menu-item-selectable>
+					<cds-menu-item-selectable label="Selectable item b" (selectedChange)="onCheckboxChange($event)"></cds-menu-item-selectable>
+					<cds-menu-item-selectable label="Selectable item c" (selectedChange)="onCheckboxChange($event)"></cds-menu-item-selectable>
 				</cds-menu>
 			</cds-menu-item>
 			<cds-menu-item-divider></cds-menu-item-divider>

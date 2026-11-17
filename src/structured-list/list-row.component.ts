@@ -1,5 +1,7 @@
 import {
+	booleanAttribute,
 	ChangeDetectionStrategy,
+	ChangeDetectorRef,
 	Component,
 	CUSTOM_ELEMENTS_SCHEMA,
 	ElementRef,
@@ -9,50 +11,46 @@ import {
 	inject
 } from "@angular/core";
 import "@carbon/web-components/es/components/structured-list/index.js";
-import { registerWrapper } from "carbon-components-angular/utils";
+import { observeAttributes } from "carbon-components-angular/utils";
 
 /**
- * Adds Angular inputs to the `<cds-structured-list-row>` web component. `value` can be any
- * value; it becomes the list's form value when the row is selected.
+ * Adds Angular inputs and `[(selected)]` to the `<cds-structured-list-row>` web component.
+ * `value` becomes the list's form value when the row is selected.
  */
 @Component({
 	selector: "cds-structured-list-row",
 	template: "<ng-content />",
 	host: {
 		"[selected]": "selected",
-		"[selectionValue]": "selectionValue",
+		"[selectionValue]": "value",
 		"[attr.aria-label]": "label"
 	},
 	changeDetection: ChangeDetectionStrategy.OnPush,
 	schemas: [CUSTOM_ELEMENTS_SCHEMA]
 })
 export class ListRow {
-	static rowCount = 0;
-
-	@Input() selected = false;
+	@Input({ transform: booleanAttribute }) selected = false;
 	@Input() label: string;
-	@Input() set value(value: any) {
-		this._value = value;
-		const primitive = value === null || value === undefined || typeof value !== "object";
-		this.selectionValue = primitive ? String(value ?? "") : `structured-list-row-${ListRow.rowCount++}`;
-	}
-	get value() {
-		return this._value;
-	}
+	@Input() value = "";
 
 	/**
-	 * Emits when the user selects the row (in a list with `selection`).
+	 * Emits when the row is selected or deselected (in a list with `selection`).
 	 */
 	@Output() selectedChange = new EventEmitter<boolean>();
 
-	/**
-	 * The value given to the web component.
-	 */
-	selectionValue = "";
-	protected _value: any;
+	protected element = inject(ElementRef).nativeElement;
+	protected changeDetectorRef = inject(ChangeDetectorRef);
 
 	constructor() {
-		registerWrapper(inject(ElementRef).nativeElement, this);
+		// The web component reflects `selected`, also when selecting another row deselects this one.
+		observeAttributes(this.element, ["selected"], () => {
+			const selected = this.element.selected;
+			if (selected !== this.selected) {
+				this.selected = selected;
+				this.selectedChange.emit(selected);
+				this.changeDetectorRef.markForCheck();
+			}
+		});
 	}
 }
 

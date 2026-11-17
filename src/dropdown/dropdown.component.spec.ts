@@ -5,6 +5,7 @@ import { FormControl, FormsModule, ReactiveFormsModule } from "@angular/forms";
 
 import { settle, shadow } from "../test-helpers/web-components";
 import { Dropdown, MultiSelect } from "./dropdown.component";
+import { DropdownItem, MultiSelectItem } from "./dropdown-item.component";
 import { DropdownList } from "./list/dropdown-list.component";
 import { ListItem } from "./list-item.interface";
 
@@ -341,5 +342,113 @@ describe("Dropdown with reactive forms", () => {
 		await settle(fixture);
 		expect(element.disabled).toBe(true);
 		expect(shadow(element, ".cds--list-box").classList).toContain("cds--list-box--disabled");
+	});
+});
+
+@Component({
+	template: `
+		<cds-dropdown label="Native" [(ngModel)]="model" (selected)="selected = $event">
+			<cds-dropdown-item value="apple">Apple</cds-dropdown-item>
+			<cds-dropdown-item value="pear">Pear</cds-dropdown-item>
+			<cds-dropdown-item value="plum" [disabled]="true">Plum</cds-dropdown-item>
+		</cds-dropdown>
+		<cds-multi-select label="Native" [(ngModel)]="multiModel">
+			<cds-multi-select-item value="red">Red</cds-multi-select-item>
+			<cds-multi-select-item value="green">Green</cds-multi-select-item>
+			<cds-multi-select-item value="blue">Blue</cds-multi-select-item>
+		</cds-multi-select>`,
+	imports: [Dropdown, DropdownItem, MultiSelect, MultiSelectItem, FormsModule]
+})
+class NativeItemsTest {
+	model = "pear";
+	multiModel = ["blue"];
+	selected: any;
+}
+
+describe("Dropdown and MultiSelect with child options", () => {
+	let fixture, dropdown, multiSelect;
+	const option = (parent: Element, value: string): any =>
+		Array.from<any>(parent.querySelectorAll("[value]")).find(item => item.value === value);
+
+	beforeEach(async () => {
+		TestBed.configureTestingModule({ imports: [NativeItemsTest] });
+		fixture = TestBed.createComponent(NativeItemsTest);
+		await settle(fixture);
+		dropdown = fixture.nativeElement.querySelector("cds-dropdown");
+		multiSelect = fixture.nativeElement.querySelector("cds-multi-select");
+	});
+
+	it("should register the child option web components", () => {
+		expect(option(dropdown, "apple") instanceof customElements.get("cds-dropdown-item")).toBe(true);
+		expect(option(multiSelect, "red") instanceof customElements.get("cds-multi-select-item")).toBe(true);
+	});
+
+	it("should select the option matching the model", () => {
+		expect(dropdown.value).toBe("pear");
+		expect(option(dropdown, "pear").selected).toBe(true);
+		expect(option(multiSelect, "blue").selected).toBe(true);
+	});
+
+	it("should update the model with the picked option's value", async () => {
+		option(dropdown, "apple").click();
+		await settle(fixture);
+		expect(fixture.componentInstance.model).toBe("apple");
+		expect(fixture.componentInstance.selected).toEqual({
+			item: jasmine.objectContaining({ content: "Apple", value: "apple" }),
+			isUpdate: false
+		});
+	});
+
+	it("should not pick disabled options", async () => {
+		option(dropdown, "plum").click();
+		await settle(fixture);
+		expect(fixture.componentInstance.model).toBe("pear");
+	});
+
+	it("should select the option written to the model", async () => {
+		fixture.componentInstance.model = "apple";
+		await settle(fixture);
+		expect(dropdown.value).toBe("apple");
+		expect(option(dropdown, "apple").selected).toBe(true);
+	});
+
+	it("should update a multi select's model with the selected values", async () => {
+		option(multiSelect, "red").click();
+		await settle(fixture);
+		expect(fixture.componentInstance.multiModel).toEqual(["red", "blue"]);
+	});
+});
+
+@Component({
+	template: `
+		<cds-dropdown label="Plain">
+			<cds-dropdown-item value="a">A</cds-dropdown-item>
+			<cds-dropdown-item value="b">B</cds-dropdown-item>
+		</cds-dropdown>
+		<cds-multi-select label="Plain multi">
+			<cds-multi-select-item value="a">A</cds-multi-select-item>
+		</cds-multi-select>
+	`,
+	imports: [Dropdown, DropdownItem, MultiSelect, MultiSelectItem]
+})
+class PlainDropdownTest {}
+
+describe("Dropdown defaults", () => {
+	it("should keep the web components' defaults and their own selection state", async () => {
+		const fixture = TestBed.createComponent(PlainDropdownTest);
+		await settle(fixture);
+		const dropdown = fixture.nativeElement.querySelector("cds-dropdown");
+		const multi = fixture.nativeElement.querySelector("cds-multi-select");
+		expect(dropdown.size).toBe("md");
+		expect(dropdown.type).toBe("");
+		expect(dropdown.direction).toBe("bottom");
+		expect(dropdown.open).toBe(false);
+		expect(dropdown.readOnly).toBe(false);
+		expect(multi.filterable).toBeFalsy();
+
+		const [, b] = fixture.nativeElement.querySelectorAll("cds-dropdown-item");
+		b.selected = true;
+		await settle(fixture);
+		expect(b.selected).toBe(true);
 	});
 });
