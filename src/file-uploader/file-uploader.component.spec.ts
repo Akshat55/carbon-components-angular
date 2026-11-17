@@ -231,7 +231,8 @@ describe("FileUploader with children written as web components", () => {
 		expect(uploader.querySelector("cds-file-uploader-item").state).toBe("complete");
 
 		const file = new File(["x"], "added.png");
-		uploader.querySelector("cds-file-uploader-drop-container").dispatchEvent(new CustomEvent("cds-file-uploader-drop-container-changed", {
+		const dropContainer = uploader.querySelector("cds-file-uploader-drop-container");
+		dropContainer.dispatchEvent(new CustomEvent("cds-file-uploader-drop-container-changed", {
 			bubbles: true,
 			composed: true,
 			detail: { addedFiles: [file] }

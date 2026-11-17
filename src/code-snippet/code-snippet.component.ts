@@ -50,7 +50,6 @@ export enum SnippetType {
 })
 export class CodeSnippet extends BaseIconButton {
 	public i18n = inject(I18n);
-	protected element = inject(ElementRef).nativeElement;
 
 	/**
 	 * The web component's default is `"single"`.
@@ -104,4 +103,6 @@ export class CodeSnippet extends BaseIconButton {
 	 * @deprecated use `<cds-code-snippet-skeleton>` instead.
 	 */
 	@Input({ transform: booleanAttribute }) skeleton = false;
+
+	protected element = inject(ElementRef).nativeElement;
 }
