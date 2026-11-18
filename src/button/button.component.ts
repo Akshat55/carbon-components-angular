@@ -43,8 +43,8 @@ import { ButtonSize, ButtonType } from "./button.types";
 })
 export class CdsButton {
 	/**
-	 * Button kind, same values as `<button cdsButton="...">`. Unset or empty, the web
-	 * component's default (`"primary"`) applies.
+	 * Button kind (the v6 name of `kind`). Unset or empty, the web component's
+	 * default (`"primary"`) applies.
 	 */
 	@Input() cdsButton?: ButtonType | "";
 	/**

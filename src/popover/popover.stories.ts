@@ -89,7 +89,6 @@ Basic.parameters = {
 	layout: "centered"
 };
 
-
 const AutoAlignTemplate = (args) => ({
 	props: args,
 	template: `

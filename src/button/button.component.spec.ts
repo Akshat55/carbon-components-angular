@@ -1,7 +1,6 @@
 import { Component } from "@angular/core";
 import { TestBed } from "@angular/core/testing";
 
-import { Button } from "./button.directive";
 import { CdsButton } from "./button.component";
 import { ButtonType } from "./button.types";
 
@@ -10,9 +9,8 @@ const rendered = (element: any) => element.updateComplete as Promise<boolean>;
 @Component({
 	template: `
 		<cds-button [cdsButton]="kind" size="sm" [disabled]="disabled" (click)="onClick()">Label</cds-button>
-		<button cdsButton="secondary">Native</button>
 	`,
-	imports: [CdsButton, Button]
+	imports: [CdsButton]
 })
 class ButtonTest {
 	kind: ButtonType | "" = "";
@@ -59,9 +57,9 @@ describe("CdsButton", () => {
 		expect(element.shadowRoot.querySelector("button").disabled).toBe(true);
 	});
 
-	it("should leave cds-button alone and keep styling native buttons with the cdsButton directive", () => {
+	it("should leave the styling to the web component", () => {
 		expect(element.classList.contains("cds--btn")).toBe(false);
-		expect(fixture.nativeElement.querySelector("button.cds--btn--secondary")).toBeTruthy();
+		expect(element.shadowRoot.querySelector("button.cds--btn")).toBeTruthy();
 	});
 });
 

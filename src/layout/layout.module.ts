@@ -1,13 +1,8 @@
 import { NgModule } from "@angular/core";
-import { CommonModule } from "@angular/common";
-
-import { StackDirective } from "./stack.directive";
+import { CdsStack } from "./stack.component";
 
 @NgModule({
-	exports: [StackDirective],
-	imports: [
-		CommonModule,
-		StackDirective
-	]
+	exports: [CdsStack],
+	imports: [CdsStack]
 })
 export class LayoutModule {}

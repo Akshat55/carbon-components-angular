@@ -1,951 +1,613 @@
 import {
+	booleanAttribute,
+	ChangeDetectionStrategy,
+	ChangeDetectorRef,
 	Component,
-	ApplicationRef,
-	Input,
-	OnInit,
-	Output,
-	EventEmitter,
+	CUSTOM_ELEMENTS_SCHEMA,
+	DestroyRef,
 	ElementRef,
-	AfterViewInit,
-	TemplateRef,
-	OnDestroy,
-	HostBinding,
+	EventEmitter,
+	Input,
+	Output,
 	inject
 } from "@angular/core";
-import { Subscription, fromEvent, Observable } from "rxjs";
-
+import { NgStyle, NgTemplateOutlet } from "@angular/common";
+import { Subscription } from "rxjs";
+import "@carbon/web-components/es/components/data-table/index.js";
+import { I18n } from "carbon-components-angular/i18n";
+import { merge, TemplateSlot } from "carbon-components-angular/utils";
 import { TableModel } from "./table-model.class";
 import { TableHeaderItem } from "./table-header-item.class";
 import { TableItem } from "./table-item.class";
-
-import { getFocusElementList, tabbableSelectorIgnoreTabIndex } from "carbon-components-angular/common";
-import { I18n } from "carbon-components-angular/i18n";
-import { merge } from "carbon-components-angular/utils";
-import { DataGridInteractionModel } from "./data-grid-interaction-model.class";
-import { TableDomAdapter } from "./table-adapter.class";
 import { TableRowSize } from "./table.types";
-import { TableDirective } from "./table.directive";
 import {
-	NgClass,
-	NgStyle,
-	NgTemplateOutlet,
-	AsyncPipe
-} from "@angular/common";
-import { TableHead } from "./head/table-head.component";
-import { TableBody } from "./body/table-body.component";
+	TableBody,
+	TableCell,
+	TableExpandedRow,
+	TableHead,
+	TableHeaderCell,
+	TableHeaderRow,
+	TableRowComponent,
+	TableSortDirection
+} from "./table-parts.component";
 
 /**
- * Build your table with this component by extending things that differ from default.
+ * Adds Angular inputs and outputs to the `<cds-table>` web component.
  *
  * [See demo](../../?path=/story/components-table--basic)
  *
- * Instead of the usual write-your-own-html approach you had with `<table>`,
- * carbon table uses model-view-controller approach.
+ * ## With a `TableModel`
  *
- * Here, you create a view (with built-in controller) and provide it a model.
- * Changes you make to the model are reflected in the view. Provide same model you use
- * in the table to the `<cds-pagination>` components.
- * They provide a different view over the same data.
- *
- * ## Basic usage
+ * The table renders the model's header and rows, and keeps the model's selection, expansion
+ * and sort order in step with what the user does. Change the model to change the table.
  *
  * ```html
- * <cds-table [model]="model"></cds-table>
+ * <cds-table [model]="model">
+ * 	<cds-table-header-title slot="title">Servers</cds-table-header-title>
+ * </cds-table>
  * ```
  *
  * ```typescript
- * public model = new TableModel();
+ * model = new TableModel();
  *
+ * this.model.header = [new TableHeaderItem({ data: "Name" }), new TableHeaderItem({ data: "Status" })];
  * this.model.data = [
- * 	[new TableItem({data: "asdf"}), new TableItem({data: "qwer"})],
- * 	[new TableItem({data: "csdf"}), new TableItem({data: "zwer"})],
- * 	[new TableItem({data: "bsdf"}), new TableItem({data: "swer"})],
- * 	[new TableItem({data: "csdf"}), new TableItem({data: "twer"})]
+ * 	[new TableItem({ data: "Load balancer" }), new TableItem({ data: "Active" })],
+ * 	[new TableItem({ data: "Database" }), new TableItem({ data: "Disabled" })]
  * ];
  * ```
  *
- * ## Customization
+ * Cells and header cells with a `template` render it with `{ data }` as context; rows with
+ * `expandedData` get an expand button and render `expandedTemplate` (or the data) below them.
  *
- * If you have custom data in your table, you need a way to display it. You can do that
- * by providing a template to `TableItem`.
+ * Sorting: clicking a header emits `sort` with the column index. Without a `sort` listener,
+ * the web component sorts the rows and the table reorders the model to match. With one, it's
+ * up to the listener, e.g. to query sorted data from a backend.
+ *
+ * Model rows that are filtered by their header's `filter()` aren't rendered. The toolbar search
+ * hides rows that don't contain the text, whatever renders them.
+ *
+ * ## As markup
+ *
+ * Without `model`, write the `cds-table-head` / `cds-table-body` yourself; the web component
+ * sorts, selects, expands and filters them.
  *
  * ```html
- * <ng-template #customTableItemTemplate let-data="data">
- * 	<a [routerLink]="data.link">{{data.name}} {{data.surname}}</a>
- * </ng-template>
- * ```
- *
- * ```typescript
- * customTableItemTemplate: TemplateRef<any>;
- *
- * this.customModel.data = [
- * 	[new TableItem({data: "asdf"}), new TableItem({data: {name: "Lessy", link: "/table"}, template: this.customTableItemTemplate})],
- * 	[new TableItem({data: "csdf"}), new TableItem({data: "swer"})],
- * 	[new TableItem({data: "bsdf"}), new TableItem({data: {name: "Alice", surname: "Bob"}, template: this.customTableItemTemplate})],
- * 	[new TableItem({data: "csdf"}), new TableItem({data: "twer"})],
- * ];
- * ```
- *
- * ### Sorting and filtering
- *
- * In case you need custom sorting and/or filtering you should subclass `TableHeaderItem`
- * and override needed functions.
- *
- * ```typescript
- * class FilterableHeaderItem extends TableHeaderItem {
- * 	// custom filter function
- * 	filter(item: TableItem): boolean {
- * 		if (typeof item.data === "string" && item.data.toLowerCase().indexOf(this.filterData.data.toLowerCase()) >= 0 ||
- * 		item.data.name && item.data.name.toLowerCase().indexOf(this.filterData.data.toLowerCase()) >= 0 ||
- * 		item.data.surname && item.data.surname.toLowerCase().indexOf(this.filterData.data.toLowerCase()) >= 0) {
- * 			return false;
+ * <cds-table isSortable>
+ * 	<cds-table-head>
+ * 		<cds-table-header-row>
+ * 			<cds-table-header-cell>Name</cds-table-header-cell>
+ * 		</cds-table-header-row>
+ * 	</cds-table-head>
+ * 	<cds-table-body>
+ * 		@for (server of servers; track server.id) {
+ * 			<cds-table-row>
+ * 				<cds-table-cell>{{ server.name }}</cds-table-cell>
+ * 			</cds-table-row>
  * 		}
- * 		return true;
- * 	}
- *
- * 	set filterCount(n) {}
- * 	get filterCount() {
- * 		return (this.filterData && this.filterData.data && this.filterData.data.length > 0) ? 1 : 0;
- * 	}
- *
- * 	// used for custom sorting
- * 	compare(one: TableItem, two: TableItem) {
- * 		const stringOne = (one.data.name || one.data.surname || one.data).toLowerCase();
- * 		const stringTwo = (two.data.name || two.data.surname || two.data).toLowerCase();
- *
- * 		if (stringOne > stringTwo) {
- * 			return 1;
- * 		} else if (stringOne < stringTwo) {
- * 			return -1;
- * 		} else {
- * 			return 0;
- * 		}
- * 	}
- * }
+ * 	</cds-table-body>
+ * </cds-table>
  * ```
  *
- * If you want to do your sorting on the backend or query for sorted data as a result of user
- * clicking the table header, check table [`sort`](#sort) output documentation
- *
- * See `TableHeaderItem` class for more information.
- *
- * ## No data template
- *
- * When table has no data to show, it can show a message you provide it instead.
- *
- * ```html
- * <cds-table [model]="model">No data.</cds-table>
- * ```
- *
- * ... will show `No data.` message, but you can get creative and provide any template you want
- * to replace table's default `tbody`.
- *
- * ## Use pagination as table footer
- *
- * ```html
- * <cds-pagination [model]="model" (selectPage)="selectPage($event)"></cds-pagination>
- * ```
- *
- * `selectPage()` function should fetch the data from backend, create new `data`, apply it to `model.data`,
- * and update `model.currentPage`.
- *
- * If the data your server returns is a two dimensional array of objects, it would look something like this:
- *
- * ```typescript
- * selectPage(page) {
- * 	this.getPage(page).then((data: Array<Array<any>>) => {
- * 		// set the data and update page
- * 		this.model.data = this.prepareData(data);
- * 		this.model.currentPage = page;
- * 	});
- * }
- *
- * protected prepareData(data: Array<Array<any>>) {
- * 	// create new data from the service data
- * 	let newData = [];
- * 	data.forEach(dataRow => {
- * 		let row = [];
- * 		dataRow.forEach(dataElement => {
- * 			row.push(new TableItem({
- * 				data: dataElement,
- * 				template: typeof dataElement === "string" ? undefined : this.paginationTableItemTemplate
- * 				// your template can handle all the data types so you don't have to conditionally set it
- * 				// you can also set different templates for different columns based on index
- * 			}));
- * 		});
- * 		newData.push(row);
- * 	});
- * 	return newData;
- * }
- * ```
+ * For a loading table use `<cds-table-skeleton>`.
  */
 @Component({
-	selector: "cds-table, ibm-table",
+	selector: "cds-table",
 	template: `
-	<table
-		cdsTable
-		[sortable]="sortable"
-		[noBorder]="noBorder"
-		[ngClass]="{'cds--data-table--sticky-header': stickyHeader}"
-		[size]="size"
-		[striped]="striped"
-		[skeleton]="skeleton"
-		[attr.aria-labelledby]="ariaLabelledby"
-		[attr.aria-describedby]="ariaDescribedby">
-		<thead
-			cdsTableHead
-			[sortable]="sortable"
-			(deselectAll)="onDeselectAll()"
-			(selectAll)="onSelectAll()"
-			(expandAllRows)="model.expandAllRows(true)"
-			(collapseAllRows)="model.expandAllRows(false)"
-			(sort)="doSort($event)"
-			[checkboxHeaderLabel]="getCheckboxHeaderLabel()"
-			[filterTitle]="getFilterTitle()"
-			[model]="model"
-			[selectAllCheckbox]="selectAllCheckbox"
-			[selectAllCheckboxSomeSelected]="selectAllCheckboxSomeSelected"
-			[showSelectionColumn]="showSelectionColumn"
-			[enableSingleSelect]="enableSingleSelect"
-			[showExpandAllToggle]="showExpandAllToggle"
-			[skeleton]="skeleton"
-			[sortAscendingLabel]="sortAscendingLabel"
-			[sortDescendingLabel]="sortDescendingLabel"
-			[stickyHeader]="stickyHeader"
-			[withRowAILabels]="withRowAILabels">
-		</thead>
-		@if (!noData) {
-			<tbody
-				cdsTableBody
-				(deselectRow)="onSelectRow($event)"
-				(scroll)="onScroll($event)"
-				(selectRow)="onSelectRow($event)"
-				[checkboxRowLabel]="getCheckboxRowLabel()"
-				[enableSingleSelect]="enableSingleSelect"
-				(rowClick)="onRowClick($event)"
-				[expandButtonAriaLabel]="expandButtonAriaLabel"
-				[model]="model"
-				[size]="size"
-				[ngStyle]="{'overflow-y': 'scroll'}"
-				[selectionLabelColumn]="selectionLabelColumn"
-				[showSelectionColumn]="showSelectionColumn"
-				[skeleton]="skeleton"
-				[withRowAILabels]="withRowAILabels"
-			>
-			</tbody>
-		} @else {
-			<ng-content></ng-content>
+		@if (model) {
+			<cds-table-head>
+				<cds-table-header-row [selectionLabel]="labels.CHECKBOX_HEADER">
+					@for (column of model.header; track $index; let j = $index) {
+						@if (showColumn(j)) {
+							<cds-table-header-cell
+								[attr.data-column-index]="j"
+								[isSortable]="isColumnSortable(column)"
+								[sortDirection]="sortDirection(column)"
+								[class]="column.className"
+								[ngStyle]="column.style"
+								[title]="column.title">
+								@if (column.hasAILabelHeader) {
+									{{ headerLabel(column) }}
+									<ng-container cdsSlot="ai-label" [cdsSlotTemplate]="column.template" [cdsSlotContext]="{ data: column.data }" />
+								} @else if (column.template) {
+									<ng-container *ngTemplateOutlet="column.template; context: { data: column.data }" />
+								} @else {
+									{{ column.data }}
+								}
+							</cds-table-header-cell>
+						}
+					}
+				</cds-table-header-row>
+			</cds-table-head>
+			<cds-table-body>
+				<!-- Recreated after the web component sorts, which moves the row elements itself. -->
+				@for (version of [renderVersion]; track version) {
+					@for (row of rows; track row; let i = $index) {
+						@if (!model.isRowFiltered(i)) {
+							<cds-table-row
+								[attr.data-row-index]="i"
+								[selected]="!!model.isRowSelected(i)"
+								[expanded]="!!model.isRowExpanded(i)"
+								[disabled]="model.isRowDisabled(i)"
+								[selectionName]="effectiveSelectable ? 'row-' + i : ''"
+								[selectionLabel]="selectionLabel(row)"
+								[class]="model.rowsClass[i]">
+								@if (withRowAILabels && row[0]?.hasAILabelDecorator) {
+									<ng-container cdsSlot="ai-label" [cdsSlotTemplate]="row[0].template" [cdsSlotContext]="{ data: row[0].data }" />
+								}
+								@for (item of row; track $index; let j = $index) {
+									@if (item && showColumn(j)) {
+										<cds-table-cell
+											[class]="item.cellClassName"
+											[ngStyle]="model.getHeader(j)?.style"
+											[title]="item.title"
+											(click)="rowClick.emit(i)">
+											@if (item.template) {
+												<ng-container *ngTemplateOutlet="item.template; context: { data: item.data }" />
+											} @else {
+												{{ item.data }}
+											}
+										</cds-table-cell>
+									}
+								}
+							</cds-table-row>
+							@if (model.isRowExpandable(i)) {
+								@if (expandAsTable(row)) {
+									<!-- The expand button needs an expanded row; the data shows as rows instead. -->
+									<cds-table-expanded-row style="display: none" />
+									@if (model.isRowExpanded(i)) {
+										@for (expandedRow of expandedData(row); track $index) {
+											<cds-table-row>
+												@for (item of expandedRow; track $index; let j = $index) {
+													@if (item && showColumn(j)) {
+														<cds-table-cell [class]="item.cellClassName" [title]="item.title">
+															@if (item.template) {
+																<ng-container *ngTemplateOutlet="item.template; context: { data: item.data }" />
+															} @else {
+																{{ item.data }}
+															}
+														</cds-table-cell>
+													}
+												}
+											</cds-table-row>
+										}
+									}
+								} @else {
+									<cds-table-expanded-row>
+										@if (expandedTemplate(row); as template) {
+											<ng-container *ngTemplateOutlet="template; context: { data: expandedData(row) }" />
+										} @else {
+											{{ expandedData(row) }}
+										}
+									</cds-table-expanded-row>
+								}
+							}
+						}
+					}
+				}
+			</cds-table-body>
 		}
-
-		<tfoot>
-			<ng-template
-				[ngTemplateOutlet]="footerTemplate">
-			</ng-template>
-			@if (this.model.isLoading) {
-				<tr>
-					<td class="table_loading-indicator">
-						<div class="cds--loading cds--loading--small">
-							<svg class="cds--loading__svg" viewBox="-75 -75 150 150">
-								<circle class="cds--loading__stroke" cx="0" cy="0" r="37.5" />
-							</svg>
-						</div>
-					</td>
-				</tr>
-			}
-			@if (this.model.isEnd) {
-				<tr>
-					<td class="table_end-indicator">
-						<h5>{{getEndOfDataText() | async}}</h5>
-						<button (click)="scrollToTop($event)" class="btn--secondary-sm">
-							{{getScrollTopText() | async}}
-						</button>
-					</td>
-				</tr>
-			}
-		</tfoot>
-	</table>
+		<ng-content />
 	`,
-	styles: [`
-		:host {
-			display: block;
-		}
-	`],
+	host: {
+		"[size]": "size ?? (model ? 'md' : element.size)",
+		"[useZebraStyles]": "useZebraStyles ?? (model ? true : element.useZebraStyles)",
+		"[useStaticWidth]": "useStaticWidth ?? element.useStaticWidth",
+		// With a model, sortable header cells are set per column: on the table, `isSortable` makes
+		// the web component sort the rows right away (moving the elements Angular renders).
+		"[isSortable]": "model ? false : (isSortable ?? element.isSortable)",
+		"[isSelectable]": "effectiveSelectable",
+		"[radio]": "radio ?? element.radio",
+		"[expandable]": "model ? model.hasExpandableRows() : (expandable ?? element.expandable)",
+		"[batchExpansion]": "batchExpansion ?? element.batchExpansion",
+		"[withRowAILabels]": "withRowAILabels ?? element.withRowAILabels",
+		"[overflowMenuOnHover]": "overflowMenuOnHover ?? element.overflowMenuOnHover",
+		"[locale]": "locale ?? element.locale",
+		"(cds-table-row-change-selection)": "onRowSelection($event)",
+		"(cds-table-change-selection-all)": "onAllSelection($event)",
+		"(cds-table-row-expando-toggled)": "onExpand($event)",
+		"(cds-table-sorted)": "onSorted($event)",
+		"(cds-table-filtered)": "filtered.emit($event)",
+		"(cds-table-row-selected)": "rowSelected.emit($event)",
+		"(cds-table-row-all-selected)": "allSelected.emit($event)"
+	},
+	changeDetection: ChangeDetectionStrategy.Default,
 	imports: [
-		TableDirective,
-		NgClass,
-		TableHead,
-		TableBody,
 		NgStyle,
 		NgTemplateOutlet,
-		AsyncPipe
-	]
+		TemplateSlot,
+		TableHead,
+		TableHeaderRow,
+		TableHeaderCell,
+		TableBody,
+		TableRowComponent,
+		TableCell,
+		TableExpandedRow
+	],
+	schemas: [CUSTOM_ELEMENTS_SCHEMA]
 })
-export class Table implements OnInit, AfterViewInit, OnDestroy {
+export class Table {
 	/**
-	 * Creates a skeleton model with a row and column count specified by the user
-	 *
-	 * Example:
-	 *
-	 * ```typescript
-	 * this.model = Table.skeletonModel(5, 5);
-	 * ```
-	 */
-	static skeletonModel(rowCount: number, columnCount: number) {
-		const model = new TableModel();
-		let header = new Array<TableHeaderItem>();
-		let data = new Array<Array<TableItem>>();
-		let row = new Array<TableItem>();
-
-		for (let i = 0; i < columnCount; i++) {
-			header.push(new TableHeaderItem());
-			row.push(new TableItem());
-		}
-		for (let i = 0; i < rowCount - 1; i++) {
-			data.push(row);
-		}
-
-		model.header = header;
-		model.data = data;
-		return model;
-	}
-
-	static setTabIndex(element: HTMLElement, index: -1 | 0) {
-		const focusElementList = getFocusElementList(element, tabbableSelectorIgnoreTabIndex);
-		if (element.firstElementChild && element.firstElementChild.classList.contains("cds--table-sort") && focusElementList.length > 1) {
-			focusElementList[1].tabIndex = index;
-		} else if (focusElementList.length > 0) {
-			focusElementList[0].tabIndex = index;
-		} else {
-			element.tabIndex = index;
-		}
-	}
-
-	static focus(element: HTMLElement) {
-		const focusElementList = getFocusElementList(element, tabbableSelectorIgnoreTabIndex);
-		if (
-			(element.firstElementChild?.classList.contains("cds--table-sort") && focusElementList.length > 1) ||
-			focusElementList.length > 0
-		) {
-			focusElementList[0].focus();
-		} else {
-			element.focus();
-		}
-	}
-
-	/**
-	 * Id of the table header title element
-	 */
-	@Input() ariaLabelledby: string;
-	/**
-	 * Id of the table header description element
-	 */
-	@Input() ariaDescribedby: string;
-
-	/**
-	 * `TableModel` with data the table is to display.
+	 * The `TableModel` to render. Without it, write the table's head and body as markup.
 	 */
 	@Input()
-	set model(m: TableModel) {
-		if (this._model) {
-			this.subscriptions.unsubscribe();
-			// Need to create a new subscription instance here because unsubscribing prevents any new subscriptions
-			// from being added for some reason. When a new model is set, none of the subscriptions would exist.
-			this.subscriptions = new Subscription();
-		}
-
-		this._model = m;
-
-		const rowsChange = this._model.rowsSelectedChange.subscribe(() => this.updateSelectAllCheckbox());
-		const dataChange = this._model.dataChange.subscribe(() => {
-			if (this.isDataGrid) {
-				this.resetTabIndex();
-			}
-			this.updateSelectAllCheckbox();
-		});
-
-		this.subscriptions.add(rowsChange);
-		this.subscriptions.add(dataChange);
-
-		if (this.isDataGrid) {
-			const expandedChange = this._model.rowsExpandedChange.subscribe(() => {
-				// Allows the expanded row to have a focus state when it exists in the DOM
-				setTimeout(() => {
-					const expandedRows = this.elementRef.nativeElement.querySelectorAll(".cds--expandable-row:not(.cds--parent-row)");
-					Array.from<any>(expandedRows).forEach(row => {
-						if (row.firstElementChild.tabIndex === undefined || row.firstElementChild.tabIndex !== -1) {
-							row.firstElementChild.tabIndex = -1;
-						}
-					});
-				});
-			});
-			this.subscriptions.add(expandedChange);
+	set model(model: TableModel) {
+		this.modelSubscription.unsubscribe();
+		this._model = model;
+		if (model) {
+			this.modelSubscription = new Subscription();
+			this.modelSubscription.add(model.rowsSelectedChange.subscribe(() => this.syncSelectAll()));
+			this.modelSubscription.add(model.dataChange.subscribe(() => this.syncSelectAll()));
+			this.syncSelectAll();
 		}
 	}
-
 	get model(): TableModel {
 		return this._model;
 	}
 
 	/**
-	 * Size of the table rows.
+	 * Row height. Defaults to `"md"` with a model and to the web component's `"lg"` without.
 	 */
-	@Input() size: TableRowSize = "md";
+	@Input() size: TableRowSize;
 	/**
-	 * Set to `true` for a loading table.
+	 * Zebra stripes. Defaults to `true` with a model.
 	 */
-	@Input() skeleton = false;
+	@Input({ transform: booleanAttribute }) useZebraStyles: boolean;
+	@Input({ transform: booleanAttribute }) useStaticWidth: boolean;
 	/**
-	 * Set to `true` for a data grid with keyboard interactions.
+	 * Lets the user sort by clicking the header cells. With a model it defaults to `true`, and
+	 * columns whose `TableHeaderItem.sortable` is `false` stay unsortable.
 	 */
-	@Input() set isDataGrid(value: boolean) {
-		this._isDataGrid = value;
-		if (this.isViewReady) {
-			if (value) {
-				this.enableDataGridInteractions();
-			} else {
-				this.disableDataGridInteractions();
-			}
-		}
+	@Input({ transform: booleanAttribute }) isSortable: boolean;
+	/**
+	 * Adds a selection checkbox to every row and a select-all checkbox to the header.
+	 * Defaults to `true` with a model.
+	 */
+	@Input({ transform: booleanAttribute }) isSelectable: boolean;
+	/**
+	 * Single selection with radio buttons (with `isSelectable`).
+	 */
+	@Input({ transform: booleanAttribute }) radio: boolean;
+	/**
+	 * Rows followed by a `cds-table-expanded-row` get an expand button. With a model, it's on
+	 * when a row has `expandedData`.
+	 */
+	@Input({ transform: booleanAttribute }) expandable: boolean;
+	/**
+	 * Adds an expand-all button to the header (with expandable rows).
+	 */
+	@Input({ transform: booleanAttribute }) batchExpansion: boolean;
+	/**
+	 * Leaves room for AI labels on rows. With a model, the first column of rows whose first
+	 * `TableItem` has `hasAILabelDecorator` renders that item's `template` as the row's AI label.
+	 */
+	@Input({ transform: booleanAttribute }) withRowAILabels: boolean;
+	@Input({ transform: booleanAttribute }) overflowMenuOnHover: boolean;
+	/**
+	 * Locale used to compare cells when the web component sorts.
+	 */
+	@Input() locale: string;
+	/**
+	 * Column whose data labels each row's selection checkbox ("Select {{value}}").
+	 */
+	@Input() selectionLabelColumn: number;
+
+	/**
+	 * @deprecated v6 name of `isSortable`.
+	 */
+	@Input({ transform: booleanAttribute }) set sortable(value: boolean) {
+		this.isSortable = value;
 	}
-
-	/**
-	 * Setting sortable to false will disable all headers including headers which are sortable. Is is
-	 * possible to set the sortable state on the header item to disable/enable sorting for only some headers.
-	 */
-	@Input() sortable = true;
-
-	@Input() noBorder = true;
-
-	/**
-	 * Set to `true` to show expansion toggle when table consists of row expansions
-	 */
-	@Input() showExpandAllToggle = false;
-
-	get isDataGrid(): boolean {
-		return this._isDataGrid;
+	get sortable() {
+		return this.isSortable ?? true;
 	}
-
 	/**
-	 * Controls whether to show the selection checkboxes column or not.
+	 * @deprecated v6 name of `isSelectable`.
 	 */
-	@Input() showSelectionColumn = true;
-
+	@Input({ transform: booleanAttribute }) set showSelectionColumn(value: boolean) {
+		this.isSelectable = value;
+	}
+	get showSelectionColumn() {
+		return this.effectiveSelectable;
+	}
 	/**
-	 * Controls whether to enable multiple or single row selection.
+	 * @deprecated v6 name of `radio`.
 	 */
-	@Input() enableSingleSelect = false;
-
+	@Input({ transform: booleanAttribute }) set enableSingleSelect(value: boolean) {
+		this.radio = value;
+	}
+	get enableSingleSelect() {
+		return !!this.radio;
+	}
 	/**
-	 * Distance (in px) from the bottom that view has to reach before
-	 * `scrollLoad` event is emitted.
+	 * @deprecated v6 name of `useZebraStyles`.
 	 */
-	@Input() scrollLoadDistance = 0;
-
+	@Input({ transform: booleanAttribute }) set striped(value: boolean) {
+		this.useZebraStyles = value;
+	}
+	get striped() {
+		return this.useZebraStyles ?? !!this.model;
+	}
 	/**
-	 * @todo - Enable column resize when Carbon officially supports feature
-	 * Set to `true` to enable users to resize columns.
-	 *
-	 * Works for columns with width set in pixels.
-	 *
+	 * @deprecated v6 name of `batchExpansion`.
 	 */
-	// @Input() columnsResizable = false;
-
-	/**
-	 * @todo - Enable columns drag & drop when Carbon officially supports feature
-	 * Set to `true` to enable users to drag and drop columns.
-	 *
-	 * Changing the column order in table changes table model. Be aware of it when you add additional data
-	 * to the model.
-	 *
-	 */
-	// @Input() columnsDraggable = false;
-
-	@Input()
-	set expandButtonAriaLabel(value: string | Observable<string>) {
-		this._expandButtonAriaLabel.override(value);
+	@Input({ transform: booleanAttribute }) set showExpandAllToggle(value: boolean) {
+		this.batchExpansion = value;
 	}
-	get expandButtonAriaLabel() {
-		return this._expandButtonAriaLabel.value;
-	}
-	@Input()
-	set sortDescendingLabel(value: string | Observable<string>) {
-		this._sortDescendingLabel.override(value);
-	}
-	get sortDescendingLabel() {
-		return this._sortDescendingLabel.value;
-	}
-	@Input()
-	set sortAscendingLabel(value: string | Observable<string>) {
-		this._sortAscendingLabel.override(value);
-	}
-	get sortAscendingLabel() {
-		return this._sortAscendingLabel.value;
+	get showExpandAllToggle() {
+		return !!this.batchExpansion;
 	}
 
 	/**
 	 * Expects an object that contains some or all of:
 	 * ```
 	 * {
-	 *		"FILTER": "Filter",
-	 *		"END_OF_DATA": "You've reached the end of your content",
-	 *		"SCROLL_TOP": "Scroll to top",
 	 *		"CHECKBOX_HEADER": "Select all rows",
-	 *		"CHECKBOX_ROW": "Select row"
+	 *		"CHECKBOX_ROW": "Select {{value}}"
 	 * }
 	 * ```
 	 */
 	@Input()
-	set translations(value) {
-		const valueWithDefaults = merge(this.i18n.getMultiple("TABLE"), value);
-		this._filterTitle.override(valueWithDefaults.FILTER);
-		this._endOfDataText.override(valueWithDefaults.END_OF_DATA);
-		this._scrollTopText.override(valueWithDefaults.SCROLL_TOP);
-		this._checkboxHeaderLabel.override(valueWithDefaults.CHECKBOX_HEADER);
-		this._checkboxRowLabel.override(valueWithDefaults.CHECKBOX_ROW);
+	set translations(value: Partial<Record<"CHECKBOX_HEADER" | "CHECKBOX_ROW", string>>) {
+		this.labels = merge({}, this.i18n.get().TABLE, value);
 	}
 
 	/**
-	 * Set to `false` to remove table rows (zebra) stripes.
-	 */
-	@Input() striped = true;
-
-	/**
-	 * When true, rows that set `TableItem.hasAILabelDecorator` on the decorator column receive AI row styling.
-	 */
-	@Input() withRowAILabels = false;
-
-	/**
-	 * Allows table content to scroll horizontally
-	 */
-	@HostBinding("class.cds--data-table-content") tableContent = true;
-
-	/**
-	 * Set to `true` to stick the header to the top of the table
-	 */
-	@HostBinding("class.cds--data-table_inner-container") @Input() stickyHeader = false;
-
-	/**
-	 * Set footer template to customize what is displayed in the tfoot section of the table
-	 */
-	@Input() footerTemplate: TemplateRef<any>;
-
-	/**
-	 * Used to populate the row selection checkbox label with a useful value if set.
+	 * With a model: emits the index of the header the user clicked.
 	 *
-	 * Example:
-	 * ```
-	 * <cds-table [selectionLabelColumn]="0"></cds-table>
-	 * <!-- results in aria-label="Select first column value"
-	 * (where "first column value" is the value of the first column in the row -->
-	 * ```
-	 */
-	@Input() selectionLabelColumn: number;
-
-	/**
-	 * Emits an index of the column that wants to be sorted.
-	 *
-	 * If no observers are provided (default), table will attempt to do a simple sort of the data loaded
-	 * into the model.
-	 *
-	 * If an observer is provided, table will not attempt any sorting of its own and it is up to the observer
-	 * to sort the table. This is what you typically want if you're using a backend query to get the sorted
-	 * data or want to sort data across multiple pages.
-	 *
-	 * Usage:
-	 *
-	 * ```typescript
-	 * @Component({
-	 * 	selector: "app-table",
-	 * 	template: `
-	 * 		<cds-table
-	 * 			[model]="model"
-	 * 			(sort)="simpleSort($event)">
-	 * 			No data.
-	 * 		</cds-table>
-	 * 	`
-	 * })
-	 * export class TableApp implements OnInit, OnChanges {
-	 * 	@Input() model = new TableModel();
-	 *
-	 * 	ngOnInit() {
-	 * 		this.model.header = [
-	 * 			new TableHeaderItem({ data: "Name" }),
-	 * 			new TableHeaderItem({ data: "hwer" })
-	 * 		];
-	 *
-	 * 		this.model.data = [
-	 * 			[new TableItem({ data: "Name 1" }), new TableItem({ data: "qwer" })],
-	 * 			[new TableItem({ data: "Name 3" }), new TableItem({ data: "zwer" })],
-	 * 			[new TableItem({ data: "Name 2" }), new TableItem({ data: "swer" })],
-	 * 			[new TableItem({ data: "Name 4" }), new TableItem({data: "twer"})],
-	 * 			[new TableItem({ data: "Name 5" }), new TableItem({data: "twer"})],
-	 * 			[new TableItem({ data: "Name 6" }), new TableItem({data: "twer"})]
-	 * 		];
-	 * 	}
-	 *
-	 * 	simpleSort(index: number) {
-	 * 		// this function does a simple sort, which is the default for the table and if that's
-	 * 		// all you want, you don't need to do this.
-	 *
-	 * 		// here you can query your backend and update the model.data based on the result
-	 * 		if (this.model.header[index].sorted) {
-	 * 			// if already sorted flip sorting direction
-	 * 			this.model.header[index].ascending = this.model.header[index].descending;
-	 * 		}
-	 * 		this.model.sort(index);
-	 * 	}
-	 * }
-	 * ```
+	 * Without a listener, the web component sorts the rows (comparing their text, using
+	 * `locale`) and the table puts the model's rows and header sort state in the same order.
+	 * With a listener, the web component doesn't sort and it's up to the listener, as in v1
+	 * (e.g. to query sorted data from a backend): update the header's `sorted`/`sortDirection`
+	 * and the data.
 	 */
 	@Output() sort = new EventEmitter<number>();
-
 	/**
-	 * Emits if all rows are selected.
-	 *
-	 * @param model
+	 * With a model: emits the model when the user selects every row.
 	 */
-	@Output() selectAll = new EventEmitter<Object>();
-
+	@Output() selectAll = new EventEmitter<TableModel>();
 	/**
-	 * Emits if all rows are deselected.
-	 *
-	 * @param model
+	 * With a model: emits the model when the user deselects every row.
 	 */
-	@Output() deselectAll = new EventEmitter<Object>();
-
+	@Output() deselectAll = new EventEmitter<TableModel>();
 	/**
-	 * Emits if a single row is selected.
-	 *
-	 * @param ({model: this.model, selectedRowIndex: index})
+	 * With a model: emits `{ model, selectedRowIndex }` when the user selects a row.
 	 */
-	@Output() selectRow = new EventEmitter<Object>();
-
+	@Output() selectRow = new EventEmitter<{ model: TableModel, selectedRowIndex: number }>();
 	/**
-	 * Emits if a single row is deselected.
-	 *
-	 * @param ({model: this.model, deselectedRowIndex: index})
+	 * With a model: emits `{ model, deselectedRowIndex }` when the user deselects a row.
 	 */
-	@Output() deselectRow = new EventEmitter<Object>();
-
+	@Output() deselectRow = new EventEmitter<{ model: TableModel, deselectedRowIndex: number }>();
 	/**
-	 * Emits if a row item excluding expandButtons, checkboxes, or radios is clicked.
+	 * With a model: emits the index of the row whose cell the user clicked.
 	 */
 	@Output() rowClick = new EventEmitter<number>();
-
 	/**
-	 * Emits when table requires more data to be loaded.
+	 * Emits the `cds-table-sorted` event (`detail.sortedHeader`) after the web component sorted its rows.
 	 */
-	@Output() scrollLoad = new EventEmitter<TableModel>();
-
+	@Output() sorted = new EventEmitter<CustomEvent>();
 	/**
-	 * Controls if all checkboxes are viewed as selected.
+	 * Emits the `cds-table-filtered` event (`detail.unfilteredRows`) after a toolbar search.
 	 */
-	selectAllCheckbox = false;
-
+	@Output() filtered = new EventEmitter<CustomEvent>();
 	/**
-	 * Controls the indeterminate state of the header checkbox.
+	 * Emits the `cds-table-row-selected` event (`detail.selectedRow`).
 	 */
-	selectAllCheckboxSomeSelected = false;
+	@Output() rowSelected = new EventEmitter<CustomEvent>();
+	/**
+	 * Emits the `cds-table-row-all-selected` event (`detail.selectedRows`).
+	 */
+	@Output() allSelected = new EventEmitter<CustomEvent>();
+	/**
+	 * Emits the `cds-table-row-expando-toggled` event (`detail.expanded`) of a row or of the expand-all button.
+	 */
+	@Output() rowExpanded = new EventEmitter<CustomEvent>();
 
-	get noData() {
-		return !this.model.data ||
-			this.model.data.length === 0 ||
-			this.model.data.length === 1 && this.model.data[0].length === 0;
-	}
-
-	public isColumnDragging = false;
-	public columnDraggedHoverIndex = -1;
-	public columnDraggedPosition = "";
-
-	protected elementRef = inject(ElementRef);
-	protected applicationRef = inject(ApplicationRef);
 	protected i18n = inject(I18n);
-
+	protected labels: Record<string, string> = { ...this.i18n.get().TABLE };
+	protected element = inject(ElementRef).nativeElement;
+	protected changeDetectorRef = inject(ChangeDetectorRef);
 	protected _model: TableModel;
-	protected _isDataGrid = false;
-	// flag to prevent getters/setters from querying the view before it's fully instantiated
-	protected isViewReady = false;
+	protected modelSubscription = new Subscription();
+	protected syncScheduled = false;
+	/**
+	 * Bumped to re-render the rows from the model after the web component sorted them.
+	 */
+	protected renderVersion = 0;
+	protected pendingSort: { index: number, direction: TableSortDirection } | null = null;
 
-	protected subscriptions = new Subscription();
-	protected positionSubscription: Subscription;
+	constructor() {
+		// Capture phase, so the table can stop the event before the web component sorts.
+		const onSort = (event: CustomEvent) => this.onSort(event);
+		this.element.addEventListener("cds-table-header-cell-sort", onSort, true);
+		inject(DestroyRef).onDestroy(() => {
+			this.element.removeEventListener("cds-table-header-cell-sort", onSort, true);
+			this.modelSubscription.unsubscribe();
+		});
+	}
 
-	protected interactionModel: DataGridInteractionModel;
-	protected interactionPositionSubscription: Subscription;
+	get rows(): TableItem[][] {
+		const data = this.model.data;
+		return data.length === 1 && data[0].length === 0 ? [] : data;
+	}
 
-	protected _expandButtonAriaLabel = this.i18n.getOverridable("TABLE.EXPAND_BUTTON");
-	protected _sortDescendingLabel = this.i18n.getOverridable("TABLE.SORT_DESCENDING");
-	protected _sortAscendingLabel = this.i18n.getOverridable("TABLE.SORT_ASCENDING");
-	protected _checkboxHeaderLabel = this.i18n.getOverridable("TABLE.CHECKBOX_HEADER");
-	protected _checkboxRowLabel = this.i18n.getOverridable("TABLE.CHECKBOX_ROW");
-	protected _endOfDataText = this.i18n.getOverridable("TABLE.END_OF_DATA");
-	protected _scrollTopText = this.i18n.getOverridable("TABLE.SCROLL_TOP");
-	protected _filterTitle = this.i18n.getOverridable("TABLE.FILTER");
+	get effectiveSelectable(): boolean {
+		return this.isSelectable ?? (this.model ? true : this.element.isSelectable);
+	}
 
-	protected columnResizeWidth: number;
-	protected columnResizeMouseX: number;
-	protected mouseMoveSubscription: Subscription;
-	protected mouseUpSubscription: Subscription;
+	showColumn(index: number): boolean {
+		if (this.withRowAILabels && index === 0) {
+			return false;
+		}
+		const header = this.model.header[index];
+		return !header || header.visible;
+	}
 
-	/** Inserted by Angular inject() migration for backwards compatibility */
-	// eslint-disable-next-line @angular-eslint/prefer-inject -- backwards-compatible DI overload until next major
-	constructor(...args: unknown[]);
+	isColumnSortable(column: TableHeaderItem): boolean {
+		return (this.isSortable ?? true) && column.sortable;
+	}
 
 	/**
-	 * Creates an instance of Table.
+	 * Text of a header whose template is its AI label: `data` itself, or `data.label`.
 	 */
-	constructor() {}
-
-	ngOnInit() {
-		// Manually trigger check to see if all checkboxes are selected
-		// This is since subscription is made AFTER checkboxes are selected
-		this.updateSelectAllCheckbox();
+	headerLabel(column: TableHeaderItem): string {
+		const data = column.data;
+		return typeof data === "string" ? data : (data?.label ?? "");
 	}
 
-	ngAfterViewInit() {
-		this.isViewReady = true;
-		if (this.isDataGrid) {
-			this.enableDataGridInteractions();
+	sortDirection(column: TableHeaderItem): TableSortDirection {
+		if (!column.sorted) {
+			return "none";
 		}
+		return column.descending ? "descending" : "ascending";
 	}
 
-	ngOnDestroy() {
-		this.subscriptions.unsubscribe();
-		if (this.positionSubscription) {
-			this.positionSubscription.unsubscribe();
-		}
+	selectionLabel(row: TableItem[]): string {
+		const item = this.selectionLabelColumn == null ? null : row[this.selectionLabelColumn];
+		const value = item && typeof item.data === "string" ? item.data : this.labels.ROW;
+		return this.labels.CHECKBOX_ROW.replace("{{value}}", value);
 	}
 
-	enableDataGridInteractions() {
-		// if we have an `interactioModel` we've already enabled datagrid
-		if (this.interactionModel) {
+	expandAsTable(row: TableItem[]): boolean {
+		return row.some(item => item?.expandAsTable);
+	}
+
+	expandedData(row: TableItem[]) {
+		return row.find(item => item?.expandedData)?.expandedData;
+	}
+
+	expandedTemplate(row: TableItem[]) {
+		return row.find(item => item?.expandedTemplate)?.expandedTemplate;
+	}
+
+	protected onSort(event: CustomEvent<{ sortDirection: TableSortDirection }>) {
+		const cell = (event.target as Element).closest?.("cds-table-header-cell[data-column-index]");
+		if (!this.model || !cell || cell.closest("cds-table") !== this.element) {
 			return;
 		}
-		const table = this.elementRef.nativeElement.querySelector("table") as HTMLTableElement;
-		const tableAdapter = new TableDomAdapter(table);
-		const keydownEventStream = fromEvent<KeyboardEvent>(table, "keydown");
-		const clickEventStream = fromEvent<MouseEvent>(table, "click");
-		this.interactionModel = new DataGridInteractionModel(keydownEventStream, clickEventStream, tableAdapter);
-		this.positionSubscription = this.interactionModel.position.subscribe(event => {
-			const [currentRow, currentColumn] = event.current;
-			const [previousRow, previousColumn] = event.previous;
-
-			const currentElement = tableAdapter.getCell(currentRow, currentColumn);
-			Table.setTabIndex(currentElement, 0);
-
-			// if the model has just initialized don't focus or reset anything
-			if (previousRow === -1 || previousColumn === -1) { return; }
-			// Make the previous cell unfocusable (if it's not the current)
-			if (previousRow !== currentRow || previousColumn !== currentColumn) {
-				const previousElement = tableAdapter.getCell(previousRow, previousColumn);
-				Table.setTabIndex(previousElement, -1);
-			}
-			Table.focus(currentElement);
-		});
-		// call this after assigning `this.interactionModel` since it depends on it
-		this.resetTabIndex();
-	}
-
-	disableDataGridInteractions() {
-		// unsubscribe first so we don't cause the focus to fly around
-		if (this.positionSubscription) {
-			this.positionSubscription.unsubscribe();
+		const index = Number(cell.getAttribute("data-column-index"));
+		if (this.sort.observed) {
+			// The listener sorts (v1): the web component neither sorts nor changes the direction,
+			// which is bound from the model.
+			event.preventDefault();
+			event.stopPropagation();
+			this.sort.emit(index);
+			return;
 		}
-		// undo tab indexing (also resets the model)
-		this.resetTabIndex(0);
-		// null out the model ref
-		this.interactionModel = null;
+		// The web component sorts; `onSorted` puts the model in the same order.
+		this.pendingSort = { index, direction: event.detail.sortDirection };
 	}
 
-	onSelectAll() {
-		this.model.selectAll(true);
-		this.selectAll.emit(this.model);
+	protected onSorted(event: CustomEvent) {
+		this.sorted.emit(event);
+		const pending = this.pendingSort;
+		this.pendingSort = null;
+		if (!pending || !this.model) {
+			return;
+		}
+		const model = this.model;
+		const body = this.element.querySelector(":scope > cds-table-body");
+		const rendered = Array.from<Element>(body?.children ?? [])
+			.filter(row => row.matches("cds-table-row[data-row-index]"))
+			.map(row => Number(row.getAttribute("data-row-index")));
+		const order = [...rendered, ...model.data.map((_, i) => i).filter(i => !rendered.includes(i))];
+
+		// Moves each row's selected / expanded / class state with it.
+		model.pushRowStateToModelData();
+		const rows = order.map(i => model.data[i]);
+		model.data.splice(0, rows.length, ...rows);
+		model.popRowStateFromModelData();
+
+		model.header.forEach(column => {
+			if (column) {
+				column.sorted = false;
+			}
+		});
+		const header = model.header[pending.index];
+		if (header) {
+			header.sorted = pending.direction !== "none";
+			const directions = { ascending: "ASCENDING", descending: "DESCENDING", none: "NONE" } as const;
+			header.sortDirection = directions[pending.direction] ?? "NONE";
+		}
+		this.renderVersion++;
+		this.sort.emit(pending.index);
+		this.changeDetectorRef.markForCheck();
 	}
 
-	onDeselectAll() {
-		this.model.selectAll(false);
-		this.deselectAll.emit(this.model);
-	}
-
-	onSelectRow(event) {
-		// check for the existence of the selectedRowIndex property
-		if (Object.keys(event).includes("selectedRowIndex")) {
-			if (this.enableSingleSelect) {
+	protected onRowSelection(event: CustomEvent<{ selected: boolean }>) {
+		const index = this.rowIndex(event.target as Element);
+		if (index === null) {
+			return;
+		}
+		const { selected } = event.detail;
+		if (selected) {
+			if (this.element.radio) {
 				this.model.selectAll(false);
 			}
-			this.model.selectRow(event.selectedRowIndex, true);
-			this.selectRow.emit(event);
+			this.model.selectRow(index, true);
+			this.selectRow.emit({ model: this.model, selectedRowIndex: index });
 		} else {
-			this.model.selectRow(event.deselectedRowIndex, false);
-			this.deselectRow.emit(event);
+			this.model.selectRow(index, false);
+			this.deselectRow.emit({ model: this.model, deselectedRowIndex: index });
 		}
 	}
 
-	onRowClick(index: number) {
-		this.rowClick.emit(index);
+	protected onAllSelection(event: CustomEvent<{ selected: boolean }>) {
+		if (!this.model || (event.target as Element).closest("cds-table") !== this.element) {
+			return;
+		}
+		this.model.selectAll(event.detail.selected);
+		(event.detail.selected ? this.selectAll : this.deselectAll).emit(this.model);
 	}
 
-	updateSelectAllCheckbox() {
-		const selectedRowsCount = this.model.selectedRowsCount();
-
-		if (selectedRowsCount <= 0) {
-			// reset select all checkbox if nothing selected
-			this.selectAllCheckbox = false;
-			this.selectAllCheckboxSomeSelected = false;
-		} else if (selectedRowsCount < this.model.data.length) {
-			this.selectAllCheckbox = true;
-			this.selectAllCheckboxSomeSelected = true;
+	protected onExpand(event: CustomEvent<{ expanded: boolean }>) {
+		this.rowExpanded.emit(event);
+		const target = event.target as Element;
+		if (!this.model || target.closest("cds-table") !== this.element) {
+			return;
+		}
+		if (target.tagName === "CDS-TABLE-HEADER-ROW") {
+			this.model.expandAllRows(event.detail.expanded);
 		} else {
-			this.selectAllCheckbox = true;
-			this.selectAllCheckboxSomeSelected = false;
+			const index = this.rowIndex(target);
+			if (index !== null) {
+				this.model.expandRow(index, event.detail.expanded);
+			}
 		}
 	}
 
-	resetTabIndex(newTabIndex = -1) {
-		// ensure the view is ready for the reset before we preform the actual reset
-		setTimeout(() => {
-			// reset all the tabIndexes we can find
-			const focusElementList = getFocusElementList(this.elementRef.nativeElement, tabbableSelectorIgnoreTabIndex);
-			if (focusElementList) {
-				focusElementList.forEach(tabbable => {
-					tabbable.tabIndex = newTabIndex;
-				});
-			}
-			// reset interaction model positions and tabIndexes
-			if (this.interactionModel) {
-				this.interactionModel.resetTabIndexes(newTabIndex);
-			}
-		});
-	}
-
-	columnResizeStart(event, column) {
-		this.columnResizeWidth = parseInt(column.style.width, 10);
-		this.columnResizeMouseX = event.clientX;
-		event.preventDefault();
-
-		this.mouseMoveSubscription = fromEvent(document.body, "mousemove").subscribe(event => {
-			this.columnResizeProgress(event, column);
-		});
-		this.mouseUpSubscription = fromEvent(document.body, "mouseup").subscribe(event => {
-			this.columnResizeEnd(event, column);
-		});
-	}
-
-	columnResizeProgress(event, column) {
-		const move = event.clientX - this.columnResizeMouseX;
-		column.style.width = `${this.columnResizeWidth + move}px`;
-	}
-
-	columnResizeEnd(event, column) {
-		this.mouseMoveSubscription.unsubscribe();
-		this.mouseUpSubscription.unsubscribe();
+	protected rowIndex(element: Element): number | null {
+		if (!this.model || element.closest("cds-table") !== this.element || !element.hasAttribute("data-row-index")) {
+			return null;
+		}
+		return Number(element.getAttribute("data-row-index"));
 	}
 
 	/**
-	 * Triggered when the user scrolls on the `<tbody>` element.
-	 * Emits the `scrollLoad` event.
+	 * The web component only updates the select-all checkbox when the user selects rows;
+	 * show selections made through the model too.
 	 */
-	onScroll(event) {
-		const distanceFromBottom = event.target.scrollHeight - event.target.clientHeight - event.target.scrollTop;
-
-		if (distanceFromBottom <= this.scrollLoadDistance) {
-			this.scrollLoad.emit(this.model);
-		} else {
-			this.model.isEnd = false;
+	protected syncSelectAll() {
+		if (this.syncScheduled) {
+			return;
 		}
-	}
-
-	columnDragStart(event, columnIndex) {
-		this.isColumnDragging = true;
-		this.columnDraggedHoverIndex = columnIndex;
-		event.dataTransfer.setData("columnIndex", JSON.stringify(columnIndex));
-	}
-
-	columnDragEnd(event, columnIndex) {
-		this.isColumnDragging = false;
-		this.columnDraggedHoverIndex = -1;
-	}
-
-	columnDragEnter(event, position, columnIndex) {
-		this.columnDraggedPosition = position;
-		this.columnDraggedHoverIndex = columnIndex;
-	}
-
-	columnDragLeave(event, position, columnIndex) {
-		this.columnDraggedPosition = "";
-	}
-
-	columnDragover(event, position, columnIndex) {
-		this.columnDraggedHoverIndex = columnIndex;
-		this.columnDraggedPosition = position;
-
-		// needed to tell browser to allow dropping
-		event.preventDefault();
-	}
-
-	columnDrop(event, position, columnIndex) {
-		this.isColumnDragging = false;
-		this.columnDraggedHoverIndex = -1;
-		this.columnDraggedPosition = "";
-
-		this.model.moveColumn(
-			parseInt(event.dataTransfer.getData("columnIndex"), 10),
-			columnIndex + (position === "right" ? 1 : 0)
-		);
-	}
-
-	doSort(index: number) {
-		if (this.sort.observers.length === 0) {
-			// no sort provided so do the simple sort
-			this.model.cycleSortState(index);
-			this.model.sort(index);
-		}
-
-		this.sort.emit(index);
-	}
-
-	/**
-	 * Triggered when the user scrolls on the `<tbody>` element.
-	 * Emits the `scrollLoad` event.
-	 */
-	scrollToTop(event) {
-		event.target.parentElement.parentElement.parentElement.parentElement.children[1].scrollTop = 0;
-		this.model.isEnd = false;
-	}
-
-	getSelectionLabelValue(row: TableItem[]) {
-		if (!this.selectionLabelColumn) {
-			return { value: this.i18n.get().TABLE.ROW };
-		}
-		return { value: row[this.selectionLabelColumn].data };
-	}
-
-	getExpandButtonAriaLabel() {
-		return this._expandButtonAriaLabel.subject;
-	}
-	getSortDescendingLabel() {
-		return this._sortDescendingLabel.subject;
-	}
-	getSortAscendingLabel() {
-		return this._sortAscendingLabel.subject;
-	}
-
-	getCheckboxHeaderLabel() {
-		return this._checkboxHeaderLabel.subject;
-	}
-
-	getCheckboxRowLabel() {
-		return this._checkboxRowLabel.subject;
-	}
-
-	getEndOfDataText() {
-		return this._endOfDataText.subject;
-	}
-
-	getScrollTopText() {
-		return this._scrollTopText.subject;
-	}
-
-	getFilterTitle() {
-		return this._filterTitle.subject;
+		this.syncScheduled = true;
+		queueMicrotask(async () => {
+			this.syncScheduled = false;
+			const model = this.model;
+			const headerRow = this.element.querySelector(":scope > cds-table-head > cds-table-header-row");
+			if (!model || !headerRow) {
+				return;
+			}
+			await headerRow.updateComplete;
+			const checkbox = headerRow.shadowRoot?.querySelector("cds-checkbox");
+			if (!checkbox) {
+				return;
+			}
+			const rows = this.rows.map((_, i) => i).filter(i => !model.isRowDisabled(i) && !model.isRowFiltered(i));
+			const selected = rows.filter(i => model.isRowSelected(i)).length;
+			checkbox.checked = selected > 0;
+			checkbox.indeterminate = selected > 0 && selected < rows.length;
+		});
 	}
 }

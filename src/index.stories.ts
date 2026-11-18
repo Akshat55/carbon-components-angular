@@ -1,12 +1,12 @@
 import { moduleMetadata, Meta } from "@storybook/angular";
 import { Component, OnInit, OnDestroy } from "@angular/core";
 
-import { Button } from "./button";
+import { CdsButton } from "./button";
 import { IconDirective } from "./icon";
 
 @Component({
 	selector: "app-welcome",
-	imports: [Button, IconDirective],
+	imports: [CdsButton, IconDirective],
 	template: `
 		<section class="overview-page__banner" aria-label="overview page banner">
 			<svg xmlns="http://www.w3.org/2000/svg" class="banner__background" viewBox="0 0 1530 823">
@@ -96,15 +96,15 @@ import { IconDirective } from "./icon";
 			<h2 class="banner__subtitle">An Angular implementation of the Carbon Design System</h2>
 
 			<div class="banner__links">
-				<a cdsButton="secondary" href="documentation/index.html" target="_blank">
+				<cds-button kind="secondary" href="documentation/index.html" target="_blank">
 					Documentation
-					<svg cdsIcon="document" size="16" class="cds--btn__icon"></svg>
-				</a>
+					<svg slot="icon" cdsIcon="document" size="16" class="cds--btn__icon"></svg>
+				</cds-button>
 				&nbsp;
-				<a cdsButton="primary" href="https://github.com/carbon-design-system/carbon-angular-starter" target="_blank">
+				<cds-button kind="primary" href="https://github.com/carbon-design-system/carbon-angular-starter" target="_blank">
 					Starter App
-					<svg cdsIcon="bee" size="16" class="cds--btn__icon"></svg>
-				</a>
+					<svg slot="icon" cdsIcon="bee" size="16" class="cds--btn__icon"></svg>
+				</cds-button>
 				&nbsp;
 				<a class="banner__netlify" href="https://www.netlify.com" target="_blank">
 					<img src="https://www.netlify.com/img/global/badges/netlify-color-accent.svg"/>
@@ -172,7 +172,7 @@ export default {
 	title: "Getting Started",
 	decorators: [
 		moduleMetadata({
-			imports: [Button, IconDirective, WelcomeStory]
+			imports: [CdsButton, IconDirective, WelcomeStory]
 		})
 	],
 	parameters: {

@@ -1,3 +1,4 @@
+import { DatePickerInputSkeleton } from "../datepicker-input";
 import { moduleMetadata, Meta } from "@storybook/angular";
 import { DatePickerModule, DatePicker } from "./";
 import { AILabelModule } from "../ai-label";
@@ -9,7 +10,7 @@ export default {
 	title: "Components/Date Picker",
 	decorators: [
 		moduleMetadata({
-			imports: [DatePickerModule, AILabelModule, ButtonModule, IconModule]
+			imports: [DatePickerModule, DatePickerInputSkeleton, AILabelModule, ButtonModule, IconModule]
 		})
 	],
 	args: {
@@ -214,10 +215,8 @@ Range.argTypes = {
 const SkeletonTemplate = (args) => ({
 	props: args,
 	template: `
-	<cds-date-picker
-		range="true"
-		skeleton="true">
-	</cds-date-picker>
+	<cds-date-picker-input-skeleton kind="from" />
+	<cds-date-picker-input-skeleton kind="to" />
 	`
 });
 export const Skeleton = SkeletonTemplate.bind({});

@@ -3,6 +3,7 @@ import { TestBed } from "@angular/core/testing";
 
 import { Accordion } from "./accordion.component";
 import { AccordionItem } from "./accordion-item.component";
+import { AccordionSkeleton } from "./accordion-skeleton.component";
 import { settle } from "../test-helpers/web-components";
 
 const rendered = (element: any) => element.updateComplete as Promise<boolean>;
@@ -15,15 +16,15 @@ const heading = (item: HTMLElement) => item.shadowRoot.querySelector<HTMLButtonE
 				[title]="title"
 				[context]="{ name: 'context' }"
 				[disabled]="disabled"
-				[skeleton]="skeleton"
 				[(expanded)]="expanded"
 				(selected)="onSelected($event)">
 				<p class="content">test-content</p>
 			</cds-accordion-item>
 		</cds-accordion>
+		<cds-accordion-skeleton [count]="2" />
 		<ng-template #titleTemplate let-name="name"><b class="title">Template {{name}}</b></ng-template>
 	`,
-	imports: [Accordion, AccordionItem]
+	imports: [Accordion, AccordionItem, AccordionSkeleton]
 })
 class AccordionTest {
 	@ViewChild("titleTemplate") titleTemplate: TemplateRef<any>;
@@ -31,7 +32,6 @@ class AccordionTest {
 	size = "md";
 	disabled = false;
 	accordionDisabled = false;
-	skeleton = false;
 	expanded = false;
 	onSelected(_: { id: string, expanded: boolean }) {}
 }
@@ -125,14 +125,11 @@ describe("Accordion", () => {
 		expect(item.title).toBe("");
 	});
 
-	it("should show skeleton text and not toggle while skeleton", async () => {
-		await update({ skeleton: true });
-		expect(item.querySelector("cds-skeleton-text[slot='title']")).toBeTruthy();
-		expect(item.querySelector(".content")).toBeNull();
-
-		heading(item).click();
-		await update();
-		expect(item.open).toBe(false);
+	it("should show the loading state with cds-accordion-skeleton", async () => {
+		const skeleton = fixture.nativeElement.querySelector("cds-accordion-skeleton");
+		await rendered(skeleton);
+		expect(skeleton.count).toBe(2);
+		expect(skeleton.shadowRoot.querySelectorAll(".cds--accordion__item").length).toBeGreaterThan(0);
 	});
 
 	it("should emit expandedChange from an item created dynamically", async () => {
@@ -163,7 +160,7 @@ describe("Accordion", () => {
 			<cds-accordion-item title="Unset">Content</cds-accordion-item>
 		</cds-accordion>
 	`,
-	imports: [Accordion, AccordionItem]
+	imports: [Accordion, AccordionItem, AccordionSkeleton]
 })
 class AccordionStateTest {}
 

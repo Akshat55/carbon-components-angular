@@ -4,19 +4,16 @@ import {
 	TableModel,
 	TableHeaderItem,
 	TableItem,
-	TableContainer,
 	Table
 } from "../../table";
 import { Dropdown, DropdownList } from "../../dropdown";
 import { StructuredList } from "../../structured-list";
 import {
-	ColumnDirective,
-	GridDirective,
-	GridService,
-	RowDirective
+	CdsColumn,
+	CdsGrid
 } from "../../grid";
 import { Radio, RadioGroup } from "../../radio";
-import { Button } from "../../button";
+import { CdsButton } from "../../button";
 import { Tag } from "../../tag/index";
 import { Checkbox } from "../../checkbox";
 import { Hamburger, Header } from "../../ui-shell";
@@ -25,15 +22,15 @@ import { FormsModule } from "@angular/forms";
 @Component({
 	selector: "app-sample-multi-categories",
 	template: `
-	<div cdsGrid>
-		<div cdsRow class="header">
+	<div>
+		<div class="header">
 			<cds-header name="Patterns">
 				<cds-header-menu-button></cds-header-menu-button>
 			</cds-header>
 		</div>
-		<div cdsRow>
-			<div cdsCol [columnNumbers]="{'lg': 2, 'md': 2, 'sm': 1}" class="multi-selection">
-				<button cdsButton (click)="resetFilters()" class="reset-button">Reset Filters</button>
+		<cds-grid>
+			<cds-column lg="2" md="2" sm="1" class="multi-selection">
+				<cds-button (click)="resetFilters()" class="reset-button">Reset Filters</cds-button>
 				<fieldset class="cds--fieldset">
 					<legend class="cds--label">Radio button label</legend>
 					<cds-radio-button-group
@@ -52,16 +49,16 @@ import { FormsModule } from "@angular/forms";
 					</cds-radio-button-group>
 				</fieldset>
 				<fieldset class="cds--fieldset">
-					<div cdsRow>
-						<div cdsCol [columnNumbers]="{'lg': 2, 'md': 2, 'sm': 1}">
+					<cds-grid>
+						<cds-column lg="2" md="2" sm="1">
 							<legend class="cds--label">Type</legend>
-						</div>
-						<div cdsCol [columnNumbers]="{'lg': 2, 'md': 2, 'sm': 1}">
+						</cds-column>
+						<cds-column lg="2" md="2" sm="1">
 							@if (checkBoxFilters.size > 0) {
 								<cds-dismissible-tag [text]="'' + checkBoxFilters.size" (close)="resetCheckboxList()" />
 							}
-						</div>
-					</div>
+						</cds-column>
+					</cds-grid>
 					@for (listItem of checkboxList; track listItem) {
 						<cds-checkbox
 							[hideLabel]="hideLabel"
@@ -72,19 +69,16 @@ import { FormsModule } from "@angular/forms";
 						</cds-checkbox>
 					}
 				</fieldset>
-			</div>
-			<div cdsCol [columnNumbers]="{'lg': 10, 'md': 10, 'sm': 3}" class="data-table">
-				<cds-table-container>
-					<cds-table
-						class="data-table"
-						[model]="model"
-						size="lg"
-						[showSelectionColumn]="false">
-						<ng-content></ng-content>
-					</cds-table>
-				</cds-table-container>
-			</div>
-		</div>
+			</cds-column>
+			<cds-column lg="10" md="10" sm="3" class="data-table">
+				<cds-table
+					class="data-table"
+					[model]="model"
+					size="lg"
+					[isSelectable]="false">
+				</cds-table>
+			</cds-column>
+		</cds-grid>
 	</div>
 	`,
 	styles: [`
@@ -102,18 +96,16 @@ import { FormsModule } from "@angular/forms";
 	`
 	],
 	imports: [
-		GridDirective,
-		RowDirective,
-		ColumnDirective,
+		CdsGrid,
+		CdsColumn,
 		Checkbox,
 		Tag,
 		Radio,
 		Header,
 		Hamburger,
-		TableContainer,
-		Table, RadioGroup,
-		Radio,
-		Button,
+		Table,
+		RadioGroup,
+		CdsButton,
 		FormsModule
 	],
 	standalone: true

@@ -1,6 +1,5 @@
 import { moduleMetadata, Meta } from "@storybook/angular";
 
-
 import { Toggle } from "./";
 
 export default {
@@ -17,7 +16,6 @@ const Template = (args) => ({
 	props: args,
 	template: `
 		<cds-toggle
-			[skeleton]="skeleton"
 			[label]="label"
 			[hideLabel]="hideLabel"
 			[onText]="onText"
@@ -37,7 +35,6 @@ Basic.args = {
 	label: "Toggle element label",
 	onText: "On",
 	offText: "Off",
-	skeleton: false,
 	size: "md"
 };
 Basic.argTypes = {

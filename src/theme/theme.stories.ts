@@ -1,11 +1,12 @@
 import { moduleMetadata, Meta } from "@storybook/angular";
 import { ThemeDirective } from "./";
+import { CdsLayer } from "../layer";
 
 export default {
 	title: "Components/Theme",
 	decorators: [
 		moduleMetadata({
-			imports: [ThemeDirective]
+			imports: [ThemeDirective, CdsLayer]
 		})
 	],
 	component: ThemeDirective
@@ -52,48 +53,52 @@ const LayeredTemplate = (args) => ({
 			<article class="theme-layer-example">
 				<header class="theme-layer-header">White theme</header>
 				<div class="theme-with-layer">Layer one</div>
-				<div cdsLayer>
+				<!-- The theme is the first layer; cds-layer starts at level 0, so set the next one. -->
+				<cds-layer [level]="1">
 					<div class="theme-with-layer">Layer two</div>
-					<div cdsLayer>
+					<cds-layer>
 						<div class="theme-with-layer">Layer three</div>
-					</div>
-				</div>
+					</cds-layer>
+				</cds-layer>
 			</article>
 		</div>
 		<div cdsTheme="g10">
 			<article class="theme-layer-example">
 				<header class="theme-layer-header">G10 theme</header>
 				<div class="theme-with-layer">Layer one</div>
-				<div cdsLayer>
+				<!-- The theme is the first layer; cds-layer starts at level 0, so set the next one. -->
+				<cds-layer [level]="1">
 					<div class="theme-with-layer">Layer two</div>
-					<div cdsLayer>
+					<cds-layer>
 						<div class="theme-with-layer">Layer three</div>
-					</div>
-				</div>
+					</cds-layer>
+				</cds-layer>
 			</article>
 		</div>
 		<div cdsTheme="g90">
 			<article class="theme-layer-example">
 				<header class="theme-layer-header">G90 theme</header>
 				<div class="theme-with-layer">Layer one</div>
-				<div cdsLayer>
+				<!-- The theme is the first layer; cds-layer starts at level 0, so set the next one. -->
+				<cds-layer [level]="1">
 					<div class="theme-with-layer">Layer two</div>
-					<div cdsLayer>
+					<cds-layer>
 						<div class="theme-with-layer">Layer three</div>
-					</div>
-				</div>
+					</cds-layer>
+				</cds-layer>
 			</article>
 		</div>
 		<div cdsTheme="g100">
 			<article class="theme-layer-example">
 				<header class="theme-layer-header">G100 theme</header>
 				<div class="theme-with-layer">Layer one</div>
-				<div cdsLayer>
+				<!-- The theme is the first layer; cds-layer starts at level 0, so set the next one. -->
+				<cds-layer [level]="1">
 					<div class="theme-with-layer">Layer two</div>
-					<div cdsLayer>
+					<cds-layer>
 						<div class="theme-with-layer">Layer three</div>
-					</div>
-				</div>
+					</cds-layer>
+				</cds-layer>
 			</article>
 		</div>
 	`,

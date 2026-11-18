@@ -56,10 +56,6 @@ export class TimePicker extends WebComponentValueAccessor<string> {
 	@Input() maxLength = 5;
 	@Input() size: "sm" | "md" | "lg" = "md";
 	/**
-	 * @deprecated use `<cds-time-picker-skeleton>` instead.
-	 */
-	@Input({ transform: booleanAttribute }) skeleton = false;
-	/**
 	 * @deprecated the web component follows the surrounding theme / layer.
 	 */
 	@Input() theme: "light" | "dark" = "dark";

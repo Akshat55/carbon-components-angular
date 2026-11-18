@@ -1,8 +1,8 @@
 import { FormsModule, ReactiveFormsModule } from "@angular/forms";
 import { moduleMetadata, Meta } from "@storybook/angular";
-import { FileUploader } from "./";
+import { FileUploader, FileUploaderSkeleton } from "./";
 import { Notification } from "../notification";
-import { Button } from "../button";
+import { CdsButton } from "../button";
 import {
 	CustomFileIconsModule,
 	DragAndDropStory,
@@ -19,14 +19,13 @@ export default {
 		moduleMetadata({
 			imports: [
 				FileUploader,
+				FileUploaderSkeleton,
 				FormsModule,
 				ReactiveFormsModule,
 				Notification,
-				Button,
+				CdsButton,
 				CustomFileIconsModule,
-				FormsModule,
 				IconDirective,
-				ReactiveFormsModule,
 				FileUploaderStory,
 				FileUploaderWithCustomFileStory,
 				NgModelFileUploaderStory,
@@ -206,12 +205,7 @@ NgModel.args = {
 const SkeletonTemplate = (args) => ({
 	props: args,
 	template: `
-		<!--
-		app-* components are for demo purposes only.
-		You can create your own implementation by using the component source found at:
-		https://github.com/IBM/carbon-components-angular/tree/master/src/file-uploader/stories/uploader.component.ts
-		-->
-		<app-file-uploader skeleton="true"></app-file-uploader>
+		<cds-file-uploader-skeleton />
 	`
 });
 export const Skeleton = SkeletonTemplate.bind({});

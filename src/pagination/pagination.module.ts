@@ -6,17 +6,13 @@ import { Pagination } from "./pagination.component";
 import { I18nModule } from "carbon-components-angular/i18n";
 import { ExperimentalModule } from "carbon-components-angular/experimental";
 import { PaginationNav } from "./pagination-nav/pagination-nav.component";
-import { PaginationNavItem } from "./pagination-nav/pagination-item.component";
-import { PaginationOverflow } from "./pagination-nav/pagination-overflow.component";
 import { IconDirective } from "carbon-components-angular/icon";
 
 
 @NgModule({
 	exports: [
 		Pagination,
-		PaginationNav,
-		PaginationNavItem,
-		PaginationOverflow
+		PaginationNav
 	],
 	imports: [
 		CommonModule,
@@ -25,9 +21,7 @@ import { IconDirective } from "carbon-components-angular/icon";
 		ExperimentalModule,
 		IconDirective,
 		Pagination,
-		PaginationNav,
-		PaginationNavItem,
-		PaginationOverflow
+		PaginationNav
 	]
 })
 export class PaginationModule {}

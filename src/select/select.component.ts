@@ -85,10 +85,6 @@ export class Select extends WebComponentValueAccessor {
 	 * @deprecated the web component follows the surrounding theme / layer.
 	 */
 	@Input() theme: "light" | "dark" = "dark";
-	/**
-	 * @deprecated use `<cds-select-skeleton>` instead.
-	 */
-	@Input({ transform: booleanAttribute }) skeleton = false;
 
 	@Output() valueChange = new EventEmitter();
 

@@ -155,84 +155,13 @@ export class TableHeaderItem {
 	template: TemplateRef<any>;
 
 	/**
-	 * The label for the sort button
-	 */
-	ariaSortLabel: string;
-
-	/**
-	 * A callback function to format the sort label. Will be heavily called.
-	 */
-	formatSortLabel: (label: string, staticLabel?: string) => string;
-
-	/**
-	 * Used as a template for popover filter.
+	 * Data your `filter()` reads, e.g. the text of a search field: `filterData.data`.
 	 *
-	 * `let-popover="popover"` will give you access to popover component and allow you to
-	 * manipulate it if needed.
-	 *
-	 * `let-filter="filter"` will give you access to the "filter". The main takeaway is
-	 * store the data you need to `filter.data`. You will be able to access it as
-	 * `this.filterData.data` from your `filter()` function when you extend `TableHeaderItem`
-	 *
-	 * Example:
-	 * ```html
-	 * <ng-template #filter let-popover="popover">
-	 * 	<cds-label class="first-label">
-	 * 		Value
-	 * 		<input type="text" [(ngModel)]="filter1" class="input-field">
-	 * 	</cds-label>
-	 * </ng-template>
-	 *
-	 * <ng-template #filterFooter let-popover="popover" let-filter="data">
-	 * 	<button class="btn--primary" (click)="filter.data = filter1; popover.onClose()">Apply</button>
-	 * 	<button class="btn--secondary" (click)="popover.onClose()">Cancel</button>
-	 * </ng-template>
-	 * ```
-	 *
-	 * Set the template with, for example:
-	 * ```typescript
-	 * new FilterableHeaderItem({
-	 * 	filterTemplate: this.filter,
-	 *	filterFooter: this.filterFooter
-	 * })
-	 * ```
-	 *
-	 * ```typescript
-	 * class FilterableHeaderItem extends TableHeaderItem {
-	 * 	// custom filter function
-	 * 	filter(item: TableItem): boolean {
-	 * 		if (typeof item.data === "string" && item.data.indexOf(this.filterData.data) >= 0) {
-	 * 			this.filterCount = 1;
-	 * 			return false;
-	 * 		}
-	 * 		this.filterCount = 0;
-	 * 		return true;
-	 * 	}
-	 * }
-	 * ```
-	 */
-	filterTemplate: TemplateRef<any>;
-
-	/**
-	 * Used along with `filterTemplate` to construct the filter popover
-	 */
-	filterFooter: TemplateRef<any>;
-
-	/**
-	 * This is where you store your data when applying filter.
-	 *
-	 * It is the actual object you have access to with `let-filter="data"` in your template.
-	 *
-	 * Make sure to store data in `filter.data` in your template, and you will have it
-	 * available in `filterData.data` in your extension of `TableHeaderItem`.
-	 *
-	 * Because angular and object references.
+	 * Rows for which `filter()` returns `true` aren't rendered.
 	 */
 	filterData: any;
 
 	sortDirection: SortType = "NONE";
-
-
 
 	private _title: string;
 

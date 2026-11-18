@@ -5,12 +5,10 @@ import {
 	OnInit,
 	Input
 } from "@angular/core";
-import { FormsModule } from "@angular/forms";
 import { TableModel } from "../table-model.class";
 import { TableHeaderItem } from "../table-header-item.class";
 import { TableItem } from "../table-item.class";
 import { Table } from "../table.component";
-import { Label } from "../../input";
 import { Pagination } from "../../pagination";
 
 @Component({
@@ -22,37 +20,25 @@ import { Pagination } from "../../pagination";
 		<ng-template #filterableHeaderTemplate let-data="data">
 			<i><a [attr.href]="data.link">{{data.name}}</a></i>
 		</ng-template>
-		<ng-template #filter let-popover="popover" let-filter="data">
-			<cds-label class="first-label">
-				Value
-				<input type="text" [(ngModel)]="filter1" class="input-field">
-				<button class="btn--primary" (click)="filter.data = filter1; popover.doClose()">Apply</button>
-				<button class="btn--secondary" (click)="popover.doClose()">Cancel</button>
-			</cds-label>
-		</ng-template>
-
 		<cds-table
-			[sortable]="sortable"
-			[skeleton]="skeleton"
-			[showSelectionColumn]="showSelectionColumn"
+			[isSortable]="isSortable"
+			[isSelectable]="isSelectable"
 			[model]="model"
 			(rowClick)="onRowClick($event)"
-			(sort)="paginationSort($event)"
-			[stickyHeader]="stickyHeader"
-			[skeleton]="skeleton">
+			(sort)="customSort($event)">
+			<ng-content />
 		</cds-table>
 		<cds-pagination [model]="model" (selectPage)="selectPage($event)"></cds-pagination>
 	`,
 	standalone: true,
-	imports: [Table, Label, Pagination, FormsModule]
+	imports: [Table, Pagination]
 })
 export class PaginationTableStory implements OnInit {
 	@Input() model = new TableModel();
 
-	@Input() sortable = true;
-	@Input() skeleton = false;
+	@Input() isSortable = true;
 
-	@Input() showSelectionColumn = true;
+	@Input() isSelectable = true;
 
 	@Input() get totalDataLength() {
 		return this.model.totalDataLength;
@@ -61,9 +47,6 @@ export class PaginationTableStory implements OnInit {
 		this.model.totalDataLength = value;
 	}
 
-	@Input() stickyHeader = false;
-
-	@ViewChild("filter") filter: TemplateRef<any>;
 	@ViewChild("filterableHeaderTemplate")
 	protected filterableHeaderTemplate: TemplateRef<any>;
 	@ViewChild("paginationTableItemTemplate")

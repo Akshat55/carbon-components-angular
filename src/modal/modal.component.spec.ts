@@ -105,9 +105,9 @@ describe("Modal", () => {
 	template: `
 		<cds-modal [open]="true">
 			<cds-modal-header [showCloseButton]="showCloseButton" (closeSelect)="closed = true">
-				<h3 cdsModalHeaderHeading>{{heading}}</h3>
+				<cds-modal-heading>{{heading}}</cds-modal-heading>
 			</cds-modal-header>
-			<div cdsModalContent>body</div>
+			<cds-modal-body>body</cds-modal-body>
 			<cds-modal-footer>
 				<cds-button kind="primary">Save</cds-button>
 			</cds-modal-footer>
@@ -146,8 +146,8 @@ describe("ModalHeader and ModalFooter", () => {
 	});
 
 	it("should render the projected heading, content and footer", () => {
-		expect(fixture.nativeElement.querySelector(".cds--modal-header__heading").textContent).toContain("Modal heading");
-		expect(fixture.nativeElement.querySelector(".cds--modal-content").textContent).toContain("body");
+		expect(fixture.nativeElement.querySelector("cds-modal-heading").textContent).toContain("Modal heading");
+		expect(fixture.nativeElement.querySelector("cds-modal-body").textContent).toContain("body");
 		expect(fixture.nativeElement.querySelector("cds-modal-footer").textContent).toContain("Save");
 	});
 

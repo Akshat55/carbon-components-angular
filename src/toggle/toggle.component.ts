@@ -72,10 +72,6 @@ export class Toggle extends WebComponentValueAccessor<boolean> {
 	@Input({ transform: booleanAttribute }) hideLabel = false;
 	@Input() ariaLabel: string;
 	@Input() id = `toggle-${Toggle.toggleCount++}`;
-	/**
-	 * @deprecated use `<cds-toggle-skeleton>` instead.
-	 */
-	@Input({ transform: booleanAttribute }) skeleton = false;
 
 	@Output() checkedChange = new EventEmitter<boolean>();
 

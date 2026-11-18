@@ -27,7 +27,7 @@ const Template = (args) => ({
 	template: `
 		<cds-expandable-tile>
 			<span cdsAboveFold style="height: 200px">Above the fold content here</span>
-			<span cdsBelowFold style="height: 400px">Below the fold content here</span>
+			<span style="height: 400px">Below the fold content here</span>
 		</cds-expandable-tile>
 	`
 });
@@ -41,7 +41,7 @@ const InteractiveTemplate = (args) => ({
 				Above the fold content
 				<button ibmButton>Click me!</button>
 			</span>
-			<span cdsBelowFold style="height: 400px">
+			<span style="height: 400px">
 				Below the fold content here
 				<button ibmButton>No me!</button>
 			</span>
@@ -57,30 +57,30 @@ const LayerTemplate = (args) => ({
 			<span cdsAboveFold style="height: 200px">
 				First Layer, above the fold content here
 			</span>
-			<span cdsBelowFold style="height: 400px">
+			<span style="height: 400px">
 				First Layer, below the fold content here
 			</span>
 		</cds-expandable-tile>
-		<div cdsLayer>
+		<cds-layer>
 			<cds-expandable-tile>
 				<span cdsAboveFold style="height: 200px">
 					Second layer, above the fold content here
 				</span>
-				<span cdsBelowFold style="height: 400px">
+				<span style="height: 400px">
 					Second layer, below the fold content here
 				</span>
 			</cds-expandable-tile>
-			<div cdsLayer>
+			<cds-layer>
 				<cds-expandable-tile>
 					<span cdsAboveFold style="height: 200px">
 						Third layer, above the fold content here
 					</span>
-					<span cdsBelowFold style="height: 400px">
+					<span style="height: 400px">
 						Third layer, below the fold content here
 					</span>
 				</cds-expandable-tile>
-			</div>
-		</div>
+			</cds-layer>
+		</cds-layer>
 	`
 });
 export const WithLayers = LayerTemplate.bind({});
@@ -94,7 +94,7 @@ export const withAILabel = () => ({
 	template: `
 		<cds-expandable-tile [decorator]="decoratorTpl" [interactive]="true">
 			<div cdsAboveFold style="height: 200px">Above the fold</div>
-			<div cdsBelowFold style="height: 200px">Below the fold</div>
+			<div style="height: 200px">Below the fold</div>
 		</cds-expandable-tile>
 		<ng-template #decoratorTpl>
 			<cds-ai-label

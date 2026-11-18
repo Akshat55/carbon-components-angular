@@ -13,12 +13,10 @@ import { Table } from "../table.component";
 	selector: "app-no-data-table",
 	template: `
 		<cds-table
-			[skeleton]="skeleton"
 			[model]="model"
 			[size]="size"
-			[showSelectionColumn]="showSelectionColumn"
-			[striped]="striped"
-			[isDataGrid]="isDataGrid">
+			[isSelectable]="isSelectable"
+			[useZebraStyles]="useZebraStyles">
 			<ng-content />
 		</cds-table>
 	`,
@@ -28,11 +26,9 @@ import { Table } from "../table.component";
 export class TableNoDataStory implements OnInit, OnChanges {
 	@Input() model = new TableModel();
 	@Input() size = "md";
-	@Input() showSelectionColumn = true;
-	@Input() striped = true;
-	@Input() sortable = true;
-	@Input() isDataGrid = false;
-	@Input() skeleton = false;
+	@Input() isSelectable = true;
+	@Input() useZebraStyles = true;
+	@Input() isSortable = true;
 
 	ngOnInit() {
 		this.model.header = [
@@ -47,9 +43,9 @@ export class TableNoDataStory implements OnInit, OnChanges {
 	}
 
 	ngOnChanges(changes: SimpleChanges): void {
-		if (changes.sortable) {
+		if (changes.isSortable) {
 			for (let column of this.model.header) {
-				column.sortable = changes.sortable.currentValue;
+				column.sortable = changes.isSortable.currentValue;
 			}
 		}
 	}

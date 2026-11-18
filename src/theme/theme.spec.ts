@@ -3,7 +3,7 @@ import { Component } from "@angular/core";
 import { By } from "@angular/platform-browser";
 
 import { ThemeDirective } from "./theme.directive";
-import { LayerDirective } from "../layer";
+import { CdsLayer } from "../layer";
 
 @Component({
 	template: `<div cdsTheme></div>`,
@@ -36,17 +36,15 @@ describe("Theme", () => {
 		expect(directiveEl.nativeElement.classList.contains("cds--layer-one")).toBeTruthy();
 	});
 
-	it("should reset nested layer level", async () => {
+	it("should start nested cds-layers again from the first level", async () => {
 		TestBed.overrideComponent(TestThemeComponent, {
 			set: {
 				template: `
-					<div cdsLayer>
-						<div cdsTheme>
-							<div cdsLayer id="nested-layer"></div>
-						</div>
+					<div cdsTheme>
+						<cds-layer id="nested-layer"></cds-layer>
 					</div>
 				`,
-				imports: [LayerDirective, ThemeDirective]
+				imports: [CdsLayer, ThemeDirective]
 			}
 		});
 
@@ -56,7 +54,9 @@ describe("Theme", () => {
 		fixture.detectChanges();
 
 		const directiveEl = fixture.debugElement.query(By.directive(ThemeDirective)).nativeElement;
-		expect(directiveEl.querySelector("div").classList.contains("cds--layer-two")).toBeTruthy();
+		const layer = directiveEl.querySelector("cds-layer");
+		await layer.updateComplete;
+		expect(layer.level).toBe(0);
 	});
 
 	/**

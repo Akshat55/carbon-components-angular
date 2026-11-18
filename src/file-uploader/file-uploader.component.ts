@@ -113,10 +113,6 @@ export class FileUploader extends WebComponentValueAccessor<Set<FileItem>> {
 	 * Template for the file actions, with the `FileItem` as `$implicit`.
 	 */
 	@Input() fileActionsTpl: TemplateRef<unknown>;
-	/**
-	 * @deprecated use `<cds-file-uploader-skeleton>` instead.
-	 */
-	@Input({ transform: booleanAttribute }) skeleton = false;
 
 	@Output() filesChange = new EventEmitter<any>();
 

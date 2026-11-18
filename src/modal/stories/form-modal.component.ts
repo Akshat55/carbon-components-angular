@@ -2,14 +2,13 @@ import { Component } from "@angular/core";
 import {
 	BaseModal,
 	Modal,
-	ModalContent,
-	ModalContentText,
+	ModalBody,
 	ModalFooter,
 	ModalHeader,
-	ModalHeaderHeading,
-	ModalHeaderLabel
+	ModalHeading,
+	ModalLabel
 } from "../";
-import { Label, TextInput } from "../../input";
+import { CdsTextInput } from "../../input";
 
 @Component({
 	selector: "app-form-modal",
@@ -19,24 +18,18 @@ import { Label, TextInput } from "../../input";
 			open="true"
 			(overlaySelected)="closeModal()">
 			<cds-modal-header (closeSelect)="closeModal()">
-				<h2 cdsModalHeaderLabel>Label</h2>
-				<h3 cdsModalHeaderHeading>Modal</h3>
+				<cds-modal-label>Label</cds-modal-label>
+				<cds-modal-heading>Modal</cds-modal-heading>
 			</cds-modal-header>
-			<section cdsModalContent hasForm="true">
-				<h1 cdsModalContentText class="cds--modal-content__regular-content modal-text">
+			<cds-modal-body>
+				<h1 class="cds--modal-content__regular-content modal-text">
 					Lorem ipsum dolor sit amet, consectetur adipiscing elit. Duis finibus erat vel aliquam sodales.
 					Phasellus porta velit vel libero pulvinar, sit amet semper purus volutpat.
 				</h1>
 				<div class="cds--text-input__field-wrapper">
-					<cds-label helperText="Helper text">
-						{{label}}
-						<input
-							cdsText
-							placeholder="Placeholder"
-							[autocomplete]="false">
-					</cds-label>
+					<cds-text-input [label]="label" helperText="Helper text" placeholder="Placeholder" autocomplete="off" />
 				</div>
-			</section>
+			</cds-modal-body>
 			<cds-modal-footer>
 				<button class="cds--btn cds--btn--secondary" (click)="closeModal()">Show secondary modal</button>
 				<button class="cds--btn cds--btn--primary" modal-primary-focus (click)="closeModal()">Close</button>
@@ -51,13 +44,11 @@ import { Label, TextInput } from "../../input";
 	imports: [
 		Modal,
 		ModalHeader,
-		ModalHeaderLabel,
-		ModalHeaderHeading,
+		ModalLabel,
+		ModalHeading,
 		ModalFooter,
-		Label,
-		TextInput,
-		ModalContent,
-		ModalContentText
+		CdsTextInput,
+		ModalBody
 	],
 	standalone: true
 })

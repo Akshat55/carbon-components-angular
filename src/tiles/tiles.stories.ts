@@ -1,5 +1,5 @@
 import { moduleMetadata, Meta } from "@storybook/angular";
-import { LayerDirective } from "../layer";
+import { CdsLayer } from "../layer";
 import { SkeletonPlaceholder, SkeletonText } from "../skeleton";
 import { Tile, TileGroup } from "./";
 import { LayerModule } from "../layer";
@@ -16,7 +16,7 @@ export default {
 			imports: [
 				Tile,
 				TileGroup,
-				LayerDirective,
+				CdsLayer,
 				SkeletonPlaceholder,
 				SkeletonText,
 				LayerModule,
@@ -46,14 +46,14 @@ const LayerTemplate = (args) => ({
 		<cds-tile>
 			First layer
 		</cds-tile>
-		<div cdsLayer>
+		<cds-layer>
 			<cds-tile>
 				Second layer
 			</cds-tile>
-			<div cdsLayer>
+			<cds-layer>
 				<cds-tile>Third layer</cds-tile>
-			</div>
-		</div>
+			</cds-layer>
+		</cds-layer>
 	`
 });
 export const WithLayers = LayerTemplate.bind({});

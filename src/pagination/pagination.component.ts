@@ -85,10 +85,6 @@ export class Pagination {
 	 * @deprecated the web component works out when the buttons are disabled.
 	 */
 	@Input({ transform: booleanAttribute }) forwardDisabled = false;
-	/**
-	 * @deprecated use `<cds-pagination-skeleton>` instead.
-	 */
-	@Input({ transform: booleanAttribute }) skeleton = false;
 
 	/**
 	 * Emits the page number (starting at 1) the user picked.

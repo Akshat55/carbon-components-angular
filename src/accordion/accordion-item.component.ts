@@ -12,7 +12,6 @@ import {
 	inject
 } from "@angular/core";
 import "@carbon/web-components/es/components/accordion/index.js";
-import "@carbon/web-components/es/components/skeleton-text/index.js";
 import { observeAttributes, TemplateSlot } from "carbon-components-angular/utils";
 
 /**
@@ -23,20 +22,14 @@ import { observeAttributes, TemplateSlot } from "carbon-components-angular/utils
 @Component({
 	selector: "cds-accordion-item",
 	template: `
-		@if (skeleton) {
-			<cds-skeleton-text slot="title" />
-			<cds-skeleton-text paragraph lineCount="3" />
-		} @else {
-			<ng-container cdsSlot="title" [cdsSlotTemplate]="isTemplate(title) ? title : null" [cdsSlotContext]="context" />
-			<ng-content />
-		}
+		<ng-container cdsSlot="title" [cdsSlotTemplate]="isTemplate(title) ? title : null" [cdsSlotContext]="context" />
+		<ng-content />
 	`,
 	host: {
 		"[id]": "id",
-		"[title]": "isTemplate(title) || skeleton ? '' : (title ?? element.title)",
+		"[title]": "isTemplate(title) ? '' : (title ?? element.title)",
 		"[open]": "expanded ?? element.open",
-		"[disabled]": "disabled ?? element.disabled",
-		"(cds-accordion-item-beingtoggled)": "onBeforeToggle($event)"
+		"[disabled]": "disabled ?? element.disabled"
 	},
 	changeDetection: ChangeDetectionStrategy.OnPush,
 	imports: [TemplateSlot],
@@ -51,10 +44,6 @@ export class AccordionItem {
 	@Input() title: string | TemplateRef<any>;
 	@Input() context: object | null = null;
 	@Input() id = `accordion-item-${AccordionItem.accordionItemCount++}`;
-	/**
-	 * Shows skeleton text instead of the title and content.
-	 */
-	@Input({ transform: booleanAttribute }) skeleton = false;
 	/**
 	 * Supports two-way binding with `expandedChange`. Unset, the web component keeps its own state.
 	 */
@@ -92,14 +81,8 @@ export class AccordionItem {
 	 */
 	toggleExpanded() {
 		// The element is also disabled when its `cds-accordion` is.
-		if (!this.skeleton && !this.element.disabled) {
+		if (!this.element.disabled) {
 			this.element.open = !this.element.open;
-		}
-	}
-
-	onBeforeToggle(event: Event) {
-		if (this.skeleton) {
-			event.preventDefault();
 		}
 	}
 

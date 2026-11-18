@@ -3,13 +3,12 @@ import { moduleMetadata, Meta } from "@storybook/angular";
 import {
 	BaseModal,
 	Modal,
-	ModalContent,
+	ModalBody,
 	ModalFooter,
 	ModalHeader
 } from "../../modal";
 import {
 	Table,
-	TableContainer,
 	TableHeaderItem,
 	TableItem,
 	TableModel,
@@ -17,9 +16,9 @@ import {
 	TableToolbarContent,
 	TableToolbarSearch
 } from "../../table/index";
-import { Button } from "../../button";
+import { CdsButton } from "../../button";
 import { ProgressIndicator } from "../../progress-indicator";
-import { Link } from "../../link";
+import { CdsLink } from "../../link";
 
 @Component({
 	selector: "app-modal-with-table",
@@ -29,9 +28,9 @@ import { Link } from "../../link";
 			[open]="true"
 			(overlaySelected)="closeModal()">
 			<cds-modal-header>
-				<h3 cdsModalHeaderHeading>Create workspace</h3>
+				<cds-modal-heading>Create workspace</cds-modal-heading>
 			</cds-modal-header>
-			<section cdsModalContent [hasForm]="true">
+			<cds-modal-body>
 				<div class="progress-wrapper">
 					<cds-progress-indicator
 						[steps]="steps"
@@ -39,35 +38,26 @@ import { Link } from "../../link";
 						spacing="equal">
 					</cds-progress-indicator>
 				</div>
-				<cds-table-container>
-					<cds-table-toolbar size="md">
+				<cds-table
+					[model]="model"
+					size="sm"
+					[isSelectable]="true"
+					[isSortable]="false"
+					[useZebraStyles]="false">
+					<cds-table-toolbar slot="toolbar">
 						<cds-table-toolbar-content>
 							<cds-table-toolbar-search
-								[expandable]="true"
 								placeholder="Search node ID"
-								(valueChange)="onSearch($event)">
-							</cds-table-toolbar-search>
-							<button cdsButton="ghost" class="toolbar-action" size="sm">
-								<svg size="16" class="cds--toolbar-action__icon" cdsIcon="Data_2"></svg>
-							</button>
+								(valueChange)="onSearch($event)" />
 						</cds-table-toolbar-content>
 					</cds-table-toolbar>
-					<cds-table
-						[model]="model"
-						size="sh"
-						[showSelectionColumn]="true"
-						[sortable]="false"
-						[striped]="false"
-						[isDataGrid]="false">
-						<ng-content></ng-content>
-					</cds-table>
-				</cds-table-container>
-			</section>
+				</cds-table>
+			</cds-modal-body>
 			<cds-modal-footer>
-				<a href="#" cdsLink [disabled]="disabled" [inline]="inline">Cancel</a>
+				<cds-link href="#" [disabled]="disabled" [inline]="inline">Cancel</cds-link>
 				<div class="buttons-wrapper">
-					<button class="modal-button" cdsButton="secondary">Previous</button>
-					<button class="modal-button" cdsButton="primary">Next</button>
+					<cds-button class="modal-button" kind="secondary">Previous</cds-button>
+					<cds-button class="modal-button" kind="primary">Next</cds-button>
 				</div>
 			</cds-modal-footer>
 		</cds-modal>
@@ -106,16 +96,15 @@ import { Link } from "../../link";
 	imports: [
 		Modal,
 		ModalHeader,
-		ModalContent,
+		ModalBody,
 		ModalFooter,
 		Table,
-		TableContainer,
 		TableToolbar,
 		TableToolbarContent,
 		TableToolbarSearch,
-		Button,
+		CdsButton,
 		ProgressIndicator,
-		Link
+		CdsLink
 	],
 	standalone: true
 })

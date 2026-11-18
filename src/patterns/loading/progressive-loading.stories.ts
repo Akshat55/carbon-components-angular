@@ -4,81 +4,88 @@ import {
 	TableModel,
 	TableHeaderItem,
 	TableItem,
-	Table,
-	TableContainer
+	TableSkeleton,
+	Table
 } from "../../table";
-import { Dropdown, DropdownList } from "../../dropdown";
+import { Dropdown, DropdownList, DropdownSkeleton } from "../../dropdown";
 import {
-	ColumnDirective,
-	GridDirective,
-	GridService,
-	RowDirective
+	CdsColumn,
+	CdsGrid
 } from "../../grid";
-import { Button } from "../../button";
+import { CdsButton } from "../../button";
 import { Checkbox } from "../../checkbox";
 import { Hamburger, Header } from "../../ui-shell";
 
 @Component({
 	selector: "app-sample-progressive-loading",
 	template: `
-	<div cdsGrid>
-		<div cdsRow class="header">
+	<div>
+		<div class="header">
 			<cds-header name="Patterns">
 				<cds-header-menu-button></cds-header-menu-button>
 			</cds-header>
 		</div>
-		<div cdsRow class="actions">
-			<div cdsCol [columnNumbers]="{'lg': 3, 'md': 2, 'sm': 1}">
-				<cds-dropdown
-					label="Example 1"
-					[skeleton]="skeletonStateDropdown"
-					type="multi"
-					[placeholder]="placeholder"
-					inline="true">
-					<cds-dropdown-list [items]="items"></cds-dropdown-list>
-				</cds-dropdown>
-			</div>
+		<cds-grid class="actions">
+			<cds-column lg="3" md="2" sm="1">
+				@if (skeletonStateDropdown) {
+					<cds-dropdown-skeleton />
+				} @else {
+					<cds-dropdown
+						label="Example 1"
+						type="multi"
+						[placeholder]="placeholder"
+						inline="true">
+						<cds-dropdown-list [items]="items"></cds-dropdown-list>
+					</cds-dropdown>
+				}
+			</cds-column>
 
-			<div cdsCol [columnNumbers]="{'lg': 3, 'md': 2, 'sm': 1}">
-				<cds-dropdown
-					label="Example 2"
-					[skeleton]="skeletonStateDropdown"
-					type="multi"
-					[placeholder]="placeholder"
-					inline="true">
-					<cds-dropdown-list [items]="items"></cds-dropdown-list>
-				</cds-dropdown>
-			</div>
+			<cds-column lg="3" md="2" sm="1">
+				@if (skeletonStateDropdown) {
+					<cds-dropdown-skeleton />
+				} @else {
+					<cds-dropdown
+						label="Example 2"
+						type="multi"
+						[placeholder]="placeholder"
+						inline="true">
+						<cds-dropdown-list [items]="items"></cds-dropdown-list>
+					</cds-dropdown>
+				}
+			</cds-column>
 
-			<div cdsCol [columnNumbers]="{'lg': 3, 'md': 2, 'sm': 1}">
-				<cds-dropdown
-					label="Example 3"
-					[skeleton]="skeletonStateDropdown"
-					type="multi"
-					[placeholder]="placeholder"
-					inline="true">
-					<cds-dropdown-list [items]="items"></cds-dropdown-list>
-				</cds-dropdown>
-			</div>
+			<cds-column lg="3" md="2" sm="1">
+				@if (skeletonStateDropdown) {
+					<cds-dropdown-skeleton />
+				} @else {
+					<cds-dropdown
+						label="Example 3"
+						type="multi"
+						[placeholder]="placeholder"
+						inline="true">
+						<cds-dropdown-list [items]="items"></cds-dropdown-list>
+					</cds-dropdown>
+				}
+			</cds-column>
 
-			<div cdsCol [columnNumbers]="{'lg': 3, 'md': 2, 'sm': 1}">
-				<button cdsButton (click)="loadScreen(); uninitializeData()">Show Loading</button>
-			</div>
-		</div>
-		<div cdsRow>
-			<div cdsCol [columnNumbers]="{'lg': 12, 'md': 12, 'sm': 12}">
-				<cds-table-container>
+			<cds-column lg="3" md="2" sm="1">
+				<cds-button (click)="loadScreen(); uninitializeData()">Show Loading</cds-button>
+			</cds-column>
+		</cds-grid>
+		<cds-grid>
+			<cds-column lg="12" md="12" sm="12">
+				@if (skeletonStateTable) {
+					<cds-table-skeleton [columnCount]="2" [rowCount]="dataset.length || 5" [showHeader]="false" [showToolbar]="false" />
+				} @else {
 					<cds-table
 						class="data-table"
-						[skeleton]="skeletonStateTable"
 						[model]="model"
 						size="lg"
-						[showSelectionColumn]="false">
-						<ng-content></ng-content>
+						[isSelectable]="false">
 					</cds-table>
-				</cds-table-container>
-			</div>
-		</div>
+				}
+			</cds-column>
+		</cds-grid>
 	</div>
 	`,
 	styles: [`
@@ -97,15 +104,15 @@ import { Hamburger, Header } from "../../ui-shell";
 	],
 	standalone: true,
 	imports: [
-		GridDirective,
-		RowDirective,
-		ColumnDirective,
+		CdsGrid,
+		CdsColumn,
 		Checkbox,
 		Dropdown,
 		DropdownList,
+		DropdownSkeleton,
 		Table,
-		TableContainer,
-		Button,
+		TableSkeleton,
+		CdsButton,
 		Header,
 		Hamburger
 	]

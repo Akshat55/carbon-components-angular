@@ -1,11 +1,11 @@
 import { moduleMetadata, Meta } from "@storybook/angular";
-import { List } from "./";
+import { CdsListItem, CdsOrderedList, CdsUnorderedList } from "./";
 
 export default {
 	title: "Components/List",
 	decorators: [
 		moduleMetadata({
-			imports: [List]
+			imports: [CdsOrderedList, CdsUnorderedList, CdsListItem]
 		})
 	],
 	parameters: {
@@ -14,24 +14,24 @@ export default {
 	args: {
 		isExpressive: false
 	},
-	component: List
+	component: CdsUnorderedList
 } as Meta;
 
 const Template = (args) => ({
 	props: args,
 	template: `
 		<p>Ordered List</p>
-		<ol cdsList [isExpressive]="isExpressive">
-			<li cdsListItem>One</li>
-			<li cdsListItem>Two</li>
-			<li cdsListItem>Three</li>
-		</ol>
+		<cds-ordered-list [isExpressive]="isExpressive">
+			<cds-list-item>One</cds-list-item>
+			<cds-list-item>Two</cds-list-item>
+			<cds-list-item>Three</cds-list-item>
+		</cds-ordered-list>
 		<p>Unordered List</p>
-		<ul cdsList [isExpressive]="isExpressive">
-			<li cdsListItem>One</li>
-			<li cdsListItem>Two</li>
-			<li cdsListItem>Three</li>
-		</ul>
+		<cds-unordered-list [isExpressive]="isExpressive">
+			<cds-list-item>One</cds-list-item>
+			<cds-list-item>Two</cds-list-item>
+			<cds-list-item>Three</cds-list-item>
+		</cds-unordered-list>
 	`
 });
 export const Basic = Template.bind({});
@@ -40,31 +40,31 @@ const NestingTemplate = (args) => ({
 	props: args,
 	template: `
 		<p>Ordered List</p>
-		<ol cdsList [isExpressive]="isExpressive">
-			<li cdsListItem>
+		<cds-ordered-list [isExpressive]="isExpressive">
+			<cds-list-item>
 				One
-				<ol cdsList>
-					<li cdsListItem>Nested one</li>
-					<li cdsListItem>Nested two</li>
-					<li cdsListItem>Nested three</li>
-				</ol>
-			</li>
-			<li cdsListItem>Two</li>
-			<li cdsListItem>Three</li>
-		</ol>
+				<cds-ordered-list nested>
+					<cds-list-item>Nested one</cds-list-item>
+					<cds-list-item>Nested two</cds-list-item>
+					<cds-list-item>Nested three</cds-list-item>
+				</cds-ordered-list>
+			</cds-list-item>
+			<cds-list-item>Two</cds-list-item>
+			<cds-list-item>Three</cds-list-item>
+		</cds-ordered-list>
 		<p>Unordered List</p>
-		<ul cdsList [isExpressive]="isExpressive">
-			<li cdsListItem>
+		<cds-unordered-list [isExpressive]="isExpressive">
+			<cds-list-item>
 				One
-				<ul cdsList [isExpressive]="isExpressive">
-					<li cdsListItem>Nested one</li>
-					<li cdsListItem>Nested two</li>
-					<li cdsListItem>Nested three</li>
-				</ul>
-			</li>
-			<li cdsListItem>Two</li>
-			<li cdsListItem>Three</li>
-		</ul>
+				<cds-unordered-list nested [isExpressive]="isExpressive">
+					<cds-list-item>Nested one</cds-list-item>
+					<cds-list-item>Nested two</cds-list-item>
+					<cds-list-item>Nested three</cds-list-item>
+				</cds-unordered-list>
+			</cds-list-item>
+			<cds-list-item>Two</cds-list-item>
+			<cds-list-item>Three</cds-list-item>
+		</cds-unordered-list>
 	`
 });
 export const Nesting = NestingTemplate.bind({});

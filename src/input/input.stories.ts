@@ -1,18 +1,18 @@
 import { moduleMetadata, Meta } from "@storybook/angular";
-import { Label, TextInput, TextInputLabelComponent } from "./";
+import { FormsModule } from "@angular/forms";
+import { CdsTextInput, TextInputSkeleton } from "./";
 import { AILabelModule } from "../ai-label";
 import { ButtonModule } from "../button";
 import { IconModule } from "../icon";
 import { AI_LABEL_INNER } from "../storybook/ai-label-story-shared";
-import { FormsModule } from "@angular/forms";
 
 export default {
 	title: "Components/Input",
 	decorators: [
 		moduleMetadata({
 			imports: [
-				TextInput,
-				Label,
+				CdsTextInput,
+				TextInputSkeleton,
 				AILabelModule,
 				ButtonModule,
 				IconModule,
@@ -30,12 +30,11 @@ export default {
 		helperText: "Optional helper text",
 		placeholder: "Placeholder",
 		autocomplete: "on",
-		theme: "dark",
 		size: "md",
 		readonly: false,
 		fluid: false,
-		skeleton: false,
 		inline: false,
+		hideLabel: false,
 		enableCounter: false,
 		maxCount: 500
 	},
@@ -44,45 +43,35 @@ export default {
 			options: ["on", "off"],
 			control: "radio"
 		},
-		theme: {
-			options: ["light", "dark"],
-			control: "radio"
-		},
 		size: {
 			options: ["sm", "md", "lg"],
 			control: "select"
 		}
 	},
-	component: TextInputLabelComponent
+	component: CdsTextInput
 } as Meta;
 
 const Template = (args) => ({
 	props: args,
 	template: `
-		<cds-text-label
-		[helperText]="helperText"
-		[invalid]="invalid"
-		[invalidText]="invalidText"
-		[warn]="warn"
-		[disabled]="disabled"
-		[fluid]="fluid"
-		[skeleton]="skeleton"
-		[warnText]="warnText"
-		[enableCounter]="enableCounter"
-		[maxCount]="maxCount"
-		[inline]="inline">
-		{{label}}
-		<input
-			cdsText
-			[size]="size"
-			[invalid]="invalid"
-			[warn]="warn"
-			[disabled]="disabled"
-			[theme]="theme"
+		<cds-text-input
+			[label]="label"
+			[helperText]="helperText"
 			[placeholder]="placeholder"
+			[autocomplete]="autocomplete"
+			[size]="size"
+			[disabled]="disabled"
 			[readonly]="readonly"
-			[autocomplete]="autocomplete">
-		</cds-text-label>
+			[invalid]="invalid"
+			[invalidText]="invalidText"
+			[warn]="warn"
+			[warnText]="warnText"
+			[fluid]="fluid"
+			[inline]="inline"
+			[hideLabel]="hideLabel"
+			[enableCounter]="enableCounter"
+			[maxCount]="maxCount"
+			[(ngModel)]="value" />
 	`
 });
 export const Basic = Template.bind({});
@@ -94,22 +83,13 @@ Fluid.args = {
 
 const SkeletonTemplate = (args) => ({
 	props: args,
-	template: `
-		<cds-label skeleton="true">
-			<input cdsText skeleton="true">
-		</cds-label>
-		<br>
-		<input cdsText skeleton="true">
-	`
+	template: `<cds-text-input-skeleton [hideLabel]="hideLabel" [size]="size" />`
 });
 export const Skeleton = SkeletonTemplate.bind({});
 
 export const withAILabel = () => ({
 	template: `
-		<cds-text-label [decorator]="decoratorTpl">
-			Text input with decorator
-			<input cdsText placeholder="Placeholder" />
-		</cds-text-label>
+		<cds-text-input label="Text input with decorator" placeholder="Placeholder" [decorator]="decoratorTpl" />
 		<ng-template #decoratorTpl>
 			<cds-ai-label
 				kind="default"

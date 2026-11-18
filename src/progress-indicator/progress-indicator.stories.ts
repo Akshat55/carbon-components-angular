@@ -15,7 +15,6 @@ const Template = (args) => ({
 	props: args,
 	template: `
 		<cds-progress-indicator
-			[skeleton]="skeleton"
 			[steps]="steps"
 			[orientation]="orientation"
 			[current]="current"
@@ -26,7 +25,6 @@ const Template = (args) => ({
 });
 export const Basic = Template.bind({});
 Basic.args = {
-	skeleton: false,
 	current: 1,
 	steps: [
 		{

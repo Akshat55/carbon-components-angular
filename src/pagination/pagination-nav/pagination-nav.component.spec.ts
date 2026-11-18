@@ -1,11 +1,9 @@
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { By } from "@angular/platform-browser";
-import { Component, OnInit, ViewChild } from "@angular/core";
+import { Component, OnInit } from "@angular/core";
 import { I18nModule } from "../../i18n";
 import { settle, shadow } from "../../test-helpers/web-components";
 import { PaginationNav } from "./index";
-import { PaginationOverflow } from "./pagination-overflow.component";
-import { PaginationModule } from "../index";
 import { PaginationModel } from "../pagination-model.class";
 
 @Component({
@@ -138,83 +136,26 @@ describe("PaginationNav", () => {
 		expect(arrows()[0].querySelector("[slot=tooltip-content]").textContent.trim()).toBe("Previous page");
 		expect(arrows()[1].querySelector("[slot=tooltip-content]").textContent.trim()).toBe("Next page");
 	});
-});
 
-@Component({
-	template: `
-		<cds-pagination-overflow
-			[fromIndex]="fromIndex"
-			[count]="count"
-			(change)="selectedPage = $event">
-		</cds-pagination-overflow>
-	`,
-	imports: [PaginationModule, I18nModule]
-})
-class PaginationOverflowTest {
-	@ViewChild(PaginationOverflow) overflow: PaginationOverflow;
-	fromIndex = 0;
-	count = 5;
-	selectedPage: number = null;
-}
-
-describe("PaginationOverflow", () => {
-	let fixture: ComponentFixture<PaginationOverflowTest>;
-	let wrapper: PaginationOverflowTest;
-
-	beforeEach(() => {
-		TestBed.configureTestingModule({
-			imports: [PaginationOverflowTest]
-		});
-
-		fixture = TestBed.createComponent(PaginationOverflowTest);
-		fixture.detectChanges();
-		wrapper = fixture.componentInstance;
+	it("should render the hidden pages in the web component's overflow select", async () => {
+		await create();
+		const select = shadow<HTMLSelectElement>(element, "select.cds--pagination-nav__page--select");
+		const options = Array.from(select.querySelectorAll("option:not([hidden])"), option => option.textContent.trim());
+		// `totalDataLength` is the number of pages (105); the first and last pages stay visible
+		expect(options.length).toBeGreaterThan(1);
+		expect(options.every(page => Number(page) > 1 && Number(page) < 105)).toBe(true);
 	});
 
-	it("should work", () => {
-		expect(wrapper.overflow instanceof PaginationOverflow).toBe(true);
-	});
-
-	it("should render a select with an option per page in the overflow", () => {
-		const options = fixture.nativeElement.querySelectorAll("select option:not([hidden])");
-		expect(options.length).toBe(5);
-		expect(options[0].textContent.trim()).toBe("1");
-		expect(options[4].textContent.trim()).toBe("5");
-	});
-
-	it("should emit the selected page on change", () => {
-		const select = fixture.nativeElement.querySelector("select");
-		select.selectedIndex = 3;
+	it("should emit selectPage when a page is picked from the overflow select", async () => {
+		await create();
+		const select = shadow<HTMLSelectElement>(element, "select.cds--pagination-nav__page--select");
+		// the web component renders new options once the page moves, so read the value first
+		const index = Number(select.querySelector<HTMLOptionElement>("option:not([hidden])").value);
+		select.value = String(index);
 		select.dispatchEvent(new Event("change"));
-		fixture.detectChanges();
+		await settle(fixture);
 
-		expect(wrapper.selectedPage).toBe(3);
-	});
-
-	it("should render more options as the page count grows", () => {
-		expect(fixture.nativeElement.querySelectorAll("select option:not([hidden])").length).toBe(5);
-
-		wrapper.count = 9;
-		fixture.detectChanges();
-
-		expect(fixture.nativeElement.querySelectorAll("select option:not([hidden])").length).toBe(9);
-	});
-
-	it("should renumber the options when the starting index moves", () => {
-		wrapper.fromIndex = 10;
-		fixture.detectChanges();
-
-		const options = fixture.nativeElement.querySelectorAll("select option:not([hidden])");
-		expect(options.length).toBe(5);
-		expect(options[0].textContent.trim()).toBe("11");
-		expect(options[4].textContent.trim()).toBe("15");
-	});
-
-	it("should collapse to a single nav item when the count drops to one", () => {
-		wrapper.count = 1;
-		fixture.detectChanges();
-
-		expect(fixture.nativeElement.querySelector("select")).toBeFalsy();
-		expect(fixture.nativeElement.querySelector("cds-pagination-nav-item")).toBeTruthy();
+		expect(wrapper.selectPage).toHaveBeenCalledWith(index + 1);
+		expect(element.page).toBe(index);
 	});
 });

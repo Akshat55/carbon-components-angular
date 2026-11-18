@@ -5,10 +5,9 @@ import {
 	ModalButtonType,
 	Modal,
 	ModalHeader,
-	ModalHeaderLabel,
-	ModalHeaderHeading,
-	ModalContent,
-	ModalContentText,
+	ModalLabel,
+	ModalHeading,
+	ModalBody,
 	ModalFooter,
 	AlertModal
 } from "../";
@@ -23,13 +22,13 @@ import { PLACEHOLDER_SERVICE_PROVIDER, Placeholder } from "../../placeholder";
 			[isFullWidth]="isFullWidth"
 			(overlaySelected)="closeModal()">
 			<cds-modal-header (closeSelect)="closeModal()" [showCloseButton]="showCloseButton">
-				<h2 cdsModalHeaderLabel>Label</h2>
-				<h3 cdsModalHeaderHeading>Modal</h3>
+				<cds-modal-label>Label</cds-modal-label>
+				<cds-modal-heading>Modal</cds-modal-heading>
 			</cds-modal-header>
-			<section cdsModalContent>
+			<cds-modal-body>
 				<h1>Sample modal works.</h1>
-				<p cdsModalContentText>{{modalText}}</p>
-			</section>
+				<p>{{modalText}}</p>
+			</cds-modal-body>
 			<cds-modal-footer>
 				<button class="cds--btn cds--btn--secondary" (click)="showSecondaryModal()">Show secondary modal</button>
 				<button class="cds--btn cds--btn--primary" modal-primary-focus (click)="closeModal()">Close</button>
@@ -41,10 +40,9 @@ import { PLACEHOLDER_SERVICE_PROVIDER, Placeholder } from "../../placeholder";
 	imports: [
 		Modal,
 		ModalHeader,
-		ModalHeaderLabel,
-		ModalHeaderHeading,
-		ModalContent,
-		ModalContentText,
+		ModalLabel,
+		ModalHeading,
+		ModalBody,
 		ModalFooter,
 		AlertModal,
 		Placeholder

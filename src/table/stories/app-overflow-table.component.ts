@@ -33,13 +33,11 @@ import { OverflowMenu, OverflowMenuBody, OverflowMenuOption } from "../../overfl
 		<cds-table
 			[model]="model"
 			[size]="size"
-			[sortable]="sortable"
-			[showSelectionColumn]="showSelectionColumn"
-			[stickyHeader]="stickyHeader"
-			[skeleton]="skeleton"
-			[isDataGrid]="isDataGrid"
+			[isSortable]="isSortable"
+			[isSelectable]="isSelectable"
 			(rowClick)="onRowClick($event)"
-			[striped]="striped">
+			[useZebraStyles]="useZebraStyles">
+			<ng-content />
 		</cds-table>
 	`,
 	standalone: true,
@@ -48,12 +46,9 @@ import { OverflowMenu, OverflowMenuBody, OverflowMenuOption } from "../../overfl
 export class OverflowTableStory implements AfterViewInit {
 	@Input() model = new TableModel();
 	@Input() size = "md";
-	@Input() showSelectionColumn = true;
-	@Input() striped = true;
-	@Input() isDataGrid = false;
-	@Input() sortable = true;
-	@Input() stickyHeader = false;
-	@Input() skeleton = false;
+	@Input() isSelectable = true;
+	@Input() useZebraStyles = true;
+	@Input() isSortable = true;
 
 	@ViewChild("overflowMenuItemTemplate", { static: false })
 	protected overflowMenuItemTemplate: TemplateRef<any>;

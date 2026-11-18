@@ -1,5 +1,5 @@
 import { moduleMetadata, Meta } from "@storybook/angular";
-import { LayerDirective } from "../layer";
+import { CdsLayer } from "../layer";
 import { TileGroup, RadioTile, SelectableTile } from "./";
 import { AILabelModule } from "../ai-label";
 import { ButtonModule } from "../button";
@@ -10,7 +10,7 @@ export default {
 	title: "Components/Tiles/Grouped",
 	decorators: [
 		moduleMetadata({
-			imports: [TileGroup, RadioTile, SelectableTile, LayerDirective, AILabelModule, ButtonModule, IconModule]
+			imports: [TileGroup, RadioTile, SelectableTile, CdsLayer, AILabelModule, ButtonModule, IconModule]
 		})
 	],
 	component: TileGroup,
@@ -89,18 +89,18 @@ const LayerTemplate = (args) => ({
 			<cds-radio-tile value="tile1" [selected]="true">First Layer</cds-radio-tile>
 			<cds-radio-tile value="tile2">First Layer</cds-radio-tile>
 		</cds-tile-group>
-		<div cdsLayer>
+		<cds-layer>
 			<cds-tile-group (selected)="selected($event)">
 				<cds-radio-tile value="tile1" [selected]="true">Second Layer</cds-radio-tile>
 				<cds-radio-tile value="tile2">Second Layer</cds-radio-tile>
 			</cds-tile-group>
-			<div cdsLayer>
+			<cds-layer>
 				<cds-tile-group (selected)="selected($event)">
 					<cds-radio-tile value="tile1" [selected]="true">Third Layer</cds-radio-tile>
 					<cds-radio-tile value="tile2">Third Layer</cds-radio-tile>
 				</cds-tile-group>
-			</div>
-		</div>
+			</cds-layer>
+		</cds-layer>
 	`
 });
 export const WithLayers = LayerTemplate.bind({});

@@ -34,6 +34,7 @@ import { provideValueAccessor, TemplateContent, TemplateSlot, WebComponentValueA
 		"[enableCounter]": "enableCounter",
 		"[maxCount]": "maxCount",
 		"[isFluid]": "fluid",
+		"[inline]": "inline",
 		"(input)": "onInput($event)"
 	}
 })
@@ -57,6 +58,14 @@ export abstract class BaseTextInput extends WebComponentValueAccessor<string> {
 	@Input({ transform: booleanAttribute }) enableCounter = false;
 	@Input() maxCount: number;
 	@Input({ transform: booleanAttribute }) fluid = false;
+	/**
+	 * Puts the label next to the field.
+	 */
+	@Input({ transform: booleanAttribute }) inline = false;
+	/**
+	 * Optional `TemplateRef` (e.g. an AI label) rendered in the `ai-label` slot.
+	 */
+	@Input() decorator: TemplateRef<any>;
 
 	protected content = new TemplateContent();
 
@@ -82,14 +91,13 @@ export abstract class BaseTextInput extends WebComponentValueAccessor<string> {
  * <cds-text-input label="Name" helperText="Your full name" [(ngModel)]="name" />
  * ```
  *
- * For a native `<input>`, the `cds-text-label` + `cdsText` pair is still available.
- *
  * [See demo](../../?path=/story/components-input--basic)
  */
 @Component({
 	selector: "cds-text-input",
 	template: `
 		<ng-container cdsSlot="label-text" [cdsSlotTemplate]="isTemplate(label) ? label : null" />
+		<ng-container cdsSlot="ai-label" [cdsSlotTemplate]="decorator" />
 		<ng-content />
 	`,
 	host: {
@@ -115,11 +123,13 @@ export class CdsTextInput extends BaseTextInput {
 	selector: "cds-textarea",
 	template: `
 		<ng-container cdsSlot="label-text" [cdsSlotTemplate]="isTemplate(label) ? label : null" />
+		<ng-container cdsSlot="ai-label" [cdsSlotTemplate]="decorator" />
 		<ng-content />
 	`,
 	host: {
 		"[rows]": "rows",
-		"[cols]": "cols"
+		"[cols]": "cols",
+		"[counterMode]": "counterMode"
 	},
 	providers: [provideValueAccessor(() => CdsTextarea)],
 	changeDetection: ChangeDetectionStrategy.OnPush,
@@ -129,6 +139,10 @@ export class CdsTextInput extends BaseTextInput {
 export class CdsTextarea extends BaseTextInput {
 	@Input() rows = 4;
 	@Input() cols = 50;
+	/**
+	 * What `maxCount` counts.
+	 */
+	@Input() counterMode: "character" | "word" = "character";
 }
 
 /**
@@ -140,6 +154,7 @@ export class CdsTextarea extends BaseTextInput {
 	selector: "cds-password-input",
 	template: `
 		<ng-container cdsSlot="label-text" [cdsSlotTemplate]="isTemplate(label) ? label : null" />
+		<ng-container cdsSlot="slug" [cdsSlotTemplate]="decorator" />
 		<ng-content />
 	`,
 	host: {

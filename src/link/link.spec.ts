@@ -1,71 +1,54 @@
-import { TestBed, ComponentFixture } from "@angular/core/testing";
+import { TestBed } from "@angular/core/testing";
 import { Component } from "@angular/core";
-import { By } from "@angular/platform-browser";
 
-import { Link } from "./link.directive";
+import { CdsLink, LinkIconDirective } from "./index";
+import { settle, shadow } from "../test-helpers/web-components";
 
 @Component({
-	template: `<a href="https://angular.carbondesignsystem.com/" cdsLink>link</a>`,
-	imports: [Link]
+	template: `
+		<cds-link href="https://angular.carbondesignsystem.com/" [disabled]="disabled" [inline]="inline" size="lg">
+			link
+			<svg cdsLinkIcon></svg>
+		</cds-link>
+	`,
+	imports: [CdsLink, LinkIconDirective]
 })
 class TestLinkComponent {
-}
-
-@Component({
-	template: `<a href="https://angular.carbondesignsystem.com/" [disabled]="1+1===2" cdsLink>link</a>`,
-	imports: [Link]
-})
-class TestDisabledLinkComponent {
-}
-
-@Component({
-	template: `<a href="https://angular.carbondesignsystem.com/" [inline]="true" cdsLink>link</a>`,
-	imports: [Link]
-})
-class TestInlineLinkComponent {
+	disabled = false;
+	inline = false;
 }
 
 describe("Link", () => {
+	let fixture;
+	let link: any;
+
+	beforeEach(async () => {
+		fixture = TestBed.createComponent(TestLinkComponent);
+		await settle(fixture);
+		link = fixture.nativeElement.querySelector("cds-link");
+	});
+
 	it("should create a Link", () => {
-		TestBed.configureTestingModule({
-			imports: [TestLinkComponent]
-		});
-
-		let fixture: ComponentFixture<TestLinkComponent> = TestBed.createComponent(TestLinkComponent);
-		let component: TestLinkComponent = fixture.componentInstance;
-		fixture.detectChanges();
-
-		expect(component).toBeTruthy();
-		const directiveEl = fixture.debugElement.query(By.directive(Link));
-		expect(directiveEl).not.toBeNull();
-		expect(directiveEl.attributes["aria-disabled"]).toBeUndefined();
-		expect(directiveEl.attributes["tabindex"]).toBeUndefined();
-		expect(directiveEl.attributes["href"]).toBe("https://angular.carbondesignsystem.com/");
+		expect(link instanceof customElements.get("cds-link")).toBe(true);
+		expect(link.href).toBe("https://angular.carbondesignsystem.com/");
+		expect(link.size).toBe("lg");
+		expect(shadow<HTMLAnchorElement>(link, "a").getAttribute("href")).toBe("https://angular.carbondesignsystem.com/");
 	});
 
-	it("should create a disabled link", () => {
-		TestBed.configureTestingModule({
-			imports: [TestDisabledLinkComponent]
-		});
-
-		let fixture: ComponentFixture<TestDisabledLinkComponent> = TestBed.createComponent(TestDisabledLinkComponent);
-		let component: TestDisabledLinkComponent = fixture.componentInstance;
-		fixture.detectChanges();
-
-		const directiveEl = fixture.debugElement.query(By.directive(Link));
-		expect(directiveEl.attributes["aria-disabled"]).toBe("true");
-		expect(directiveEl.attributes["tabindex"]).toBe("-1");
+	it("should create a disabled link", async () => {
+		fixture.componentInstance.disabled = true;
+		await settle(fixture);
+		expect(link.disabled).toBe(true);
+		expect(shadow(link, "a")).toBeNull();
 	});
 
-	it("should create an inline link", () => {
-		TestBed.configureTestingModule({
-			imports: [TestInlineLinkComponent]
-		});
+	it("should create an inline link", async () => {
+		fixture.componentInstance.inline = true;
+		await settle(fixture);
+		expect(link.inline).toBe(true);
+	});
 
-		let fixture: ComponentFixture<TestInlineLinkComponent> = TestBed.createComponent(TestInlineLinkComponent);
-		fixture.detectChanges();
-
-		const directiveEl = fixture.debugElement.query(By.directive(Link));
-		expect(directiveEl.nativeElement.classList.contains("cds--link--inline")).toBeTruthy();
+	it("should put cdsLinkIcon in the icon slot", () => {
+		expect(link.querySelector("svg").getAttribute("slot")).toBe("icon");
 	});
 });

@@ -16,7 +16,6 @@ import { FileUploader } from "../file-uploader.component";
 			[buttonType]="buttonType"
 			[accept]="accept"
 			[multiple]="multiple"
-			[skeleton]="skeleton"
 			[(files)]="files"
 			[size]="size"
 			[fileItemSize]="fileItemSize"

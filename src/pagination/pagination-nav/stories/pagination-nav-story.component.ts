@@ -3,8 +3,7 @@ import { Component, Input, OnInit } from "@angular/core";
 import {
 	Pagination,
 	PaginationModel,
-	PaginationNav,
-	PaginationNavItem
+	PaginationNav
 } from "../..";
 
 @Component({
@@ -20,7 +19,7 @@ import {
 		</cds-pagination-nav>
 	`,
 	standalone: true,
-	imports: [PaginationNav, PaginationNavItem]
+	imports: [PaginationNav]
 })
 export class PaginationNavStory implements OnInit {
 	@Input() model = new PaginationModel();

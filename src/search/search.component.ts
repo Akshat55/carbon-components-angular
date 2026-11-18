@@ -72,10 +72,6 @@ export class Search extends WebComponentValueAccessor<string> {
 	 */
 	@Input() theme: "light" | "dark" = "dark";
 	/**
-	 * @deprecated use `<cds-search-skeleton>` instead.
-	 */
-	@Input({ transform: booleanAttribute }) skeleton = false;
-	/**
 	 * @deprecated
 	 */
 	@Input({ transform: booleanAttribute }) tableSearch = false;

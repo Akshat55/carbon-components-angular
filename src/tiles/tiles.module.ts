@@ -3,10 +3,8 @@ import { CommonModule } from "@angular/common";
 
 import { Tile } from "./tile.component";
 import { ClickableTile } from "./clickable-tile.component";
-import { ClickableTileIconDirective } from "./clickable-tile-icon.directive";
 import { ExpandableTile } from "./expandable-tile.component";
 import { ExpandableTileAboveFoldDirective } from "./expandable-tile-above.directive";
-import { ExpandableTileBelowFoldDirective } from "./expandable-tile-below.directive";
 import { RadioTile, SelectableTile } from "./selection-tile.component";
 import { TileGroup } from "./tile-group.component";
 import { IconDirective } from "carbon-components-angular/icon";
@@ -16,9 +14,7 @@ import { IconDirective } from "carbon-components-angular/icon";
 	exports: [
 		Tile,
 		ClickableTile,
-		ClickableTileIconDirective,
 		ExpandableTileAboveFoldDirective,
-		ExpandableTileBelowFoldDirective,
 		ExpandableTile,
 		SelectableTile,
 		RadioTile,
@@ -30,9 +26,7 @@ import { IconDirective } from "carbon-components-angular/icon";
 		IconDirective,
 		Tile,
 		ClickableTile,
-		ClickableTileIconDirective,
 		ExpandableTileAboveFoldDirective,
-		ExpandableTileBelowFoldDirective,
 		ExpandableTile,
 		SelectableTile,
 		RadioTile,

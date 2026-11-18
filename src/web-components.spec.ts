@@ -10,7 +10,7 @@ import { TreeNodeComponent, TreeViewComponent } from "carbon-components-angular/
 import { ContainedList, ContainedListItem } from "carbon-components-angular/contained-list";
 import { FileUploader } from "carbon-components-angular/file-uploader";
 import { InlineLoading } from "carbon-components-angular/inline-loading";
-import { CdsLink, Link, LinkIconDirective } from "carbon-components-angular/link";
+import { CdsLink, LinkIconDirective } from "carbon-components-angular/link";
 import { Loading } from "carbon-components-angular/loading";
 import { ProgressBar } from "carbon-components-angular/progress-bar";
 import { SkeletonIcon, SkeletonPlaceholder, SkeletonText } from "carbon-components-angular/skeleton";
@@ -92,13 +92,6 @@ const cases: SmokeCase[] = [
 		tag: "cds-link",
 		props: { href: "/docs", inline: true },
 		check: element => expect(element.querySelector("svg").getAttribute("slot")).toBe("icon")
-	},
-	{
-		name: "Link (native)",
-		imports: [Link],
-		template: `<a cdsLink href="/docs">Docs</a>`,
-		tag: "",
-		check: (_, host) => expect(host.querySelector("a.cds--link")).toBeTruthy()
 	},
 	{
 		name: "Loading",

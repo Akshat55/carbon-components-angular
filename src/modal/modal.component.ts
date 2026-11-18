@@ -25,10 +25,10 @@ import { BaseModalService } from "./base-modal.service";
  * ```html
  * <cds-modal [open]="open" (overlaySelected)="open = false">
  * 	<cds-modal-header (closeSelect)="open = false">
- * 		<h2 cdsModalHeaderLabel>Label</h2>
- * 		<h3 cdsModalHeaderHeading>Heading</h3>
+ * 		<cds-modal-label>Label</cds-modal-label>
+ * 		<cds-modal-heading>Heading</cds-modal-heading>
  * 	</cds-modal-header>
- * 	<section cdsModalContent>Content</section>
+ * 	<cds-modal-body>Content</cds-modal-body>
  * 	<cds-modal-footer><cds-button (click)="open = false">Done</cds-button></cds-modal-footer>
  * </cds-modal>
  * ```

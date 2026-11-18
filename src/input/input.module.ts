@@ -1,55 +1,21 @@
-// modules
 import { NgModule } from "@angular/core";
-import { FormsModule } from "@angular/forms";
-import { CommonModule } from "@angular/common";
-
-// imports
-import { Label } from "./label.component";
-import { TextInput } from "./input.directive";
-import { TextArea } from "./text-area.directive";
-import { TextareaLabelComponent } from "./textarea-label.component";
-import { TextInputLabelComponent } from "./text-input-label.component";
-import { IconDirective } from "carbon-components-angular/icon";
-import { PasswordInput } from "./password.directive";
-import { PasswordInputLabelComponent } from "./password-input-label.component";
 import { CdsPasswordInput, CdsTextarea, CdsTextInput } from "./text-input.component";
 import { TextInputSkeleton, TextareaSkeleton, PasswordInputSkeleton } from "./input-skeleton.component";
 
+const COMPONENTS = [
+	CdsTextInput,
+	CdsTextarea,
+	CdsPasswordInput,
+	TextInputSkeleton,
+	TextareaSkeleton,
+	PasswordInputSkeleton
+];
 
-
+/**
+ * The text input web components. Importing it registers `cds-text-input`, `cds-textarea` and `cds-password-input`.
+ */
 @NgModule({
-	exports: [
-		Label,
-		TextInputLabelComponent,
-		TextInput,
-		TextareaLabelComponent,
-		TextArea,
-		PasswordInputLabelComponent,
-		PasswordInput,
-		CdsTextInput,
-		CdsTextarea,
-		CdsPasswordInput,
-		TextInputSkeleton,
-		TextareaSkeleton,
-		PasswordInputSkeleton
-	],
-	imports: [
-		CommonModule,
-		FormsModule,
-		IconDirective,
-		Label,
-		TextInput,
-		TextArea,
-		PasswordInput,
-		TextareaLabelComponent,
-		TextInputLabelComponent,
-		PasswordInputLabelComponent,
-		CdsTextInput,
-		CdsTextarea,
-		CdsPasswordInput,
-		TextInputSkeleton,
-		TextareaSkeleton,
-		PasswordInputSkeleton
-	]
+	imports: COMPONENTS,
+	exports: COMPONENTS
 })
 export class InputModule {}

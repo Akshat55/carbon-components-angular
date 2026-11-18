@@ -89,10 +89,6 @@ export abstract class BaseDropdown extends ListSelection {
 	 */
 	@Input() theme: "light" | "dark" = "dark";
 	/**
-	 * @deprecated use `<cds-dropdown-skeleton>` instead.
-	 */
-	@Input({ transform: booleanAttribute }) skeleton = false;
-	/**
 	 * @deprecated the web component positions its own menu.
 	 */
 	@Input() appendInline: boolean = null;

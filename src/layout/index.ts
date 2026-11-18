@@ -1,2 +1,2 @@
 export * from "./layout.module";
-export * from "./stack.directive";
+export { CdsStack } from "./stack.component";

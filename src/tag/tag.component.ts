@@ -30,10 +30,8 @@ export type TagType = "red" |
 @Component({
 	selector: "cds-tag",
 	template: `
-		@if (!skeleton) {
-			<ng-content />
-			<ng-container cdsSlot="decorator" [cdsSlotTemplate]="decorator" />
-		}
+		<ng-content />
+		<ng-container cdsSlot="decorator" [cdsSlotTemplate]="decorator" />
 	`,
 	host: {
 		"[type]": "type",
@@ -46,10 +44,6 @@ export type TagType = "red" |
 export class Tag {
 	@Input() type: TagType = "gray";
 	@Input() size: "sm" | "md" | "lg" = "md";
-	/**
-	 * @deprecated hides the content only. Use `<cds-tag-skeleton>` instead.
-	 */
-	@Input({ transform: booleanAttribute }) skeleton = false;
 	/**
 	 * Optional `TemplateRef` (e.g. AI label) rendered in the decorator slot.
 	 */

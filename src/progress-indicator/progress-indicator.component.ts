@@ -55,10 +55,6 @@ const noop = () => {};
 	schemas: [CUSTOM_ELEMENTS_SCHEMA]
 })
 export class ProgressIndicator implements DoCheck {
-	static skeletonSteps(stepCount: number) {
-		return Array.from({ length: stepCount }, () => ({ complete: false }));
-	}
-
 	public i18n = inject(I18n);
 
 	/**
@@ -72,10 +68,6 @@ export class ProgressIndicator implements DoCheck {
 	 * Labels for each step's status icon (`CURRENT`, `COMPLETE`, `INCOMPLETE`, `INVALID`).
 	 */
 	@Input() translations = this.i18n.get().PROGRESS_INDICATOR;
-	/**
-	 * @deprecated use `<cds-progress-indicator-skeleton>` instead.
-	 */
-	@Input({ transform: booleanAttribute }) skeleton = false;
 
 	@Output() stepSelected = new EventEmitter<{ step: Step, index: number }>();
 
@@ -102,7 +94,7 @@ export class ProgressIndicator implements DoCheck {
 	 */
 	onChildClick(event: Event) {
 		const element = event.target as HTMLElement & { label: string, secondaryLabel: string, description: string, invalid: boolean };
-		if (this.skeleton || element.hasAttribute("data-step-index")) {
+		if (element.hasAttribute("data-step-index")) {
 			return;
 		}
 		const index = Array.from(this.element.querySelectorAll("cds-progress-step")).indexOf(element);
@@ -119,7 +111,7 @@ export class ProgressIndicator implements DoCheck {
 
 	onClick(index: number) {
 		const step = this.steps[index];
-		if (this.skeleton || index === this.current || step.disabled) {
+		if (index === this.current || step.disabled) {
 			return;
 		}
 		if (typeof step.onClick === "function") {

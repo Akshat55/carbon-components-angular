@@ -15,10 +15,10 @@ import { MenuButtonComponent } from "carbon-components-angular/menu-button";
 import {
 	BaseModal,
 	Modal,
-	ModalContent,
 	ModalFooter,
 	ModalHeader,
-	ModalHeaderHeading,
+	ModalBody,
+	ModalHeading,
 	ModalService
 } from "carbon-components-angular/modal";
 import { NotificationService } from "carbon-components-angular/notification";
@@ -47,12 +47,12 @@ describe("Modal", () => {
 	const template = `
 		<cds-modal [open]="open" (overlaySelected)="onOverlay()" (close)="onClose()">
 			<cds-modal-header (closeSelect)="onHeaderClose()">
-				<h3 cdsModalHeaderHeading>Heading</h3>
+				<cds-modal-heading>Heading</cds-modal-heading>
 			</cds-modal-header>
-			<section cdsModalContent>Content</section>
+			<cds-modal-body>Content</cds-modal-body>
 			<cds-modal-footer><cds-button>OK</cds-button></cds-modal-footer>
 		</cds-modal>`;
-	const imports = [Modal, ModalHeader, ModalHeaderHeading, ModalContent, ModalFooter, CdsButton];
+	const imports = [Modal, ModalHeader, ModalHeading, ModalBody, ModalFooter, CdsButton];
 	let fixture;
 	let host: any;
 	let modal: any;
@@ -72,7 +72,7 @@ describe("Modal", () => {
 		expect(modal instanceof customElements.get("cds-modal")).toBe(true);
 		expect(modal.open).toBe(true);
 		expect(modal.querySelector("cds-modal-header cds-modal-close-button")).toBeTruthy();
-		expect(modal.querySelector("[cdsModalContent]").textContent).toBe("Content");
+		expect(modal.querySelector("cds-modal-body").textContent).toBe("Content");
 	});
 
 	it("should emit overlaySelected (and stay open) when the user clicks outside", () => {
@@ -99,9 +99,9 @@ describe("Modal", () => {
 @Component({
 	template: `
 		<cds-modal [open]="open" (overlaySelected)="closeModal()">
-			<section cdsModalContent>{{ message }}</section>
+			<cds-modal-body>{{ message }}</cds-modal-body>
 		</cds-modal>`,
-	imports: [Modal, ModalContent]
+	imports: [Modal, ModalBody]
 })
 class DynamicModal extends BaseModal {
 	@Input() message = inject("message" as any, { optional: true });

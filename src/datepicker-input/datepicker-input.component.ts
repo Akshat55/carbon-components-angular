@@ -96,10 +96,6 @@ export class DatePickerInput extends WebComponentValueAccessor<string> implement
 	 * @deprecated the web component follows the surrounding theme / layer.
 	 */
 	@Input() theme: "light" | "dark" = "dark";
-	/**
-	 * @deprecated use `<cds-date-picker-input-skeleton>` instead.
-	 */
-	@Input({ transform: booleanAttribute }) skeleton = false;
 
 	@Output() valueChange: EventEmitter<string> = new EventEmitter();
 

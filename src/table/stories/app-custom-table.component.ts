@@ -10,10 +10,8 @@ import { TableItem } from "../table-item.class";
 import { TableHeaderItem } from "../table-header-item.class";
 import { clone } from "carbon-components-angular/utils";
 import { Table } from "../table.component";
-import { TableToolbar } from "../toolbar/table-toolbar.component";
-import { Button } from "carbon-components-angular/button";
-
-import { TableHeadCellLabel } from "../head/table-head-cell-label.directive";
+import { TableToolbar, TableToolbarContent } from "../table-parts.component";
+import { CdsButton } from "carbon-components-angular/button";
 
 export class CustomHeaderItem extends TableHeaderItem {
 	// used for custom sorting
@@ -34,43 +32,39 @@ export class CustomHeaderItem extends TableHeaderItem {
 @Component({
 	selector: "app-custom-table",
 	template: `
-		<cds-table-toolbar [model]="model">
-			<button cdsButton="primary" (click)="addRow()">Add row</button>
-			<button cdsButton="primary" (click)="addColumn()">Add column</button>
-		</cds-table-toolbar>
-
 		<ng-template #customTableItemTemplate let-data="data">
 			<a [attr.href]="data.link">{{data.name}} {{data.surname}}</a>
 		</ng-template>
 		<ng-template #customHeaderTemplate let-data="data">
-			<i cdsTableHeadCellLabel><a [attr.href]="data.link">{{data.name}}</a></i>
+			<i><a [attr.href]="data.link">{{data.name}}</a></i>
 		</ng-template>
 
 		<cds-table
 			[model]="model"
 			[size]="size"
-			[sortable]="sortable"
-			[skeleton]="skeleton"
-			[showSelectionColumn]="showSelectionColumn"
-			[stickyHeader]="stickyHeader"
-			[striped]="striped"
-			[isDataGrid]="isDataGrid"
+			[isSortable]="isSortable"
+			[isSelectable]="isSelectable"
+			[useZebraStyles]="useZebraStyles"
 			(rowClick)="onRowClick($event)"
 			(sort)="customSort($event)">
+			<ng-content />
+			<cds-table-toolbar slot="toolbar">
+				<cds-table-toolbar-content>
+					<cds-button (click)="addRow()">Add row</cds-button>
+					<cds-button (click)="addColumn()">Add column</cds-button>
+				</cds-table-toolbar-content>
+			</cds-table-toolbar>
 		</cds-table>
 	`,
 	standalone: true,
-	imports: [Table, TableToolbar, Button, TableHeadCellLabel]
+	imports: [Table, TableToolbar, TableToolbarContent, CdsButton]
 })
 export class DynamicTableStory implements AfterViewInit {
 	@Input() model = new TableModel();
 	@Input() size = "md";
-	@Input() showSelectionColumn = true;
-	@Input() striped = true;
-	@Input() isDataGrid = false;
-	@Input() sortable = true;
-	@Input() stickyHeader = false;
-	@Input() skeleton = false;
+	@Input() isSelectable = true;
+	@Input() useZebraStyles = true;
+	@Input() isSortable = true;
 
 	@ViewChild("customHeaderTemplate")
 	protected customHeaderTemplate: TemplateRef<any>;
@@ -99,8 +93,7 @@ export class DynamicTableStory implements AfterViewInit {
 			new TableHeaderItem({ data: "Very long title indeed" }),
 			new CustomHeaderItem({
 				data: { name: "Custom header", link: "#" },
-				template: this.customHeaderTemplate,
-				ariaSortLabel: "Custom header"
+				template: this.customHeaderTemplate
 			})
 		];
 	}

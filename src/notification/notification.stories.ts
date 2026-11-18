@@ -1,7 +1,7 @@
 import { ViewEncapsulation } from "@angular/core";
 import { Subject } from "rxjs";
 import { moduleMetadata, Meta } from "@storybook/angular";
-import { Button } from "../button";
+import { CdsButton } from "../button";
 import {
 	Notification,
 	BaseNotification,
@@ -19,7 +19,7 @@ export default {
 				Notification,
 				ActionableNotification,
 				Toast,
-				Button,
+				CdsButton,
 				DyanmicActionableStory,
 				NotificationStory,
 				ToastStory
@@ -209,12 +209,11 @@ const CustomTemplate = (args) => ({
 			<p cdsActionableSubtitle>{{data.myData.subtitle}}</p>
 		</ng-template>
 		<ng-template #customActionableTrigger>
-			<button
-				cdsActionableButton
-				cdsButton="ghost"
+			<cds-button
+				cdsActionableButton kind="ghost"
 				size="sm">
 				Action
-			</button>
+			</cds-button>
 		</ng-template>
 	`,
 	encapsulation: ViewEncapsulation.None,

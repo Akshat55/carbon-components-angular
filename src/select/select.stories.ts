@@ -1,6 +1,6 @@
 import { FormsModule, ReactiveFormsModule } from "@angular/forms";
 import { moduleMetadata, Meta } from "@storybook/angular";
-import { Select, Option, OptGroup } from "./";
+import { Select, SelectItem, SelectItemGroup } from "./";
 
 import { ReactiveFormsSelect } from "./stories";
 import { AILabelModule } from "../ai-label";
@@ -19,15 +19,12 @@ export default {
 				ButtonModule,
 				IconModule,
 				Select,
-				Option,
-				OptGroup,
 				ReactiveFormsSelect
 			]
 		})
 	],
 	args: {
 		hideLabel: false,
-		skeleton: false,
 		disabled: false,
 		readonly: false,
 		invalid: false,
@@ -57,8 +54,8 @@ export default {
 	},
 	component: Select,
 	subcomponents: {
-		Option,
-		OptGroup
+		SelectItem,
+		SelectItemGroup
 	}
 } as Meta;
 
@@ -66,7 +63,6 @@ const Template = (args) => ({
 	props: args,
 	template: `
 		<cds-select
-			[skeleton]="skeleton"
 			[disabled]="disabled"
 			[readonly]="readonly"
 			[size]="size"
@@ -106,7 +102,6 @@ const NgModelTemplate = (args) => ({
 	template: `
 		<cds-select
 			[(ngModel)]="model"
-			[skeleton]="skeleton"
 			[disabled]="disabled"
 			[readonly]="readonly"
 			[size]="size"

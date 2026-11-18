@@ -30,8 +30,7 @@ export default {
 	],
 	args: {
 		size: "md",
-		type: "red",
-		skeleton: false
+		type: "red"
 	},
 	argTypes: {
 		type: {
@@ -59,7 +58,6 @@ const Template = (args) => ({
 	template: `
 		<cds-tag
 			[type]="type"
-			[skeleton]="skeleton"
 			[size]="size">
 			<div cdsTagIcon>
 				<svg ibmIcon="settings" size="16"></svg>
@@ -123,7 +121,6 @@ const OperationalTagTemplate = (args) => ({
 				<svg ibmIcon="settings" size="16"></svg>
 			</div>
 		</cds-operational-tag>
-
 
 		<cds-popover
 			[isOpen]="isOpen"

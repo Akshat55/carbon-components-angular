@@ -13,8 +13,6 @@ import { ContainedListStoryModule  } from "./stories/contained-list-story.module
 import { I18n } from "../i18n";
 import { PlaceholderService } from "../placeholder";
 
-
-
 export default {
 	title: "Components/Contained List",
 	decorators: [
@@ -305,7 +303,7 @@ export const withInteractiveItemsAndActions = withInteractiveItemsAndActionsTemp
 
 const withLayerTemplate = () => ({
 	template: `
-		<div cdsStack="vertical" [gap]="5">
+		<cds-stack orientation="vertical" [gap]="5">
 			<cds-contained-list label="List title">
 				<cds-contained-list-item>List item</cds-contained-list-item>
 				<cds-contained-list-item>List item</cds-contained-list-item>
@@ -313,7 +311,7 @@ const withLayerTemplate = () => ({
 				<cds-contained-list-item>List item</cds-contained-list-item>
 			</cds-contained-list>
 			<cds-layer>
-				<div cdsStack="vertical" [gap]="5">
+				<cds-stack orientation="vertical" [gap]="5">
 					<cds-contained-list label="List title">
 						<cds-contained-list-item>List item</cds-contained-list-item>
 						<cds-contained-list-item>List item</cds-contained-list-item>
@@ -324,9 +322,9 @@ const withLayerTemplate = () => ({
 							<cds-contained-list-item>List item</cds-contained-list-item>
 						</cds-contained-list>
 					</cds-layer>
-				</div>
+				</cds-stack>
 			</cds-layer>
-		</div>
+		</cds-stack>
 	`
 });
 export const withLayer = withLayerTemplate.bind({});

@@ -12,42 +12,40 @@ import { IconService } from "../../icon";
 import Add16 from "@carbon/icons/es/add/16";
 import Filter16 from "@carbon/icons/es/filter/16";
 import { Table } from "../table.component";
-import { TableContainer } from "../table-container.component";
-import { TableHeader } from "../header/table-header.component";
-import { TableToolbar } from "../toolbar/table-toolbar.component";
-import { TableToolbarContent } from "../toolbar/table-toolbar-content.component";
-import { TableToolbarSearch } from "../toolbar/table-toolbar-search.component";
-import { IconDirective } from "../../icon";
-import { Button } from "../../button";
+import { CdsButton } from "../../button";
+import { CdsIcon } from "../../icon";
+import {
+	TableHeaderDescription,
+	TableHeaderTitle,
+	TableToolbar,
+	TableToolbarContent,
+	TableToolbarSearch
+} from "../table-parts.component";
 import { PopoverContainer, PopoverContent } from "../../popover";
 import { Checkbox } from "../../checkbox";
 
 @Component({
 	selector: "app-function-override-filter-table",
 	template: `
-	<cds-table-container>
-		<cds-table-header>
-			<h4 cdsTableHeaderTitle>Filter table</h4>
-			<p cdsTableHeaderDescription>
-				Use the toolbar's search functionality to filter node names
-				or click the filter icon to filter country names
-			</p>
-		</cds-table-header>
-		<cds-table-toolbar>
+	<cds-table
+		[model]="model"
+		[isSortable]="false"
+		[size]="size"
+		[isSelectable]="isSelectable"
+		[radio]="radio"
+		[useZebraStyles]="useZebraStyles">
+		<cds-table-header-title slot="title">Filter table</cds-table-header-title>
+		<cds-table-header-description slot="description">
+			Use the toolbar's search functionality to filter node names
+			or click the filter icon to filter country names
+		</cds-table-header-description>
+		<cds-table-toolbar slot="toolbar">
 			<cds-table-toolbar-content>
-				<cds-table-toolbar-search
-					[expandable]="true"
-					(valueChange)="filterNodeNames($event)"
-					(clear)="searchValue = ''">
-				</cds-table-toolbar-search>
+				<cds-table-toolbar-search (valueChange)="filterNodeNames($event)" />
 				<cds-popover [(isOpen)]="filterOpen" align="bottom-end" [dropShadow]="true" [caret]="false">
-					<button
-						cdsButton="ghost"
-						class="toolbar-action"
-						aria-label="Filter countries"
-						(click)="filterOpen = !filterOpen">
-						<svg cdsIcon="filter" size="16" class="cds--toolbar-action__icon"></svg>
-					</button>
+					<cds-button kind="ghost" aria-label="Filter countries" (click)="filterOpen = !filterOpen">
+						<cds-icon slot="icon" icon="filter" />
+					</cds-button>
 					<cds-popover-content>
 						<div style="padding: 0 1rem 0.5rem;">
 							<div style="padding-top: 0.5rem; color: grey;">Countries shown</div>
@@ -61,35 +59,25 @@ import { Checkbox } from "../../checkbox";
 						</div>
 					</cds-popover-content>
 				</cds-popover>
-				<button cdsButton="primary" size="sm">
-					Primary button<svg cdsIcon="add" size="20" class="cds--btn__icon"></svg>
-				</button>
+				<cds-button>
+					Primary button
+					<cds-icon slot="icon" icon="add" />
+				</cds-button>
 			</cds-table-toolbar-content>
 		</cds-table-toolbar>
-		<cds-table
-			[model]="model"
-			[sortable]="false"
-			[size]="size"
-			[skeleton]="skeleton"
-			[showSelectionColumn]="showSelectionColumn"
-			[enableSingleSelect]="enableSingleSelect"
-			[stickyHeader]="stickyHeader"
-			[striped]="striped"
-			[isDataGrid]="isDataGrid">
-			<ng-content />
-		</cds-table>
-	</cds-table-container>
+		<ng-content />
+	</cds-table>
 	`,
 	standalone: true,
 	imports: [
 		Table,
-		TableContainer,
-		TableHeader,
+		TableHeaderTitle,
+		TableHeaderDescription,
 		TableToolbar,
 		TableToolbarContent,
 		TableToolbarSearch,
-		IconDirective,
-		Button,
+		CdsButton,
+		CdsIcon,
 		PopoverContainer,
 		PopoverContent,
 		Checkbox
@@ -97,13 +85,10 @@ import { Checkbox } from "../../checkbox";
 })
 export class FilterByFunctionOverrideStory implements OnInit {
 	@Input() size = "md";
-	@Input() showSelectionColumn = true;
-	@Input() enableSingleSelect = false;
-	@Input() striped = true;
-	@Input() isDataGrid = false;
+	@Input() isSelectable = true;
+	@Input() radio = false;
+	@Input() useZebraStyles = true;
 	@Input() noData = false;
-	@Input() stickyHeader = false;
-	@Input() skeleton = false;
 
 	model = new TableModel();
 	countries = ["US", "France", "Argentina", "Japan"];

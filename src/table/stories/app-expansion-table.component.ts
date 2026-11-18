@@ -9,7 +9,7 @@ import { TableModel } from "../table-model.class";
 import { TableItem } from "../table-item.class";
 import { TableHeaderItem } from "../table-header-item.class";
 import { Table } from "../table.component";
-import { Button } from "carbon-components-angular/button";
+import { CdsButton } from "carbon-components-angular/button";
 
 class CustomHeaderItem extends TableHeaderItem {
 	// used for custom sorting
@@ -40,36 +40,31 @@ class CustomHeaderItem extends TableHeaderItem {
 		<cds-table
 			[model]="model"
 			[size]="size"
-			[sortable]="sortable"
-			[showSelectionColumn]="showSelectionColumn"
-			[stickyHeader]="stickyHeader"
-			[skeleton]="skeleton"
-			[striped]="striped"
+			[isSortable]="isSortable"
+			[isSelectable]="isSelectable"
+			[useZebraStyles]="useZebraStyles"
 			(sort)="customSort($event)"
 			(rowClick)="onRowClick($event)"
-			[isDataGrid]="isDataGrid"
-			[showExpandAllToggle]="showExpandAllToggle">
+			[batchExpansion]="batchExpansion">
+			<ng-content />
 		</cds-table>
 
 		<br>
 
-		<button cdsButton="primary" size="sm" (click)="model.expandAllRows(true)">Expand all rows</button>
+		<cds-button size="sm" (click)="model.expandAllRows(true)">Expand all rows</cds-button>
 
-		<button cdsButton="secondary" size="sm" (click)="model.expandAllRows(false)">Collapse all rows</button>
+		<cds-button kind="secondary" size="sm" (click)="model.expandAllRows(false)">Collapse all rows</cds-button>
 	`,
 	standalone: true,
-	imports: [Table, Button]
+	imports: [Table, CdsButton]
 })
 export class ExpansionTableStory implements AfterViewInit {
 	@Input() model = new TableModel();
 	@Input() size = "md";
-	@Input() showSelectionColumn = true;
-	@Input() striped = true;
-	@Input() isDataGrid = false;
-	@Input() sortable = true;
-	@Input() stickyHeader = false;
-	@Input() skeleton = false;
-	@Input() showExpandAllToggle = false;
+	@Input() isSelectable = true;
+	@Input() useZebraStyles = true;
+	@Input() isSortable = true;
+	@Input() batchExpansion = false;
 
 	@ViewChild("customHeaderTemplate")
 	protected customHeaderTemplate: TemplateRef<any>;

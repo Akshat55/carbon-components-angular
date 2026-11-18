@@ -1,6 +1,5 @@
 import { moduleMetadata, Meta } from "@storybook/angular";
 
-
 import { Pagination, PaginationNav } from "./";
 
 import { PaginationStory } from "./stories";
@@ -31,8 +30,7 @@ const Template = (args) => ({
 			[totalDataLength]="totalDataLength"
 			[showPageInput]="showPageInput"
 			[backwardDisabled]="backwardDisabled"
-			[forwardDisabled]="forwardDisabled"
-			[skeleton]="skeleton">
+			[forwardDisabled]="forwardDisabled">
 		</app-pagination>
 	`
 });
@@ -44,7 +42,6 @@ Basic.args = {
 	pagesUnknown: false,
 	totalDataLength: 105,
 	showPageInput: true,
-	skeleton: false,
 	backwardDisabled: false,
 	forwardDisabled: false
 };

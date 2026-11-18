@@ -7,7 +7,6 @@ import { DropdownItem, MultiSelectItem } from "./dropdown-item.component";
 import { DropdownList } from "./list/dropdown-list.component";
 import { AbstractDropdownView } from "./abstract-dropdown-view.class";
 
-import { ScrollableList } from "./scrollable-list.directive";
 import { I18nModule } from "carbon-components-angular/i18n";
 import { PlaceholderModule } from "carbon-components-angular/placeholder";
 import { DropdownService } from "./dropdown.service";
@@ -22,7 +21,6 @@ import { DropdownSkeleton } from "./dropdown-skeleton.component";
 		DropdownItem,
 		MultiSelectItem,
 		DropdownList,
-		ScrollableList,
 		AbstractDropdownView,
 		DropdownSkeleton
 	],
@@ -38,7 +36,6 @@ import { DropdownSkeleton } from "./dropdown-skeleton.component";
 		DropdownItem,
 		MultiSelectItem,
 		DropdownList,
-		ScrollableList,
 		AbstractDropdownView,
 		DropdownSkeleton
 	],

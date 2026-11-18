@@ -1,89 +1,102 @@
-import { fakeAsync, TestBed } from "@angular/core/testing";
-import { Component, ViewChild } from "@angular/core";
+import { Component, CUSTOM_ELEMENTS_SCHEMA } from "@angular/core";
+import { TestBed } from "@angular/core/testing";
 import { FormControl, FormsModule, ReactiveFormsModule } from "@angular/forms";
 import { InputModule } from "./input.module";
-import { TextInputLabelComponent } from "./text-input-label.component";
-import { advancedFakeAsync } from "../test-helpers/change-detection";
+import { CdsTextInput } from "./text-input.component";
+import { settle, shadow, typeInto } from "../test-helpers/web-components";
+
+/** The "count/max" text the web component renders. */
+const counter = (element: Element) =>
+	Array.from(element.shadowRoot.querySelectorAll("label"), label => label.textContent.trim()).find(text => /^\d+\/\d+$/.test(text));
 
 @Component({
-	template: `
-		<cds-text-label [enableCounter]="true" [maxCount]="20" labelText="Name">
-			<input cdsText [formControl]="control"/>
-		</cds-text-label>
-	`,
+	template: `<cds-text-input label="Name" enableCounter [maxCount]="20" [formControl]="control" />`,
 	imports: [InputModule, ReactiveFormsModule]
 })
 class ReactiveCounterTest {
-	@ViewChild(TextInputLabelComponent) label: TextInputLabelComponent;
 	control = new FormControl("");
 }
 
 @Component({
 	template: `
-		<cds-text-label [enableCounter]="true" [maxCount]="20" labelText="Name">
-			<input cdsText/>
-		</cds-text-label>
+		<cds-text-input
+			label="Name"
+			helperText="Helper"
+			[invalid]="invalid"
+			invalidText="Invalid"
+			size="sm"
+			inline
+			[(ngModel)]="value"
+			[decorator]="decorator" />
+		<ng-template #decorator><cds-ai-label class="ai-label">AI</cds-ai-label></ng-template>
 	`,
-	imports: [InputModule]
+	imports: [InputModule, FormsModule],
+	schemas: [CUSTOM_ELEMENTS_SCHEMA]
 })
-class NativeCounterTest {
-	@ViewChild(TextInputLabelComponent) label: TextInputLabelComponent;
+class NgModelTest {
+	value = "initial";
+	invalid = false;
 }
 
-describe("Text label", () => {
-	beforeEach(() => {
-		TestBed.configureTestingModule({
-			imports: [
-				ReactiveCounterTest,
-				NativeCounterTest,
-				FormsModule
-			]
-		});
+describe("Text input", () => {
+	it("should work", async () => {
+		const fixture = TestBed.createComponent(ReactiveCounterTest);
+		await settle(fixture);
+		const input = fixture.nativeElement.querySelector("cds-text-input");
+		expect(input instanceof customElements.get("cds-text-input")).toBe(true);
+		expect(fixture.debugElement.children[0].componentInstance instanceof CdsTextInput).toBe(true);
+		expect(input.label).toBe("Name");
 	});
 
-	it("should work", () => {
+	it("should update the character counter when the control value changes", async () => {
 		const fixture = TestBed.createComponent(ReactiveCounterTest);
-		fixture.detectChanges();
-
-		expect(fixture.componentInstance.label instanceof TextInputLabelComponent).toBe(true);
-	});
-
-	it("should update the character counter when the control value changes", fakeAsync(() => {
-		const fixture = TestBed.createComponent(ReactiveCounterTest);
-		fixture.detectChanges();
-		advancedFakeAsync(fixture);
-
-		expect(fixture.nativeElement.querySelector("span.cds--label[aria-hidden=true]").textContent.trim()).toBe("0/20");
+		await settle(fixture);
+		const input = fixture.nativeElement.querySelector("cds-text-input");
+		expect(counter(input)).toBe("0/20");
 
 		fixture.componentInstance.control.setValue("carbon");
-		advancedFakeAsync(fixture);
+		await settle(fixture);
+		expect(input.value).toBe("carbon");
+		expect(counter(input)).toBe("6/20");
+	});
 
-		expect(fixture.componentInstance.label.textCount).toBe(6);
-		expect(fixture.nativeElement.querySelector("span.cds--label[aria-hidden=true]").textContent.trim()).toBe("6/20");
-	}));
-
-	it("should update the character counter for a value set later", fakeAsync(() => {
+	it("should update the control and the counter as the user types", async () => {
 		const fixture = TestBed.createComponent(ReactiveCounterTest);
-		fixture.detectChanges();
-		advancedFakeAsync(fixture);
+		await settle(fixture);
+		const input = fixture.nativeElement.querySelector("cds-text-input");
 
-		setTimeout(() => fixture.componentInstance.control.setValue("carbon design"), 400);
-		advancedFakeAsync(fixture, 400);
+		typeInto(shadow<HTMLInputElement>(input, "input"), "abcd");
+		await settle(fixture);
+		expect(fixture.componentInstance.control.value).toBe("abcd");
+		expect(counter(input)).toBe("4/20");
+	});
 
-		expect(fixture.nativeElement.querySelector("span.cds--label[aria-hidden=true]").textContent.trim()).toBe("13/20");
-	}));
+	it("should disable the web component with the form control", async () => {
+		const fixture = TestBed.createComponent(ReactiveCounterTest);
+		await settle(fixture);
+		fixture.componentInstance.control.disable();
+		await settle(fixture);
+		expect(fixture.nativeElement.querySelector("cds-text-input").disabled).toBe(true);
+	});
 
-	it("should update the character counter as the user types", fakeAsync(() => {
-		const fixture = TestBed.createComponent(NativeCounterTest);
-		fixture.detectChanges();
-		advancedFakeAsync(fixture);
+	it("should pass its inputs on and support ngModel", async () => {
+		const fixture = TestBed.createComponent(NgModelTest);
+		await settle(fixture);
+		const input = fixture.nativeElement.querySelector("cds-text-input");
+		expect(input.value).toBe("initial");
+		expect(input.helperText).toBe("Helper");
+		expect(input.size).toBe("sm");
+		expect(input.inline).toBe(true);
 
-		const input = fixture.nativeElement.querySelector("input");
-		input.value = "abcd";
-		input.dispatchEvent(new Event("input"));
-		advancedFakeAsync(fixture);
+		fixture.componentInstance.invalid = true;
+		await settle(fixture);
+		expect(input.invalid).toBe(true);
+		expect(input.invalidText).toBe("Invalid");
+	});
 
-		expect(fixture.componentInstance.label.textCount).toBe(4);
-		expect(fixture.nativeElement.querySelector("span.cds--label[aria-hidden=true]").textContent.trim()).toBe("4/20");
-	}));
+	it("should render the decorator in the ai-label slot", async () => {
+		const fixture = TestBed.createComponent(NgModelTest);
+		await settle(fixture);
+		expect(fixture.nativeElement.querySelector(".ai-label").getAttribute("slot")).toBe("ai-label");
+	});
 });

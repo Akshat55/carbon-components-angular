@@ -20,17 +20,13 @@ export {
 } from "carbon-components-angular/radio";
 export {
 	InputModule,
-	Label,
-	PasswordInputLabelComponent,
-	PasswordInput,
-	TextArea,
-	TextInput,
-	TextInputLabelComponent,
-	TextareaLabelComponent
+	CdsPasswordInput,
+	CdsTextarea,
+	CdsTextInput
 } from "carbon-components-angular/input";
 export {
 	ButtonModule,
-	Button,
+	CdsButton,
 	ButtonSize,
 	ButtonType,
 	ButtonSet,

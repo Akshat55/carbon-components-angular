@@ -63,7 +63,6 @@ const MINIMUM_OVERFLOW_THRESHOLD = 4;
 					[routeExtras]="item.routeExtras"
 					[current]="item.current"
 					[ariaCurrent]="item.ariaCurrent"
-					[skeleton]="skeleton"
 					(navigation)="navigation.emit($event)">
 					<ng-container *ngTemplateOutlet="itemContent; context: { $implicit: item }" />
 				</cds-breadcrumb-item>
@@ -96,11 +95,6 @@ export class Breadcrumb {
 	 * Tooltip text for the overflow menu.
 	 */
 	@Input() description: string = this.i18n.get().BREADCRUMB.OVERFLOW_MENU_DESCRIPTION;
-
-	/**
-	 * Shows the items rendered from `items` as skeletons.
-	 */
-	@Input({ transform: booleanAttribute }) skeleton = false;
 
 	/**
 	 * Number of `items` shown before the middle ones collapse into an overflow menu (minimum 4).

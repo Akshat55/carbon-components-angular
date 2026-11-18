@@ -6,7 +6,7 @@ import {
 	ModalHeader,
 	ModalFooter
 } from "../";
-import { Label, TextInput } from "../../input";
+import { CdsTextInput } from "../../input";
 import { PLACEHOLDER_SERVICE_PROVIDER } from "../../placeholder";
 
 @Component({
@@ -18,13 +18,7 @@ import { PLACEHOLDER_SERVICE_PROVIDER } from "../../placeholder";
 			(overlaySelected)="closeModal()">
 			<cds-modal-header (closeSelect)="closeModal()">Edit account name</cds-modal-header>
 			<section class="cds--modal-content">
-				<cds-label>
-					Account name
-					<input
-						cdsText
-						[value]="inputValue"
-						(change)="onChange($event)">
-				</cds-label>
+				<cds-text-input label="Account name" [value]="inputValue" (input)="onChange($event)" />
 			</section>
 			<cds-modal-footer>
 				<button class="cds--btn cds--btn--secondary" (click)="closeModal()">Cancel</button>
@@ -36,8 +30,7 @@ import { PLACEHOLDER_SERVICE_PROVIDER } from "../../placeholder";
 	imports: [
 		Modal,
 		ModalHeader,
-		TextInput,
-		Label,
+		CdsTextInput,
 		ModalFooter
 	],
 	providers: [ModalService, PLACEHOLDER_SERVICE_PROVIDER]

@@ -24,7 +24,7 @@ import "@carbon/web-components/es/components/breadcrumb/index.js";
 		<ng-template #content><ng-content /></ng-template>
 		@if (useLink()) {
 			<cds-breadcrumb-link
-				[href]="skeleton ? '/#' : href"
+				[href]="href"
 				[isCurrentPage]="current"
 				[ariaCurrent]="current ? ariaCurrent : null"
 				(click)="navigate($event)">
@@ -48,14 +48,12 @@ export class BreadcrumbItemComponent {
 	@Input() ariaCurrent = "page";
 	@Input({ transform: booleanAttribute }) current = false;
 
-	@Input({ transform: booleanAttribute }) skeleton = false;
-
 	@Output() navigation = new EventEmitter<Promise<boolean>>();
 
 	protected router = inject(Router, { optional: true });
 
 	useLink() {
-		return this.skeleton || this.href || this.route;
+		return this.href || this.route;
 	}
 
 	navigate(event: Event) {

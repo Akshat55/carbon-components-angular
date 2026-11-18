@@ -5,9 +5,9 @@ import {
 	OnInit
 } from "@angular/core";
 import { moduleMetadata, Meta } from "@storybook/angular";
-import { ColumnDirective, GridDirective, RowDirective } from "../../grid";
+import { CdsColumn, CdsGrid } from "../../grid";
 import { Dropdown, DropdownList } from "../../dropdown";
-import { Button } from "../../button";
+import { CdsButton } from "../../button";
 import { ProgressIndicator } from "../../progress-indicator";
 import { Breadcrumb, BreadcrumbItemComponent } from "../../breadcrumb";
 import {
@@ -18,35 +18,33 @@ import {
 } from "@angular/forms";
 import { Checkbox } from "../../checkbox";
 import { Hamburger, Header } from "../../ui-shell";
-import { Label, TextArea, TextInput } from "../../input";
+import { CdsTextInput, CdsTextarea } from "../../input";
 
 @Component({
 	selector: "app-multi-step-form",
 	template: `
-		<div cdsGrid>
-			<div cdsRow class="header">
+		<div>
+			<div class="header">
 				<cds-header name="Patterns">
 					<cds-header-menu-button></cds-header-menu-button>
 				</cds-header>
 			</div>
-			<div cdsRow>
-				<div cdsCol [columnNumbers]="{'lg': 8, 'md': 8, 'sm': 8}">
+			<cds-grid>
+				<cds-column lg="8" md="8" sm="8">
 					<cds-breadcrumb [noTrailingSlash]="noTrailingSlash">
 						<cds-breadcrumb-item href="#1">
 							Dashboard
 						</cds-breadcrumb-item>
 					</cds-breadcrumb>
-				</div>
-			</div>
-			<div cdsRow class="sub-heading">
-				<div cdsCol [columnNumbers]="{'lg': 8, 'md': 8, 'sm': 8}">
+				</cds-column>
+			</cds-grid>
+			<cds-grid class="sub-heading">
+				<cds-column lg="8" md="8" sm="8">
 					<h4>Vertical multi-step form</h4>
-				</div>
-			</div>
-			<div cdsRow>
-				<div
-					cdsCol
-					[columnNumbers]="{'lg': 2, 'md': 2, 'sm': 2}"
+				</cds-column>
+			</cds-grid>
+			<cds-grid>
+				<cds-column lg="2" md="2" sm="2"
 					class="indicator-wrapper">
 					<div class="indicator">
 						<cds-progress-indicator
@@ -55,13 +53,13 @@ import { Label, TextArea, TextInput } from "../../input";
 							[current]="currentStep">
 						</cds-progress-indicator>
 					</div>
-				</div>
-				<div cdsCol [columnNumbers]="{'lg': 6, 'md': 6, 'sm': 6}">
+				</cds-column>
+				<cds-column lg="6" md="6" sm="6">
 					@switch (currentStep) {
 						@case (1) {
 							<form [formGroup]="step2FormGroup">
-								<div cdsGrid>
-									<div cdsRow>
+								<div>
+									<div>
 										<h4>Create a new workspace</h4>
 										<label class="form-label">
 											When you create a workspace, you connect IBM Cloud
@@ -69,16 +67,10 @@ import { Label, TextArea, TextInput } from "../../input";
 											your Terraform templates.
 										</label>
 									</div>
-									<div cdsRow class="form-item">
-										<cds-label>
-											Workspace name
-											<input
-												cdsText
-												[autocomplete]="false"
-												formControlName="workspaceName">
-										</cds-label>
+									<div class="form-item">
+										<cds-text-input label="Workspace name" autocomplete="off" formControlName="workspaceName" />
 									</div>
-									<div cdsRow class="form-item">
+									<div class="form-item">
 										<cds-dropdown
 											class="dropdown"
 											label="Resource group"
@@ -88,36 +80,28 @@ import { Label, TextArea, TextInput } from "../../input";
 											<cds-dropdown-list [items]="resourceGroups"></cds-dropdown-list>
 										</cds-dropdown>
 									</div>
-									<div cdsRow class="form-item">
-										<cds-label>
-											Description (optional)
-											<textarea
-												cdsTextArea
-												placeholder="What is the purpose of this workspace?"
-												formControlName="purpose"
-												[rows]="3"
-												aria-label="textarea"></textarea>
-										</cds-label>
+									<div class="form-item">
+										<cds-textarea label="Description (optional)" placeholder="What is the purpose of this workspace?" formControlName="purpose" [rows]="3" />
 									</div>
-									<div cdsRow class="form-item">
-										<button cdsButton (click)="changeStep(2)">Step 3</button>
+									<div class="form-item">
+										<cds-button (click)="changeStep(2)">Step 3</cds-button>
 									</div>
 								</div>
 							</form>
 						}
 						@case (2) {
-							<div cdsGrid>
-								<div cdsRow>
+							<div>
+								<cds-grid>
 									Step 3 form!
-								</div>
-								<div cdsRow class="form-item">
-									<button cdsButton (click)="changeStep(1)">Step 2</button>
+								</cds-grid>
+								<div class="form-item">
+									<cds-button (click)="changeStep(1)">Step 2</cds-button>
 								</div>
 							</div>
 						}
 					}
-				</div>
-			</div>
+				</cds-column>
+			</cds-grid>
 		</div>
 	`,
 	styles: [`
@@ -151,12 +135,11 @@ import { Label, TextArea, TextInput } from "../../input";
 		}
 	`],
 	imports: [
-		GridDirective,
-		RowDirective,
-		ColumnDirective,
+		CdsGrid,
+		CdsColumn,
 		Checkbox,
 		ProgressIndicator,
-		Button,
+		CdsButton,
 		Breadcrumb,
 		BreadcrumbItemComponent,
 		ReactiveFormsModule,
@@ -164,9 +147,8 @@ import { Label, TextArea, TextInput } from "../../input";
 		DropdownList,
 		Header,
 		Hamburger,
-		Label,
-		TextArea,
-		TextInput
+		CdsTextInput,
+		CdsTextarea
 	],
 	standalone: true
 })

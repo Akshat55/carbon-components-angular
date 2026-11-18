@@ -12,7 +12,6 @@ export default {
 		expandable: false,
 		placeholder: "Search",
 		disabled: false,
-		skeleton: false,
 		size: "md",
 		theme: "dark",
 		autocomplete: "on",
@@ -57,7 +56,6 @@ const Template = (args) => ({
 			(valueChange)="valueChange($event)"
 			(clear)="clear()"
 			[fluid]="fluid"
-			[skeleton]="skeleton"
 			[expandable]="expandable">
 		</cds-search>
 	`

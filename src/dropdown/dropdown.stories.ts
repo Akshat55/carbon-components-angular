@@ -105,7 +105,6 @@ const Template = (args) => ({
 		<cds-dropdown
 			[label]="label"
 			[hideLabel]="hideLabel"
-			[skeleton]="skeleton"
 			[helperText]="helperText"
 			[size]="size"
 			[dropUp]="dropUp"

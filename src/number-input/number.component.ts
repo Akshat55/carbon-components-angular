@@ -103,10 +103,6 @@ export class NumberComponent extends WebComponentValueAccessor<number> {
 	 * @deprecated the web component follows the surrounding theme / layer.
 	 */
 	@Input() theme: "light" | "dark" = "dark";
-	/**
-	 * @deprecated use `<cds-number-input-skeleton>` instead.
-	 */
-	@Input({ transform: booleanAttribute }) skeleton = false;
 
 	@Input() set decrementLabel(value: string | Observable<string>) {
 		this._decrementLabel.override(value);

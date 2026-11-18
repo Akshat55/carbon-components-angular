@@ -4,15 +4,12 @@ import {
 	TableModel,
 	TableHeaderItem,
 	TableItem,
-	Table,
-	TableContainer
+	Table
 } from "../../table";
 import { Dropdown, DropdownList } from "../../dropdown";
 import {
-	ColumnDirective,
-	GridDirective,
-	GridService,
-	RowDirective
+	CdsColumn,
+	CdsGrid
 } from "../../grid";
 import { Checkbox } from "../../checkbox";
 import { Hamburger, Header } from "../../ui-shell";
@@ -20,15 +17,15 @@ import { Hamburger, Header } from "../../ui-shell";
 @Component({
 	selector: "app-sample-single-selection",
 	template: `
-	<div cdsGrid>
-		<div cdsRow class="header">
+	<div>
+		<div class="header">
 			<cds-header name="Patterns">
 				<cds-header-menu-button></cds-header-menu-button>
 			</cds-header>
 		</div>
-		<div cdsRow>
-			<div cdsCol [columnNumbers]="{'lg': 3, 'md': 3, 'sm': 3}">
-				<label cdsText class="dropdown-label">
+		<cds-grid>
+			<cds-column lg="3" md="3" sm="3">
+				<label class="dropdown-label">
 					Filter by:
 					<cds-dropdown
 						class="filter-dropdown"
@@ -38,21 +35,18 @@ import { Hamburger, Header } from "../../ui-shell";
 						<cds-dropdown-list [items]="items"></cds-dropdown-list>
 					</cds-dropdown>
 				</label>
-			</div>
-		</div>
-		<div cdsRow>
-			<div cdsCol [columnNumbers]="{'lg': 12, 'md': 12, 'sm': 12}">
-				<cds-table-container>
-					<cds-table
-					class="data-table"
-						[model]="model"
-						size="lg"
-						[showSelectionColumn]="false">
-						<ng-content></ng-content>
-					</cds-table>
-				</cds-table-container>
-			</div>
-		</div>
+			</cds-column>
+		</cds-grid>
+		<cds-grid>
+			<cds-column lg="12" md="12" sm="12">
+				<cds-table
+				class="data-table"
+					[model]="model"
+					size="lg"
+					[isSelectable]="false">
+				</cds-table>
+			</cds-column>
+		</cds-grid>
 	</div>
 	`,
 	styles: [`
@@ -78,12 +72,10 @@ import { Hamburger, Header } from "../../ui-shell";
 	],
 	standalone: true,
 	imports: [
-		GridDirective,
-		RowDirective,
-		ColumnDirective,
+		CdsGrid,
+		CdsColumn,
 		Checkbox,
 		Table,
-		TableContainer,
 		Dropdown,
 		DropdownList,
 		Header,

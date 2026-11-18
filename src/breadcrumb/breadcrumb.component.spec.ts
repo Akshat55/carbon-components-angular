@@ -5,6 +5,7 @@ import { By } from "@angular/platform-browser";
 import { settle } from "../test-helpers/web-components";
 import { Breadcrumb } from "./breadcrumb.component";
 import { BreadcrumbItemComponent } from "./breadcrumb-item.component";
+import { BreadcrumbSkeleton } from "./breadcrumb-parts.component";
 
 @Component({
 	template: `
@@ -85,13 +86,12 @@ describe("Breadcrumb", () => {
 
 @Component({
 	template: `
-		<cds-breadcrumb [size]="size" [skeleton]="skeleton" [items]="items" />
+		<cds-breadcrumb [size]="size" [items]="items" />
 	`,
 	imports: [Breadcrumb, BreadcrumbItemComponent]
 })
 class TestBreadcrumbState {
 	size: "sm" | "md" | undefined;
-	skeleton = false;
 	items = [{ content: "One", href: "#" }, { content: "Two", href: "#" }];
 }
 
@@ -99,10 +99,11 @@ class TestBreadcrumbState {
 	template: `
 		<cds-breadcrumb>
 			<cds-breadcrumb-item href="#">One</cds-breadcrumb-item>
-			<cds-breadcrumb-item [skeleton]="true">Own skeleton</cds-breadcrumb-item>
+			<cds-breadcrumb-item>Two</cds-breadcrumb-item>
 		</cds-breadcrumb>
+		<cds-breadcrumb-skeleton [items]="3" />
 	`,
-	imports: [Breadcrumb, BreadcrumbItemComponent]
+	imports: [Breadcrumb, BreadcrumbItemComponent, BreadcrumbSkeleton]
 })
 class TestBreadcrumbUnset {}
 
@@ -115,23 +116,19 @@ describe("Breadcrumb state propagation", () => {
 		expect(breadcrumb.noTrailingSlash).toBe(false);
 	});
 
-	it("should leave each item's own skeleton alone when the breadcrumb's is unset", async () => {
+	it("should only render a link for items with href or route", async () => {
 		const fixture = TestBed.createComponent(TestBreadcrumbUnset);
 		await settle(fixture);
-		const items = fixture.debugElement.queryAll(By.directive(BreadcrumbItemComponent)).map(item => item.componentInstance);
-		expect(items.map(item => item.skeleton)).toEqual([false, true]);
+		const items = fixture.nativeElement.querySelectorAll("cds-breadcrumb > cds-breadcrumb-item");
+		expect(items[0].querySelector("cds-breadcrumb-link")).toBeTruthy();
+		expect(items[1].querySelector("cds-breadcrumb-link")).toBeNull();
 	});
 
-	it("should pass skeleton on to the items it renders from items", async () => {
-		const fixture = TestBed.createComponent(TestBreadcrumbState);
+	it("should show the loading state with cds-breadcrumb-skeleton", async () => {
+		const fixture = TestBed.createComponent(TestBreadcrumbUnset);
 		await settle(fixture);
-		const items = () => fixture.debugElement.queryAll(By.directive(BreadcrumbItemComponent)).map(item => item.componentInstance);
-		fixture.componentInstance.skeleton = true;
-		await settle(fixture);
-		expect(items().map(item => item.skeleton)).toEqual([true, true]);
-		fixture.componentInstance.skeleton = false;
-		await settle(fixture);
-		expect(items().map(item => item.skeleton)).toEqual([false, false]);
+		const skeleton = fixture.nativeElement.querySelector("cds-breadcrumb-skeleton");
+		expect(skeleton.items).toBe(3);
 	});
 
 	it("should let the web component pass size on to its links", async () => {

@@ -173,10 +173,6 @@ export class DatePicker extends WebComponentValueAccessor<Date[] | Date> impleme
 	 * @deprecated the web component follows the surrounding theme / layer.
 	 */
 	@Input() theme: "light" | "dark" = "dark";
-	/**
-	 * @deprecated use `<cds-date-picker-input-skeleton>` instead.
-	 */
-	@Input({ transform: booleanAttribute }) skeleton = false;
 
 	@Output() valueChange: EventEmitter<any> = new EventEmitter();
 	// eslint-disable-next-line @angular-eslint/no-output-on-prefix -- existing output name

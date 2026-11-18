@@ -1,7 +1,6 @@
 import { NgModule } from "@angular/core";
 import { CommonModule } from "@angular/common";
 
-import { Button } from "./button.directive";
 import { CdsButton } from "./button.component";
 import { ButtonSet } from "./button-set.component";
 import { BaseIconButton } from "./base-icon-button.component";
@@ -12,7 +11,6 @@ import { ButtonSkeleton } from "./button-skeleton.component";
 
 @NgModule({
 	exports: [
-		Button,
 		CdsButton,
 		ButtonSet,
 		IconButton,
@@ -21,7 +19,6 @@ import { ButtonSkeleton } from "./button-skeleton.component";
 	imports: [
 		CommonModule,
 		TooltipModule,
-		Button,
 		CdsButton,
 		ButtonSet,
 		BaseIconButton,

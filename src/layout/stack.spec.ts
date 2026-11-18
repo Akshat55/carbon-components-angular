@@ -1,56 +1,48 @@
-import { TestBed, ComponentFixture } from "@angular/core/testing";
+import { TestBed } from "@angular/core/testing";
 import { Component } from "@angular/core";
-import { By } from "@angular/platform-browser";
 
-import { StackDirective } from "./stack.directive";
+import { CdsStack } from "./stack.component";
+import { settle, shadow } from "../test-helpers/web-components";
 
 @Component({
-	template: `<div cdsStack>Test</div>`,
-	imports: [StackDirective]
+	template: `
+		<cds-stack id="default">Test</cds-stack>
+		<cds-stack id="horizontal" orientation="horizontal" [gap]="gap">Test</cds-stack>
+		<cds-stack id="custom" gap="2rem" useCustomGapValue>Test</cds-stack>
+	`,
+	imports: [CdsStack]
 })
-class TestStackComponent {}
+class TestStackComponent {
+	gap = 5;
+}
 
 describe("Stack", () => {
-	beforeEach(() => {
-		TestBed.configureTestingModule({
-			imports: [TestStackComponent]
-		});
+	let fixture;
+
+	beforeEach(async () => {
+		fixture = TestBed.createComponent(TestStackComponent);
+		await settle(fixture);
 	});
 
-	it("should assign default stack class to div", () => {
-		TestBed.configureTestingModule({
-			imports: [TestStackComponent]
-		});
-
-		let fixture: ComponentFixture<TestStackComponent> = TestBed.createComponent(TestStackComponent);
-		let component: TestStackComponent = fixture.componentInstance;
-		fixture.detectChanges();
-
-		expect(component).toBeTruthy();
-		const directiveEl = fixture.debugElement.query(By.directive(StackDirective));
-		expect(directiveEl).not.toBeNull();
-		expect(directiveEl.nativeElement.classList.contains("cds--stack-vertical")).toBeTruthy();
+	it("should keep the web component's vertical default", () => {
+		const stack = fixture.nativeElement.querySelector("#default");
+		expect(stack instanceof customElements.get("cds-stack")).toBe(true);
+		expect(stack.orientation).toBe("vertical");
 	});
 
-	/**
-	 * @todo Remove this test when `ibmStack` is removed
-	 * v6
-	 */
-	it("should work with deprecated `ibmStack` input property", async () => {
-		TestBed.overrideComponent(TestStackComponent, {
-			set: {
-				template: `
-					<div ibmStack="horizontal"></div>
-				`
-			}
-		});
+	it("should set the orientation and the gap step", async () => {
+		const stack = fixture.nativeElement.querySelector("#horizontal");
+		expect(stack.orientation).toBe("horizontal");
+		expect(shadow(stack, "div").classList.contains("cds--stack-scale-5")).toBe(true);
 
-		await TestBed.compileComponents();
+		fixture.componentInstance.gap = 7;
+		await settle(fixture);
+		expect(shadow(stack, "div").classList.contains("cds--stack-scale-7")).toBe(true);
+		expect(shadow(stack, "div").classList.contains("cds--stack-scale-5")).toBe(false);
+	});
 
-		let fixture: ComponentFixture<TestStackComponent> = TestBed.createComponent(TestStackComponent);
-		fixture.detectChanges();
-
-		const directiveEl = fixture.debugElement.query(By.directive(StackDirective));
-		expect(directiveEl.nativeElement.classList.contains("cds--stack-horizontal")).toBeTruthy();
+	it("should use a custom gap value", () => {
+		const stack = fixture.nativeElement.querySelector("#custom");
+		expect(stack.style.getPropertyValue("--cds-stack-gap")).toBe("2rem");
 	});
 });

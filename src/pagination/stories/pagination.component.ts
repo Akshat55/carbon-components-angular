@@ -12,7 +12,6 @@ import { Pagination, PaginationModel } from "..";
 			[size]="paginationSize"
 			[pagesUnknown]="pagesUnknown"
 			[showPageInput]="showPageInput"
-			[skeleton]="skeleton"
 			[backwardDisabled]="backwardDisabled"
 			[forwardDisabled]="forwardDisabled"
 			(selectPage)="selectPage($event)">
@@ -23,7 +22,6 @@ import { Pagination, PaginationModel } from "..";
 })
 export class PaginationStory implements OnInit {
 	@Input() model = new PaginationModel();
-	@Input() skeleton = false;
 	@Input() disabled = false;
 	@Input() pageInputDisabled = false;
 	@Input() paginationSize: "sm" | "md" | "lg" = "md";

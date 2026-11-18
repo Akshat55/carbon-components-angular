@@ -15,7 +15,6 @@ import { FileUploader } from "../file-uploader.component";
 			[buttonType]="buttonType"
 			[accept]="accept"
 			[multiple]="multiple"
-			[skeleton]="skeleton"
 			[(files)]="files"
 			[size]="size"
 			[fileItemSize]="fileItemSize"
@@ -36,7 +35,6 @@ export class FileUploaderStory {
 	@Input() buttonType = "primary";
 	@Input() accept = [".jpg", ".png"];
 	@Input() multiple;
-	@Input() skeleton = false;
 	@Input() size = "md";
 	@Input() disabled = false;
 	@Input() fileItemSize: "sm" | "md" | "lg" = "lg";

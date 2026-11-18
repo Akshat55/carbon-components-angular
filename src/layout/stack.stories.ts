@@ -1,24 +1,24 @@
 import { moduleMetadata, Meta } from "@storybook/angular";
-import { StackDirective } from "./";
+import { CdsStack } from "./";
 
 export default {
 	title: "Layout/Stack",
 	decorators: [
 		moduleMetadata({
-			imports: [StackDirective]
+			imports: [CdsStack]
 		})
 	],
-	component: StackDirective
+	component: CdsStack
 } as Meta;
 
 const Template = (args) => ({
 	props: args,
 	template: `
-		<div [cdsStack]="orientation" [gap]="gap">
+		<cds-stack [orientation]="orientation" [gap]="gap">
 			<div>Item 1</div>
 			<div>Item 2</div>
 			<div>Item 3</div>
-		<div>
+		</cds-stack>
 	`
 });
 export const Basic = Template.bind({});

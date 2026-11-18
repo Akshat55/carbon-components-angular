@@ -27,21 +27,21 @@ export default {
 const Template = (args) => ({
 	props: args,
 	template: `
-		<div cdsGrid>
-			<div cdsRow>
-				<div cdsCol [columnNumbers]="{ sm: 1, md: 2, lg: 4 }">
+		<div>
+			<cds-grid>
+				<cds-column sm="1" md="2" lg="4">
 					<div cdsAspectRatio [ratio]="ratio">Content</div>
-				</div>
-				<div cdsCol [columnNumbers]="{ sm: 1, md: 2, lg: 4 }">
+				</cds-column>
+				<cds-column sm="1" md="2" lg="4">
 					<div cdsAspectRatio [ratio]="ratio">Content</div>
-				</div>
-				<div cdsCol [columnNumbers]="{ sm: 1, md: 2, lg: 4 }">
+				</cds-column>
+				<cds-column sm="1" md="2" lg="4">
 					<div cdsAspectRatio [ratio]="ratio">Content</div>
-				</div>
-				<div cdsCol [columnNumbers]="{ sm: 1, md: 2, lg: 4 }">
+				</cds-column>
+				<cds-column sm="1" md="2" lg="4">
 					<div cdsAspectRatio [ratio]="ratio">Content</div>
-				</div>
-			</div>
+				</cds-column>
+			</cds-grid>
 		</div>
 	`
 });

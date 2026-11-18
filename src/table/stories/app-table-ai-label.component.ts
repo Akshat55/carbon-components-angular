@@ -9,11 +9,7 @@ import { TableHeaderItem } from "../table-header-item.class";
 import { TableItem } from "../table-item.class";
 import { TableModel } from "../table-model.class";
 import { Table } from "../table.component";
-import { TableContainer } from "../table-container.component";
-import { TableHeader } from "../header/table-header.component";
-import { TableHeaderDecorator } from "../header/table-header-decorator.component";
-import { TableHeaderDescription } from "../header/table-header-description.directive";
-import { TableHeaderTitle } from "../header/table-header-title.directive";
+import { TableHeaderDescription, TableHeaderTitle } from "../table-parts.component";
 import { AI_LABEL_INNER } from "../../storybook/ai-label-story-shared";
 import { IconDirective } from "../../icon";
 import { ButtonModule } from "../../button";
@@ -50,11 +46,11 @@ function showSlugForRowIndex(i: number): boolean {
 		<cds-table
 			[model]="model"
 			size="md"
-			[showSelectionColumn]="true"
-			[striped]="true"
-			[sortable]="true"
-			[isDataGrid]="true"
+			[isSelectable]="true"
+			[useZebraStyles]="true"
+			[isSortable]="true"
 			[withRowAILabels]="true">
+			<ng-content />
 		</cds-table>
 	`,
 	standalone: true,
@@ -111,12 +107,12 @@ export class TableAiLabelWithSelectionStory implements AfterViewInit {
 		<cds-table
 			[model]="model"
 			size="md"
-			[showSelectionColumn]="true"
-			[enableSingleSelect]="true"
-			[striped]="true"
-			[sortable]="true"
-			[isDataGrid]="true"
+			[isSelectable]="true"
+			[radio]="true"
+			[useZebraStyles]="true"
+			[isSortable]="true"
 			[withRowAILabels]="true">
+			<ng-content />
 		</cds-table>
 	`,
 	standalone: true,
@@ -173,12 +169,12 @@ export class TableAiLabelRadioSelectionStory implements AfterViewInit {
 		<cds-table
 			[model]="model"
 			size="md"
-			[showSelectionColumn]="true"
-			[showExpandAllToggle]="true"
-			[striped]="true"
-			[sortable]="true"
-			[isDataGrid]="true"
+			[isSelectable]="true"
+			[batchExpansion]="true"
+			[useZebraStyles]="true"
+			[isSortable]="true"
 			[withRowAILabels]="true">
+			<ng-content />
 		</cds-table>
 	`,
 	standalone: true,
@@ -238,12 +234,12 @@ export class TableAiLabelSelectionExpansionStory implements AfterViewInit {
 		<cds-table
 			[model]="model"
 			size="md"
-			[showSelectionColumn]="false"
-			[showExpandAllToggle]="true"
-			[striped]="true"
-			[sortable]="true"
-			[isDataGrid]="true"
+			[isSelectable]="false"
+			[batchExpansion]="true"
+			[useZebraStyles]="true"
+			[isSortable]="true"
 			[withRowAILabels]="true">
+			<ng-content />
 		</cds-table>
 	`,
 	standalone: true,
@@ -302,11 +298,11 @@ export class TableAiLabelExpansionOnlyStory implements AfterViewInit {
 		<cds-table
 			[model]="model"
 			size="md"
-			[showSelectionColumn]="true"
-			[showExpandAllToggle]="true"
-			[striped]="true"
-			[sortable]="true"
-			[isDataGrid]="true">
+			[isSelectable]="true"
+			[batchExpansion]="true"
+			[useZebraStyles]="true"
+			[isSortable]="true">
+			<ng-content />
 		</cds-table>
 	`,
 	standalone: true,
@@ -362,10 +358,10 @@ export class TableAiLabelColumnExpansionStory implements AfterViewInit {
 		<cds-table
 			[model]="model"
 			size="md"
-			[showSelectionColumn]="false"
-			[striped]="true"
-			[sortable]="true"
-			[isDataGrid]="true">
+			[isSelectable]="false"
+			[useZebraStyles]="true"
+			[isSortable]="true">
+			<ng-content />
 		</cds-table>
 	`,
 	standalone: true,
@@ -398,39 +394,32 @@ export class TableAiLabelColumnSortStory implements AfterViewInit {
 @Component({
 	selector: "app-table-ai-label-full-table",
 	template: `
-		<cds-table-container class="ai-label-column-table" [aiEnabled]="true">
-			<cds-table-header>
-				<h4 cdsTableHeaderTitle>DataTable</h4>
-				<p cdsTableHeaderDescription>AI, full table</p>
-				<cds-table-header-decorator>
-					<cds-ai-label
-						class="ai-label-container"
-						kind="default"
-						size="xs"
-						[autoAlign]="true"
-						aiText="AI"
-						ariaLabel="Show information">
-						` + AI_LABEL_INNER + `
-					</cds-ai-label>
-				</cds-table-header-decorator>
-			</cds-table-header>
-			<cds-table
-				[model]="model"
-				size="md"
-				[showSelectionColumn]="false"
-				[striped]="true"
-				[sortable]="true"
-				[isDataGrid]="true">
-			</cds-table>
-		</cds-table-container>
+		<cds-table
+			class="ai-label-column-table"
+			[model]="model"
+			size="md"
+			[isSelectable]="false"
+			[useZebraStyles]="true"
+			[isSortable]="true">
+			<cds-table-header-title slot="title">
+				DataTable
+				<cds-ai-label
+					class="ai-label-container"
+					kind="default"
+					size="xs"
+					[autoAlign]="true"
+					aiText="AI"
+					ariaLabel="Show information">
+					` + AI_LABEL_INNER + `
+				</cds-ai-label>
+			</cds-table-header-title>
+			<cds-table-header-description slot="description">AI, full table</cds-table-header-description>
+		</cds-table>
 	`,
 	standalone: true,
 	imports: [
-		TableContainer,
-		TableHeader,
 		TableHeaderTitle,
 		TableHeaderDescription,
-		TableHeaderDecorator,
 		Table,
 		AILabelComponent
 	]

@@ -1,5 +1,5 @@
 import { moduleMetadata, Meta } from "@storybook/angular";
-import { Breadcrumb, BreadcrumbItemComponent, BreadcrumbItem } from "./";
+import { Breadcrumb, BreadcrumbItemComponent, BreadcrumbItem, BreadcrumbSkeleton } from "./";
 
 let breadcrumbItems;
 
@@ -22,21 +22,17 @@ export default {
 		moduleMetadata({
 			imports: [
 				Breadcrumb,
-				BreadcrumbItemComponent
+				BreadcrumbItemComponent,
+				BreadcrumbSkeleton
 			]
 		})
 	],
 	args: {
-		noTrailingSlash: true,
-		skeleton: false
+		noTrailingSlash: true
 	},
 	argTypes: {
 		noTrailingSlash: {
 			type: "boolean"
-		},
-		skeleton: {
-			type: "boolean",
-			control: false
 		}
 	},
 	component: Breadcrumb
@@ -134,12 +130,7 @@ ModelWithTemplate.args = {
 const WithSkeleton = (args) => ({
 	props: args,
 	template: `
-		<cds-breadcrumb [noTrailingSlash]="noTrailingSlash" [size]="size">
-			<cds-breadcrumb-item skeleton="true"></cds-breadcrumb-item>
-			<cds-breadcrumb-item skeleton="true"></cds-breadcrumb-item>
-			<cds-breadcrumb-item skeleton="true"></cds-breadcrumb-item>
-			<cds-breadcrumb-item skeleton="true"></cds-breadcrumb-item>
-		</cds-breadcrumb>
+		<cds-breadcrumb-skeleton [items]="4" />
 	`
 });
 export const Skeleton = WithSkeleton.bind({});

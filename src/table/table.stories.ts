@@ -1,8 +1,7 @@
 import { moduleMetadata, Meta } from "@storybook/angular";
 import { FormsModule } from "@angular/forms";
-import { NgStyle } from "@angular/common";
-import { Button } from "../button";
-import { Search } from "../search";
+import { CdsButton } from "../button";
+import { CdsIcon } from "../icon";
 import { OverflowMenu, OverflowMenuBody, OverflowMenuOption } from "../overflow-menu";
 import { TableRow } from "./table-row.class";
 import {
@@ -13,25 +12,13 @@ import {
 	FilterWithModelStory,
 	OverflowTableStory,
 	PaginationTableStory,
-	SkeletonTableStory,
 	TableNoDataStory
 } from "./stories";
 import {
 	TableModel,
 	TableItem,
 	TableHeaderItem,
-	TableContainer,
-	TableHeader,
-	TableToolbar,
-	TableToolbarActions,
-	TableToolbarContent,
-	TableToolbarSearch,
-	TableData,
-	TableRowComponent,
-	TableDirective,
-	TableHeaderTitle,
-	TableHeadCell,
-	TableBody
+	TableModule
 } from "./";
 
 const simpleModel = new TableModel();
@@ -56,12 +43,10 @@ const getProps = (more = {}, type: "args" | "argTypes") => {
 		title: "Table title",
 		description: "",
 		size: "md",
-		showSelectionColumn: true,
-		striped: false,
-		sortable: true,
-		isDataGrid: true,
-		stickyHeader: false,
-		skeleton: false
+		isSelectable: true,
+		radio: false,
+		useZebraStyles: false,
+		isSortable: true
 	} : {
 		size: {
 			options: ["xs", "sm", "md", "lg", "xl"],
@@ -79,6 +64,7 @@ function getModelWithDisabledRows() {
 	row2.disabled = true;
 	const row3 = new TableRow(new TableItem({ data: "Name 2" }), new TableItem({ data: "Enabled 1" }));
 	const row4 = new TableRow(new TableItem({ data: "Name 4" }), new TableItem({ data: "Enabled 2" }));
+	disabledModel.header = [new TableHeaderItem({ data: "Name" }), new TableHeaderItem({ data: "State" })];
 	disabledModel.data = [row1, row2, row3, row4];
 	return disabledModel;
 }
@@ -90,24 +76,12 @@ export default {
 		moduleMetadata({
 			imports: [
 				FormsModule,
-				Search,
-				Button,
-				TableContainer,
-				TableHeader,
-				TableToolbar,
-				TableToolbarActions,
-				TableToolbarContent,
-				TableToolbarSearch,
-				TableRowComponent,
+				CdsButton,
+				CdsIcon,
+				TableModule,
 				OverflowMenu,
 				OverflowMenuBody,
 				OverflowMenuOption,
-				TableDirective,
-				TableHeaderTitle,
-				TableHeadCell,
-				TableBody,
-				TableData,
-				NgStyle,
 
 				// stories
 				TableStory,
@@ -117,7 +91,6 @@ export default {
 				FilterWithModelStory,
 				OverflowTableStory,
 				PaginationTableStory,
-				SkeletonTableStory,
 				TableNoDataStory
 			]
 		})
@@ -130,39 +103,29 @@ export default {
 	}
 } as Meta;
 
+/**
+ * app-* components are for demo purposes only. Their source is in `src/table/stories`.
+ * They render a `cds-table` and project their content into it, so the title, description
+ * and toolbar below land in the table's `title`, `description` and `toolbar` slots.
+ */
 const Template = (args) => ({
 	props: args,
 	template: `
-		<cds-table-container>
-			<cds-table-header>
-				<h4 cdsTableHeaderTitle>{{title}}</h4>
-				<p cdsTableHeaderDescription>{{description}}</p>
-			</cds-table-header>
-
-			<!--
-			app-* components are for demo purposes only.
-			You can create your own implementation by using the component source found at:
-			https://github.com/IBM/carbon-components-angular/tree/master/src/table/stories/app-table.component.ts
-			-->
-			<app-table
-				[model]="model"
-				[stickyHeader]="stickyHeader"
-				[size]="size"
-				[skeleton]="skeleton"
-				[enableSingleSelect]="enableSingleSelect"
-				[showSelectionColumn]="showSelectionColumn"
-				[striped]="striped"
-				[sortable]="sortable"
-				[isDataGrid]="isDataGrid">
-			</app-table>
-		</cds-table-container>
+		<app-table
+			[model]="model"
+			[size]="size"
+			[radio]="radio"
+			[isSelectable]="isSelectable"
+			[useZebraStyles]="useZebraStyles"
+			[isSortable]="isSortable">
+			<cds-table-header-title slot="title">{{title}}</cds-table-header-title>
+			<cds-table-header-description slot="description">{{description}}</cds-table-header-description>
+		</app-table>
 	`
 });
 export const Basic = Template.bind({});
 Basic.args = {
-	...getProps({
-		enableSingleSelect: false
-	}, "args")
+	...getProps({}, "args")
 };
 Basic.argTypes = {
 	...getProps({}, "argTypes")
@@ -171,34 +134,22 @@ Basic.argTypes = {
 const NoDataTemplate = (args) => ({
 	props: args,
 	template: `
-		<cds-table-container>
-			<cds-table-header>
-				<h4 cdsTableHeaderTitle id="table-header">{{title}}</h4>
-				<p cdsTableHeaderDescription id="table-description">{{description}}</p>
-			</cds-table-header>
-
-			<!--
-			app-* components are for demo purposes only.
-			You can create your own implementation by using the component source found at:
-			https://github.com/IBM/carbon-components-angular/tree/master/src/table/stories/app-no-data.component.ts
-			-->
-			<app-no-data-table
-				[model]="model"
-				[size]="size"
-				[skeleton]="skeleton"
-				[showSelectionColumn]="showSelectionColumn"
-				[striped]="striped"
-				ariaLabelledby="table-header"
-				ariaDescribedby="table-description">
-				<tbody><tr><td class="no-data" colspan="3"><div>No data.</div></td></tr></tbody>
-			</app-no-data-table>
-		</cds-table-container>
+		<app-no-data-table
+			[model]="model"
+			[size]="size"
+			[isSelectable]="isSelectable"
+			[useZebraStyles]="useZebraStyles">
+			<cds-table-header-title slot="title">{{title}}</cds-table-header-title>
+			<cds-table-header-description slot="description">{{description}}</cds-table-header-description>
+			<div class="no-data">No data.</div>
+		</app-no-data-table>
 	`,
 	styles: [`
 		.no-data {
-			width: 100%;
+			display: flex;
+			align-items: center;
+			justify-content: center;
 			height: 150px;
-			text-align: center;
 		}
 	`]
 });
@@ -212,154 +163,93 @@ WithoutData.args = {
 const ToolbarTemplate = (args) => ({
 	props: args,
 	template: `
-		<cds-table-container>
-			<cds-table-header>
-				<h4 cdsTableHeaderTitle>{{title}}</h4>
-				<p cdsTableHeaderDescription>{{description}}</p>
-			</cds-table-header>
-			<cds-table-toolbar
-				[model]="model"
-				[batchText]="batchText"
-				[size]="size"
-				(cancel)="cancelMethod()"
-				#toolbar>
-				<cds-table-toolbar-actions>
-					<button cdsButton="primary" [tabindex]="toolbar.selected ? 0 : -1">
+		<app-table
+			[model]="model"
+			[size]="size"
+			[isSelectable]="isSelectable"
+			[radio]="radio"
+			[useZebraStyles]="useZebraStyles"
+			[isSortable]="isSortable">
+			<cds-table-header-title slot="title">{{title}}</cds-table-header-title>
+			<cds-table-header-description slot="description">{{description}}</cds-table-header-description>
+			<cds-table-toolbar slot="toolbar">
+				<cds-table-batch-actions [model]="model" (cancel)="cancelMethod()">
+					<cds-button>
 						Delete
-						<svg cdsIcon="trash-can" size="16" class="cds--btn__icon"></svg>
-					</button>
-					<button cdsButton="primary" [tabindex]="toolbar.selected ? 0 : -1">
+						<cds-icon slot="icon" icon="trash-can" />
+					</cds-button>
+					<cds-button>
 						Save
-						<svg cdsIcon="save" size="16" class="cds--btn__icon"></svg>
-					</button>
-					<button cdsButton="primary" [tabindex]="toolbar.selected ? 0 : -1">
+						<cds-icon slot="icon" icon="save" />
+					</cds-button>
+					<cds-button>
 						Download
-						<svg cdsIcon="download" size="16" class="cds--btn__icon"></svg>
-					</button>
-				</cds-table-toolbar-actions>
-				@if (!toolbar.selected) {
-					<cds-table-toolbar-content>
-					<cds-table-toolbar-search
-						ngDefaultControl
-						[expandable]="searchExpandable"
-						[(ngModel)]="searchModel">
-					</cds-table-toolbar-search>
-					<cds-overflow-menu
-						triggerClass="cds--toolbar-action"
-						[customTrigger]="customTrigger"
-						[offset]="size === 'sm' ? null : offset">
-						<cds-overflow-menu-body direction="bottom">
+						<cds-icon slot="icon" icon="download" />
+					</cds-button>
+				</cds-table-batch-actions>
+				<cds-table-toolbar-content>
+					<cds-table-toolbar-search [persistent]="searchPersistent" [(ngModel)]="searchModel" />
+					<cds-overflow-menu toolbar-action>
+						<cds-icon slot="icon" icon="settings" />
+						<span slot="tooltip-content">Settings</span>
+						<cds-overflow-menu-body flipped>
 							<cds-overflow-menu-item>Option 1</cds-overflow-menu-item>
 							<cds-overflow-menu-item>Option 2</cds-overflow-menu-item>
-							<cds-overflow-menu-item disabled="true">Disabled</cds-overflow-menu-item>
+							<cds-overflow-menu-item disabled>Disabled</cds-overflow-menu-item>
 							<cds-overflow-menu-item type="danger">Danger option</cds-overflow-menu-item>
 						</cds-overflow-menu-body>
 					</cds-overflow-menu>
-					<button cdsButton="primary" size="sm" [tabindex]="toolbar.selected ? -1 : 0">
-						Primary button<svg cdsIcon="add" size="20" class="cds--btn__icon"></svg>
-					</button>
-					</cds-table-toolbar-content>
-				}
+					<cds-button>
+						Primary button
+						<cds-icon slot="icon" icon="add" />
+					</cds-button>
+				</cds-table-toolbar-content>
 			</cds-table-toolbar>
-			<!--
-			app-* components are for demo purposes only.
-			You can create your own implementation by using the component source found at:
-			https://github.com/IBM/carbon-components-angular/tree/master/src/table/stories/app-table.component.ts
-			-->
-			<app-table
-				[model]="model"
-				[size]="size"
-				[showSelectionColumn]="showSelectionColumn"
-				[enableSingleSelect]="enableSingleSelect"
-				[striped]="striped"
-				[sortable]="sortable"
-				[skeleton]="skeleton"
-				[stickyHeader]="stickyHeader"
-				[isDataGrid]="isDataGrid">
-			</app-table>
-			<ng-template #customTrigger><svg cdsIcon="settings" size="16"></svg></ng-template>
-		</cds-table-container>
+		</app-table>
 	`
 });
 export const WithToolbar = ToolbarTemplate.bind({});
 WithToolbar.args = {
 	...getProps({
 		description: "With toolbar",
-		searchModel: "Initial search value",
-		searchExpandable: true,
-		enableSingleSelect: false,
-		batchText: {
-			SINGLE: "1 item selected",
-			MULTIPLE: "{{count}} items selected"
-		},
-		offset: {
-			x: -9,
-			y: 0
+		searchModel: "",
+		searchPersistent: false,
+		cancelMethod: () => {
+			// eslint-disable-next-line no-console
+			console.log("Custom cancel method");
 		}
 	}, "args")
 };
 WithToolbar.argTypes = {
-	...getProps({
-		canelMethod: {
-			type: "function",
-			control: false,
-			defaultValue: () => {
-				// eslint-disable-next-line no-console
-				console.log("Custom cancel method");
-			}
-		}
-	}, "argTypes")
+	...getProps({}, "argTypes")
 };
 
 const DisabledRowsTemplate = (args) => ({
 	props: args,
 	template: `
-		<cds-table-container>
-			<cds-table-header>
-				<h4 cdsTableHeaderTitle>{{title}}</h4>
-				<p cdsTableHeaderDescription>{{description}}</p>
-			</cds-table-header>
-			<cds-table-toolbar [model]="model" [batchText]="batchText" #toolbar>
-				<cds-table-toolbar-actions>
-					<button cdsButton="primary">
+		<app-no-data-table
+			[model]="model"
+			[size]="size"
+			[isSelectable]="true"
+			[useZebraStyles]="useZebraStyles">
+			<cds-table-header-title slot="title">{{title}}</cds-table-header-title>
+			<cds-table-header-description slot="description">{{description}}</cds-table-header-description>
+			<cds-table-toolbar slot="toolbar">
+				<cds-table-batch-actions [model]="model">
+					<cds-button>
 						Delete
-						<svg cdsIcon="delete" size="16" class="cds--btn__icon"></svg>
-					</button>
-					<button cdsButton="primary">
-						Save
-						<svg cdsIcon="save" size="16" class="cds--btn__icon"></svg>
-					</button>
-					<button cdsButton="primary">
-						Download
-						<svg cdsIcon="download" size="16" class="cds--btn__icon"></svg>
-					</button>
-				</cds-table-toolbar-actions>
-				@if (!toolbar.selected) {
-					<cds-table-toolbar-content>
-					<cds-table-toolbar-search [expandable]="true"></cds-table-toolbar-search>
-					<button cdsButton="ghost" class="toolbar-action">
-						<svg cdsIcon="settings" size="16" class="cds--toolbar-action__icon"></svg>
-					</button>
-					<button cdsButton="primary" size="sm">
-						Primary button<svg cdsIcon="add" size="20" class="cds--btn__icon"></svg>
-					</button>
-					</cds-table-toolbar-content>
-				}
+						<cds-icon slot="icon" icon="trash-can" />
+					</cds-button>
+				</cds-table-batch-actions>
+				<cds-table-toolbar-content>
+					<cds-table-toolbar-search />
+					<cds-button>
+						Primary button
+						<cds-icon slot="icon" icon="add" />
+					</cds-button>
+				</cds-table-toolbar-content>
 			</cds-table-toolbar>
-			<!--
-			app-* components are for demo purposes only.
-			You can create your own implementation by using the component source found at:
-			https://github.com/IBM/carbon-components-angular/tree/master/src/table/stories/app-no-data-table.component.ts
-			-->
-			<app-no-data-table
-				[model]="model"
-				[size]="lg"
-				[showSelectionColumn]="true"
-				[striped]="striped"
-				[sortable]="sortable"
-				[isDataGrid]="isDataGrid">
-			</app-no-data-table>
-		</cds-table-container>
+		</app-no-data-table>
 	`
 });
 export const WithDisabledRows = DisabledRowsTemplate.bind({});
@@ -367,89 +257,20 @@ WithDisabledRows.storyName = "With toolbar and disabled rows";
 WithDisabledRows.args = {
 	...getProps({
 		model: getModelWithDisabledRows(),
-		size: "md",
-		title: "Table title",
-		description: "With toolbar & disabled rows",
-		striped: false,
-		sortable: true,
-		isDataGrid: true,
-		batchText: {
-			SINGLE: "1 item selected",
-			MULTIPLE: "{{count}} items selected"
-		}
+		description: "With toolbar & disabled rows"
 	}, "args")
 };
 WithDisabledRows.argTypes = {
-	size: {
-		options: ["xs", "sm", "md", "lg", "xl"],
-		control: "select"
-	}
-};
-
-const WithoutActionTemplate = (args) => ({
-	props: args,
-	template: `
-		<cds-table-container>
-			<cds-table-header>
-				<h4 cdsTableHeaderTitle id="table-header">{{title}}</h4>
-				<p cdsTableHeaderDescription id="table-description">{{description}}</p>
-			</cds-table-header>
-			<cds-table-toolbar>
-				<cds-table-toolbar-content>
-					<cds-table-toolbar-search [expandable]="true"></cds-table-toolbar-search>
-					<button cdsButton="ghost" class="toolbar-action">
-						<svg cdsIcon="settings" size="16" class="cds--toolbar-action__icon"></svg>
-					</button>
-					<button cdsButton="primary" size="sm">
-						Primary button<svg cdsIcon="add" size="20" class="cds--btn__icon"></svg>
-					</button>
-				</cds-table-toolbar-content>
-			</cds-table-toolbar>
-
-			<!--
-			app-* components are for demo purposes only.
-			You can create your own implementation by using the component source found at:
-			https://github.com/IBM/carbon-components-angular/tree/master/src/table/stories/app-table.component.ts
-			-->
-			<app-table
-				[model]="model"
-				[size]="size"
-				[showSelectionColumn]="showSelectionColumn"
-				[enableSingleSelect]="enableSingleSelect"
-				[stickyHeader]="stickyHeader"
-				[skeleton]="skeleton"
-				[striped]="striped"
-				[sortable]="sortable"
-				[isDataGrid]="isDataGrid"
-				ariaLabelledby="table-header"
-				ariaDescribedby="table-description">
-			</app-table>
-		</cds-table-container>
-	`
-});
-export const WithToolbarWithoutToolbarAction = WithoutActionTemplate.bind({});
-WithToolbarWithoutToolbarAction.args = {
-	...getProps({
-		description: "With toolbar",
-		enableSingleSeelct: false
-	}, "args")
+	...getProps({}, "argTypes")
 };
 
 const FilteringOverridingTemplate = (args) => ({
 	props: args,
 	template: `
-		<!--
-		app-* components are for demo purposes only.
-		You can create your own implementation by using the component source found at:
-		https://github.com/IBM/carbon-components-angular/tree/master/src/table/stories/app-function-override-filter-table.component.ts
-		-->
 		<app-function-override-filter-table
-			[stickyHeader]="stickyHeader"
 			[size]="size"
-			[skeleton]="skeleton"
-			[showSelectionColumn]="showSelectionColumn"
-			[striped]="striped"
-			[isDataGrid]="isDataGrid">
+			[isSelectable]="isSelectable"
+			[useZebraStyles]="useZebraStyles">
 		</app-function-override-filter-table>
 	`
 });
@@ -462,90 +283,55 @@ FilteringOverriding.args = {
 const FilteringTemplate = (args) => ({
 	props: args,
 	template: `
-		<!--
-		app-* components are for demo purposes only.
-		You can create your own implementation by using the component source found at:
-		https://github.com/IBM/carbon-components-angular/tree/master/src/table/stories/app-model-filter-table.component.ts
-		-->
 		<app-model-filter-table
-			[stickyHeader]="stickyHeader"
 			[size]="size"
-			[skeleton]="skeleton"
-			[showSelectionColumn]="showSelectionColumn"
-			[striped]="striped"
-			[isDataGrid]="isDataGrid">
+			[isSelectable]="isSelectable"
+			[useZebraStyles]="useZebraStyles">
 		</app-model-filter-table>
 	`
 });
 export const Filtering = FilteringTemplate.bind({});
 Filtering.storyName = "Filtering by alteration of model data";
 Filtering.args = {
-	...getProps({
-		description: "With toolbar",
-		enableSingleSeelct: false
-	}, "args")
+	...getProps({}, "args")
 };
 
 const ExpansionTemplate = (args) => ({
 	props: args,
 	template: `
-		<cds-table-container>
-			<cds-table-header>
-				<h4 cdsTableHeaderTitle>{{title}}</h4>
-				<p cdsTableHeaderDescription>{{description}}</p>
-			</cds-table-header>
-			<!--
-			app-* components are for demo purposes only.
-			You can create your own implementation by using the component source found at:
-			https://github.com/IBM/carbon-components-angular/tree/master/src/table/stories/app-expansion-table.component.ts
-			-->
-			<app-expansion-table
-				[size]="size"
-				[showSelectionColumn]="showSelectionColumn"
-				[sortable]="sortable"
-				[stickyHeader]="stickyHeader"
-				[skeleton]="skeleton"
-				[striped]="striped"
-				[isDataGrid]="isDataGrid"
-				[showExpandAllToggle]="showExpandAllToggle">
-			</app-expansion-table>
-		</cds-table-container>
+		<app-expansion-table
+			[size]="size"
+			[isSelectable]="isSelectable"
+			[isSortable]="isSortable"
+			[useZebraStyles]="useZebraStyles"
+			[batchExpansion]="batchExpansion">
+			<cds-table-header-title slot="title">{{title}}</cds-table-header-title>
+			<cds-table-header-description slot="description">{{description}}</cds-table-header-description>
+		</app-expansion-table>
 	`
 });
 export const WithExpansion = ExpansionTemplate.bind({});
 WithExpansion.args = {
 	...getProps({
-		description: "With expansion"
-	}, "args"),
-	showExpandAllToggle: false
+		description: "With expansion",
+		batchExpansion: false
+	}, "args")
 };
 
-const DyanmicContentTemplate = (args) => ({
+const DynamicContentTemplate = (args) => ({
 	props: args,
 	template: `
-		<cds-table-container>
-			<cds-table-header>
-				<h4 cdsTableHeaderTitle>{{title}}</h4>
-				<p cdsTableHeaderDescription>{{description}}</p>
-			</cds-table-header>
-			<!--
-			app-* components are for demo purposes only.
-			You can create your own implementation by using the component source found at:
-			https://github.com/IBM/carbon-components-angular/tree/master/src/table/stories/app-custom-table.component.ts
-			-->
-			<app-custom-table
-				[size]="size"
-				[showSelectionColumn]="showSelectionColumn"
-				[sortable]="sortable"
-				[stickyHeader]="stickyHeader"
-				[skeleton]="skeleton"
-				[striped]="striped"
-				[isDataGrid]="isDataGrid">
-			</app-custom-table>
-		</cds-table-container>
+		<app-custom-table
+			[size]="size"
+			[isSelectable]="isSelectable"
+			[isSortable]="isSortable"
+			[useZebraStyles]="useZebraStyles">
+			<cds-table-header-title slot="title">{{title}}</cds-table-header-title>
+			<cds-table-header-description slot="description">{{description}}</cds-table-header-description>
+		</app-custom-table>
 	`
 });
-export const WithDynamicContent = DyanmicContentTemplate.bind({});
+export const WithDynamicContent = DynamicContentTemplate.bind({});
 WithDynamicContent.args = {
 	...getProps({
 		description: "With dynamic content"
@@ -553,64 +339,35 @@ WithDynamicContent.args = {
 };
 
 const OverflowMenuTemplate = (args) => ({
-	props: {
-		...getProps({
-			description: "With overflow menu"
-		}, "args")
-	},
+	props: args,
 	template: `
-		<cds-table-container>
-			<cds-table-header>
-				<h4 cdsTableHeaderTitle>{{title}}</h4>
-				<p cdsTableHeaderDescription>{{description}}</p>
-			</cds-table-header>
-			<!--
-			app-* components are for demo purposes only.
-			You can create your own implementation by using the component source found at:
-			https://github.com/IBM/carbon-components-angular/tree/master/src/table/stories/app-overflow-table.component.ts
-			-->
-			<app-overflow-table
-				[size]="size"
-				[showSelectionColumn]="showSelectionColumn"
-				[sortable]="sortable"
-				[stickyHeader]="stickyHeader"
-				[skeleton]="skeleton"
-				[striped]="striped"
-				[isDataGrid]="isDataGrid">
-			</app-overflow-table>
-		</cds-table-container>
+		<app-overflow-table
+			[size]="size"
+			[isSelectable]="isSelectable"
+			[isSortable]="isSortable"
+			[useZebraStyles]="useZebraStyles">
+			<cds-table-header-title slot="title">{{title}}</cds-table-header-title>
+			<cds-table-header-description slot="description">{{description}}</cds-table-header-description>
+		</app-overflow-table>
 	`
 });
 export const WithOverflowMenu = OverflowMenuTemplate.bind({});
-// WithOverflowMenu.args = {
-// 	...getProps({
-// 		description: "With overflow menu"
-// 	}, "args")
-// };
+WithOverflowMenu.args = {
+	...getProps({
+		description: "With overflow menu"
+	}, "args")
+};
 
 const PaginationTemplate = (args) => ({
 	props: args,
 	template: `
-		<cds-table-container>
-			<cds-table-header>
-				<h4 cdsTableHeaderTitle>{{title}}</h4>
-				<p cdsTableHeaderDescription>{{description}}</p>
-			</cds-table-header>
-			<!--
-			app-* components are for demo purposes only.
-			You can create your own implementation by using the component source found at:
-			https://github.com/IBM/carbon-components-angular/tree/master/src/table/stories/app-pagination-table.component.ts
-			-->
-			<app-pagination-table
-				[skeleton]="skeleton"
-				[sortable]="sortable"
-				[totalDataLength]="totalDataLength"
-				[showSelectionColumn]="showSelectionColumn"
-				[stickyHeader]="stickyHeader"
-				[skeleton]="skeleton"
-				[model]="model">
-			</app-pagination-table>
-		</cds-table-container>
+		<app-pagination-table
+			[isSortable]="isSortable"
+			[totalDataLength]="totalDataLength"
+			[isSelectable]="isSelectable">
+			<cds-table-header-title slot="title">{{title}}</cds-table-header-title>
+			<cds-table-header-description slot="description">{{description}}</cds-table-header-description>
+		</app-pagination-table>
 	`
 });
 export const WithPagination = PaginationTemplate.bind({});
@@ -624,55 +381,58 @@ WithPagination.args = {
 const FromComponentsTemplate = (args) => ({
 	props: args,
 	template: `
-		<table cdsTable [sortable]="false">
-			<thead cdsTableHead>
-				<tr>
-					@for (column of model.header; track column) {
-						<th
-							scope="col"
-							cdsTableHeadCell
-							[column]="column">
-						</th>
+		<!-- Without a model, the web component sorts, selects and filters the rows itself. -->
+		<cds-table [isSortable]="isSortable" [isSelectable]="isSelectable" [size]="size" [useZebraStyles]="useZebraStyles">
+			<cds-table-header-title slot="title">{{title}}</cds-table-header-title>
+			<cds-table-header-description slot="description">Written as markup</cds-table-header-description>
+			<cds-table-toolbar slot="toolbar">
+				<cds-table-toolbar-content>
+					<cds-table-toolbar-search persistent />
+				</cds-table-toolbar-content>
+			</cds-table-toolbar>
+			<cds-table-head>
+				<cds-table-header-row>
+					@for (column of model.header; track $index) {
+						<cds-table-header-cell>{{ column.data }}</cds-table-header-cell>
 					}
-				</tr>
-			</thead>
-			<tbody cdsTableBody>
-				@for (row of model.data; track row) {
-					<tr
-						cdsTableRow
-						[row]="row">
-						@for (item of row; track item) {
-							<td
-								cdsTableData
-								[item]="item"
-								[class]="model.header[$index].className"
-								[ngStyle]="model.header[$index].style">
-							</td>
+				</cds-table-header-row>
+			</cds-table-head>
+			<cds-table-body>
+				@for (row of model.data; track $index) {
+					<cds-table-row>
+						@for (item of row; track $index) {
+							<cds-table-cell>{{ item.data }}</cds-table-cell>
 						}
-					</tr>
+					</cds-table-row>
 				}
-			</tbody>
-		</table>
+			</cds-table-body>
+		</cds-table>
 	`
 });
 export const FromComponents = FromComponentsTemplate.bind({});
 FromComponents.args = {
-	...getProps({}, "args")
+	...getProps({ size: "lg" }, "args")
+};
+FromComponents.argTypes = {
+	...getProps({}, "argTypes")
 };
 
 const SkeletonTemplate = (args) => ({
 	props: args,
 	template: `
-		<!--
-		app-* components are for demo purposes only.
-		You can create your own implementation by using the component source found at:
-		https://github.com/IBM/carbon-components-angular/tree/master/src/table/stories/app-skeleton-table.component.ts
-		-->
-		<app-skeleton-table
-			[skeletonModel]="skeletonModel"
-			[size]="size"
-			[striped]="striped">
-		</app-skeleton-table>
+		<cds-table-skeleton
+			[columnCount]="columnCount"
+			[rowCount]="rowCount"
+			[showHeader]="showHeader"
+			[showToolbar]="showToolbar"
+			[zebra]="zebra" />
 	`
 });
 export const Skeleton = SkeletonTemplate.bind({});
+Skeleton.args = {
+	columnCount: 5,
+	rowCount: 5,
+	showHeader: true,
+	showToolbar: true,
+	zebra: false
+};

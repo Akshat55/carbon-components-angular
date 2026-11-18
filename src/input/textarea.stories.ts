@@ -1,20 +1,18 @@
-import { Meta, moduleMetadata } from "@storybook/angular";
-import {
-	TextArea,
-	TextareaLabelComponent
-} from "./";
+import { moduleMetadata, Meta } from "@storybook/angular";
+import { FormsModule } from "@angular/forms";
+import { CdsTextarea, TextareaSkeleton } from "./";
 import { AILabelModule } from "../ai-label";
 import { ButtonModule } from "../button";
 import { IconModule } from "../icon";
 import { AI_LABEL_INNER } from "../storybook/ai-label-story-shared";
-import { FormsModule } from "@angular/forms";
 
 export default {
 	title: "Components/Input/Text area",
 	decorators: [
 		moduleMetadata({
 			imports: [
-				TextArea,
+				CdsTextarea,
+				TextareaSkeleton,
 				AILabelModule,
 				ButtonModule,
 				IconModule,
@@ -33,60 +31,41 @@ export default {
 		placeholder: "Placeholder",
 		cols: 50,
 		rows: 4,
-		autocomplete: "on",
-		theme: "dark",
 		readonly: false,
 		fluid: false,
-		skeleton: false,
 		enableCounter: true,
 		maxCount: 500,
 		counterMode: "character"
 	},
 	argTypes: {
-		autocomplete: {
-			options: ["on", "off"],
-			control: "radio"
-		},
-		theme: {
-			options: ["light", "dark"],
-			control: "radio"
-		},
 		counterMode: {
 			options: ["word", "character"],
 			control: "radio"
 		}
 	},
-	component: TextareaLabelComponent
+	component: CdsTextarea
 } as Meta;
 
 const Template = (args) => ({
 	props: args,
 	template: `
-		<cds-textarea-label
-		[helperText]="helperText"
-		[invalid]="invalid"
-		[disabled]="disabled"
-		[invalidText]="invalidText"
-		[fluid]="fluid"
-		[skeleton]="skeleton"
-		[warn]="warn"
-		[warnText]="warnText"
-		[enableCounter]="enableCounter"
-		[maxCount]="maxCount"
-		[counterMode]="counterMode">
-		{{label}}
-		<textarea
-			cdsTextArea
+		<cds-textarea
+			[label]="label"
+			[helperText]="helperText"
 			[placeholder]="placeholder"
-			[invalid]="invalid"
-			[disabled]="disabled"
-			[theme]="theme"
 			[rows]="rows"
 			[cols]="cols"
+			[disabled]="disabled"
 			[readonly]="readonly"
-			style="width: 100%"
-			aria-label="textarea"></textarea>
-		</cds-textarea-label>
+			[invalid]="invalid"
+			[invalidText]="invalidText"
+			[warn]="warn"
+			[warnText]="warnText"
+			[fluid]="fluid"
+			[enableCounter]="enableCounter"
+			[maxCount]="maxCount"
+			[counterMode]="counterMode"
+			[(ngModel)]="value" />
 	`
 });
 export const Basic = Template.bind({});
@@ -96,28 +75,19 @@ Fluid.args = {
 	fluid: true
 };
 
-const SkeletonTemplate = (args) => ({
-	props: args,
-	template: `
-		<cds-textarea-label skeleton="true">
-			<div cdsTextArea skeleton="true"></div>
-		</cds-textarea-label>
-	`
+const SkeletonTemplate = () => ({
+	template: `<cds-textarea-skeleton />`
 });
 export const Skeleton = SkeletonTemplate.bind({});
 
 export const withAILabel = () => ({
 	template: `
-		<cds-textarea-label [decorator]="decoratorTpl">
-			Text area with decorator
-			<textarea cdsTextArea rows="4" placeholder="Placeholder" aria-label="textarea" style="width: 100%;"></textarea>
-		</cds-textarea-label>
+		<cds-textarea label="Text area with decorator" placeholder="Placeholder" [decorator]="decoratorTpl" />
 		<ng-template #decoratorTpl>
 			<cds-ai-label
 				kind="default"
 				size="mini"
 				[autoAlign]="true"
-				[align]="'bottom-end'"
 				aiText="AI"
 				ariaLabel="Show information">
 				` + AI_LABEL_INNER + `

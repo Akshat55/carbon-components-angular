@@ -1,57 +1,52 @@
-import { TestBed, ComponentFixture } from "@angular/core/testing";
-import { Component, DebugElement } from "@angular/core";
-import { By } from "@angular/platform-browser";
-
-import { PasswordInputLabelComponent, PasswordInput } from "./";
+import { Component } from "@angular/core";
+import { ComponentFixture, TestBed } from "@angular/core/testing";
+import { FormsModule } from "@angular/forms";
+import { CdsPasswordInput } from "./";
+import { settle, shadow, typeInto } from "../test-helpers/web-components";
 
 @Component({
 	template: `
-		<cds-password-label>
-			Password
-			<input cdsPassword type="password">
-		</cds-password-label>
+		<cds-password-input
+			label="Password"
+			showPasswordLabel="Reveal"
+			hidePasswordLabel="Conceal"
+			[(ngModel)]="value" />
 	`,
-	imports: [PasswordInputLabelComponent, PasswordInput]
+	imports: [CdsPasswordInput, FormsModule]
 })
-class TestPasswordInputComponent {}
+class TestPasswordInputComponent {
+	value = "";
+}
 
 describe("Password", () => {
 	let fixture: ComponentFixture<TestPasswordInputComponent>;
-	let component: TestPasswordInputComponent;
-	let passwordEl: DebugElement;
+	let password: any;
 
-	beforeEach(() => {
-		TestBed.configureTestingModule({
-			imports: [TestPasswordInputComponent]
-		});
+	beforeEach(async () => {
 		fixture = TestBed.createComponent(TestPasswordInputComponent);
-		component = fixture.componentInstance;
-		fixture.detectChanges();
-		passwordEl = fixture.debugElement.query(By.css("cds-password-label"));
+		await settle(fixture);
+		password = fixture.nativeElement.querySelector("cds-password-input");
 	});
 
 	it("should create a password component", () => {
-		expect(component).toBeTruthy();
-		expect(passwordEl).not.toBeNull();
-	});
-
-	it("should assign wrapper classes to the host element", () => {
-		expect(passwordEl.nativeElement.classList.contains("cds--form-item")).toBeTruthy();
-		expect(passwordEl.nativeElement.classList.contains("cds--password-input-wrapper")).toBeTruthy();
-		expect(passwordEl.nativeElement.classList.contains("cds--text-input-wrapper")).toBeTruthy();
+		expect(password instanceof customElements.get("cds-password-input")).toBe(true);
+		expect(password.showPasswordLabel).toBe("Reveal");
+		expect(password.hidePasswordLabel).toBe("Conceal");
 	});
 
 	it("should set initial input type to 'password'", () => {
-		expect(passwordEl.nativeElement.querySelector("input[type='password']")).not.toBeNull();
+		expect(shadow<HTMLInputElement>(password, "input").type).toBe("password");
 	});
 
 	it("should set input type to 'text' when toggle button is clicked", async () => {
-		// The toggle sits inside the cds-tooltip web component; wait for its first render.
-		await passwordEl.nativeElement.querySelector("cds-tooltip").updateComplete;
-		const visibilityToggleButton = passwordEl.nativeElement.querySelector("button.cds--text-input--password__visibility__toggle");
-		visibilityToggleButton.click();
-		fixture.detectChanges();
-		expect(passwordEl.nativeElement.querySelector("input[type='password']")).toBeNull();
-		expect(passwordEl.nativeElement.querySelector("input[type='text']")).not.toBeNull();
+		shadow<HTMLButtonElement>(password, ".cds--text-input--password__visibility__toggle").click();
+		await settle(fixture);
+		expect(shadow<HTMLInputElement>(password, "input").type).toBe("text");
+	});
+
+	it("should support ngModel", async () => {
+		typeInto(shadow<HTMLInputElement>(password, "input"), "secret");
+		await settle(fixture);
+		expect(fixture.componentInstance.value).toBe("secret");
 	});
 });

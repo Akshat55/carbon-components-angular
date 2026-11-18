@@ -9,7 +9,7 @@ import { TilesModule } from "./tiles.module";
 	template: `
 		<cds-expandable-tile [(expanded)]="expanded" [interactive]="interactive">
 			<span cdsAboveFold class="cds--tile-content__above-the-fold">Above the fold</span>
-			<span cdsBelowFold class="cds--tile-content__below-the-fold">Below the fold</span>
+			<span class="cds--tile-content__below-the-fold">Below the fold</span>
 		</cds-expandable-tile>
 	`,
 	imports: [TilesModule]

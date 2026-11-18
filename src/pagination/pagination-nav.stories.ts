@@ -1,9 +1,7 @@
 import { moduleMetadata, Meta } from "@storybook/angular";
 import {
 	Pagination,
-	PaginationNav,
-	PaginationNavItem,
-	PaginationOverflow
+	PaginationNav
 } from "./";
 
 import { PaginationNavStory } from "./pagination-nav/stories";
@@ -16,8 +14,6 @@ export default {
 			imports: [
 				Pagination,
 				PaginationNav,
-				PaginationNavItem,
-				PaginationOverflow,
 				PaginationNavStory
 			]
 		})

@@ -1,5 +1,5 @@
 import { moduleMetadata, Meta } from "@storybook/angular";
-import { LayerDirective } from "../layer";
+import { CdsLayer } from "../layer";
 import { IconDirective } from "../icon";
 import { ClickableTile } from "./";
 import { LayerModule } from "../layer";
@@ -14,7 +14,7 @@ export default {
 		moduleMetadata({
 			imports: [
 				ClickableTile,
-				LayerDirective,
+				CdsLayer,
 				IconDirective,
 				LayerModule,
 				IconModule,
@@ -35,7 +35,6 @@ const Template = (args) => ({
 			target="_blank">
 			Click the tile to open the Carbon Design System
 			<svg
-				cdsClickableTileIcon
 				cdsIcon="caret--right"
 				size="16">
 			</svg>
@@ -53,14 +52,14 @@ const LayerTemplate = (args) => ({
 		<cds-clickable-tile>
 			First layer
 		</cds-clickable-tile>
-		<div cdsLayer>
+		<cds-layer>
 			<cds-clickable-tile>
 				Second layer
 			</cds-clickable-tile>
-			<div cdsLayer>
+			<cds-layer>
 				<cds-clickable-tile>Third layer</cds-clickable-tile>
-			</div>
-		</div>
+			</cds-layer>
+		</cds-layer>
 	`
 });
 export const WithLayers = LayerTemplate.bind({});

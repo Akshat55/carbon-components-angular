@@ -1,12 +1,12 @@
+import { moduleMetadata, Meta } from "@storybook/angular";
 import { FormsModule } from "@angular/forms";
-import { Meta, moduleMetadata } from "@storybook/angular";
-import { PasswordInput, PasswordInputLabelComponent } from ".";
+import { CdsPasswordInput, PasswordInputSkeleton } from "./";
 
 export default {
 	title: "Components/Input/Password",
 	decorators: [
 		moduleMetadata({
-			imports: [FormsModule, PasswordInput]
+			imports: [FormsModule, CdsPasswordInput, PasswordInputSkeleton]
 		})
 	],
 	args: {
@@ -18,60 +18,41 @@ export default {
 		label: "Text input label",
 		helperText: "Optional helper text",
 		placeholder: "Placeholder",
-		autocomplete: "on",
-		theme: "dark",
 		size: "md",
 		readonly: false,
 		fluid: false,
-		skeleton: false,
-		inline: false
+		inline: false,
+		showPasswordLabel: "Show password",
+		hidePasswordLabel: "Hide password"
 	},
 	argTypes: {
-		autocomplete: {
-			options: ["on", "off"],
-			control: "radio"
-		},
-		theme: {
-			options: ["light", "dark"],
-			control: "radio"
-		},
 		size: {
 			options: ["sm", "md", "lg"],
 			control: "select"
-		},
-		toggleVisibility: { action: "clicked" }
+		}
 	},
-	component: PasswordInputLabelComponent
+	component: CdsPasswordInput
 } as Meta;
 
 const Template = (args) => ({
 	props: args,
 	template: `
-		<cds-password-label
+		<cds-password-input
+			[label]="label"
 			[helperText]="helperText"
+			[placeholder]="placeholder"
+			[size]="size"
+			[disabled]="disabled"
+			[readonly]="readonly"
 			[invalid]="invalid"
 			[invalidText]="invalidText"
 			[warn]="warn"
-			[disabled]="disabled"
-			[fluid]="fluid"
-			[skeleton]="skeleton"
-			[inline]="inline"
-			[hideLabel]="hideLabel"
 			[warnText]="warnText"
-			(togglePasswordVisibility)="toggleVisibility($event)">
-			{{ label }}
-			<input
-				cdsPassword
-				type="password"
-				[size]="size"
-				[invalid]="invalid"
-				[warn]="warn"
-				[disabled]="disabled"
-				[theme]="theme"
-				[placeholder]="placeholder"
-				[autocomplete]="autocomplete"
-				[readonly]="readonly">
-		</cds-password-label>
+			[fluid]="fluid"
+			[inline]="inline"
+			[showPasswordLabel]="showPasswordLabel"
+			[hidePasswordLabel]="hidePasswordLabel"
+			[(ngModel)]="value" />
 	`
 });
 export const Basic = Template.bind({});
@@ -81,12 +62,7 @@ Fluid.args = {
 	fluid: true
 };
 
-const SkeletonTemplate = (args) => ({
-	props: args,
-	template: `
-		<cds-password-label skeleton="true">
-			<input cdsPassword [skeleton]="true">
-		</cds-password-label>
-	`
+const SkeletonTemplate = () => ({
+	template: `<cds-password-input-skeleton />`
 });
 export const Skeleton = SkeletonTemplate.bind({});

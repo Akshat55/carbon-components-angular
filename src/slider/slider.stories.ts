@@ -15,7 +15,6 @@ const Template = (args) => ({
 			[max]="max"
 			[step]="step"
 			[value]="value"
-			[skeleton]="skeleton"
 			[shiftMultiplier]="shiftMultiplier"
 			[disabled]="disabled"
 			[readonly]="readonly"

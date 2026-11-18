@@ -126,7 +126,6 @@ const singleTemplate = () => ({
 });
 export const Single = singleTemplate.bind({});
 
-
 const groupStatePropagationTemplate = (args) => ({
 	props: args,
 	template: `
@@ -145,7 +144,6 @@ const groupStatePropagationTemplate = (args) => ({
 					Explicit readOnly false (overrides group readOnly)
 				</cds-checkbox>
 			</cds-checkbox-group>
-
 
 			<p style="margin-bottom: 1rem; margin-top: 2rem;">
 				Checkbox sets its own invalid message:

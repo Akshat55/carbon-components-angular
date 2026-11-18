@@ -1,5 +1,5 @@
 import { moduleMetadata, Meta } from "@storybook/angular";
-import { Link } from "./";
+import { CdsLink } from "./";
 
 import { IconDirective } from "../icon";
 
@@ -7,24 +7,23 @@ export default {
 	title: "Components/Link",
 	decorators: [
 		moduleMetadata({
-			imports: [Link, IconDirective]
+			imports: [CdsLink, IconDirective]
 		})
 	],
-	component: Link
+	component: CdsLink
 } as Meta;
 
 const Template = (args) => ({
 	props: args,
 	template: `
-		<a
+		<cds-link
 			href="#"
-			cdsLink
 			[size]="size"
 			[disabled]="disabled"
 			[visited]="visited"
 			[inline]="inline">
 			link
-		</a>
+		</cds-link>
 	`
 });
 export const Basic = Template.bind({});
@@ -37,16 +36,15 @@ Basic.args = {
 const IconTemplate = (args) => ({
 	props: args,
 	template: `
-		<a
+		<cds-link
 			href="#"
-			cdsLink
 			[disabled]="disabled"
 			[size]="size"
 			[inline]="inline"
 			[visited]="visited">
 			Link
 			<svg cdsLinkIcon cdsIcon="close" size="16"></svg>
-		</a>
+		</cds-link>
 	`
 });
 export const WithIcon = IconTemplate.bind({});

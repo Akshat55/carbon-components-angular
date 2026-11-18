@@ -99,10 +99,6 @@ export class CodeSnippet extends BaseIconButton {
 	 * @deprecated the web component manages its own expanded state.
 	 */
 	@Input({ transform: booleanAttribute }) expanded?: boolean;
-	/**
-	 * @deprecated use `<cds-code-snippet-skeleton>` instead.
-	 */
-	@Input({ transform: booleanAttribute }) skeleton = false;
 
 	protected element = inject(ElementRef).nativeElement;
 }

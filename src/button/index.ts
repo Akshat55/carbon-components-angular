@@ -1,4 +1,3 @@
-export { Button } from "./button.directive";
 export { CdsButton } from "./button.component";
 export { ButtonSet } from "./button-set.component";
 export { IconButton } from "./icon-button.component";

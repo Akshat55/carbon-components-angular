@@ -1,11 +1,11 @@
 import { moduleMetadata, Meta } from "@storybook/angular";
-import { CodeSnippet } from "./";
+import { CodeSnippet, CodeSnippetSkeleton } from "./";
 
 export default {
 	title: "Components/Code Snippet",
 	decorators: [
 		moduleMetadata({
-			imports: [CodeSnippet]
+			imports: [CodeSnippet, CodeSnippetSkeleton]
 		})
 	],
 	argTypes: {
@@ -129,9 +129,9 @@ Multi.argTypes = {
 const SkeletonTemplate = (args) => ({
 	props: args,
 	template: `
-		<cds-code-snippet display="single" skeleton="true"></cds-code-snippet>
+		<cds-code-snippet-skeleton type="single" />
 		<br>
-		<cds-code-snippet display="multi" skeleton="true"></cds-code-snippet>
+		<cds-code-snippet-skeleton type="multi" />
 	`
 });
 export const Skeleton = SkeletonTemplate.bind({});

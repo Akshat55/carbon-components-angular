@@ -71,10 +71,6 @@ export class Checkbox extends WebComponentValueAccessor<boolean> {
 	static checkboxCount = 0;
 
 	/**
-	 * @deprecated the web component has no skeleton state. Use `<cds-checkbox-skeleton>` instead.
-	 */
-	@Input({ transform: booleanAttribute }) skeleton = false;
-	/**
 	 * Set to `true` to hide the checkbox label.
 	 */
 	@Input({ transform: booleanAttribute }) hideLabel?: boolean;

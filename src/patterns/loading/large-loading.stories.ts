@@ -1,16 +1,14 @@
 import { Component } from "@angular/core";
 import { moduleMetadata, Meta } from "@storybook/angular";
 import {
-	ColumnDirective,
-	GridDirective,
-	GridService,
-	RowDirective
+	CdsColumn,
+	CdsGrid
 } from "../../grid";
 import { ProgressIndicator} from "../../progress-indicator";
 import { Placeholder } from "../../placeholder";
 import { Dropdown, DropdownList } from "../../dropdown";
 import { Loading } from "../../loading";
-import { Button } from "../../button";
+import { CdsButton } from "../../button";
 import {
 	FormGroup,
 	FormControl,
@@ -19,47 +17,40 @@ import {
 	ReactiveFormsModule
 } from "@angular/forms";
 import { Checkbox } from "../../checkbox";
-import { Label, TextArea, TextInput } from "../../input";
+import { CdsTextInput, CdsTextarea } from "../../input";
 import { Hamburger, Header } from "../../ui-shell";
 
 @Component({
 	selector: "app-sample-large-loading",
 	template: `
-	<div cdsGrid>
-		<div cdsRow class="header">
+	<div>
+		<div class="header">
 			<cds-header name="Patterns">
 				<cds-header-menu-button></cds-header-menu-button>
 			</cds-header>
 		</div>
-		<div cdsRow class="progress-indicator-wrapper">
+		<div class="progress-indicator-wrapper">
 			<cds-progress-indicator [steps]="steps"></cds-progress-indicator>
 		</div>
-		<div cdsRow class="form">
+		<div class="form">
 			<form [formGroup]="formGroup" (ngSubmit)="onSubmit()">
 				<div class="cds--form-item">
-					<cds-label
+					<cds-text-input
+						label="Text input label"
 						helperText="Optional helper text here; if message is more than one line text should wrap (~100 character count maximum)"
 						[invalid]="isInvalid('input')"
-						invalidText="Please enter a response">
-						Text input label
-						<input
-							cdsText
-							formControlName="input"
-							placeholder="Optional placeholder text">
-					</cds-label>
+						invalidText="Please enter a response"
+						formControlName="input"
+						placeholder="Optional placeholder text" />
 				</div>
 				<div class="cds--form-item">
-					<cds-label
+					<cds-textarea
+						label="Text input label"
 						helperText="Optional helper text here; if message is more than one line text should wrap (~100 character count maximum)"
 						[invalid]="isInvalid('textArea')"
-						invalidText="Please enter a response">
-						Text input label
-						<textarea
-							cdsTextArea
-							formControlName="textArea"
-							placeholder="Optional placeholder text">
-						</textarea>
-					</cds-label>
+						invalidText="Please enter a response"
+						formControlName="textArea"
+						placeholder="Optional placeholder text" />
 				</div>
 				<div class="cds--form-item">
 					<div class="dropdown-wrapper">
@@ -74,12 +65,11 @@ import { Hamburger, Header } from "../../ui-shell";
 					</div>
 				</div>
 				<div class="cds--form-item">
-					<button
+					<cds-button
 						class="form-button"
-						cdsButton
 						type="submit">
 						Show Loading
-					</button>
+					</cds-button>
 				</div>
 			</form>
 		</div>
@@ -108,22 +98,19 @@ import { Hamburger, Header } from "../../ui-shell";
 	],
 	standalone: true,
 	imports: [
-		GridDirective,
-		RowDirective,
-		ColumnDirective,
+		CdsGrid,
+		CdsColumn,
 		Checkbox,
 		Dropdown,
 		DropdownList,
 		Placeholder,
 		Loading,
 		ProgressIndicator,
-		Loading,
 		FormsModule,
 		ReactiveFormsModule,
-		Button,
-		TextInput,
-		TextArea,
-		Label,
+		CdsButton,
+		CdsTextInput,
+		CdsTextarea,
 		Header,
 		Hamburger
 	]

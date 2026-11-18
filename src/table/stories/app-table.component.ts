@@ -16,16 +16,11 @@ import { Table } from "../table.component";
 		<cds-table
 			[model]="model"
 			[size]="size"
-			[skeleton]="skeleton"
-			[showSelectionColumn]="showSelectionColumn"
-			[enableSingleSelect]="enableSingleSelect"
+			[isSelectable]="isSelectable"
+			[radio]="radio"
 			(rowClick)="onRowClick($event)"
-			[sortable]="sortable"
-			[stickyHeader]="stickyHeader"
-			[striped]="striped"
-			[isDataGrid]="isDataGrid"
-			[ariaLabelledby]="ariaLabelledby"
-			[ariaDescribedby]="ariaDescribedby">
+			[isSortable]="isSortable"
+			[useZebraStyles]="useZebraStyles">
 			<ng-content />
 		</cds-table>
 	`,
@@ -35,16 +30,11 @@ import { Table } from "../table.component";
 export class TableStory implements OnInit, OnChanges {
 	@Input() model = new TableModel();
 	@Input() size = "md";
-	@Input() showSelectionColumn = true;
-	@Input() enableSingleSelect = false;
-	@Input() striped = true;
-	@Input() sortable = true;
-	@Input() isDataGrid = false;
+	@Input() isSelectable = true;
+	@Input() radio = false;
+	@Input() useZebraStyles = true;
+	@Input() isSortable = true;
 	@Input() noData = false;
-	@Input() stickyHeader = false;
-	@Input() skeleton = false;
-	@Input() ariaLabelledby;
-	@Input() ariaDescribedby;
 
 	ngOnInit() {
 		this.model.header = [
@@ -63,7 +53,7 @@ export class TableStory implements OnInit, OnChanges {
 		// eslint-disable-next-line no-console
 		this.model.selectAllChange.subscribe(event => console.log(event ? "All rows selected!" : "All rows deselected!"));
 
-		if (!this.noData && !this.skeleton) {
+		if (!this.noData) {
 			this.model.data = [
 				[new TableItem({ data: "Name 1", title: "Table item title" }), new TableItem({ data: "qwer" })],
 				[new TableItem({ data: "Name 3" }), new TableItem({ data: "zwer" })],
@@ -77,9 +67,9 @@ export class TableStory implements OnInit, OnChanges {
 	}
 
 	ngOnChanges(changes: SimpleChanges): void {
-		if (changes.sortable) {
+		if (changes.isSortable) {
 			for (let column of this.model.header) {
-				column.sortable = changes.sortable.currentValue;
+				column.sortable = changes.isSortable.currentValue;
 			}
 		}
 	}

@@ -89,10 +89,6 @@ export class Slider extends WebComponentValueAccessor<number | number[]> {
 	@Input({ transform: booleanAttribute }) readonly = false;
 	@Input({ transform: booleanAttribute }) hideTextInput = false;
 	/**
-	 * @deprecated use `<cds-slider-skeleton>` instead.
-	 */
-	@Input({ transform: booleanAttribute }) skeleton = false;
-	/**
 	 * @deprecated the web component always supports arrow keys.
 	 */
 	@Input({ transform: booleanAttribute }) disableArrowKeys = false;

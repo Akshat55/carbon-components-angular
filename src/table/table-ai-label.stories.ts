@@ -52,78 +52,60 @@ const columnTableStyles = [
 
 export const AILabelWithSelection = () => ({
 	template: `
-		<cds-table-container class="ai-label-column-table">
-			<cds-table-header>
-				<h4 cdsTableHeaderTitle>DataTable</h4>
-				<p cdsTableHeaderDescription>With selection</p>
-			</cds-table-header>
-			<app-table-ai-label-selection></app-table-ai-label-selection>
-		</cds-table-container>
+		<app-table-ai-label-selection class="ai-label-column-table">
+			<cds-table-header-title slot="title">DataTable</cds-table-header-title>
+			<cds-table-header-description slot="description">With selection</cds-table-header-description>
+		</app-table-ai-label-selection>
 	`,
 	styles: columnTableStyles
 });
 
 export const AILabelWithRadioSelection = () => ({
 	template: `
-		<cds-table-container class="ai-label-column-table">
-			<cds-table-header>
-				<h4 cdsTableHeaderTitle>DataTable</h4>
-				<p cdsTableHeaderDescription>With radio selection</p>
-			</cds-table-header>
-			<app-table-ai-label-radio></app-table-ai-label-radio>
-		</cds-table-container>
+		<app-table-ai-label-radio class="ai-label-column-table">
+			<cds-table-header-title slot="title">DataTable</cds-table-header-title>
+			<cds-table-header-description slot="description">With radio selection</cds-table-header-description>
+		</app-table-ai-label-radio>
 	`,
 	styles: columnTableStyles
 });
 
 export const AILabelWithSelectionAndExpansion = () => ({
 	template: `
-		<cds-table-container class="ai-label-column-table">
-			<cds-table-header>
-				<h4 cdsTableHeaderTitle>DataTable</h4>
-				<p cdsTableHeaderDescription>With expansion</p>
-			</cds-table-header>
-			<app-table-ai-label-selection-expansion></app-table-ai-label-selection-expansion>
-		</cds-table-container>
+		<app-table-ai-label-selection-expansion class="ai-label-column-table">
+			<cds-table-header-title slot="title">DataTable</cds-table-header-title>
+			<cds-table-header-description slot="description">With expansion</cds-table-header-description>
+		</app-table-ai-label-selection-expansion>
 	`,
 	styles: columnTableStyles
 });
 
 export const AILabelWithExpansion = () => ({
 	template: `
-		<cds-table-container class="ai-label-column-table">
-			<cds-table-header>
-				<h4 cdsTableHeaderTitle>DataTable</h4>
-				<p cdsTableHeaderDescription>With expansion</p>
-			</cds-table-header>
-			<app-table-ai-label-expansion-only></app-table-ai-label-expansion-only>
-		</cds-table-container>
+		<app-table-ai-label-expansion-only class="ai-label-column-table">
+			<cds-table-header-title slot="title">DataTable</cds-table-header-title>
+			<cds-table-header-description slot="description">With expansion</cds-table-header-description>
+		</app-table-ai-label-expansion-only>
 	`,
 	styles: columnTableStyles
 });
 
 export const ColumnAILabelWithSelectionAndExpansion = () => ({
 	template: `
-		<cds-table-container class="ai-label-column-table">
-			<cds-table-header>
-				<h4 cdsTableHeaderTitle>DataTable</h4>
-				<p cdsTableHeaderDescription>With expansion</p>
-			</cds-table-header>
-			<app-table-ai-label-column-expansion></app-table-ai-label-column-expansion>
-		</cds-table-container>
+		<app-table-ai-label-column-expansion class="ai-label-column-table">
+			<cds-table-header-title slot="title">DataTable</cds-table-header-title>
+			<cds-table-header-description slot="description">With expansion</cds-table-header-description>
+		</app-table-ai-label-column-expansion>
 	`,
 	styles: columnTableStyles
 });
 
 export const ColumnAILabelSort = () => ({
 	template: `
-		<cds-table-container class="ai-label-column-table">
-			<cds-table-header>
-				<h4 cdsTableHeaderTitle>DataTable</h4>
-				<p cdsTableHeaderDescription>With sorting</p>
-			</cds-table-header>
-			<app-table-ai-label-column-sort></app-table-ai-label-column-sort>
-		</cds-table-container>
+		<app-table-ai-label-column-sort class="ai-label-column-table">
+			<cds-table-header-title slot="title">DataTable</cds-table-header-title>
+			<cds-table-header-description slot="description">With sorting</cds-table-header-description>
+		</app-table-ai-label-column-sort>
 	`,
 	styles: columnTableStyles
 });

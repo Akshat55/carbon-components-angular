@@ -26,7 +26,6 @@ import { FileUploader } from "../file-uploader.component";
 				[buttonType]="buttonType"
 				[accept]="accept"
 				[multiple]="multiple"
-				[skeleton]="skeleton"
 				[size]="size"
 				[fileItemSize]="fileItemSize"
 				[disabled]="disabled"
@@ -48,7 +47,6 @@ import { FileUploader } from "../file-uploader.component";
 				[buttonType]="buttonType"
 				[accept]="accept"
 				[multiple]="multiple"
-				[skeleton]="skeleton"
 				[size]="size"
 				formControlName="files">
 			</cds-file-uploader>
@@ -71,7 +69,6 @@ export class ReactiveFormsStory implements OnInit {
 	@Input() buttonType = "primary";
 	@Input() accept = [".jpg", ".png"];
 	@Input() multiple;
-	@Input() skeleton = false;
 	@Input() size = "md";
 	@Input() disabled = false;
 	@Input() fileItemSize: "sm" | "md" | "lg" = "lg";

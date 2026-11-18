@@ -1,11 +1,11 @@
 import { moduleMetadata, Meta } from "@storybook/angular";
-import { LayerDirective } from "./";
+import { CdsLayer } from "./";
 
 export default {
 	title: "Components/Layer",
 	decorators: [
 		moduleMetadata({
-			imports: [LayerDirective]
+			imports: [CdsLayer]
 		})
 	],
 	parameters: {
@@ -13,19 +13,19 @@ export default {
 			disable: true
 		}
 	},
-	component: LayerDirective
+	component: CdsLayer
 } as Meta;
 
 const Template = (args) => ({
 	props: args,
 	template: `
 		<div class="example-layer">Layer 0</div>
-		<div cdsLayer>
+		<cds-layer>
 			<div class="example-layer">Layer 1</div>
-			<div cdsLayer>
+			<cds-layer>
 				<div class="example-layer">Layer 2</div>
-			</div>
-		</div>
+			</cds-layer>
+		</cds-layer>
 	`,
 	styles: [
 		`.example-layer {
@@ -41,22 +41,22 @@ const TemplateWithInput = (args) => ({
 	props: args,
 	template: `
 		<div class="example-layer">Layer 0</div>
-		<div cdsLayer>
+		<cds-layer>
 			<div class="example-layer">Layer 1</div>
-			<div cdsLayer>
+			<cds-layer>
 				<div class="example-layer">Layer 2</div>
 				<!-- Reset layer, child layer will auto increment or you can pass in layer of your choice -->
-				<div [cdsLayer]="0">
+				<cds-layer [level]="0">
 					<div class="example-layer">Layer 0</div>
-					<div [cdsLayer]="1">
+					<cds-layer [level]="1">
 						<div class="example-layer">Layer 1</div>
-						<div cdsLayer>
+						<cds-layer>
 							<div class="example-layer">Layer 2</div>
-						</div>
-					</div>
-				</div>
-			</div>
-		</div>
+						</cds-layer>
+					</cds-layer>
+				</cds-layer>
+			</cds-layer>
+		</cds-layer>
 	`,
 	styles: [
 		`.example-layer {
