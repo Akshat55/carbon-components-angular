@@ -1,0 +1,2552 @@
+{
+	"generatedAt": "2026-11-19T00:40:37.932Z",
+	"summary": {
+		"wc": {
+			"skeleton": 37,
+			"new": 96,
+			"subpart": 37,
+			"fluid": 14
+		},
+		"wcReferencedByLegacyInputs": 42,
+		"cca": 42,
+		"ccaRewrites": 23
+	},
+	"wc": {
+		"skeleton": {
+			"cds-accordion-item-skeleton": {
+				"module": "es/components/accordion/accordion-item-skeleton.js",
+				"replaces": [
+					{
+						"class": "AccordionItem",
+						"input": "skeleton"
+					}
+				],
+				"generatorSkipped": false,
+				"props": 0,
+				"events": 0,
+				"slots": []
+			},
+			"cds-accordion-skeleton": {
+				"module": "es/components/accordion/accordion-skeleton.js",
+				"replaces": [
+					{
+						"class": "Accordion",
+						"input": "skeleton"
+					}
+				],
+				"generatorSkipped": false,
+				"props": 4,
+				"events": 0,
+				"slots": []
+			},
+			"cds-big-number-skeleton": {
+				"module": "es/components/big-number/big-number-skeleton.js",
+				"replaces": [],
+				"generatorSkipped": false,
+				"props": 1,
+				"events": 0,
+				"slots": []
+			},
+			"cds-button-skeleton": {
+				"module": "es/components/button/button-skeleton.js",
+				"replaces": [
+					{
+						"class": "Button",
+						"input": "skeleton"
+					}
+				],
+				"generatorSkipped": false,
+				"props": 23,
+				"events": 0,
+				"slots": [
+					"(default)",
+					"icon",
+					"badge-indicator"
+				]
+			},
+			"cds-breadcrumb-skeleton": {
+				"module": "es/components/breadcrumb/breadcrumb-skeleton.js",
+				"replaces": [
+					{
+						"class": "Breadcrumb",
+						"input": "skeleton"
+					}
+				],
+				"generatorSkipped": false,
+				"props": 3,
+				"events": 0,
+				"slots": []
+			},
+			"cds-chat-button-skeleton": {
+				"module": "es/components/chat-button/chat-button-skeleton.js",
+				"replaces": [],
+				"generatorSkipped": false,
+				"props": 1,
+				"events": 0,
+				"slots": []
+			},
+			"cds-checkbox-skeleton": {
+				"module": "es/components/checkbox/checkbox-skeleton.js",
+				"replaces": [
+					{
+						"class": "Checkbox",
+						"input": "skeleton"
+					}
+				],
+				"generatorSkipped": false,
+				"props": 0,
+				"events": 0,
+				"slots": [
+					"(default)"
+				]
+			},
+			"cds-code-snippet-skeleton": {
+				"module": "es/components/code-snippet/code-snippet-skeleton.js",
+				"replaces": [
+					{
+						"class": "CodeSnippet",
+						"input": "skeleton"
+					}
+				],
+				"generatorSkipped": false,
+				"props": 1,
+				"events": 0,
+				"slots": []
+			},
+			"cds-table-skeleton": {
+				"module": "es/components/data-table/table-skeleton.js",
+				"replaces": [
+					{
+						"class": "Table",
+						"input": "skeleton"
+					},
+					{
+						"class": "TableDirective",
+						"input": "skeleton"
+					}
+				],
+				"generatorSkipped": false,
+				"props": 7,
+				"events": 0,
+				"slots": []
+			},
+			"cds-date-picker-input-skeleton": {
+				"module": "es/components/date-picker/date-picker-input-skeleton.js",
+				"replaces": [
+					{
+						"class": "DatePickerInput",
+						"input": "skeleton"
+					}
+				],
+				"generatorSkipped": true,
+				"props": 3,
+				"events": 0,
+				"slots": []
+			},
+			"cds-dropdown-skeleton": {
+				"module": "es/components/dropdown/dropdown-skeleton.js",
+				"replaces": [
+					{
+						"class": "Dropdown",
+						"input": "skeleton"
+					}
+				],
+				"generatorSkipped": false,
+				"props": 2,
+				"events": 0,
+				"slots": []
+			},
+			"cds-file-uploader-skeleton": {
+				"module": "es/components/file-uploader/file-uploader-skeleton.js",
+				"replaces": [
+					{
+						"class": "FileUploader",
+						"input": "skeleton"
+					}
+				],
+				"generatorSkipped": false,
+				"props": 0,
+				"events": 0,
+				"slots": []
+			},
+			"cds-fluid-combo-box-skeleton": {
+				"module": "es/components/fluid-combo-box/fluid-combo-box-skeleton.js",
+				"replaces": [],
+				"generatorSkipped": false,
+				"props": 0,
+				"events": 0,
+				"slots": []
+			},
+			"cds-fluid-date-picker-skeleton": {
+				"module": "es/components/fluid-date-picker/fluid-date-picker-skeleton.js",
+				"replaces": [],
+				"generatorSkipped": true,
+				"props": 1,
+				"events": 0,
+				"slots": []
+			},
+			"cds-fluid-dropdown-skeleton": {
+				"module": "es/components/fluid-dropdown/fluid-dropdown-skeleton.js",
+				"replaces": [],
+				"generatorSkipped": false,
+				"props": 2,
+				"events": 0,
+				"slots": []
+			},
+			"cds-fluid-multi-select-skeleton": {
+				"module": "es/components/fluid-multi-select/fluid-multi-select-skeleton.js",
+				"replaces": [],
+				"generatorSkipped": false,
+				"props": 0,
+				"events": 0,
+				"slots": []
+			},
+			"cds-fluid-number-input-skeleton": {
+				"module": "es/components/fluid-number-input/fluid-number-input-skeleton.js",
+				"replaces": [],
+				"generatorSkipped": false,
+				"props": 2,
+				"events": 0,
+				"slots": []
+			},
+			"cds-fluid-search-skeleton": {
+				"module": "es/components/fluid-search/fluid-search-skeleton.js",
+				"replaces": [],
+				"generatorSkipped": false,
+				"props": 1,
+				"events": 0,
+				"slots": []
+			},
+			"cds-fluid-select-skeleton": {
+				"module": "es/components/fluid-select/fluid-select-skeleton.js",
+				"replaces": [],
+				"generatorSkipped": false,
+				"props": 1,
+				"events": 0,
+				"slots": []
+			},
+			"cds-fluid-text-input-skeleton": {
+				"module": "es/components/fluid-text-input/fluid-text-input-skeleton.js",
+				"replaces": [],
+				"generatorSkipped": false,
+				"props": 2,
+				"events": 0,
+				"slots": []
+			},
+			"cds-fluid-textarea-skeleton": {
+				"module": "es/components/fluid-textarea/fluid-textarea-skeleton.js",
+				"replaces": [],
+				"generatorSkipped": false,
+				"props": 1,
+				"events": 0,
+				"slots": []
+			},
+			"cds-fluid-time-picker-skeleton": {
+				"module": "es/components/fluid-time-picker/fluid-time-picker-skeleton.js",
+				"replaces": [],
+				"generatorSkipped": false,
+				"props": 1,
+				"events": 0,
+				"slots": []
+			},
+			"cds-number-input-skeleton": {
+				"module": "es/components/number-input/number-input-skeleton.js",
+				"replaces": [
+					{
+						"class": "NumberComponent",
+						"input": "skeleton"
+					}
+				],
+				"generatorSkipped": false,
+				"props": 2,
+				"events": 0,
+				"slots": []
+			},
+			"cds-password-input-skeleton": {
+				"module": "es/components/password-input/password-input-skeleton.js",
+				"replaces": [
+					{
+						"class": "PasswordInputLabelComponent",
+						"input": "skeleton"
+					},
+					{
+						"class": "PasswordInput",
+						"input": "skeleton"
+					}
+				],
+				"generatorSkipped": false,
+				"props": 1,
+				"events": 0,
+				"slots": []
+			},
+			"cds-progress-indicator-skeleton": {
+				"module": "es/components/progress-indicator/progress-indicator-skeleton.js",
+				"replaces": [
+					{
+						"class": "ProgressIndicator",
+						"input": "skeleton"
+					}
+				],
+				"generatorSkipped": false,
+				"props": 1,
+				"events": 0,
+				"slots": [
+					"(default)"
+				]
+			},
+			"cds-progress-step-skeleton": {
+				"module": "es/components/progress-indicator/progress-step-skeleton.js",
+				"replaces": [],
+				"generatorSkipped": false,
+				"props": 1,
+				"events": 0,
+				"slots": []
+			},
+			"cds-radio-button-skeleton": {
+				"module": "es/components/radio-button/radio-button-skeleton.js",
+				"replaces": [
+					{
+						"class": "Radio",
+						"input": "skeleton"
+					}
+				],
+				"generatorSkipped": false,
+				"props": 0,
+				"events": 0,
+				"slots": []
+			},
+			"cds-search-skeleton": {
+				"module": "es/components/search/search-skeleton.js",
+				"replaces": [
+					{
+						"class": "Search",
+						"input": "skeleton"
+					}
+				],
+				"generatorSkipped": false,
+				"props": 1,
+				"events": 0,
+				"slots": []
+			},
+			"cds-select-skeleton": {
+				"module": "es/components/select/select-skeleton.js",
+				"replaces": [
+					{
+						"class": "Select",
+						"input": "skeleton"
+					}
+				],
+				"generatorSkipped": false,
+				"props": 1,
+				"events": 0,
+				"slots": []
+			},
+			"cds-slider-skeleton": {
+				"module": "es/components/slider/slider-skeleton.js",
+				"replaces": [
+					{
+						"class": "Slider",
+						"input": "skeleton"
+					}
+				],
+				"generatorSkipped": false,
+				"props": 1,
+				"events": 0,
+				"slots": []
+			},
+			"cds-structured-list-header-cell-skeleton": {
+				"module": "es/components/structured-list/structured-list-header-cell-skeleton.js",
+				"replaces": [],
+				"generatorSkipped": false,
+				"props": 0,
+				"events": 0,
+				"slots": []
+			},
+			"cds-tab-skeleton": {
+				"module": "es/components/tabs/tab-skeleton.js",
+				"replaces": [],
+				"generatorSkipped": false,
+				"props": 0,
+				"events": 0,
+				"slots": []
+			},
+			"cds-tag-skeleton": {
+				"module": "es/components/tag/tag-skeleton.js",
+				"replaces": [
+					{
+						"class": "Tag",
+						"input": "skeleton"
+					}
+				],
+				"generatorSkipped": false,
+				"props": 1,
+				"events": 0,
+				"slots": []
+			},
+			"cds-text-input-skeleton": {
+				"module": "es/components/text-input/text-input-skeleton.js",
+				"replaces": [
+					{
+						"class": "TextInputLabelComponent",
+						"input": "skeleton"
+					},
+					{
+						"class": "TextInput",
+						"input": "skeleton"
+					}
+				],
+				"generatorSkipped": false,
+				"props": 2,
+				"events": 0,
+				"slots": []
+			},
+			"cds-textarea-skeleton": {
+				"module": "es/components/textarea/textarea-skeleton.js",
+				"replaces": [
+					{
+						"class": "TextareaLabelComponent",
+						"input": "skeleton"
+					},
+					{
+						"class": "TextArea",
+						"input": "skeleton"
+					}
+				],
+				"generatorSkipped": false,
+				"props": 1,
+				"events": 0,
+				"slots": []
+			},
+			"cds-toggle-skeleton": {
+				"module": "es/components/toggle/toggle-skeleton.js",
+				"replaces": [
+					{
+						"class": "Toggle",
+						"input": "skeleton"
+					}
+				],
+				"generatorSkipped": false,
+				"props": 0,
+				"events": 0,
+				"slots": []
+			},
+			"cds-preview-date-picker-input-skeleton": {
+				"module": "es/components/date-picker/next/components/date-picker-input-skeleton.js",
+				"replaces": [],
+				"generatorSkipped": false,
+				"props": 3,
+				"events": 0,
+				"slots": []
+			}
+		},
+		"fluid": {
+			"cds-fluid-combo-box": {
+				"module": "es/components/fluid-combo-box/fluid-combo-box.js",
+				"replaces": [
+					{
+						"class": "ComboBox",
+						"input": "fluid"
+					}
+				],
+				"generatorSkipped": false,
+				"props": 38,
+				"events": 10,
+				"slots": [
+					"title-text",
+					"(default)",
+					"ai-label",
+					"slug",
+					"helper-text"
+				]
+			},
+			"cds-fluid-date-picker-input": {
+				"module": "es/components/fluid-date-picker/fluid-date-picker-input.js",
+				"replaces": [],
+				"generatorSkipped": true,
+				"props": 19,
+				"events": 0,
+				"slots": [
+					"(default)",
+					"label-text",
+					"ai-label",
+					"slug",
+					"helper-text"
+				]
+			},
+			"cds-fluid-date-picker": {
+				"module": "es/components/fluid-date-picker/fluid-date-picker.js",
+				"replaces": [],
+				"generatorSkipped": true,
+				"props": 13,
+				"events": 2,
+				"slots": [
+					"(default)"
+				]
+			},
+			"cds-fluid-dropdown": {
+				"module": "es/components/fluid-dropdown/fluid-dropdown.js",
+				"replaces": [
+					{
+						"class": "Dropdown",
+						"input": "fluid"
+					}
+				],
+				"generatorSkipped": false,
+				"props": 31,
+				"events": 6,
+				"slots": [
+					"(default)",
+					"title-text",
+					"ai-label",
+					"slug",
+					"helper-text"
+				]
+			},
+			"cds-fluid-form": {
+				"module": "es/components/fluid-form/fluid-form.js",
+				"replaces": [],
+				"generatorSkipped": false,
+				"props": 0,
+				"events": 0,
+				"slots": [
+					"(default)"
+				]
+			},
+			"cds-fluid-multi-select": {
+				"module": "es/components/fluid-multi-select/fluid-multi-select.js",
+				"replaces": [
+					{
+						"class": "ComboBox",
+						"input": "fluid"
+					},
+					{
+						"class": "Dropdown",
+						"input": "fluid"
+					}
+				],
+				"generatorSkipped": false,
+				"props": 41,
+				"events": 10,
+				"slots": [
+					"title-text",
+					"(default)",
+					"ai-label",
+					"slug",
+					"helper-text"
+				]
+			},
+			"cds-fluid-number-input": {
+				"module": "es/components/fluid-number-input/fluid-number-input.js",
+				"replaces": [
+					{
+						"class": "NumberComponent",
+						"input": "fluid"
+					}
+				],
+				"generatorSkipped": false,
+				"props": 50,
+				"events": 3,
+				"slots": [
+					"helper-text",
+					"label-text",
+					"validity-message",
+					"ai-label",
+					"slug",
+					"(default)"
+				]
+			},
+			"cds-fluid-password-input": {
+				"module": "es/components/fluid-password-input/fluid-password-input.js",
+				"replaces": [
+					{
+						"class": "PasswordInputLabelComponent",
+						"input": "fluid"
+					}
+				],
+				"generatorSkipped": false,
+				"props": 35,
+				"events": 2,
+				"slots": [
+					"helper-text",
+					"label-text",
+					"validity-message",
+					"slug",
+					"(default)",
+					"ai-label"
+				]
+			},
+			"cds-fluid-search": {
+				"module": "es/components/fluid-search/fluid-search.js",
+				"replaces": [
+					{
+						"class": "Search",
+						"input": "fluid"
+					}
+				],
+				"generatorSkipped": false,
+				"props": 19,
+				"events": 1,
+				"slots": [
+					"icon",
+					"(default)"
+				]
+			},
+			"cds-fluid-select": {
+				"module": "es/components/fluid-select/fluid-select.js",
+				"replaces": [
+					{
+						"class": "Select",
+						"input": "fluid"
+					}
+				],
+				"generatorSkipped": false,
+				"props": 31,
+				"events": 1,
+				"slots": [
+					"helper-text",
+					"label-text",
+					"validity-message",
+					"(default)",
+					"ai-label",
+					"slug"
+				]
+			},
+			"cds-fluid-text-input": {
+				"module": "es/components/fluid-text-input/fluid-text-input.js",
+				"replaces": [
+					{
+						"class": "TextInputLabelComponent",
+						"input": "fluid"
+					}
+				],
+				"generatorSkipped": false,
+				"props": 34,
+				"events": 2,
+				"slots": [
+					"helper-text",
+					"label-text",
+					"validity-message",
+					"(default)",
+					"ai-label",
+					"slug"
+				]
+			},
+			"cds-fluid-textarea": {
+				"module": "es/components/fluid-textarea/fluid-textarea.js",
+				"replaces": [
+					{
+						"class": "TextareaLabelComponent",
+						"input": "fluid"
+					}
+				],
+				"generatorSkipped": false,
+				"props": 38,
+				"events": 3,
+				"slots": [
+					"helper-text",
+					"label-text",
+					"validity-message",
+					"ai-label",
+					"slug",
+					"(default)"
+				]
+			},
+			"cds-fluid-time-picker-select": {
+				"module": "es/components/fluid-time-picker/fluid-time-picker-select.js",
+				"replaces": [
+					{
+						"class": "TimePickerSelect",
+						"input": "fluid"
+					}
+				],
+				"generatorSkipped": false,
+				"props": 32,
+				"events": 1,
+				"slots": [
+					"helper-text",
+					"label-text",
+					"validity-message",
+					"(default)",
+					"ai-label",
+					"slug"
+				]
+			},
+			"cds-fluid-time-picker": {
+				"module": "es/components/fluid-time-picker/fluid-time-picker.js",
+				"replaces": [],
+				"generatorSkipped": false,
+				"props": 23,
+				"events": 2,
+				"slots": [
+					"label-text",
+					"invalid-text",
+					"warning-text",
+					"(default)",
+					"time-picker-select",
+					"validity-message"
+				]
+			}
+		},
+		"subpart": {
+			"cds-ai-label-action-button": {
+				"module": "es/components/ai-label/ai-label-action-button.js",
+				"replaces": [],
+				"generatorSkipped": false,
+				"props": 24,
+				"events": 0,
+				"slots": [
+					"(default)",
+					"icon",
+					"badge-indicator"
+				]
+			},
+			"cds-button-set-base": {
+				"module": "es/components/button/button-set-base.js",
+				"replaces": [],
+				"generatorSkipped": false,
+				"props": 0,
+				"events": 0,
+				"slots": [
+					"(default)"
+				]
+			},
+			"cds-breadcrumb-link": {
+				"module": "es/components/breadcrumb/breadcrumb-link.js",
+				"replaces": [
+					{
+						"class": "Breadcrumb",
+						"input": "items",
+						"kind": "renderChildren"
+					}
+				],
+				"generatorSkipped": false,
+				"props": 14,
+				"events": 0,
+				"slots": [
+					"(default)",
+					"icon"
+				]
+			},
+			"cds-breadcrumb-overflow-menu": {
+				"module": "es/components/breadcrumb/breadcrumb-overflow-menu.js",
+				"replaces": [],
+				"generatorSkipped": false,
+				"props": 39,
+				"events": 2,
+				"slots": [
+					"icon",
+					"tooltip-content",
+					"(default)",
+					"badge-indicator"
+				]
+			},
+			"cds-combo-box-item": {
+				"module": "es/components/combo-box/combo-box-item.js",
+				"replaces": [
+					{
+						"class": "ComboBox",
+						"input": "items",
+						"kind": "rewrite"
+					}
+				],
+				"generatorSkipped": false,
+				"props": 3,
+				"events": 0,
+				"slots": [
+					"(default)"
+				]
+			},
+			"cds-contained-list-description": {
+				"module": "es/components/contained-list/contained-list-description.js",
+				"replaces": [],
+				"generatorSkipped": false,
+				"props": 0,
+				"events": 0,
+				"slots": [
+					"(default)"
+				]
+			},
+			"cds-table-cell-content": {
+				"module": "es/components/data-table/table-cell-content.js",
+				"replaces": [],
+				"generatorSkipped": false,
+				"props": 0,
+				"events": 0,
+				"slots": [
+					"(default)"
+				]
+			},
+			"cds-table-header-description": {
+				"module": "es/components/data-table/table-header-description.js",
+				"replaces": [],
+				"generatorSkipped": false,
+				"props": 0,
+				"events": 0,
+				"slots": [
+					"(default)"
+				]
+			},
+			"cds-table-header-row": {
+				"module": "es/components/data-table/table-header-row.js",
+				"replaces": [
+					{
+						"class": "Table",
+						"input": "model",
+						"kind": "rewrite"
+					},
+					{
+						"class": "TableHead",
+						"input": "model",
+						"kind": "rewrite"
+					}
+				],
+				"generatorSkipped": false,
+				"props": 10,
+				"events": 6,
+				"slots": [
+					"ai-label",
+					"slug",
+					"(default)"
+				]
+			},
+			"cds-table-header-title": {
+				"module": "es/components/data-table/table-header-title.js",
+				"replaces": [],
+				"generatorSkipped": false,
+				"props": 0,
+				"events": 0,
+				"slots": [
+					"(default)"
+				]
+			},
+			"cds-dropdown-item": {
+				"module": "es/components/dropdown/dropdown-item.js",
+				"replaces": [
+					{
+						"class": "DropdownList",
+						"input": "items",
+						"kind": "rewrite"
+					}
+				],
+				"generatorSkipped": false,
+				"props": 3,
+				"events": 0,
+				"slots": [
+					"(default)"
+				]
+			},
+			"cds-file-uploader-button": {
+				"module": "es/components/file-uploader/file-uploader-button.js",
+				"replaces": [],
+				"generatorSkipped": false,
+				"props": 7,
+				"events": 1,
+				"slots": [
+					"(default)"
+				]
+			},
+			"cds-file-uploader-drop-container": {
+				"module": "es/components/file-uploader/file-uploader-drop-container.js",
+				"replaces": [],
+				"generatorSkipped": false,
+				"props": 5,
+				"events": 1,
+				"slots": [
+					"(default)"
+				]
+			},
+			"cds-column-hang": {
+				"module": "es/components/grid/column-hang.js",
+				"replaces": [
+					{
+						"class": "ColumnDirective",
+						"input": "columnHang"
+					}
+				],
+				"generatorSkipped": false,
+				"props": 0,
+				"events": 0,
+				"slots": [
+					"(default)"
+				]
+			},
+			"cds-menu-item-radio-group": {
+				"module": "es/components/menu/menu-item-radio-group.js",
+				"replaces": [],
+				"generatorSkipped": false,
+				"props": 5,
+				"events": 1,
+				"slots": [
+					"(default)"
+				]
+			},
+			"cds-menu-item-selectable": {
+				"module": "es/components/menu/menu-item-selectable.js",
+				"replaces": [],
+				"generatorSkipped": false,
+				"props": 5,
+				"events": 1,
+				"slots": [
+					"render-icon"
+				]
+			},
+			"cds-multi-select-item": {
+				"module": "es/components/multi-select/multi-select-item.js",
+				"replaces": [
+					{
+						"class": "DropdownList",
+						"input": "items",
+						"kind": "rewrite"
+					},
+					{
+						"class": "ComboBox",
+						"input": "items",
+						"kind": "rewrite"
+					}
+				],
+				"generatorSkipped": false,
+				"props": 7,
+				"events": 0,
+				"slots": [
+					"(default)"
+				]
+			},
+			"cds-modal-close-button": {
+				"module": "es/components/modal/modal-close-button.js",
+				"replaces": [],
+				"generatorSkipped": false,
+				"props": 1,
+				"events": 0,
+				"slots": []
+			},
+			"cds-modal-footer-button": {
+				"module": "es/components/modal/modal-footer-button.js",
+				"replaces": [],
+				"generatorSkipped": false,
+				"props": 23,
+				"events": 0,
+				"slots": [
+					"(default)",
+					"icon",
+					"badge-indicator"
+				]
+			},
+			"cds-actionable-notification-button": {
+				"module": "es/components/notification/actionable-notification-button.js",
+				"replaces": [
+					{
+						"class": "ActionableNotification",
+						"input": "notificationObj",
+						"kind": "adapter"
+					}
+				],
+				"generatorSkipped": false,
+				"props": 23,
+				"events": 0,
+				"slots": [
+					"(default)",
+					"icon",
+					"badge-indicator"
+				]
+			},
+			"cds-callout-notification": {
+				"module": "es/components/notification/callout-notification.js",
+				"replaces": [],
+				"generatorSkipped": false,
+				"props": 15,
+				"events": 2,
+				"slots": [
+					"subtitle",
+					"title",
+					"action",
+					"(default)",
+					"caption"
+				]
+			},
+			"cds-progress-step": {
+				"module": "es/components/progress-indicator/progress-step.js",
+				"replaces": [
+					{
+						"class": "ProgressIndicator",
+						"input": "steps",
+						"kind": "renderChildren"
+					}
+				],
+				"generatorSkipped": false,
+				"props": 12,
+				"events": 1,
+				"slots": [
+					"secondary-label-text",
+					"label-text"
+				]
+			},
+			"cds-slider-input": {
+				"module": "es/components/slider/slider-input.js",
+				"replaces": [],
+				"generatorSkipped": false,
+				"props": 10,
+				"events": 1,
+				"slots": []
+			},
+			"cds-structured-list-body": {
+				"module": "es/components/structured-list/structured-list-body.js",
+				"replaces": [],
+				"generatorSkipped": false,
+				"props": 0,
+				"events": 0,
+				"slots": [
+					"(default)"
+				]
+			},
+			"cds-structured-list-header-cell": {
+				"module": "es/components/structured-list/structured-list-header-cell.js",
+				"replaces": [],
+				"generatorSkipped": false,
+				"props": 0,
+				"events": 0,
+				"slots": [
+					"(default)"
+				]
+			},
+			"cds-structured-list-header-row": {
+				"module": "es/components/structured-list/structured-list-header-row.js",
+				"replaces": [],
+				"generatorSkipped": false,
+				"props": 1,
+				"events": 0,
+				"slots": [
+					"(default)"
+				]
+			},
+			"cds-tooltip-content": {
+				"module": "es/components/tooltip/tooltip-content.js",
+				"replaces": [],
+				"generatorSkipped": false,
+				"props": 10,
+				"events": 0,
+				"slots": [
+					"(default)"
+				]
+			},
+			"cds-header-menu-item": {
+				"module": "es/components/ui-shell/header-menu-item.js",
+				"replaces": [
+					{
+						"class": "HeaderNavigation",
+						"input": "navigationItems",
+						"kind": "renderChildren"
+					},
+					{
+						"class": "HeaderMenu",
+						"input": "headerItems",
+						"kind": "renderChildren"
+					}
+				],
+				"generatorSkipped": false,
+				"props": 7,
+				"events": 0,
+				"slots": [
+					"(default)"
+				]
+			},
+			"cds-header-name": {
+				"module": "es/components/ui-shell/header-name.js",
+				"replaces": [],
+				"generatorSkipped": false,
+				"props": 2,
+				"events": 0,
+				"slots": [
+					"(default)"
+				]
+			},
+			"cds-header-side-nav-items": {
+				"module": "es/components/ui-shell/header-side-nav-items.js",
+				"replaces": [],
+				"generatorSkipped": false,
+				"props": 1,
+				"events": 0,
+				"slots": [
+					"(default)"
+				]
+			},
+			"cds-side-nav-divider": {
+				"module": "es/components/ui-shell/side-nav-divider.js",
+				"replaces": [],
+				"generatorSkipped": false,
+				"props": 0,
+				"events": 0,
+				"slots": []
+			},
+			"cds-side-nav-items": {
+				"module": "es/components/ui-shell/side-nav-items.js",
+				"replaces": [
+					{
+						"class": "SideNav",
+						"input": "navigationItems",
+						"kind": "renderChildren"
+					}
+				],
+				"generatorSkipped": false,
+				"props": 0,
+				"events": 0,
+				"slots": [
+					"(default)"
+				]
+			},
+			"cds-side-nav-menu-item": {
+				"module": "es/components/ui-shell/side-nav-menu-item.js",
+				"replaces": [
+					{
+						"class": "SideNav",
+						"input": "navigationItems",
+						"kind": "renderChildren"
+					},
+					{
+						"class": "SideNavMenu",
+						"input": "menuItems",
+						"kind": "renderChildren"
+					}
+				],
+				"generatorSkipped": false,
+				"props": 5,
+				"events": 0,
+				"slots": [
+					"(default)"
+				]
+			},
+			"cds-switcher-divider": {
+				"module": "es/components/ui-shell/switcher-divider.js",
+				"replaces": [],
+				"generatorSkipped": false,
+				"props": 0,
+				"events": 0,
+				"slots": []
+			},
+			"cds-preview-date-picker-calendar": {
+				"module": "es/components/date-picker/next/components/calendar-renderer.js",
+				"replaces": [],
+				"generatorSkipped": false,
+				"props": 8,
+				"events": 2,
+				"slots": []
+			},
+			"cds-preview-date-picker-input": {
+				"module": "es/components/date-picker/next/components/date-picker-input.js",
+				"replaces": [],
+				"generatorSkipped": false,
+				"props": 18,
+				"events": 4,
+				"slots": [
+					"(default)",
+					"label-text",
+					"ai-label",
+					"slug",
+					"helper-text"
+				]
+			},
+			"cds-preview-date-picker": {
+				"module": "es/components/date-picker/next/components/date-picker.js",
+				"replaces": [],
+				"generatorSkipped": false,
+				"props": 16,
+				"events": 2,
+				"slots": [
+					"(default)"
+				]
+			}
+		},
+		"new": {
+			"cds-action-set": {
+				"module": "es/components/action-set/action-set.js",
+				"replaces": [],
+				"generatorSkipped": false,
+				"props": 5,
+				"events": 0,
+				"slots": [
+					"(default)"
+				]
+			},
+			"cds-add-select-body": {
+				"module": "es/components/add-select/add-select-body.js",
+				"replaces": [],
+				"generatorSkipped": false,
+				"props": 8,
+				"events": 2,
+				"slots": [
+					"default",
+					"header",
+					"actions",
+					"sub-header-actions",
+					"(default)"
+				]
+			},
+			"cds-add-select-column": {
+				"module": "es/components/add-select/add-select-column.js",
+				"replaces": [],
+				"generatorSkipped": false,
+				"props": 9,
+				"events": 2,
+				"slots": [
+					"default",
+					"actions",
+					"(default)"
+				]
+			},
+			"cds-add-select-item-panel": {
+				"module": "es/components/add-select/add-select-item-panel.js",
+				"replaces": [],
+				"generatorSkipped": false,
+				"props": 5,
+				"events": 1,
+				"slots": [
+					"default",
+					"render-item",
+					"(default)"
+				]
+			},
+			"cds-add-select-row": {
+				"module": "es/components/add-select/add-select-row.js",
+				"replaces": [],
+				"generatorSkipped": false,
+				"props": 13,
+				"events": 3,
+				"slots": [
+					"default",
+					"icon",
+					"meta",
+					"(default)",
+					"row-content",
+					"nav-icon"
+				]
+			},
+			"cds-add-select-selection-summary-item": {
+				"module": "es/components/add-select/add-select-selection-summary-item.js",
+				"replaces": [],
+				"generatorSkipped": false,
+				"props": 4,
+				"events": 1,
+				"slots": [
+					"default",
+					"render-item",
+					"accordion-title",
+					"accordion-body",
+					"(default)"
+				]
+			},
+			"cds-add-select-selection-summary": {
+				"module": "es/components/add-select/add-select-selection-summary.js",
+				"replaces": [],
+				"generatorSkipped": false,
+				"props": 4,
+				"events": 1,
+				"slots": [
+					"default",
+					"header",
+					"header-actions",
+					"empty-state",
+					"(default)"
+				]
+			},
+			"cds-add-select": {
+				"module": "es/components/add-select/add-select.js",
+				"replaces": [],
+				"generatorSkipped": false,
+				"props": 1,
+				"events": 0,
+				"slots": [
+					"default",
+					"(default)"
+				]
+			},
+			"cds-ai-skeleton-icon": {
+				"module": "es/components/ai-skeleton/ai-skeleton-icon.js",
+				"replaces": [],
+				"generatorSkipped": false,
+				"props": 1,
+				"events": 0,
+				"slots": []
+			},
+			"cds-ai-skeleton-placeholder": {
+				"module": "es/components/ai-skeleton/ai-skeleton-placeholder.js",
+				"replaces": [],
+				"generatorSkipped": false,
+				"props": 0,
+				"events": 0,
+				"slots": []
+			},
+			"cds-ai-skeleton-text": {
+				"module": "es/components/ai-skeleton/ai-skeleton-text.js",
+				"replaces": [],
+				"generatorSkipped": false,
+				"props": 4,
+				"events": 0,
+				"slots": []
+			},
+			"cds-badge-indicator": {
+				"module": "es/components/badge-indicator/badge-indicator.js",
+				"replaces": [],
+				"generatorSkipped": false,
+				"props": 2,
+				"events": 0,
+				"slots": []
+			},
+			"cds-big-number": {
+				"module": "es/components/big-number/big-number.js",
+				"replaces": [],
+				"generatorSkipped": false,
+				"props": 10,
+				"events": 0,
+				"slots": [
+					"label",
+					"trending-icon",
+					"icon-button"
+				]
+			},
+			"cds-card-action": {
+				"module": "es/components/card/card-action.js",
+				"replaces": [],
+				"generatorSkipped": false,
+				"props": 1,
+				"events": 0,
+				"slots": [
+					"(default)"
+				]
+			},
+			"cds-card-actions": {
+				"module": "es/components/card/card-actions.js",
+				"replaces": [],
+				"generatorSkipped": false,
+				"props": 1,
+				"events": 0,
+				"slots": [
+					"(default)"
+				]
+			},
+			"cds-card-body": {
+				"module": "es/components/card/card-body.js",
+				"replaces": [],
+				"generatorSkipped": false,
+				"props": 1,
+				"events": 0,
+				"slots": [
+					"(default)"
+				]
+			},
+			"cds-card-footer": {
+				"module": "es/components/card/card-footer.js",
+				"replaces": [],
+				"generatorSkipped": false,
+				"props": 0,
+				"events": 0,
+				"slots": [
+					"(default)"
+				]
+			},
+			"cds-card-header-media": {
+				"module": "es/components/card/card-header-media.js",
+				"replaces": [],
+				"generatorSkipped": false,
+				"props": 0,
+				"events": 0,
+				"slots": [
+					"(default)"
+				]
+			},
+			"cds-card-header": {
+				"module": "es/components/card/card-header.js",
+				"replaces": [],
+				"generatorSkipped": false,
+				"props": 0,
+				"events": 0,
+				"slots": [
+					"(default)",
+					"header-media",
+					"actions",
+					"decorator"
+				]
+			},
+			"cds-card-media": {
+				"module": "es/components/card/card-media.js",
+				"replaces": [],
+				"generatorSkipped": false,
+				"props": 2,
+				"events": 0,
+				"slots": [
+					"(default)"
+				]
+			},
+			"cds-card-title-media": {
+				"module": "es/components/card/card-title-media.js",
+				"replaces": [],
+				"generatorSkipped": false,
+				"props": 0,
+				"events": 0,
+				"slots": [
+					"(default)"
+				]
+			},
+			"cds-card-title": {
+				"module": "es/components/card/card-title.js",
+				"replaces": [],
+				"generatorSkipped": false,
+				"props": 6,
+				"events": 0,
+				"slots": [
+					"(default)",
+					"title-media",
+					"label",
+					"title-start",
+					"title-end",
+					"description"
+				]
+			},
+			"cds-card": {
+				"module": "es/components/card/card.js",
+				"replaces": [],
+				"generatorSkipped": false,
+				"props": 17,
+				"events": 0,
+				"slots": [
+					"(default)",
+					"decorator",
+					"footer-icon",
+					"media",
+					"icon"
+				]
+			},
+			"cds-chat-button": {
+				"module": "es/components/chat-button/chat-button.js",
+				"replaces": [],
+				"generatorSkipped": false,
+				"props": 5,
+				"events": 0,
+				"slots": [
+					"(default)",
+					"icon"
+				]
+			},
+			"cds-coachmark-body": {
+				"module": "es/components/coachmark/coachmark-body.js",
+				"replaces": [],
+				"generatorSkipped": false,
+				"props": 0,
+				"events": 0,
+				"slots": [
+					"(default)"
+				]
+			},
+			"cds-coachmark-header": {
+				"module": "es/components/coachmark/coachmark-header.js",
+				"replaces": [],
+				"generatorSkipped": false,
+				"props": 2,
+				"events": 1,
+				"slots": [
+					"header"
+				]
+			},
+			"cds-coachmark": {
+				"module": "es/components/coachmark/coachmark.js",
+				"replaces": [],
+				"generatorSkipped": false,
+				"props": 9,
+				"events": 2,
+				"slots": [
+					"trigger",
+					"(default)"
+				]
+			},
+			"cds-copy": {
+				"module": "es/components/copy/copy.js",
+				"replaces": [],
+				"generatorSkipped": false,
+				"props": 31,
+				"events": 0,
+				"slots": [
+					"tooltip-content",
+					"(default)",
+					"icon",
+					"badge-indicator"
+				]
+			},
+			"cds-copy-button": {
+				"module": "es/components/copy-button/copy-button.js",
+				"replaces": [],
+				"generatorSkipped": false,
+				"props": 8,
+				"events": 0,
+				"slots": [
+					"(default)"
+				]
+			},
+			"cds-dialog-body": {
+				"module": "es/components/dialog/dialog-body.js",
+				"replaces": [],
+				"generatorSkipped": false,
+				"props": 0,
+				"events": 0,
+				"slots": [
+					"(default)"
+				]
+			},
+			"cds-dialog-close-button": {
+				"module": "es/components/dialog/dialog-close-button.js",
+				"replaces": [],
+				"generatorSkipped": false,
+				"props": 1,
+				"events": 0,
+				"slots": []
+			},
+			"cds-dialog-controls": {
+				"module": "es/components/dialog/dialog-controls.js",
+				"replaces": [],
+				"generatorSkipped": false,
+				"props": 0,
+				"events": 0,
+				"slots": [
+					"(default)"
+				]
+			},
+			"cds-dialog-footer-button": {
+				"module": "es/components/dialog/dialog-footer-button.js",
+				"replaces": [],
+				"generatorSkipped": false,
+				"props": 23,
+				"events": 0,
+				"slots": [
+					"(default)",
+					"icon",
+					"badge-indicator"
+				]
+			},
+			"cds-dialog-footer": {
+				"module": "es/components/dialog/dialog-footer.js",
+				"replaces": [],
+				"generatorSkipped": false,
+				"props": 1,
+				"events": 0,
+				"slots": [
+					"(default)"
+				]
+			},
+			"cds-dialog-header": {
+				"module": "es/components/dialog/dialog-header.js",
+				"replaces": [],
+				"generatorSkipped": false,
+				"props": 0,
+				"events": 0,
+				"slots": [
+					"(default)"
+				]
+			},
+			"cds-dialog-subtitle": {
+				"module": "es/components/dialog/dialog-subtitle.js",
+				"replaces": [],
+				"generatorSkipped": false,
+				"props": 1,
+				"events": 0,
+				"slots": [
+					"(default)"
+				]
+			},
+			"cds-dialog-title": {
+				"module": "es/components/dialog/dialog-title.js",
+				"replaces": [],
+				"generatorSkipped": false,
+				"props": 1,
+				"events": 0,
+				"slots": [
+					"(default)"
+				]
+			},
+			"cds-dialog": {
+				"module": "es/components/dialog/dialog.js",
+				"replaces": [],
+				"generatorSkipped": false,
+				"props": 14,
+				"events": 3,
+				"slots": [
+					"(default)"
+				]
+			},
+			"cds-edit-in-place": {
+				"module": "es/components/edit-in-place/edit-in-place.js",
+				"replaces": [],
+				"generatorSkipped": false,
+				"props": 18,
+				"events": 4,
+				"slots": []
+			},
+			"feature-flags": {
+				"module": "es/components/feature-flags/index.js",
+				"replaces": [],
+				"generatorSkipped": false,
+				"props": 0,
+				"events": 0,
+				"slots": [
+					"(default)"
+				]
+			},
+			"cds-form-item": {
+				"module": "es/components/form/form-item.js",
+				"replaces": [],
+				"generatorSkipped": false,
+				"props": 0,
+				"events": 0,
+				"slots": [
+					"(default)"
+				]
+			},
+			"cds-form": {
+				"module": "es/components/form/form.js",
+				"replaces": [],
+				"generatorSkipped": false,
+				"props": 0,
+				"events": 0,
+				"slots": [
+					"(default)"
+				]
+			},
+			"cds-form-group": {
+				"module": "es/components/form-group/form-group.js",
+				"replaces": [],
+				"generatorSkipped": false,
+				"props": 5,
+				"events": 0,
+				"slots": [
+					"(default)"
+				]
+			},
+			"cds-full-page-error": {
+				"module": "es/components/full-page-error/full-page-error.js",
+				"replaces": [],
+				"generatorSkipped": false,
+				"props": 4,
+				"events": 0,
+				"slots": [
+					"(default)"
+				]
+			},
+			"cds-guide-banner-element": {
+				"module": "es/components/guide-banner/guide-banner-element.js",
+				"replaces": [],
+				"generatorSkipped": false,
+				"props": 0,
+				"events": 0,
+				"slots": [
+					"title",
+					"description",
+					"(default)"
+				]
+			},
+			"cds-guide-banner": {
+				"module": "es/components/guide-banner/guide-banner.js",
+				"replaces": [],
+				"generatorSkipped": false,
+				"props": 4,
+				"events": 4,
+				"slots": [
+					"icon",
+					"header",
+					"body",
+					"footer"
+				]
+			},
+			"cds-section": {
+				"module": "es/components/heading/heading.js",
+				"replaces": [],
+				"generatorSkipped": false,
+				"props": 1,
+				"events": 0,
+				"slots": [
+					"(default)"
+				]
+			},
+			"cds-heading": {
+				"module": "es/components/heading/heading.js",
+				"replaces": [],
+				"generatorSkipped": false,
+				"props": 0,
+				"events": 0,
+				"slots": [
+					"(default)"
+				]
+			},
+			"cds-icon-indicator": {
+				"module": "es/components/icon-indicator/icon-indicator.js",
+				"replaces": [],
+				"generatorSkipped": false,
+				"props": 7,
+				"events": 0,
+				"slots": []
+			},
+			"cds-interstitial-screen-body-item": {
+				"module": "es/components/interstitial-screen/interstitial-screen-body-item.js",
+				"replaces": [],
+				"generatorSkipped": false,
+				"props": 1,
+				"events": 0,
+				"slots": [
+					"(default)"
+				]
+			},
+			"cds-interstitial-screen-body": {
+				"module": "es/components/interstitial-screen/interstitial-screen-body.js",
+				"replaces": [],
+				"generatorSkipped": false,
+				"props": 2,
+				"events": 2,
+				"slots": [
+					"(default)"
+				]
+			},
+			"cds-interstitial-screen-footer": {
+				"module": "es/components/interstitial-screen/interstitial-screen-footer.js",
+				"replaces": [],
+				"generatorSkipped": false,
+				"props": 8,
+				"events": 2,
+				"slots": [
+					"(default)"
+				]
+			},
+			"cds-interstitial-screen-header": {
+				"module": "es/components/interstitial-screen/interstitial-screen-header.js",
+				"replaces": [],
+				"generatorSkipped": false,
+				"props": 6,
+				"events": 1,
+				"slots": [
+					"(default)"
+				]
+			},
+			"cds-interstitial-screen": {
+				"module": "es/components/interstitial-screen/interstitial-screen.js",
+				"replaces": [],
+				"generatorSkipped": false,
+				"props": 3,
+				"events": 3,
+				"slots": [
+					"header",
+					"body",
+					"footer"
+				]
+			},
+			"cds-layout-constraint": {
+				"module": "es/components/layout/layout-constraint.js",
+				"replaces": [],
+				"generatorSkipped": false,
+				"props": 3,
+				"events": 0,
+				"slots": [
+					"(default)"
+				]
+			},
+			"cds-layout": {
+				"module": "es/components/layout/layout.js",
+				"replaces": [],
+				"generatorSkipped": false,
+				"props": 2,
+				"events": 0,
+				"slots": [
+					"(default)"
+				]
+			},
+			"cds-notification-footer": {
+				"module": "es/components/notification-panel/notification-footer.js",
+				"replaces": [],
+				"generatorSkipped": false,
+				"props": 1,
+				"events": 2,
+				"slots": []
+			},
+			"cds-notification-panel": {
+				"module": "es/components/notification-panel/notification-panel.js",
+				"replaces": [],
+				"generatorSkipped": false,
+				"props": 9,
+				"events": 4,
+				"slots": [
+					"today",
+					"previous",
+					"footer",
+					"empty-state"
+				]
+			},
+			"cds-notification": {
+				"module": "es/components/notification-panel/notification.js",
+				"replaces": [],
+				"generatorSkipped": false,
+				"props": 3,
+				"events": 1,
+				"slots": [
+					"title",
+					"description"
+				]
+			},
+			"cds-options-tile": {
+				"module": "es/components/options-tile/options-tile.js",
+				"replaces": [],
+				"generatorSkipped": false,
+				"props": 8,
+				"events": 2,
+				"slots": [
+					"summary",
+					"toggle",
+					"body"
+				]
+			},
+			"cds-page-header-breadcrumb": {
+				"module": "es/components/page-header/page-header-breadcrumb.js",
+				"replaces": [],
+				"generatorSkipped": false,
+				"props": 6,
+				"events": 0,
+				"slots": [
+					"icon",
+					"(default)",
+					"content-actions",
+					"page-actions"
+				]
+			},
+			"cds-page-header-content-text": {
+				"module": "es/components/page-header/page-header-content-text.js",
+				"replaces": [],
+				"generatorSkipped": false,
+				"props": 2,
+				"events": 0,
+				"slots": [
+					"subtitle-content",
+					"(default)"
+				]
+			},
+			"cds-page-header-content": {
+				"module": "es/components/page-header/page-header-content.js",
+				"replaces": [],
+				"generatorSkipped": false,
+				"props": 4,
+				"events": 1,
+				"slots": [
+					"icon",
+					"title",
+					"contextual-actions",
+					"page-actions",
+					"(default)"
+				]
+			},
+			"cds-page-header-hero-image": {
+				"module": "es/components/page-header/page-header-hero-image.js",
+				"replaces": [],
+				"generatorSkipped": false,
+				"props": 1,
+				"events": 0,
+				"slots": [
+					"(default)"
+				]
+			},
+			"cds-page-header-scroller": {
+				"module": "es/components/page-header/page-header-scroller.js",
+				"replaces": [],
+				"generatorSkipped": false,
+				"props": 32,
+				"events": 0,
+				"slots": [
+					"tooltip-content",
+					"(default)",
+					"icon",
+					"badge-indicator"
+				]
+			},
+			"cds-page-header-tabs": {
+				"module": "es/components/page-header/page-header-tabs.js",
+				"replaces": [],
+				"generatorSkipped": false,
+				"props": 2,
+				"events": 0,
+				"slots": [
+					"(default)",
+					"tags",
+					"scroller"
+				]
+			},
+			"cds-page-header-title-breadcrumb": {
+				"module": "es/components/page-header/page-header-title-breadcrumb.js",
+				"replaces": [],
+				"generatorSkipped": false,
+				"props": 0,
+				"events": 0,
+				"slots": [
+					"(default)"
+				]
+			},
+			"cds-page-header": {
+				"module": "es/components/page-header/page-header.js",
+				"replaces": [],
+				"generatorSkipped": false,
+				"props": 3,
+				"events": 3,
+				"slots": [
+					"(default)"
+				]
+			},
+			"cds-resizer-grid": {
+				"module": "es/components/resizer/resizer-grid.js",
+				"replaces": [],
+				"generatorSkipped": false,
+				"props": 0,
+				"events": 0,
+				"slots": [
+					"left",
+					"top",
+					"handle-horizontal",
+					"handle-vertical",
+					"right",
+					"bottom"
+				]
+			},
+			"cds-resizer-handle-pivot": {
+				"module": "es/components/resizer/resizer-handle-pivot.js",
+				"replaces": [],
+				"generatorSkipped": false,
+				"props": 0,
+				"events": 0,
+				"slots": []
+			},
+			"cds-resizer-handle": {
+				"module": "es/components/resizer/resizer-handle.js",
+				"replaces": [],
+				"generatorSkipped": false,
+				"props": 4,
+				"events": 4,
+				"slots": []
+			},
+			"cds-resizer-panel": {
+				"module": "es/components/resizer/resizer-panel.js",
+				"replaces": [],
+				"generatorSkipped": false,
+				"props": 0,
+				"events": 0,
+				"slots": [
+					"(default)"
+				]
+			},
+			"cds-shape-indicator": {
+				"module": "es/components/shape-indicator/shape-indicator.js",
+				"replaces": [],
+				"generatorSkipped": false,
+				"props": 7,
+				"events": 0,
+				"slots": []
+			},
+			"cds-side-panel": {
+				"module": "es/components/side-panel/side-panel.js",
+				"replaces": [],
+				"generatorSkipped": false,
+				"props": 18,
+				"events": 3,
+				"slots": [
+					"above-title",
+					"slug",
+					"subtitle",
+					"below-title",
+					"action-toolbar",
+					"(default)",
+					"actions"
+				]
+			},
+			"cds-skip-to-content": {
+				"module": "es/components/skip-to-content/skip-to-content.js",
+				"replaces": [],
+				"generatorSkipped": false,
+				"props": 2,
+				"events": 0,
+				"slots": [
+					"(default)"
+				]
+			},
+			"cds-slug-action-button": {
+				"module": "es/components/slug/slug-action-button.js",
+				"replaces": [],
+				"generatorSkipped": false,
+				"props": 24,
+				"events": 0,
+				"slots": [
+					"(default)",
+					"icon",
+					"badge-indicator"
+				]
+			},
+			"cds-slug": {
+				"module": "es/components/slug/slug.js",
+				"replaces": [],
+				"generatorSkipped": false,
+				"props": 15,
+				"events": 0,
+				"slots": [
+					"(default)",
+					"trigger",
+					"body-text",
+					"actions"
+				]
+			},
+			"cds-tearsheet-body": {
+				"module": "es/components/tearsheet/tearsheet-body.js",
+				"replaces": [],
+				"generatorSkipped": false,
+				"props": 2,
+				"events": 0,
+				"slots": [
+					"influencer",
+					"main-content",
+					"summary-content"
+				]
+			},
+			"cds-tearsheet-footer": {
+				"module": "es/components/tearsheet/tearsheet-footer.js",
+				"replaces": [],
+				"generatorSkipped": false,
+				"props": 3,
+				"events": 0,
+				"slots": [
+					"(default)"
+				]
+			},
+			"cds-tearsheet-header-content": {
+				"module": "es/components/tearsheet/tearsheet-header-content.js",
+				"replaces": [],
+				"generatorSkipped": false,
+				"props": 2,
+				"events": 1,
+				"slots": [
+					"label",
+					"title-start",
+					"title-end",
+					"description",
+					"decorator",
+					"header-actions",
+					"(default)"
+				]
+			},
+			"cds-tearsheet-header": {
+				"module": "es/components/tearsheet/tearsheet-header.js",
+				"replaces": [],
+				"generatorSkipped": false,
+				"props": 4,
+				"events": 1,
+				"slots": [
+					"header-content",
+					"(default)",
+					"navigation-bar"
+				]
+			},
+			"cds-tearsheet-influencer": {
+				"module": "es/components/tearsheet/tearsheet-influencer.js",
+				"replaces": [],
+				"generatorSkipped": false,
+				"props": 4,
+				"events": 1,
+				"slots": [
+					"(default)"
+				]
+			},
+			"cds-tearsheet-navigation-bar": {
+				"module": "es/components/tearsheet/tearsheet-navigation-bar.js",
+				"replaces": [],
+				"generatorSkipped": false,
+				"props": 1,
+				"events": 0,
+				"slots": [
+					"(default)",
+					"scroller"
+				]
+			},
+			"cds-tearsheet-scroller": {
+				"module": "es/components/tearsheet/tearsheet-scroller.js",
+				"replaces": [],
+				"generatorSkipped": false,
+				"props": 27,
+				"events": 0,
+				"slots": [
+					"tooltip-content",
+					"(default)",
+					"icon",
+					"badge-indicator"
+				]
+			},
+			"cds-tearsheet-stack": {
+				"module": "es/components/tearsheet/tearsheet-stack.js",
+				"replaces": [],
+				"generatorSkipped": false,
+				"props": 1,
+				"events": 2,
+				"slots": [
+					"(default)"
+				]
+			},
+			"cds-tearsheet-summary-content": {
+				"module": "es/components/tearsheet/tearsheet-summary-content.js",
+				"replaces": [],
+				"generatorSkipped": false,
+				"props": 4,
+				"events": 1,
+				"slots": [
+					"(default)"
+				]
+			},
+			"cds-tearsheet": {
+				"module": "es/components/tearsheet/tearsheet.js",
+				"replaces": [],
+				"generatorSkipped": false,
+				"props": 11,
+				"events": 4,
+				"slots": [
+					"header",
+					"influencer",
+					"body",
+					"footer"
+				]
+			},
+			"cds-truncated-text": {
+				"module": "es/components/truncated-text/truncated-text.js",
+				"replaces": [],
+				"generatorSkipped": false,
+				"props": 8,
+				"events": 0,
+				"slots": []
+			},
+			"cds-user-avatar": {
+				"module": "es/components/user-avatar/user-avatar.js",
+				"replaces": [],
+				"generatorSkipped": false,
+				"props": 8,
+				"events": 0,
+				"slots": [
+					"rendericon"
+				]
+			},
+			"step-group": {
+				"module": "es/utilities/step-flow/step-group.js",
+				"replaces": [],
+				"generatorSkipped": false,
+				"props": 0,
+				"events": 0,
+				"slots": [
+					"(default)"
+				]
+			},
+			"cds-coachmark-beacon": {
+				"module": "es/components/coachmark/coachmark-beacon/coachmark-beacon.js",
+				"replaces": [],
+				"generatorSkipped": false,
+				"props": 4,
+				"events": 1,
+				"slots": [
+					"icon"
+				]
+			},
+			"cds-coachmark-tagline": {
+				"module": "es/components/coachmark/coachmark-tagline/coachmark-tagline.js",
+				"replaces": [],
+				"generatorSkipped": false,
+				"props": 3,
+				"events": 2,
+				"slots": []
+			},
+			"cds-preview-fluid-date-picker": {
+				"module": "es/components/fluid-date-picker/next/fluid-date-picker.js",
+				"replaces": [],
+				"generatorSkipped": true,
+				"props": 18,
+				"events": 2,
+				"slots": [
+					"(default)"
+				]
+			},
+			"cds-page-header-actions-set": {
+				"module": "es/components/page-header/page-header-actions-set/page-header-actions-set.js",
+				"replaces": [],
+				"generatorSkipped": false,
+				"props": 4,
+				"events": 0,
+				"slots": [
+					"(default)"
+				]
+			},
+			"cds-page-header-breadcrumbs-set": {
+				"module": "es/components/page-header/page-header-breadcrumbs-set/page-header-breadcrumbs-set.js",
+				"replaces": [],
+				"generatorSkipped": false,
+				"props": 4,
+				"events": 0,
+				"slots": [
+					"breadcrumb-content"
+				]
+			},
+			"cds-page-header-tags-set": {
+				"module": "es/components/page-header/page-header-tags-set/page-header-tags-set.js",
+				"replaces": [],
+				"generatorSkipped": false,
+				"props": 2,
+				"events": 0,
+				"slots": []
+			}
+		}
+	},
+	"cca": {
+		"AlertModal": {
+			"selectors": [
+				"cds-alert-modal",
+				"ibm-alert-modal"
+			],
+			"file": "src/modal/alert-modal.component.ts",
+			"reason": "Created by a service (ModalService). Can be rebuilt on cds-modal, but it is not a tag.",
+			"keep": null
+		},
+		"BaseIconButton": {
+			"file": "src/button/base-icon-button.component.ts",
+			"reason": "base class (no selector); its inputs are folded into subclasses"
+		},
+		"BaseNotification": {
+			"file": "src/notification/base-notification.component.ts",
+			"reason": "base class (no selector); its inputs are folded into subclasses"
+		},
+		"BaseTabHeader": {
+			"file": "src/tabs/base-tab-header.component.ts",
+			"reason": "base class (no selector); its inputs are folded into subclasses"
+		},
+		"Dialog": {
+			"selectors": [
+				"cds-dialog",
+				"ibm-dialog"
+			],
+			"file": "src/dialog/dialog.component.ts",
+			"reason": "Removed in v7: internal. Base popover dialog used by OverflowMenu. Replaced by cds-popover / cds-overflow-menu-body.",
+			"keep": null
+		},
+		"Documentation": {
+			"selectors": [
+				"cds-documentation"
+			],
+			"file": "src/documentation-component/documentation.component.ts",
+			"reason": "Storybook helper.",
+			"keep": null
+		},
+		"DropdownList": {
+			"selectors": [
+				"cds-dropdown-list",
+				"ibm-dropdown-list"
+			],
+			"file": "src/dropdown/list/dropdown-list.component.ts",
+			"reason": "Model-driven list (ListItem[]). Web components use cds-dropdown-item / cds-multi-select-item children.",
+			"keep": null
+		},
+		"HeaderGlobal": {
+			"selectors": [
+				"cds-header-global",
+				"ibm-header-global"
+			],
+			"file": "src/ui-shell/header/header-global.component.ts",
+			"reason": "Plain layout container. The web component header has no global-bar element.",
+			"keep": null
+		},
+		"IconTab": {
+			"selectors": [
+				"cds-icon-tab",
+				"ibm-icon-tab"
+			],
+			"file": "src/tabs/icon-tab.component.ts",
+			"reason": "No icon-only tab element. cds-tab takes an icon in its default slot; check cds-tabs type=\"icon\" support.",
+			"keep": null
+		},
+		"Label": {
+			"selectors": [
+				"cds-label",
+				"ibm-label"
+			],
+			"file": "src/input/label.component.ts",
+			"reason": "Wraps any projected input. Each web component input renders its own label (label-text slot).",
+			"keep": null
+		},
+		"OverflowMenuCustomPane": {
+			"selectors": [
+				"cds-overflow-custom-menu-pane",
+				"ibm-overflow-custom-menu-pane"
+			],
+			"file": "src/dialog/overflow-menu/overflow-menu-custom-pane.component.ts",
+			"reason": "Free-form pane. The closest is cds-overflow-menu-body with custom children.",
+			"keep": null
+		},
+		"Overlay": {
+			"selectors": [
+				"cds-overlay",
+				"ibm-overlay"
+			],
+			"file": "src/modal/overlay.component.ts",
+			"reason": "cds-modal renders its own overlay.",
+			"keep": null
+		},
+		"PaginationNavItem": {
+			"selectors": [
+				"cds-pagination-nav-item",
+				"ibm-pagination-nav-item"
+			],
+			"file": "src/pagination/pagination-nav/pagination-item.component.ts",
+			"reason": "cds-pagination-nav renders its own items.",
+			"keep": null
+		},
+		"PaginationOverflow": {
+			"selectors": [
+				"cds-pagination-overflow",
+				"ibm-pagination-overflow"
+			],
+			"file": "src/pagination/pagination-nav/pagination-overflow.component.ts",
+			"reason": "cds-pagination-nav renders its own overflow.",
+			"keep": null
+		},
+		"Placeholder": {
+			"selectors": [
+				"cds-placeholder",
+				"ibm-placeholder"
+			],
+			"file": "src/placeholder/placeholder.component.ts",
+			"reason": "Angular-only. Hosts dynamically created components (modal / dialog services).",
+			"keep": null
+		},
+		"TabHeaderComponent": {
+			"selectors": [
+				"cds-tab-header",
+				"ibm-tab-header"
+			],
+			"file": "src/tabs/tab-header.component.ts",
+			"reason": "cds-tab is the header.",
+			"keep": null
+		},
+		"TabHeaderGroup": {
+			"selectors": [
+				"cds-tab-header-group",
+				"ibm-tab-header-group"
+			],
+			"file": "src/tabs/tab-header-group.component.ts",
+			"reason": "No grouped tab header in web components.",
+			"keep": null
+		},
+		"TabHeaderGroupVertical": {
+			"selectors": [
+				"cds-tab-header-group-vertical",
+				"ibm-tab-header-group-vertical"
+			],
+			"file": "src/tabs/tab-header-group-vertical.component.ts",
+			"reason": "No grouped tab header in web components.",
+			"keep": null
+		},
+		"TabHeaders": {
+			"selectors": [
+				"cds-tab-headers",
+				"ibm-tab-headers"
+			],
+			"file": "src/tabs/tab-headers.component.ts",
+			"reason": "cds-tabs renders the header list.",
+			"keep": null
+		},
+		"TabHeadersVertical": {
+			"selectors": [
+				"cds-tab-headers-vertical",
+				"ibm-tab-headers-vertical"
+			],
+			"file": "src/tabs/tab-headers-vertical.component.ts",
+			"reason": "cds-tabs-vertical renders the header list.",
+			"keep": null
+		},
+		"TableCheckbox": {
+			"selectors": [
+				"[cdsTableCheckbox]",
+				"[ibmTableCheckbox]"
+			],
+			"file": "src/table/cell/table-checkbox.component.ts",
+			"reason": "cds-table-row renders selection itself (is-selectable / selection-name).",
+			"keep": null
+		},
+		"TableContainer": {
+			"selectors": [
+				"cds-table-container",
+				"ibm-table-container"
+			],
+			"file": "src/table/table-container.component.ts",
+			"reason": "cds-table renders its own container.",
+			"keep": null
+		},
+		"TableExpandButton": {
+			"selectors": [
+				"[cdsTableExpandButton]",
+				"[ibmTableExpandButton]"
+			],
+			"file": "src/table/cell/table-expand-button.component.ts",
+			"reason": "cds-table-row renders the expando button.",
+			"keep": null
+		},
+		"TableHeadCheckbox": {
+			"selectors": [
+				"[cdsTableHeadCheckbox]",
+				"[ibmTableHeadCheckbox]"
+			],
+			"file": "src/table/head/table-head-checkbox.component.ts",
+			"reason": "cds-table-header-row renders the select-all checkbox.",
+			"keep": null
+		},
+		"TableHeader": {
+			"selectors": [
+				"cds-table-header",
+				"ibm-table-header"
+			],
+			"file": "src/table/header/table-header.component.ts",
+			"reason": "cds-table-header-title / cds-table-header-description replace it.",
+			"keep": null
+		},
+		"TableHeaderDecorator": {
+			"selectors": [
+				"cds-table-header-decorator",
+				"ibm-table-header-decorator"
+			],
+			"file": "src/table/header/table-header-decorator.component.ts",
+			"reason": "Use the decorator / ai-label slot on the cell.",
+			"keep": null
+		},
+		"TableHeadExpand": {
+			"selectors": [
+				"[cdsTableHeadExpand]",
+				"[ibmTableHeadExpand]"
+			],
+			"file": "src/table/head/table-head-expand.component.ts",
+			"reason": "cds-table-header-row renders the expand column.",
+			"keep": null
+		},
+		"TableRadio": {
+			"selectors": [
+				"[cdsTableRadio]",
+				"[ibmTableRadio]"
+			],
+			"file": "src/table/cell/table-radio.component.ts",
+			"reason": "cds-table-row renders radio selection itself (radio).",
+			"keep": null
+		},
+		"TabsVerticalGrouped": {
+			"selectors": [
+				"cds-tabs-vertical-grouped",
+				"ibm-tabs-vertical-grouped"
+			],
+			"file": "src/tabs/tabs-vertical-grouped.component.ts",
+			"reason": "No grouped vertical tabs in web components.",
+			"keep": null
+		},
+		"AbstractDropdownView": {
+			"selectors": [
+				"[cdsAbstractDropdownView]",
+				"[ibmAbstractDropdownView]"
+			],
+			"file": "src/dropdown/abstract-dropdown-view.class.ts",
+			"reason": "Removed in v7: internal. Abstract base class for DropdownList.",
+			"keep": null
+		},
+		"AILabelPopoverDirective": {
+			"selectors": [
+				"[cdsAILabelPopover]"
+			],
+			"file": "src/ai-label/ai-label-popover.directive.ts",
+			"reason": "Popover behaviour is inside cds-ai-label.",
+			"keep": null
+		},
+		"AspectRatioDirective": {
+			"selectors": [
+				"[cdsAspectRatio]",
+				"[ibmAspectRatio]"
+			],
+			"file": "src/aspect-ratio/aspect-ratio.directive.ts",
+			"reason": "No aspect-ratio element in web components. CSS utility.",
+			"keep": null
+		},
+		"BaseModal": {
+			"selectors": [
+				"[cdsBaseModal]",
+				"[ibmBaseModal]"
+			],
+			"file": "src/modal/base-modal.class.ts",
+			"reason": "Removed in v7 with the modal rewrite. Custom modals extend it today (ModalService), so the rewrite needs a replacement for service-created modals.",
+			"keep": null
+		},
+		"DialogDirective": {
+			"selectors": [
+				"[cdsDialog]",
+				"[ibmDialog]"
+			],
+			"file": "src/dialog/dialog.directive.ts",
+			"reason": "Removed in v7: internal. Base dialog directive. Replaced by cds-popover.",
+			"keep": null
+		},
+		"ExpandedRowHover": {
+			"selectors": [
+				"[cdsExpandedRowHover]",
+				"[ibmExpandedRowHover]"
+			],
+			"file": "src/table/expanded-row-hover.directive.ts",
+			"reason": "Removed in v7: internal. Hover state is inside cds-table-expanded-row.",
+			"keep": null
+		},
+		"RouterLinkExtendedDirective": {
+			"selectors": [
+				"[routerLink]"
+			],
+			"file": "src/ui-shell/sidenav/routerlink-extended.directive.ts",
+			"reason": "Angular router integration. Stays Angular-only.",
+			"keep": null
+		},
+		"RowDirective": {
+			"selectors": [
+				"[cdsRow]",
+				"[ibmRow]"
+			],
+			"file": "src/grid/row.directive.ts",
+			"reason": "Flexbox grid only. The web components implement CSS Grid only (cds-grid / cds-column); the flexbox grid exists only as @carbon/styles classes. Kept as an Angular-only class directive.",
+			"keep": "Flexbox grid only: keep the class directive."
+		},
+		"ScrollableList": {
+			"selectors": [
+				"[cdsScrollableList]",
+				"[ibmScrollableList]"
+			],
+			"file": "src/dropdown/scrollable-list.directive.ts",
+			"reason": "Removed in v7: internal. Behaviour is inside the web component listbox.",
+			"keep": null
+		},
+		"TabHeader": {
+			"selectors": [
+				"[cdsTabHeader]",
+				"[ibmTabHeader]"
+			],
+			"file": "src/tabs/tab-header.directive.ts",
+			"reason": "Removed in v7: internal. cds-tab is the header. Panels are separate elements linked by id.",
+			"keep": null
+		},
+		"TabHeaderBase": {
+			"file": "src/tabs/tab-header.directive.ts",
+			"reason": "base class (no selector); its inputs are folded into subclasses"
+		},
+		"TableHeadCellLabel": {
+			"selectors": [
+				"[cdsTableHeadCellLabel]",
+				"[ibmTableHeadCellLabel]"
+			],
+			"file": "src/table/head/table-head-cell-label.directive.ts",
+			"reason": "Removed in v7: internal. cds-table-header-cell text is its default slot.",
+			"keep": null
+		},
+		"ThemeDirective": {
+			"selectors": [
+				"[cdsTheme]",
+				"[ibmTheme]"
+			],
+			"file": "src/theme/theme.directive.ts",
+			"reason": "No theme element in web components. Use the @carbon/styles theme classes or cds-layer.",
+			"keep": null
+		}
+	}
+}

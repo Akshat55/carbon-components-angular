@@ -1,0 +1,128 @@
+{
+	"$schema": "../schema/component-migration.schema.json",
+	"schemaVersion": 1,
+	"tag": "cds-accordion-item",
+	"status": "overrides",
+	"curated": true,
+	"legacy": [
+		{
+			"class": "AccordionItem",
+			"selectors": [
+				"cds-accordion-item",
+				"ibm-accordion-item"
+			],
+			"file": "src/accordion/accordion-item.component.ts",
+			"when": null
+		}
+	],
+	"unchanged": {
+		"inputs": [
+			"disabled"
+		],
+		"outputs": []
+	},
+	"inputs": {
+		"expanded": {
+			"kind": "alias",
+			"prop": "open",
+			"deprecated": "Use `open`.",
+			"schematic": {
+				"rename": "open"
+			}
+		},
+		"title": {
+			"kind": "templateSlot",
+			"prop": "title",
+			"slot": "title",
+			"context": "context"
+		},
+		"context": {
+			"kind": "keep",
+			"notes": "Template context for `title` when it is a TemplateRef. Angular-only."
+		},
+		"id": {
+			"kind": "native",
+			"mismatch": "id-default",
+			"notes": "`id` is a native attribute on the host, so the wrapper doesn't need to declare it."
+		},
+		"skeleton": {
+			"kind": "removed",
+			"replacement": {
+				"tag": "cds-accordion-item-skeleton"
+			},
+			"deprecated": "Use `<cds-accordion-item-skeleton>`.",
+			"schematic": {
+				"todo": "`skeleton` was removed. Render `<cds-accordion-item-skeleton>` while loading."
+			}
+		}
+	},
+	"outputs": {
+		"selected": {
+			"kind": "derived",
+			"source": {
+				"event": "cds-accordion-item-toggled"
+			},
+			"payload": "{ id: el.id, expanded: $event.detail.open }",
+			"deprecated": "Use `(openChange)` or `(accordionItemToggled)`.",
+			"mismatch": "selected-source",
+			"schematic": {
+				"todo": "`(selected)` is deprecated. Use `(openChange)`, which emits a boolean, or `(accordionItemToggled)`, which emits the CustomEvent with `detail.open`."
+			}
+		}
+	},
+	"methods": {
+		"toggleExpanded": {
+			"kind": "derived",
+			"body": "if (!el.disabled) { el.open = !el.open; }",
+			"deprecated": "Set `open` instead.",
+			"mismatch": "toggle-method"
+		}
+	},
+	"twoWay": [
+		{
+			"prop": "open",
+			"output": "openChange",
+			"source": {
+				"event": "cds-accordion-item-toggled"
+			},
+			"value": "el.open"
+		}
+	],
+	"forms": null,
+	"content": [],
+	"mismatches": {
+		"selected-source": {
+			"member": "outputs.selected",
+			"kind": "behavior",
+			"cca": "Emits { id, expanded } from toggleExpanded(), i.e. on user click or an explicit toggleExpanded() call. Setting [expanded] doesn't emit.",
+			"wc": "cds-accordion-item-toggled fires after a user gesture with detail.open. Setting `open` doesn't fire it.",
+			"resolution": "wrapper",
+			"notes": "The web component event matches v6 semantics more closely than v7's observeAttributes(['open']), which also emits on programmatic changes. The one gap is a toggleExpanded() call, handled by the toggle-method entry."
+		},
+		"toggle-method": {
+			"member": "methods.toggleExpanded",
+			"kind": "missing-in-wc",
+			"cca": "Public toggleExpanded() flips `expanded` and emits `selected`.",
+			"wc": "No public toggle method. Setting `open` doesn't dispatch cds-accordion-item-toggled.",
+			"resolution": "wrapper",
+			"notes": "To keep v6 behaviour exactly, the derived method also emits `selected` and `openChange` after flipping `open`."
+		},
+		"id-default": {
+			"member": "inputs.id",
+			"kind": "default",
+			"cca": "Auto-generated `accordion-item-${n}` when not set",
+			"wc": "No default id",
+			"resolution": "none",
+			"notes": "The only v6 use of the generated id was the `selected` payload. With no id set, the payload's `id` is now ''."
+		}
+	},
+	"provenance": {
+		"comparison": "migration/wc-angular-comparison.json",
+		"evidence": {
+			"expanded": "v7",
+			"title": "v7",
+			"selected": "master source + web component source (deviates from v7)",
+			"toggleExpanded": "v7"
+		}
+	}
+}

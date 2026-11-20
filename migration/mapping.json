@@ -1,0 +1,990 @@
+{
+	"$comment": "Hand-maintained hints for build-comparison.mjs. Everything here is a hint: the script checks each one against the Custom Elements Manifest (CEM) and the web component source, and records whether it held.",
+	"classToTag": {
+		"$comment": "CCA class -> web component tag(s). null = no web component counterpart, with a reason. Classes not listed fall back to a direct selector match. A conditional target is { tag, when, set? }; `when` is one of { input, equals } (an input on the class), { parentInput: 'Parent.input', equals } (an input on the parent component) or { hostElement } (the element the directive sits on).",
+		"Button": [
+			"cds-button"
+		],
+		"TextInput": [
+			"cds-text-input"
+		],
+		"TextArea": [
+			"cds-textarea"
+		],
+		"PasswordInput": [
+			"cds-password-input"
+		],
+		"TextInputLabelComponent": [
+			"cds-text-input"
+		],
+		"TextareaLabelComponent": [
+			"cds-textarea"
+		],
+		"PasswordInputLabelComponent": [
+			"cds-password-input"
+		],
+		"Link": [
+			"cds-link"
+		],
+		"GridDirective": [
+			{
+				"tag": "cds-grid",
+				"when": {
+					"input": "useCssGrid",
+					"equals": true
+				}
+			}
+		],
+		"ColumnDirective": [
+			{
+				"tag": "cds-column",
+				"when": {
+					"parentInput": "GridDirective.useCssGrid",
+					"equals": true
+				}
+			}
+		],
+		"LayerDirective": [
+			"cds-layer"
+		],
+		"StackDirective": [
+			"cds-stack"
+		],
+		"IconDirective": [
+			"cds-icon"
+		],
+		"List": [
+			"cds-unordered-list",
+			{
+				"tag": "cds-ordered-list",
+				"when": {
+					"hostElement": "ol"
+				}
+			}
+		],
+		"ListItemDirective": [
+			"cds-list-item"
+		],
+		"SelectionTile": [
+			"cds-selectable-tile",
+			{
+				"tag": "cds-radio-tile",
+				"when": {
+					"parentInput": "TileGroup.multiple",
+					"equals": false
+				}
+			}
+		],
+		"Dropdown": [
+			"cds-dropdown",
+			{
+				"tag": "cds-multi-select",
+				"when": {
+					"input": "type",
+					"equals": "multi"
+				}
+			}
+		],
+		"ComboBox": [
+			"cds-combo-box",
+			{
+				"tag": "cds-multi-select",
+				"when": {
+					"input": "type",
+					"equals": "multi"
+				},
+				"set": {
+					"filterable": true
+				}
+			}
+		],
+		"Option": [
+			"cds-select-item"
+		],
+		"OptGroup": [
+			"cds-select-item-group"
+		],
+		"ModalContent": [
+			"cds-modal-body"
+		],
+		"ModalContentText": [
+			"cds-modal-body-content"
+		],
+		"ModalHeaderHeading": [
+			"cds-modal-heading"
+		],
+		"ModalHeaderLabel": [
+			"cds-modal-label"
+		],
+		"OverflowMenuPane": [
+			"cds-overflow-menu-body"
+		],
+		"TableDirective": [
+			"cds-table"
+		],
+		"TableData": [
+			"cds-table-cell"
+		],
+		"TableHeadCell": [
+			"cds-table-header-cell"
+		],
+		"TableToolbarActions": [
+			"cds-table-batch-actions"
+		],
+		"TabSkeleton": [
+			"cds-tabs-skeleton"
+		],
+		"Notification": [
+			"cds-inline-notification"
+		],
+		"Toast": [
+			"cds-toast-notification"
+		],
+		"ContextMenuDividerComponent": [
+			"cds-menu-item-divider"
+		],
+		"ContextMenuGroupComponent": [
+			"cds-menu-item-group"
+		],
+		"FileComponent": [
+			"cds-file-uploader-item"
+		],
+		"Hamburger": [
+			"cds-header-menu-button"
+		],
+		"HeaderAction": [
+			"cds-header-global-action"
+		],
+		"HeaderItem": [
+			"cds-header-nav-item"
+		],
+		"HeaderNavigation": [
+			"cds-header-nav"
+		],
+		"Panel": [
+			"cds-header-panel"
+		],
+		"SwitcherList": [
+			"cds-switcher"
+		],
+		"SwitcherListItem": [
+			"cds-switcher-item"
+		],
+		"SideNav": [
+			"cds-side-nav"
+		],
+		"SideNavItem": [
+			"cds-side-nav-link"
+		],
+		"SideNavMenu": [
+			"cds-side-nav-menu"
+		],
+		"ListColumn": [
+			"cds-structured-list-cell"
+		],
+		"ListHeader": [
+			"cds-structured-list-head"
+		],
+		"ListRow": [
+			"cds-structured-list-row"
+		],
+		"NumberComponent": [
+			"cds-number-input"
+		],
+		"OverflowMenuOption": [
+			"cds-overflow-menu-item"
+		],
+		"Radio": [
+			"cds-radio-button"
+		],
+		"RadioGroup": [
+			"cds-radio-button-group"
+		],
+		"TableBody": [
+			"cds-table-body"
+		],
+		"TableExpandedRow": [
+			"cds-table-expanded-row"
+		],
+		"TableHead": [
+			"cds-table-head"
+		],
+		"TableRowComponent": [
+			"cds-table-row"
+		],
+		"TagFilter": [
+			"cds-dismissible-tag"
+		],
+		"TagOperationalComponent": [
+			"cds-operational-tag"
+		],
+		"TagSelectableComponent": [
+			"cds-selectable-tag"
+		],
+		"TimePicker": [
+			"cds-time-picker"
+		],
+		"TimePickerSelect": [
+			"cds-time-picker-select"
+		],
+		"TooltipDefinition": [
+			"cds-definition-tooltip"
+		],
+		"ContentSwitcherOption": [
+			"cds-content-switcher-item"
+		],
+		"PopoverContainer": [
+			"cds-popover"
+		],
+		"Label": null,
+		"RowDirective": null,
+		"HeaderGlobal": null,
+		"OverflowMenuDirective": [
+			"cds-overflow-menu"
+		],
+		"OverflowMenuCustomPane": null,
+		"AILabelPopoverDirective": null,
+		"DropdownList": null,
+		"AbstractDropdownView": null,
+		"ScrollableList": null,
+		"TableCheckbox": null,
+		"TableRadio": null,
+		"TableHeadCheckbox": null,
+		"TableExpandButton": null,
+		"TableHeadExpand": null,
+		"TableContainer": null,
+		"TableHeader": null,
+		"TableHeaderDecorator": null,
+		"TableHeadCellLabel": null,
+		"ExpandedRowHover": null,
+		"AlertModal": null,
+		"BaseModal": null,
+		"Overlay": null,
+		"Dialog": null,
+		"DialogDirective": null,
+		"IconTab": null,
+		"TabHeader": null,
+		"TabHeaderComponent": null,
+		"TabHeaders": null,
+		"TabHeadersVertical": null,
+		"TabHeaderGroup": null,
+		"TabHeaderGroupVertical": null,
+		"TabsVerticalGrouped": null,
+		"PaginationNavItem": null,
+		"PaginationOverflow": null,
+		"Placeholder": null,
+		"Documentation": null,
+		"ThemeDirective": null,
+		"AspectRatioDirective": null,
+		"RouterLinkExtendedDirective": null
+	},
+	"unmappedReasons": {
+		"Label": "Wraps any projected input. Each web component input renders its own label (label-text slot).",
+		"RowDirective": "Flexbox grid only. The web components implement CSS Grid only (cds-grid / cds-column); the flexbox grid exists only as @carbon/styles classes. Kept as an Angular-only class directive.",
+		"HeaderGlobal": "Plain layout container. The web component header has no global-bar element.",
+		"OverflowMenuCustomPane": "Free-form pane. The closest is cds-overflow-menu-body with custom children.",
+		"AILabelPopoverDirective": "Popover behaviour is inside cds-ai-label.",
+		"DropdownList": "Model-driven list (ListItem[]). Web components use cds-dropdown-item / cds-multi-select-item children.",
+		"AbstractDropdownView": "Removed in v7: internal. Abstract base class for DropdownList.",
+		"ScrollableList": "Removed in v7: internal. Behaviour is inside the web component listbox.",
+		"TableCheckbox": "cds-table-row renders selection itself (is-selectable / selection-name).",
+		"TableRadio": "cds-table-row renders radio selection itself (radio).",
+		"TableHeadCheckbox": "cds-table-header-row renders the select-all checkbox.",
+		"TableExpandButton": "cds-table-row renders the expando button.",
+		"TableHeadExpand": "cds-table-header-row renders the expand column.",
+		"TableContainer": "cds-table renders its own container.",
+		"TableHeader": "cds-table-header-title / cds-table-header-description replace it.",
+		"TableHeaderDecorator": "Use the decorator / ai-label slot on the cell.",
+		"TableHeadCellLabel": "Removed in v7: internal. cds-table-header-cell text is its default slot.",
+		"ExpandedRowHover": "Removed in v7: internal. Hover state is inside cds-table-expanded-row.",
+		"AlertModal": "Created by a service (ModalService). Can be rebuilt on cds-modal, but it is not a tag.",
+		"BaseModal": "Removed in v7 with the modal rewrite. Custom modals extend it today (ModalService), so the rewrite needs a replacement for service-created modals.",
+		"Overlay": "cds-modal renders its own overlay.",
+		"Dialog": "Removed in v7: internal. Base popover dialog used by OverflowMenu. Replaced by cds-popover / cds-overflow-menu-body.",
+		"DialogDirective": "Removed in v7: internal. Base dialog directive. Replaced by cds-popover.",
+		"IconTab": "No icon-only tab element. cds-tab takes an icon in its default slot; check cds-tabs type=\"icon\" support.",
+		"TabHeader": "Removed in v7: internal. cds-tab is the header. Panels are separate elements linked by id.",
+		"TabHeaderComponent": "cds-tab is the header.",
+		"TabHeaders": "cds-tabs renders the header list.",
+		"TabHeadersVertical": "cds-tabs-vertical renders the header list.",
+		"TabHeaderGroup": "No grouped tab header in web components.",
+		"TabHeaderGroupVertical": "No grouped tab header in web components.",
+		"TabsVerticalGrouped": "No grouped vertical tabs in web components.",
+		"PaginationNavItem": "cds-pagination-nav renders its own items.",
+		"PaginationOverflow": "cds-pagination-nav renders its own overflow.",
+		"Placeholder": "Angular-only. Hosts dynamically created components (modal / dialog services).",
+		"Documentation": "Storybook helper.",
+		"ThemeDirective": "No theme element in web components. Use the @carbon/styles theme classes or cds-layer.",
+		"AspectRatioDirective": "No aspect-ratio element in web components. CSS utility.",
+		"RouterLinkExtendedDirective": "Angular router integration. Stays Angular-only.",
+		"TabHeaderBase": "Removed in v7: internal."
+	},
+	"slotDirectives": {
+		"$comment": "CCA content-marker directives -> a slot on a parent web component. Each is kept as a tiny directive that sets the slot attribute (host: { slot: '<name>' }), so v6 markup keeps working. \"\" = default slot (no attribute). The script checks that the slot exists.",
+		"ActionableTitle": {
+			"parent": "cds-actionable-notification",
+			"slot": "title"
+		},
+		"ActionableSubtitle": {
+			"parent": "cds-actionable-notification",
+			"slot": "subtitle"
+		},
+		"ActionableButton": {
+			"parent": "cds-actionable-notification",
+			"slot": "action",
+			"note": "Content should be <cds-actionable-notification-button>."
+		},
+		"NotificationTitle": {
+			"parent": "cds-inline-notification",
+			"slot": "title"
+		},
+		"NotificationSubtitle": {
+			"parent": "cds-inline-notification",
+			"slot": "subtitle"
+		},
+		"ToastTitle": {
+			"parent": "cds-toast-notification",
+			"slot": "title"
+		},
+		"ToastSubtitle": {
+			"parent": "cds-toast-notification",
+			"slot": "subtitle"
+		},
+		"ToastCaption": {
+			"parent": "cds-toast-notification",
+			"slot": "caption"
+		},
+		"TagIconDirective": {
+			"parent": "cds-tag",
+			"slot": "icon"
+		},
+		"LinkIconDirective": {
+			"parent": "cds-link",
+			"slot": "icon"
+		},
+		"ClickableTileIconDirective": {
+			"parent": "cds-clickable-tile",
+			"slot": "icon"
+		},
+		"ExpandableTileAboveFoldDirective": {
+			"parent": "cds-expandable-tile",
+			"slot": "above-the-fold-content"
+		},
+		"ExpandableTileBelowFoldDirective": {
+			"parent": "cds-expandable-tile",
+			"slot": "",
+			"note": "Below-the-fold content is the default slot; the directive becomes a no-op kept for compatibility."
+		},
+		"AILabelContent": {
+			"parent": "cds-ai-label",
+			"slot": "body-text"
+		},
+		"AILabelActions": {
+			"parent": "cds-ai-label",
+			"slot": "actions"
+		},
+		"ToggletipButton": {
+			"parent": "cds-toggletip",
+			"slot": "trigger"
+		},
+		"ToggletipContent": {
+			"parent": "cds-toggletip",
+			"slot": "body-text"
+		},
+		"ToggletipLabel": {
+			"parent": "cds-toggletip",
+			"slot": "",
+			"note": "The toggletip label is the default slot; the directive becomes a no-op kept for compatibility."
+		},
+		"ToggletipAction": {
+			"parent": "cds-toggletip",
+			"slot": "actions"
+		},
+		"TableHeaderTitle": {
+			"parent": "cds-table",
+			"slot": "title"
+		},
+		"TableHeaderDescription": {
+			"parent": "cds-table",
+			"slot": "description"
+		}
+	},
+	"renameCandidates": {
+		"$comment": "Known renames: when a CCA input has NO exact match (same name, same attribute or case-insensitive), these web component names are tried in order. Only real alternate names belong here; same-name entries are pointless because the exact match runs first. A candidate counts only if the tag has it.",
+		"label": {
+			"props": [
+				"labelText",
+				"titleText"
+			],
+			"slots": [
+				"label-text",
+				"title-text"
+			]
+		},
+		"invalidText": {
+			"props": [
+				"validityMessage"
+			],
+			"slots": [
+				"validity-message"
+			]
+		},
+		"warnText": {
+			"props": [
+				"warningText"
+			],
+			"slots": [
+				"warning-text"
+			]
+		},
+		"warn": {
+			"props": [
+				"warning"
+			]
+		},
+		"decorator": {
+			"slots": [
+				"ai-label",
+				"slug"
+			]
+		},
+		"helperTextTemplate": {
+			"slots": [
+				"helper-text"
+			]
+		},
+		"expanded": {
+			"props": [
+				"open"
+			]
+		},
+		"isExpanded": {
+			"props": [
+				"open",
+				"expanded"
+			]
+		},
+		"isOpen": {
+			"props": [
+				"open"
+			]
+		},
+		"align": {
+			"props": [
+				"alignment",
+				"tooltipAlignment"
+			]
+		},
+		"placement": {
+			"props": [
+				"align",
+				"tooltipPosition"
+			]
+		},
+		"description": {
+			"props": [
+				"tooltipText"
+			]
+		},
+		"title": {
+			"props": [
+				"titleText",
+				"heading"
+			],
+			"slots": [
+				"title-text"
+			]
+		},
+		"theme": {
+			"props": [
+				"colorScheme"
+			]
+		},
+		"type": {
+			"props": [
+				"kind"
+			]
+		},
+		"checked": {
+			"props": [
+				"toggled"
+			]
+		},
+		"dropUp": {
+			"props": [
+				"direction"
+			]
+		},
+		"ariaLabel": {
+			"props": [
+				"label",
+				"assistiveText"
+			]
+		},
+		"cdsButton": {
+			"props": [
+				"kind"
+			]
+		},
+		"ibmButton": {
+			"props": [
+				"kind"
+			]
+		},
+		"cdsLayer": {
+			"props": [
+				"level"
+			]
+		},
+		"ibmLayer": {
+			"props": [
+				"level"
+			]
+		},
+		"cdsStack": {
+			"props": [
+				"orientation"
+			]
+		},
+		"ibmStack": {
+			"props": [
+				"orientation"
+			]
+		},
+		"cdsIcon": {
+			"props": [
+				"icon"
+			]
+		},
+		"ibmIcon": {
+			"props": [
+				"icon"
+			]
+		}
+	},
+	"variantInputs": {
+		"$comment": "Inputs that switch to a different web component tag instead of setting a prop. {tag} = the target tag, {stem} = the tag without `cds-`. Used only when that tag exists.",
+		"skeleton": {
+			"tag": "{tag}-skeleton",
+			"when": {
+				"equals": true
+			}
+		},
+		"columnHang": {
+			"tag": "cds-column-hang",
+			"when": {
+				"equals": true
+			}
+		},
+		"fluid": {
+			"tag": "cds-fluid-{stem}",
+			"when": {
+				"equals": true
+			}
+		}
+	},
+	"structuralInputs": {
+		"$comment": "Model-driven inputs (Class.input). kind: renderChildren = the wrapper renders web component children from the array (light DOM, so they land in the host's slots) and still projects <ng-content>; adapter = model fields map onto host props; rewrite = no backwards compatibility. In itemMap, `item` is the array entry, `index` its position, `host` the wrapper. Prop names in itemMap / props are checked against the CEM.",
+		"names": {
+			"items": "Child elements (*-item) instead of an items array.",
+			"model": "Child elements instead of a model object."
+		},
+		"inputs": {
+			"ProgressIndicator.steps": {
+				"kind": "renderChildren",
+				"tag": "cds-progress-step",
+				"contentProjection": "after",
+				"itemMap": {
+					"label": "item.label",
+					"secondaryLabelText": "item.secondaryLabel",
+					"description": "item.description",
+					"disabled": "item.disabled",
+					"state": "item.complete ? 'complete' : item.invalid ? 'invalid' : index === host.current ? 'current' : 'incomplete'"
+				},
+				"events": {
+					"cds-progress-step-click": "stepSelected.emit({ step: item, index }); item.onClick?.()"
+				}
+			},
+			"Breadcrumb.items": {
+				"kind": "renderChildren",
+				"tag": "cds-breadcrumb-item",
+				"contentProjection": "after",
+				"child": {
+					"tag": "cds-breadcrumb-link",
+					"text": "item.content",
+					"itemMap": {
+						"href": "item.href",
+						"isCurrentPage": "item.current",
+						"ariaCurrent": "item.ariaCurrent"
+					},
+					"templateField": "item.template",
+					"routerField": "item.route",
+					"notes": "item.template renders inside cds-breadcrumb-item instead of the link (context { $implicit: item }). item.route / routeExtras: a click listener calls router.navigate() and emits `navigation`, because the link's <a> is in shadow DOM."
+				},
+				"overflow": {
+					"input": "threshold",
+					"rule": "items.length > threshold: render items[0], then <cds-breadcrumb-item><cds-overflow-menu breadcrumb><cds-overflow-menu-body> with one <cds-overflow-menu-item> per items[1 … length-3], then items[length-2] and items[length-1]",
+					"tags": [
+						"cds-overflow-menu",
+						"cds-overflow-menu-body",
+						"cds-overflow-menu-item"
+					],
+					"notes": "Same split as CCA (first, overflowItems, secondLast, last). cds-breadcrumb-overflow-menu is deprecated upstream in favour of cds-overflow-menu[breadcrumb]."
+				}
+			},
+			"TreeViewComponent.tree": {
+				"kind": "renderChildren",
+				"tag": "cds-tree-node",
+				"contentProjection": "after",
+				"recursive": "item.children",
+				"itemMap": {
+					"id": "item.id",
+					"label": "item.label",
+					"disabled": "item.disabled",
+					"active": "item.active",
+					"selected": "item.selected",
+					"isExpanded": "item.expanded"
+				},
+				"slots": {
+					"icon": "item.icon (string icon or TemplateRef, context item.iconContext)"
+				},
+				"events": {
+					"cds-tree-node-selected": "select.emit(nodeOf($event.target))",
+					"cds-tree-node-toggled": "toggle.emit(nodeOf($event.target))"
+				},
+				"notes": "nodeOf() maps the event's cds-tree-node back to its Node (e.g. a WeakMap filled while rendering). item.label as a TemplateRef has no target: cds-tree-node renders its label from the `label` prop and has no label slot. selectable / gap / value / labelContext have no counterpart."
+			},
+			"TreeNodeComponent.children": {
+				"kind": "renderChildren",
+				"tag": "cds-tree-node",
+				"contentProjection": "after",
+				"recursive": "item.children",
+				"sameAs": "TreeViewComponent.tree"
+			},
+			"Pagination.model": {
+				"kind": "adapter",
+				"props": {
+					"page": "model.currentPage",
+					"pageSize": "model.pageLength",
+					"totalItems": "model.totalDataLength"
+				},
+				"events": {
+					"cds-pagination-changed-current": "selectPage.emit($event.detail.page)",
+					"cds-page-sizes-select-changed": "model.pageLength = Number($event.detail.value); selectPage.emit(1)"
+				},
+				"notes": "v6 semantics: the consumer sets model.currentPage in (selectPage); the host binding re-reads the model on change detection. Keep until table v2 / pagination v2."
+			},
+			"HeaderNavigation.navigationItems": {
+				"kind": "renderChildren",
+				"contentProjection": "after",
+				"variantBy": "item.type",
+				"variants": {
+					"item": {
+						"tag": "cds-header-nav-item",
+						"text": "item.content",
+						"itemMap": {
+							"href": "item.href",
+							"isActive": "item.isCurrentPage"
+						}
+					},
+					"menu": {
+						"tag": "cds-header-menu",
+						"itemMap": {
+							"triggerContent": "item.title"
+						},
+						"child": {
+							"from": "item.menuItems",
+							"tag": "cds-header-menu-item",
+							"text": "child.content",
+							"itemMap": {
+								"href": "child.href"
+							}
+						}
+					}
+				},
+				"notes": "item.trigger (click / mouseover) has no counterpart. route / routeExtras: click listener + router.navigate()."
+			},
+			"HeaderMenu.headerItems": {
+				"kind": "renderChildren",
+				"tag": "cds-header-menu-item",
+				"contentProjection": "after",
+				"text": "item.content",
+				"itemMap": {
+					"href": "item.href"
+				},
+				"notes": "route / routeExtras: click listener + router.navigate()."
+			},
+			"SideNav.navigationItems": {
+				"kind": "renderChildren",
+				"wrapper": "cds-side-nav-items",
+				"contentProjection": "after",
+				"variantBy": "item.type",
+				"variants": {
+					"item": {
+						"tag": "cds-side-nav-link",
+						"text": "item.content",
+						"itemMap": {
+							"href": "item.href",
+							"active": "item.isCurrentPage"
+						}
+					},
+					"menu": {
+						"tag": "cds-side-nav-menu",
+						"itemMap": {
+							"title": "item.title"
+						},
+						"child": {
+							"from": "item.menuItems",
+							"tag": "cds-side-nav-menu-item",
+							"text": "child.content",
+							"itemMap": {
+								"href": "child.href",
+								"active": "child.active"
+							}
+						}
+					}
+				},
+				"notes": "cds-side-nav expects its links inside <cds-side-nav-items>. route / routeExtras: click listener + router.navigate()."
+			},
+			"SideNavMenu.menuItems": {
+				"kind": "renderChildren",
+				"tag": "cds-side-nav-menu-item",
+				"contentProjection": "after",
+				"text": "item.content",
+				"itemMap": {
+					"href": "item.href",
+					"active": "item.active"
+				},
+				"notes": "item.isSubMenu has no counterpart. route / routeExtras: click listener + router.navigate()."
+			},
+			"Pagination.itemsPerPageOptions": {
+				"kind": "renderChildren",
+				"tag": "cds-select-item",
+				"contentProjection": "after",
+				"text": "item",
+				"itemMap": {
+					"value": "item"
+				},
+				"notes": "cds-pagination reads its page sizes from <cds-select-item> children."
+			},
+			"TreeNodeComponent.node": {
+				"kind": "adapter",
+				"props": {
+					"id": "node.id",
+					"label": "node.label",
+					"disabled": "node.disabled",
+					"active": "node.active",
+					"selected": "node.selected",
+					"isExpanded": "node.expanded"
+				},
+				"notes": "Same field map as TreeViewComponent.tree; node.children renders through TreeNodeComponent.children."
+			},
+			"ColumnDirective.columnNumbers": {
+				"kind": "adapter",
+				"props": {
+					"sm": "{ span: columnNumbers.sm, offset: offsets.sm }",
+					"md": "{ span: columnNumbers.md, offset: offsets.md }",
+					"lg": "{ span: columnNumbers.lg, offset: offsets.lg }",
+					"xlg": "{ span: columnNumbers.xlg, offset: offsets.xlg }",
+					"max": "{ span: columnNumbers.max, offset: offsets.max }"
+				},
+				"notes": "CCA keys are breakpoints ({ lg: 4, md: 2 }); cds-column takes one ColumnSpec per breakpoint. `offsets` folds into the same specs. CCA also accepts 'auto' / 'nobreak' values: check against ColumnSpec when curating."
+			},
+			"ColumnDirective.offsets": {
+				"kind": "adapter",
+				"sameAs": "ColumnDirective.columnNumbers"
+			},
+			"PaginationNav.model": {
+				"kind": "adapter",
+				"props": {
+					"page": "model.currentPage",
+					"totalItems": "model.totalDataLength"
+				},
+				"events": {
+					"cds-page-changed": "selectPage.emit($event.detail.page)"
+				},
+				"notes": "numOfItemsToShow -> itemsShown is a plain rename."
+			},
+			"DropdownList.items": {
+				"kind": "rewrite",
+				"tags": [
+					"cds-dropdown-item",
+					"cds-multi-select-item"
+				]
+			},
+			"ComboBox.items": {
+				"kind": "rewrite",
+				"tags": [
+					"cds-combo-box-item",
+					"cds-multi-select-item"
+				]
+			},
+			"Table.model": {
+				"kind": "rewrite",
+				"tags": [
+					"cds-table-head",
+					"cds-table-header-row",
+					"cds-table-header-cell",
+					"cds-table-body",
+					"cds-table-row",
+					"cds-table-cell",
+					"cds-table-expanded-row"
+				]
+			},
+			"TableHead.model": {
+				"kind": "rewrite",
+				"tags": [
+					"cds-table-header-row",
+					"cds-table-header-cell"
+				]
+			},
+			"TableBody.model": {
+				"kind": "rewrite",
+				"tags": [
+					"cds-table-row",
+					"cds-table-cell"
+				]
+			},
+			"Notification.notificationObj": {
+				"kind": "adapter",
+				"props": {
+					"kind": "notificationObj.type",
+					"title": "notificationObj.title",
+					"subtitle": "notificationObj.message",
+					"lowContrast": "notificationObj.lowContrast",
+					"hideCloseButton": "notificationObj.showClose === false",
+					"timeout": "notificationObj.duration"
+				},
+				"notes": "notificationObj.template renders in the default slot. smart / target / closeLabel have no counterpart. NotificationService keeps creating these programmatically."
+			},
+			"Toast.notificationObj": {
+				"kind": "adapter",
+				"props": {
+					"kind": "notificationObj.type",
+					"title": "notificationObj.title",
+					"subtitle": "notificationObj.subtitle ?? notificationObj.message",
+					"lowContrast": "notificationObj.lowContrast",
+					"hideCloseButton": "notificationObj.showClose === false",
+					"timeout": "notificationObj.duration",
+					"caption": "notificationObj.caption"
+				},
+				"notes": "notificationObj.template renders in the default slot. smart / target / closeLabel have no counterpart. NotificationService keeps creating these programmatically."
+			},
+			"ActionableNotification.notificationObj": {
+				"kind": "adapter",
+				"props": {
+					"kind": "notificationObj.type",
+					"title": "notificationObj.title",
+					"subtitle": "notificationObj.message",
+					"lowContrast": "notificationObj.lowContrast",
+					"hideCloseButton": "notificationObj.showClose === false",
+					"timeout": "notificationObj.duration",
+					"inline": "notificationObj.variant === 'inline'"
+				},
+				"child": {
+					"from": "notificationObj.actions",
+					"tag": "cds-actionable-notification-button",
+					"slot": "action",
+					"text": "item.text",
+					"events": {
+						"click": "item.click is a Subject ? item.click.next({ event: $event, action: item }) : item.click({ event: $event, action: item })"
+					}
+				},
+				"notes": "notificationObj.template renders in the default slot. smart / target / closeLabel have no counterpart. NotificationService keeps creating these programmatically. notificationObj.actionsTemplate renders in the action slot; notificationObj.links have no counterpart."
+			}
+		}
+	},
+	"rewrites": {
+		"$comment": "Components whose API is replaced, not carried over. No backwards-compatible aliases: every legacy input/output is deprecated and the schematic leaves a TODO. Comparison rows are still produced so the deprecation list is complete.",
+		"Table": "Model-driven table (TableModel) is replaced by cds-table child elements.",
+		"TableDirective": "Replaced by cds-table.",
+		"TableHead": "Rendered from TableModel; replaced by cds-table-head children.",
+		"TableBody": "Rendered from TableModel; replaced by cds-table-body children.",
+		"TableRowComponent": "Rendered from TableModel; replaced by cds-table-row.",
+		"TableData": "Rendered from TableModel; replaced by cds-table-cell.",
+		"TableHeadCell": "Rendered from TableModel; replaced by cds-table-header-cell.",
+		"TableExpandedRow": "Rendered from TableModel; replaced by cds-table-expanded-row.",
+		"TableToolbar": "Part of the table rewrite.",
+		"TableToolbarContent": "Part of the table rewrite.",
+		"TableToolbarSearch": "Part of the table rewrite.",
+		"TableToolbarActions": "Part of the table rewrite (cds-table-batch-actions).",
+		"Dropdown": "ListItem[]-driven dropdown is replaced by cds-dropdown / cds-multi-select with item children.",
+		"ComboBox": "ListItem[]-driven combo box is replaced by cds-combo-box / cds-multi-select (filterable) with item children.",
+		"Modal": "Replaced by cds-modal and its part elements.",
+		"ModalHeader": "Part of the modal rewrite.",
+		"ModalFooter": "Part of the modal rewrite.",
+		"ModalContent": "Part of the modal rewrite (cds-modal-body).",
+		"ModalContentText": "Part of the modal rewrite.",
+		"ModalHeaderHeading": "Part of the modal rewrite.",
+		"ModalHeaderLabel": "Part of the modal rewrite.",
+		"DatePicker": "cds-date-picker is skipped by the generator (flatpickr, ADR 0021). Rewrite on cds-preview-date-picker.",
+		"DatePickerInput": "cds-date-picker-input is skipped by the generator (flatpickr, ADR 0021). Rewrite on cds-preview-date-picker-input."
+	},
+	"generatorSkippedTags": {
+		"$comment": "Copy of SKIPPED_TAGS in carbon/packages/angular/tasks/generate-wrappers/index.js (ADR 0021: flatpickr). A CCA class that targets one of these has no generated wrapper.",
+		"tags": [
+			"cds-date-picker",
+			"cds-date-picker-input",
+			"cds-date-picker-input-skeleton",
+			"cds-fluid-date-picker",
+			"cds-fluid-date-picker-input",
+			"cds-fluid-date-picker-skeleton",
+			"cds-preview-fluid-date-picker"
+		]
+	},
+	"angularOnlyInputs": {
+		"$comment": "Inputs that exist for Angular integration, not for the view. They are kept on the wrapper even with no web component counterpart.",
+		"names": [
+			"id",
+			"name",
+			"context",
+			"ngModel",
+			"formControl",
+			"formControlName",
+			"required",
+			"ariaLabelledby",
+			"ariaDescribedby",
+			"route",
+			"routeExtras",
+			"useRouter",
+			"activeLinkClass",
+			"trackBy",
+			"cdsSlotContext"
+		]
+	},
+	"structuralTypePatterns": [
+		"ListItem",
+		"TableModel",
+		"TableItem",
+		"TableHeaderItem",
+		"\\bStep\\b",
+		"Observable<",
+		"\\bNode\\b",
+		"PaginationModel",
+		"MenuItem",
+		"NavigationItem",
+		"HeaderItemInterface",
+		"SideNavItemInterface",
+		"BreadcrumbItem"
+	],
+	"angularOnlyFallback": {
+		"$comment": "Classes that keep an Angular-only implementation when their web component target's `when` doesn't hold.",
+		"GridDirective": "useCssGrid=false (the default): keep the flexbox class directive.",
+		"ColumnDirective": "Inside a flexbox grid: keep the flexbox class directive.",
+		"RowDirective": "Flexbox grid only: keep the class directive."
+	},
+	"router": {
+		"$comment": "Tags with an `href` prop (computed from the CEM) get Angular router support through one shared directive instead of per-component route inputs.",
+		"directive": "[routerLink] on any cds-* tag with an href: sets the host's `href` to router.serializeUrl(urlTree) so the web component renders a real <a> (middle-click / new tab work); on a plain left click with no target it calls preventDefault() and router.navigateByUrl(). routerLinkActive maps to the tag's active prop (active / isActive / isCurrentPage).",
+		"legacyInputs": [
+			"route",
+			"routeExtras",
+			"useRouter"
+		],
+		"activeProps": [
+			"active",
+			"isActive",
+			"isCurrentPage"
+		]
+	}
+}
